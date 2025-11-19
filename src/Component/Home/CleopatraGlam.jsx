@@ -1,0 +1,44 @@
+import React from 'react';
+import banner from "../../assets/cleopatra/freepik__design-editorial-soft-studio-light-photography-hig__70850.png";
+import { GiEarrings, GiHeartNecklace, GiJewelCrown } from 'react-icons/gi';
+import { FaArrowRightLong } from 'react-icons/fa6';
+
+const CleopatraGlam = () => {
+    return (
+        <div className='max-w-[90%] mx-auto mt-8 md:mt-16'>
+           {/* Banner Section */}
+           <div className='relative'>
+             <img className='w-full h-[40vh] md:h-[50vh] lg:h-[60vh] object-cover' src={banner} alt="" />
+              <div className='space-y-2 md:space-y-3 max-w-xs md:max-w-sm lg:max-w-md absolute right-2 md:right-5 top-1/2 transform -translate-y-1/2 p-4 md:p-0 text-right md:text-right lg:text-left'>
+                <p className='text-orange-950 text-sm md:text-base'>Collection</p>
+                <h2 className='text-xl md:text-2xl lg:text-3xl'>Cleopatra Glam</h2>
+                <p className='text-orange-900 text-xs md:text-sm lg:text-base'>Introducing our new mesmerizing jewellery collection.Embarace your inner allure with the timeless elegance and radiant beauty of ancient Egypt, now available exclusive on AXELS jewelry</p>
+                <button className='border-black border-2 px-2 py-1 md:px-3 md:py-2 bg-transparent text-sm md:text-base'>SHOP NOW</button>
+              </div>
+           </div>
+            
+            {/* Cards Section */}
+            <div className='flex flex-col md:flex-row items-center gap-3 mt-4 md:mt-6'>
+               <div className='flex items-center justify-around w-full md:flex-1 bg-slate-200 py-6 md:py-8 px-4 md:px-0'>
+                  <div className='space-y-1 md:space-y-2'>
+                    <h1 className='text-2xl md:text-3xl lg:text-4xl'>Luxe Abundance</h1>
+                    <p className='text-gray-500 text-xs md:text-sm'>Get 20% off with our code: LUX20</p>
+                    <p className='mt-3 md:mt-5 flex items-center gap-2 md:gap-3 text-sm md:text-base'>Redeem Code <FaArrowRightLong className='text-amber-950' /></p>
+                  </div>
+                  <GiHeartNecklace className='w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 text-teal-700' />
+               </div>
+               
+               <div className='flex items-center justify-around w-full md:flex-1 bg-zinc-300 py-6 md:py-8 px-4 md:px-0'>
+                  <div className='space-y-1 md:space-y-2'>
+                    <h1 className='text-2xl md:text-3xl lg:text-4xl'>Sparkle in Love</h1>
+                    <p className='text-gray-500 text-xs md:text-sm'>Get 50% off on rings</p>
+                    <p className='mt-3 md:mt-5 flex items-center gap-2 md:gap-3 text-sm md:text-base'>View Products <FaArrowRightLong className='text-amber-950' /></p>
+                  </div>
+                  <GiEarrings className='w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 text-red-600' />
+               </div>
+            </div>
+        </div>
+    );
+};
+
+export default CleopatraGlam;
