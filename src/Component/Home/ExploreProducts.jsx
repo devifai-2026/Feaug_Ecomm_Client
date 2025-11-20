@@ -14,7 +14,12 @@ const ExploreProducts = () => {
 
   return (
     <div className='max-w-[90%] mx-auto mt-8 sm:mt-12 md:mt-16'>
-      <h2 className='text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center font-light mb-8 sm:mb-10 md:mb-12'>
+      <h2 
+        className='text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center font-light mb-8 sm:mb-10 md:mb-12'
+        data-aos="fade-down"
+        data-aos-delay="100"
+        data-aos-duration="800"
+      >
         Explore Products
       </h2>
 
@@ -28,6 +33,9 @@ const ExploreProducts = () => {
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
                 className='relative flex-shrink-0 w-64 h-80 snap-center transition-all duration-300 cursor-pointer'
+                data-aos="zoom-in"
+                data-aos-delay={index * 100}
+                data-aos-duration="600"
               >
                 <img
                   src={ring}
@@ -55,7 +63,11 @@ const ExploreProducts = () => {
                   
                   {/* Shop Now Button - Show on hover for mobile */}
                   {hoveredIndex === index && (
-                    <div className='mt-4'>
+                    <div 
+                      className='mt-4'
+                      data-aos="fade-up"
+                      data-aos-delay="200"
+                    >
                       <button className='w-full py-3 border border-white text-white text-sm font-light tracking-wide hover:bg-white hover:text-black transition-all duration-300 backdrop-blur-sm bg-white/10'>
                         SHOP NOW
                       </button>
@@ -68,8 +80,13 @@ const ExploreProducts = () => {
         </div>
       </div>
 
-      {/* Desktop Design (Original) */}
-      <div className='hidden sm:flex items-center justify-between gap-2 sm:gap-3'>
+      {/* Desktop Design */}
+      <div 
+        className='hidden sm:flex items-center justify-between gap-2 sm:gap-3'
+        data-aos="fade-up"
+        data-aos-delay="200"
+        data-aos-duration="1000"
+      >
         {products.map((product, index) => (
           <div
             key={index}
@@ -82,6 +99,9 @@ const ExploreProducts = () => {
               width: hoveredIndex === index ? '256px' : '176px',
               height: '70vh',
             }}
+            data-aos="fade-up"
+            data-aos-delay={index * 150 + 300}
+            data-aos-duration="800"
           >
             {/* Responsive height for different screens */}
             <div className="hidden sm:block md:hidden">
@@ -91,11 +111,13 @@ const ExploreProducts = () => {
                   height: '60vh',
                   transform: hoveredIndex === index ? 'scale(1.05)' : 'scale(1)',
                 }}
+                data-aos="zoom-in"
+                data-aos-delay={index * 100 + 400}
               >
                 <img
                   src={ring}
                   alt={product.label}
-                  className='w-full h-full object-cover'
+                  className='w-full h-full object-cover transition-transform duration-700'
                 />
               </div>
             </div>
@@ -107,11 +129,13 @@ const ExploreProducts = () => {
                   height: '65vh',
                   transform: hoveredIndex === index ? 'scale(1.05)' : 'scale(1)',
                 }}
+                data-aos="zoom-in"
+                data-aos-delay={index * 100 + 400}
               >
                 <img
                   src={ring}
                   alt={product.label}
-                  className='w-full h-full object-cover'
+                  className='w-full h-full object-cover transition-transform duration-700'
                 />
               </div>
             </div>
@@ -123,41 +147,66 @@ const ExploreProducts = () => {
                   height: '70vh',
                   transform: hoveredIndex === index ? 'scale(1.05)' : 'scale(1)',
                 }}
+                data-aos="zoom-in"
+                data-aos-delay={index * 100 + 400}
               >
                 <img
                   src={ring}
                   alt={product.label}
-                  className='w-full h-full object-cover'
+                  className='w-full h-full object-cover transition-transform duration-700'
                 />
               </div>
             </div>
 
-            {/* Text overlay - Removed gray background opacity */}
+            {/* Text overlay */}
             <div className='absolute inset-0 flex flex-col items-center justify-center'>
               {hoveredIndex === index && (
-                <div className='text-center'>
-                  <h3 className='text-white font-light tracking-wider text-lg sm:text-xl md:text-2xl mb-2 sm:mb-3'>
+                <div 
+                  className='text-center'
+                  data-aos="fade-in"
+                  data-aos-delay="100"
+                  data-aos-duration="600"
+                >
+                  <h3 
+                    className='text-white font-light tracking-wider text-lg sm:text-xl md:text-2xl mb-2 sm:mb-3'
+                    data-aos="fade-down"
+                    data-aos-delay="200"
+                  >
                     {product.label}
                   </h3>
                   {product.subtitle && (
-                    <p className='text-white text-xs sm:text-sm font-light mb-4 sm:mb-6'>
+                    <p 
+                      className='text-white text-xs sm:text-sm font-light mb-4 sm:mb-6'
+                      data-aos="fade-down"
+                      data-aos-delay="300"
+                    >
                       {product.subtitle}
                     </p>
                   )}
-                  <button className='px-4 sm:px-6 py-2 border border-white text-white text-xs font-light tracking-wide hover:bg-white hover:text-black transition-all duration-300'>
+                  <button 
+                    className='px-4 sm:px-6 py-2 border border-white text-white text-xs font-light tracking-wide hover:bg-white hover:text-black transition-all duration-300'
+                    data-aos="zoom-in"
+                    data-aos-delay="400"
+                  >
                     SHOP NOW
                   </button>
                 </div>
               )}
             </div>
 
-            {/* Vertical text - Fixed for md devices */}
+            {/* Vertical text */}
             {hoveredIndex !== index && (
-              <div className='absolute bottom-20 left-1/2 transform -translate-x-1/2 text-white font-light tracking-wider'>
+              <div 
+                className='absolute bottom-20 left-1/2 transform -translate-x-1/2 text-white font-light tracking-wider'
+                data-aos="fade-in"
+                data-aos-delay={index * 100 + 500}
+              >
                 {product.label.split('').map((char, i) => (
                   <div 
                     key={i} 
                     className='text-base sm:text-lg md:text-xl lg:text-2xl font-semibold leading-4 sm:leading-5 md:leading-5 lg:leading-6 text-center'
+                    data-aos="fade-up"
+                    data-aos-delay={i * 50 + index * 100 + 600}
                   >
                     {char}
                   </div>
