@@ -6,6 +6,8 @@ import ExploreProducts from './ExploreProducts';
 import Services from './Services';
 import FlashSale from './FlashSale';
 import TopFooter from './TopFooter';
+import BestSeller from './BestSeller';
+import QuestionsUpdate from './QuestionsUpdate';
 
 const Home = () => {
     return (
@@ -14,8 +16,10 @@ const Home = () => {
             <FeaturedCollection></FeaturedCollection>
             <CleopatraGlam></CleopatraGlam>
             <ExploreProducts></ExploreProducts>
+            <BestSeller></BestSeller>
             <Services></Services>
             <FlashSale></FlashSale>
+            <QuestionsUpdate></QuestionsUpdate>
             <TopFooter></TopFooter>
         </div>
     );
