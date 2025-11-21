@@ -13,7 +13,7 @@ const Navbar = () => {
     return (
         <div 
             className={isHomePage ? 
-                `bg-cover bg-center bg-no-repeat min-h-[90vh]` : 
+                `bg-cover bg-center bg-no-repeat min-h-[60vh] md:min-h[70vh] lg:min-h-[90vh]` : 
                 ''
             }
             style={isHomePage ? { backgroundImage: `url(${banner})` } : {}}

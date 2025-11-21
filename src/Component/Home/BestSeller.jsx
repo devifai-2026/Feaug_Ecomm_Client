@@ -128,7 +128,7 @@ const BestSeller = () => {
         <div className="w-full lg:w-1/3">
           <div className="relative">
             <img 
-              className="w-full h-[460px] object-cover" 
+              className="w-full h-[500px] object-cover" 
               src={sale} 
               alt="Seasonal Sale" 
               data-aos="fade-right"
@@ -149,7 +149,7 @@ const BestSeller = () => {
         <div className="w-full lg:w-2/3">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
             <div data-aos="fade-down" data-aos-delay="300">
-              <h2 className="text-3xl font-bold">Best Seller</h2>
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold">Best Seller</h2>
               <p className="text-gray-500 mt-2 text-sm">
                 Take a look at our best selling products that we have <br /> provided for your beauty and jewelry needs.
               </p>
@@ -159,7 +159,7 @@ const BestSeller = () => {
             <div className="flex items-center gap-4 mt-4 sm:mt-0" data-aos="fade-down" data-aos-delay="400">
               <button 
                 onClick={prevSlide}
-                className="w-10 h-10 flex items-center justify-center border border-gray-300 hover:border-gray-600 transition-colors"
+                className="w-10 h-10 flex items-center justify-center   transition-colors"
               >
                 &lt;
               </button>
@@ -168,7 +168,7 @@ const BestSeller = () => {
               </span>
               <button 
                 onClick={nextSlide}
-                className="w-10 h-10 flex items-center justify-center border border-gray-300 hover:border-gray-600 transition-colors"
+                className="w-10 h-10 flex items-center justify-center  transition-colors"
               >
                 &gt;
               </button>

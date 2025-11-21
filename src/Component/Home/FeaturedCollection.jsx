@@ -28,14 +28,14 @@ const FeaturedCollection = () => {
         <div className='mt-16 max-w-[90%] mx-auto'>
             <div className='flex items-center justify-between mb-10'>
                 <h2 
-                    className='text-3xl font-bold text-gray-500'
+                    className='text-xl md:text-2xl lg:text-3xl font-bold text-gray-500'
                     data-aos="fade-down"
                     data-aos-delay="100"
                 >
                     Featured Collection
                 </h2>
                 <p 
-                    className='flex items-center gap-2 cursor-pointer hover:gap-3 transition-all duration-300'
+                    className='text-nowrap flex items-center gap-2 cursor-pointer hover:gap-3 transition-all duration-300'
                     data-aos="fade-down"
                     data-aos-delay="200"
                 >
