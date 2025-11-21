@@ -13,7 +13,7 @@ const FlashSale = () => {
         >
             {/* Content positioned at top right */}
             <div 
-                className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 max-w-xs sm:max-w-sm md:max-w-md bg-white p-4 sm:p-5 md:p-6"
+                className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 max-w-xs sm:max-w-sm md:max-w-lg  bg-white p-4 sm:p-5 md:p-6"
                 data-aos="fade-left"
                 data-aos-delay="300"
                 data-aos-duration="800"
