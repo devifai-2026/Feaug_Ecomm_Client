@@ -51,7 +51,7 @@ const FeaturedCollection = () => {
                         className='relative overflow-hidden group cursor-pointer'
                         onMouseEnter={() => setHoveredCard(index)}
                         onMouseLeave={() => setHoveredCard(null)}
-                        onClick={() => handleCardClick(product.id)} // Add click handler
+                        onClick={() => handleCardClick(product.id)} 
                         data-aos="fade-up"
                         data-aos-delay={(index % 4) * 100 + 200}
                         data-aos-duration="800"
@@ -97,9 +97,9 @@ const FeaturedCollection = () => {
                                 </button>
                             </div>
 
-                            {/* Add to Cart Button - Bottom of Image */}
+                         
                             <button 
-                                className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                                className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
                                 onClick={(e) => e.stopPropagation()} // Prevent navigation when clicking button
                             >
                                 Add to Cart
