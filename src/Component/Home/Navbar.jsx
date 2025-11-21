@@ -23,7 +23,7 @@ const Navbar = () => {
             <nav className={`relative z-30 px-4 py-4 lg:px-8 ${!isHomePage ? 'bg-white' : ''}`}>
                 <div className="max-w-[90%] mx-auto flex justify-between items-center">
                     {/* Left Section - Logo */}
-                    <div data-aos="zoom-in" data-aos-delay="100">
+                    <div data-aos="zoom-in" data-aos-delay="100" className="lg:absolute lg:left-1/2 lg:transform lg:-translate-x-1/2">
                         <Link to="/">
                             <h2 className={`uppercase text-2xl md:3xl lg:text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
                                 Feaug

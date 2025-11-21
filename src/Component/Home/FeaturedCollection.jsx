@@ -37,7 +37,7 @@ const FeaturedCollection = () => {
                 <p 
                     className='text-nowrap flex items-center gap-2 cursor-pointer hover:gap-3 transition-all duration-300'
                     data-aos="fade-down"
-                    data-aos-delay="200"
+                    data-aos-delay="100"
                 >
                     View More <FaArrowRightLong />
                 </p>
