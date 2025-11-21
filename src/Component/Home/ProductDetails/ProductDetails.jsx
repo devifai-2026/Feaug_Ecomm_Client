@@ -18,7 +18,10 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("DESCRIPTION");
+  const [isHovering, setIsHovering] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: 0, y: 0 });
   const thumbnailContainerRef = useRef(null);
+  const imgRef = useRef(null);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -40,6 +43,13 @@ const ProductDetails = () => {
     category: "Necklaces",
     tags: ["Diamond", "Gold", "Luxury", "Elegant"],
     delivery: "check your location",
+  };
+
+  const handleMouseMove = (e) => {
+    const { left, top, width, height } = imgRef.current.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomPos({ x, y });
   };
 
   const renderStars = (rating) => {
@@ -264,13 +274,56 @@ const ProductDetails = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* Product Images Section */}
           <div className="space-y-4">
-            {/* Main Image - Centered */}
-            <div className="flex justify-center group cursor-pointer overflow-hidden">
+            {/* Main Product Image with Zoom */}
+            <div
+              className="flex justify-center mx-auto mb-6 relative group cursor-crosshair"
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+              onMouseMove={handleMouseMove}
+            >
+              {/* Main Product Image */}
               <img
+                ref={imgRef}
                 src={productImages[selectedImageIndex]}
                 alt={product.title}
-                className="w-full max-w-lg h-[460px] md:h-[485px] lg:h-[460px] object-cover transition-all duration-300 group-hover:scale-105"
+                className="w-full max-w-lg h-auto max-h-[500px] object-contain transition-transform duration-300 hover:scale-105"
               />
+
+              {/* Blue mesh overlay (desktop only) */}
+              {isHovering && (
+                <div
+                  className="hidden md:block absolute pointer-events-none border border-blue-500 rounded-sm"
+                  style={{
+                    width: "150px",
+                    height: "150px",
+                    left: `calc(${zoomPos.x}% - 50px)`,
+                    top: `calc(${zoomPos.y}% - 50px)`,
+                    backgroundImage: `
+                      linear-gradient(to right, rgba(59,130,246,0.3) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(59,130,246,0.3) 1px, transparent 1px)
+                    `,
+                    backgroundSize: "8px 8px",
+                    backgroundColor: "rgba(59,130,246,0.1)",
+                    boxShadow: "0 0 8px rgba(59,130,246,0.4)",
+                    zIndex: 10,
+                  }}
+                ></div>
+              )}
+
+              {/* Zoomed Image (desktop only) */}
+              {isHovering && (
+                <div className="hidden md:block absolute top-1/2 left-[100%] -translate-y-1/2 w-[610px] h-[500px] border border-gray-200 overflow-hidden z-10 bg-white shadow-lg rounded-md">
+                  <img
+                    src={productImages[selectedImageIndex]}
+                    alt="Zoomed"
+                    className="absolute object-contain transition-transform duration-100 pt-14"
+                    style={{
+                      transform: `translate(-${zoomPos.x}%, -${zoomPos.y}%) scale(1.7)`,
+                      transformOrigin: "top left",
+                    }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Thumbnail Images with Scroll - Centered */}
@@ -430,33 +483,33 @@ const ProductDetails = () => {
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Description Details Tabs - Vertical Layout */}
-          <div className="md:col-span-2 mt-8">
-            <div className="flex flex-col lg:flex-row gap-8">
-              {/* Vertical Tabs Navigation */}
-              <div className="lg:w-1/4">
-                <div className="space-y-1 border-r border-gray-200 pr-4">
-                  {["DESCRIPTION", "DETAILS", "SIZING GUIDE", "REVIEWS"].map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`w-40 lg:w-full text-center lg:text-left py-3 px-4 font-medium transition-all duration-300 hover:scale-105 ${
-                        activeTab === tab 
-                          ? "bg-black text-white" 
-                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                      }`}
-                    >
-                      {tab}
-                    </button>
-                  ))}
-                </div>
+        {/* Description Details Tabs - Vertical Layout */}
+        <div className="mt-8">
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Vertical Tabs Navigation */}
+            <div className="lg:w-1/4">
+              <div className="space-y-1 border-r border-gray-200 pr-4">
+                {["DESCRIPTION", "DETAILS", "SIZING GUIDE", "REVIEWS"].map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`w-40 lg:w-full text-center lg:text-left py-3 px-4 font-medium transition-all duration-300 hover:scale-105 ${
+                      activeTab === tab 
+                        ? "bg-black text-white" 
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
               </div>
+            </div>
 
-              {/* Tab Content */}
-              <div className="lg:w-3/4 py-2">
-                {renderTabContent()}
-              </div>
+            {/* Tab Content */}
+            <div className="lg:w-3/4 py-2">
+              {renderTabContent()}
             </div>
           </div>
         </div>

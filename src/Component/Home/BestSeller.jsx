@@ -138,7 +138,11 @@ const BestSeller = () => {
               <p className="text-lg font-semibold">SALE</p>
               <p className="text-2xl font-bold">15%</p>
               <p className="text-xl font-bold">Seasonal Sale</p>
+<<<<<<< Updated upstream
               <button className="border-2 border-white px-6 py-2 hover:bg-white hover:text-black transition-colors duration-300">
+=======
+              <button className="border border-white px-6 py-2 hover:bg-white hover:text-black transition-all duration-300 transform hover:scale-105">
+>>>>>>> Stashed changes
                 SHOP NOW
               </button>
             </div>
@@ -212,7 +216,11 @@ const BestSeller = () => {
                   </div>
 
                   {/* Add to Cart Button */}
+<<<<<<< Updated upstream
                   <button className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-transparent border-t-2 border-b-2 border-r border-l text-white py-2 px-3 text-sm font-medium transition-all duration-300 text-nowrap ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+=======
+                  <button className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-transparent text-black bg-white w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+>>>>>>> Stashed changes
                     ADD TO CART
                   </button>
                 </div>

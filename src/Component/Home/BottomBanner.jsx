@@ -29,13 +29,13 @@ const BottomBanner = () => {
                     
                     {/* Title - Show on hover */}
                     <div className="absolute bottom-0 left-0 right-0  bg-opacity-70 p-3 transform translate-y-full group-hover:translate-y-0 transition-all duration-300">
-                        <h3 className="text-black text-center  text-lg">
+                        <h3 className="text-black text-center  text-lg uppercase tracking-widest">
                             {category.title}
                         </h3>
                     </div>
 
                     {/* Black Border - Show on hover */}
-                    <div className="absolute inset-0 border-2 border-transparent group-hover:border-black transition-all duration-300"></div>
+                    <div className="absolute inset-0 border border-transparent group-hover:border-black transition-all duration-300"></div>
                 </div>
             ))}
         </div>

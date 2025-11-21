@@ -99,8 +99,13 @@ const FeaturedCollection = () => {
 
                             {/* Add to Cart Button - Bottom of Image */}
                             <button 
+<<<<<<< Updated upstream
                                 className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
                                 onClick={(e) => e.stopPropagation()} // Prevent navigation when clicking button
+=======
+                                className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] hover:scale-105 uppercase tracking-widest ${hoveredCard === index ? 'opacity-100 translate-y-0 ' : 'opacity-0 translate-y-4'}`}
+                                onClick={(e) => e.stopPropagation()}
+>>>>>>> Stashed changes
                             >
                                 Add to Cart
                             </button>
