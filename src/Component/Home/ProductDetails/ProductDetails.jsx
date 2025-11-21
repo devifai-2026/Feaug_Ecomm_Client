@@ -120,20 +120,20 @@ const ProductDetails = () => {
                 <h4 className="font-semibold mb-2">Product Specifications</h4>
                 <ul className="space-y-2">
                   <li className="flex justify-between">
-                    <span>Material:</span>
-                    <span>18K Pure Gold</span>
+                    <span className="text-sm md:text-base">Material:</span>
+                    <span className="text-xs md:text-sm">18K Pure Gold</span>
                   </li>
                   <li className="flex justify-between">
-                    <span>Diamond Quality:</span>
-                    <span>VS1-SI1</span>
+                    <span className="text-sm md:text-base">Diamond Quality:</span>
+                    <span className="text-xs md:text-sm">VS1-SI1</span>
                   </li>
                   <li className="flex justify-between">
-                    <span>Diamond Color:</span>
-                    <span>G-H</span>
+                    <span className="text-sm md:text-base">Diamond Color:</span>
+                    <span className="text-xs md:text-sm">G-H</span>
                   </li>
                   <li className="flex justify-between">
-                    <span>Closure Type:</span>
-                    <span>Lever-back</span>
+                    <span className="text-sm md:text-base">Closure Type:</span>
+                    <span className="text-xs md:text-sm">Lever-back</span>
                   </li>
                 </ul>
               </div>
@@ -141,16 +141,16 @@ const ProductDetails = () => {
                 <h4 className="font-semibold mb-2">Dimensions</h4>
                 <ul className="space-y-2">
                   <li className="flex justify-between">
-                    <span>Length:</span>
-                    <span>2.5 inches</span>
+                    <span className="text-sm md:text-base">Length:</span>
+                    <span className="text-xs md:text-sm">2.5 inches</span>
                   </li>
                   <li className="flex justify-between">
-                    <span>Width:</span>
-                    <span>0.5 inches</span>
+                    <span className="text-sm md:text-base">Width:</span>
+                    <span className="text-xs md:text-sm">0.5 inches</span>
                   </li>
                   <li className="flex justify-between">
-                    <span>Weight:</span>
-                    <span>3.2 grams</span>
+                    <span className="text-sm md:text-base">Weight:</span>
+                    <span className="text-xs md:text-sm">3.2 grams</span>
                   </li>
                 </ul>
               </div>
@@ -255,177 +255,184 @@ const ProductDetails = () => {
       <div className="max-w-[90%] mx-auto py-6">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors mb-6"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-all duration-300 hover:scale-105 mb-6"
         >
-          <BsArrowLeft className="text-lg" />
+          <BsArrowLeft className="text-lg transition-transform duration-300 group-hover:scale-110" />
           Back to Products
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* Product Images Section */}
-          <div className="">
-            {/* Main Image - No arrows */}
-            <div className="relative flex justify-center p-2 sm:p-4">
+          <div className="space-y-4">
+            {/* Main Image - Centered */}
+            <div className="flex justify-center group cursor-pointer overflow-hidden">
               <img
                 src={productImages[selectedImageIndex]}
                 alt={product.title}
-                className="w-full max-w-md h-[350px] sm:h-[450px] object-contain"
+                className="w-full max-w-lg h-[460px] md:h-[485px] lg:h-[460px] object-cover transition-all duration-300 group-hover:scale-105"
               />
             </div>
 
-            {/* Thumbnail Images with Scroll - Fixed scrollbar */}
-            <div className="flex items-center justify-center gap-1 sm:gap-2 mt-2 sm:mt-4">
-              <button
-                onClick={() => scrollThumbnails("left")}
-                className="p-1 sm:p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0"
-              >
-                <BsChevronLeft className="text-gray-600 text-sm sm:text-base" />
-              </button>
+            {/* Thumbnail Images with Scroll - Centered */}
+            <div className="flex justify-center">
+              <div className="flex items-center gap-2 max-w-lg w-full">
+                <button
+                  onClick={() => scrollThumbnails("left")}
+                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
+                >
+                  <BsChevronLeft className="text-gray-600" />
+                </button>
 
-              <div
-                ref={thumbnailContainerRef}
-                className="flex gap-1 sm:gap-2 overflow-x-auto max-w-xs md:max-w-md px-1 sm:px-2 scrollbar-hide"
-                style={{
-                  scrollbarWidth: "none",
-                  msOverflowStyle: "none",
-                  WebkitOverflowScrolling: "touch",
-                }}
-              >
-                {productImages.map((image, index) => (
-                  <div
-                    key={index}
-                    className={`flex-shrink-0 cursor-pointer border-2 transition-all duration-200 ${
-                      selectedImageIndex === index
-                        ? "border-orange-500 shadow-md"
-                        : "border-transparent hover:border-gray-300"
-                    }`}
-                    onClick={() => handleThumbnailClick(index)}
-                  >
-                    <img
-                      src={image}
-                      alt={`${product.title} ${index + 1}`}
-                      className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 object-cover"
-                    />
-                  </div>
-                ))}
+                <div
+                  ref={thumbnailContainerRef}
+                  className="flex gap-2 overflow-x-auto flex-1 justify-center px-2 scrollbar-hide"
+                  style={{
+                    scrollbarWidth: "none",
+                    msOverflowStyle: "none",
+                  }}
+                >
+                  {productImages.map((image, index) => (
+                    <div
+                      key={index}
+                      className={`flex-shrink-0 cursor-pointer border-2 transition-all duration-300 ${
+                        selectedImageIndex === index
+                          ? "border-orange-500 shadow-md"
+                          : "border-transparent hover:border-gray-300"
+                      }`}
+                      onClick={() => handleThumbnailClick(index)}
+                    >
+                      <img
+                        src={image}
+                        alt={`${product.title} ${index + 1}`}
+                        className="w-16 h-16 md:w-20 md:h-20 object-cover transition-all duration-300 hover:scale-110"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => scrollThumbnails("right")}
+                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
+                >
+                  <BsChevronRight className="text-gray-600" />
+                </button>
               </div>
-
-              <button
-                onClick={() => scrollThumbnails("right")}
-                className="p-1 sm:p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0"
-              >
-                <BsChevronRight className="text-gray-600 text-sm sm:text-base" />
-              </button>
             </div>
           </div>
 
           {/* Product Info */}
-          <div className="space-y-6">
-            {/* Breadcrumbs */}
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <Link
-                to="/"
-                className="cursor-pointer hover:text-gray-700 transition-colors"
-              >
-                Home
-              </Link>
-              <span className="text-gray-400">|</span>
-              <span className="cursor-pointer hover:text-gray-700 transition-colors">
-                Products
-              </span>
-              <span className="text-gray-400">|</span>
-              <span className="text-gray-800 font-medium">Details</span>
-            </div>
+          <div className="space-y-6 flex flex-col justify-between">
+            {/* Top Section - Breadcrumbs to Description */}
+            <div className="space-y-6">
+              {/* Breadcrumbs */}
+              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <Link
+                  to="/"
+                  className="cursor-pointer hover:text-gray-700 transition-all duration-300 hover:scale-105"
+                >
+                  Home
+                </Link>
+                <span className="text-gray-400">|</span>
+                <span className="cursor-pointer hover:text-gray-700 transition-all duration-300 hover:scale-105">
+                  Products
+                </span>
+                <span className="text-gray-400">|</span>
+                <span className="text-gray-800 font-medium transition-all duration-300 hover:scale-105">Details</span>
+              </div>
 
-            <p className="text-yellow-700 uppercase">{product.subtitle}</p>
-            <h1 className="text-3xl font-bold text-gray-800">
-              {product.title}
-            </h1>
+              <p className="text-yellow-700 uppercase transition-all duration-300 hover:scale-105 cursor-default">{product.subtitle}</p>
+              <h1 className="text-3xl font-bold text-gray-800 transition-all duration-300 hover:scale-105 cursor-default">
+                {product.title}
+              </h1>
 
-            <div className="flex items-center gap-4">
-              <p className="text-2xl font-semibold text-gray-700 flex items-center gap-1">
-                <BsCurrencyDollar />
-                {product.price}
+              <div className="flex items-center gap-4">
+                <p className="text-2xl font-semibold text-gray-700 flex items-center gap-1 transition-all duration-300 hover:scale-105 cursor-default">
+                  <BsCurrencyDollar className="transition-transform duration-300 group-hover:scale-110" />
+                  {product.price}
+                </p>
+                <span className="text-green-600 font-medium transition-all duration-300 hover:scale-105 cursor-default">In Stock</span>
+              </div>
+
+              <p className="text-gray-600 leading-relaxed transition-all duration-300 hover:scale-105 cursor-default">
+                {product.description}
               </p>
-              <span className="text-green-600 font-medium">In Stock</span>
-            </div>
 
-            <p className="text-gray-600 leading-relaxed">
-              {product.description}
-            </p>
-
-            {/* Rating and Reviews */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1">
-                  {renderStars(product.rating)}
+              {/* Rating and Reviews */}
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-default">
+                  <div className="flex items-center gap-1">
+                    {renderStars(product.rating)}
+                  </div>
+                  <span className="text-gray-600 text-sm">
+                    ({product.reviews} reviews)
+                  </span>
                 </div>
-                <span className="text-gray-600 text-sm">
-                  ({product.reviews} reviews)
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button className="p-2 hover:bg-gray-50 transition-colors">
-                  <BsHeart className="text-xl text-gray-600 hover:text-red-500" />
-                </button>
-                <button className="p-2 hover:bg-gray-50 transition-colors">
-                  <BsShare className="text-xl text-gray-600 hover:text-blue-500" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button className="p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110">
+                    <BsHeart className="text-xl text-gray-600 hover:text-red-500 transition-transform duration-300" />
+                  </button>
+                  <button className="p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110">
+                    <BsShare className="text-xl text-gray-600 hover:text-blue-500 transition-transform duration-300" />
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Quantity Selector */}
-            <div className="flex items-center gap-6">
-              <span className="text-gray-700 font-medium">Quantity:</span>
-              <div className="flex items-center">
-                <button
-                  onClick={decreaseQuantity}
-                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors"
-                >
-                  -
-                </button>
-                <span className="px-4 py-2 ">{quantity}</span>
-                <button
-                  onClick={increaseQuantity}
-                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors"
-                >
-                  +
-                </button>
+            {/* Bottom Section - Quantity to Add to Cart */}
+            <div className="space-y-6">
+              {/* Quantity Selector */}
+              <div className="flex items-center justify-between">
+                <span className="text-gray-700 font-medium transition-all duration-300 hover:scale-105">Quantity:</span>
+                <div className="flex items-center transition-all duration-300 hover:scale-105">
+                  <button
+                    onClick={decreaseQuantity}
+                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 transition-all duration-300 hover:scale-110 font-bold"
+                  >
+                    -
+                  </button>
+                  <span className="px-6 py-2 font-bold transition-all duration-300 hover:scale-105">{quantity}</span>
+                  <button
+                    onClick={increaseQuantity}
+                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 transition-all duration-300 hover:scale-110 font-bold"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
-            </div>
 
-            {/* Add to Cart Button */}
-            <div className="flex gap-4">
-              <button className="flex-1 bg-black text-white py-3 px-6  hover:bg-gray-800 transition-colors font-semibold">
-                Add to Cart
-              </button>
-            </div>
+              {/* Add to Cart Button */}
+              <div className="flex gap-4">
+                <button className="flex-1 bg-black text-white py-3 px-6 hover:bg-gray-800 transition-all duration-300 hover:scale-105 font-semibold">
+                  Add to Cart
+                </button>
+              </div>
 
-            {/* Additional Product Information */}
-            <div className="border-t pt-4 space-y-1">
-              <div className="flex justify-between py-1">
-                <span className="text-gray-600">Product Number:</span>
-                <span className="font-medium">{product.productNumber}</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-gray-600">Category:</span>
-                <span className="font-medium">{product.category}</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-gray-600">Tags:</span>
-                <span className="font-medium">{product.tags.join(", ")}</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-gray-600">Delivery:</span>
-                <span className="font-medium text-gray-600 underline">
-                  {product.delivery}
-                </span>
+              {/* Additional Product Information */}
+              <div className="border-t pt-4 space-y-1">
+                <div className="flex justify-between py-1 group cursor-pointer">
+                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">Product Number:</span>
+                  <span className="font-medium transition-all duration-300 group-hover:scale-105">{product.productNumber}</span>
+                </div>
+                <div className="flex justify-between py-1 group cursor-pointer">
+                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">Category:</span>
+                  <span className="font-medium transition-all duration-300 group-hover:scale-105">{product.category}</span>
+                </div>
+                <div className="flex justify-between py-1 group cursor-pointer">
+                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">Tags:</span>
+                  <span className="font-medium transition-all duration-300 group-hover:scale-105">{product.tags.join(", ")}</span>
+                </div>
+                <div className="flex justify-between py-1 group cursor-pointer">
+                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">Delivery:</span>
+                  <span className="font-medium text-gray-600 underline transition-all duration-300 group-hover:scale-105">
+                    {product.delivery}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-          
+
           {/* Description Details Tabs - Vertical Layout */}
-          <div className="lg:col-span-2 mt-8">
+          <div className="md:col-span-2 mt-8">
             <div className="flex flex-col lg:flex-row gap-8">
               {/* Vertical Tabs Navigation */}
               <div className="lg:w-1/4">
@@ -434,7 +441,7 @@ const ProductDetails = () => {
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`w-40 lg:w-full text-center lg:text-left py-3  px-4 font-medium transition-colors ${
+                      className={`w-40 lg:w-full text-center lg:text-left py-3 px-4 font-medium transition-all duration-300 hover:scale-105 ${
                         activeTab === tab 
                           ? "bg-black text-white" 
                           : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
