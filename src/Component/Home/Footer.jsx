@@ -5,7 +5,7 @@ import { MdOutlineMailOutline } from 'react-icons/md';
 
 const Footer = () => {
     return (
-        <div className="py-8 px-4 sm:px-6 lg:px-8 font-sans text-gray-800 mt-12 max-w-[95%] sm:max-w-[90%] mx-auto">
+        <div className=" font-sans text-gray-800 mt-12 max-w-[90%] mx-auto">
             {/* Main Footer Content */}
             <div className="flex flex-col md:flex-row flex-wrap justify-between gap-6 sm:gap-8 bg-stone-100 p-6 sm:p-8 lg:p-10 ">
                 
