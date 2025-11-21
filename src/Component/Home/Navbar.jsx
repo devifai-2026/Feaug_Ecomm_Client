@@ -9,6 +9,7 @@ const Navbar = () => {
     const location = useLocation();
     const isHomePage = location.pathname === '/';
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [cartCount] = useState(0); // You can update this state with actual cart count
 
     return (
         <div 
@@ -97,22 +98,33 @@ const Navbar = () => {
                                     data-aos="fade-left"
                                     data-aos-delay="500"
                                 />
-                                <BsHandbag 
-                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
-                                    data-aos="fade-left"
-                                    data-aos-delay="600"
-                                />
+                                {/* Shopping Bag with Count Badge - Always Visible */}
+                                <div className="relative">
+                                    <BsHandbag 
+                                        className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                        data-aos="fade-left"
+                                        data-aos-delay="600"
+                                    />
+                                    <span className="absolute -bottom-2 -right-2 bg-amber-700  text-white text-xs rounded-full h-4 w-4 flex items-center justify-center ">
+                                        {cartCount}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
                         {/* Mobile User Actions - Only Hamburger + Shopping Bag */}
                         <div className='flex lg:hidden items-center gap-3'>
-                            {/* Shopping Bag remains visible on mobile */}
-                            <BsHandbag 
-                                className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
-                                data-aos="fade-left"
-                                data-aos-delay="600"
-                            />
+                            {/* Shopping Bag with Count Badge - Always Visible */}
+                            <div className="relative">
+                                <BsHandbag 
+                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    data-aos="fade-left"
+                                    data-aos-delay="600"
+                                />
+                                <span className="absolute  -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                                    {cartCount}
+                                </span>
+                            </div>
                             
                             {/* Mobile Menu Button */}
                             <button 
@@ -197,8 +209,6 @@ const Navbar = () => {
                                             Contact
                                         </div>
                                     </div>
-
-                                    
                                 </div>
                             </div>
                         </div>
