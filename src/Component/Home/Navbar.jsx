@@ -13,7 +13,7 @@ const Navbar = () => {
     return (
         <div 
             className={isHomePage ? 
-                `bg-cover bg-center bg-no-repeat min-h-[90vh]` : 
+                `bg-cover bg-center bg-no-repeat min-h-[60vh] md:min-h[70vh] lg:min-h-[90vh]` : 
                 ''
             }
             style={isHomePage ? { backgroundImage: `url(${banner})` } : {}}
@@ -21,17 +21,16 @@ const Navbar = () => {
             {/* Navbar */}
             <nav className={`relative z-30 px-4 py-4 lg:px-8 ${!isHomePage ? 'bg-white' : ''}`}>
                 <div className="max-w-[90%] mx-auto flex justify-between items-center">
-                    {/* Mobile Menu Button */}
-                    <button 
-                        className={`lg:hidden text-2xl ${isHomePage ? 'text-white' : 'text-gray-800'}`}
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        data-aos="fade-right"
-                        data-aos-delay="100"
-                    >
-                        {isMobileMenuOpen ? <LuX /> : <LuMenu />}
-                    </button>
+                    {/* Left Section - Logo */}
+                    <div data-aos="zoom-in" data-aos-delay="100">
+                        <Link to="/">
+                            <h2 className={`uppercase text-2xl md:3xl lg:text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                                Feaug
+                            </h2>
+                        </Link>
+                    </div>
 
-                    {/* Left Section - Navigation Links (Desktop) */}
+                    {/* Center Section - Navigation Links (Desktop) */}
                     <div className={`hidden lg:flex items-center gap-6 ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
                         <div 
                             className='flex items-center gap-1 cursor-pointer group relative'
@@ -65,83 +64,145 @@ const Navbar = () => {
                         </p>
                     </div>
 
-                    {/* Center Section - Logo */}
-                    <div data-aos="zoom-in" data-aos-delay="100">
-                        <Link to="/">
-                            <h2 className={`uppercase text-xl sm:text-2xl lg:text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
-                                Feaug
-                            </h2>
-                        </Link>
-                    </div>
-
                     {/* Right Section - User Actions */}
                     <div className={`flex items-center gap-4 ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
-                        <div 
-                            className='hidden sm:flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3'
-                            data-aos="fade-down"
-                            data-aos-delay="200"
-                        >
-                            <p>USD</p>
-                            <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
+                        {/* Desktop User Actions */}
+                        <div className='hidden lg:flex items-center gap-4'>
+                            <div 
+                                className='flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3'
+                                data-aos="fade-down"
+                                data-aos-delay="200"
+                            >
+                                <p>USD</p>
+                                <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
+                            </div>
+                            
+                            <div 
+                                className='flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3'
+                                data-aos="fade-down"
+                                data-aos-delay="300"
+                            >
+                                <p>EN</p>
+                                <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
+                            </div>
+                            
+                            <div className='flex items-center gap-3'>
+                                <LuUserRound 
+                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    data-aos="fade-left"
+                                    data-aos-delay="400"
+                                />
+                                <HiOutlineMagnifyingGlass 
+                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    data-aos="fade-left"
+                                    data-aos-delay="500"
+                                />
+                                <BsHandbag 
+                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    data-aos="fade-left"
+                                    data-aos-delay="600"
+                                />
+                            </div>
                         </div>
-                        
-                        <div 
-                            className='hidden sm:flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3'
-                            data-aos="fade-down"
-                            data-aos-delay="300"
-                        >
-                            <p>EN</p>
-                            <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
-                        </div>
-                        
-                        <div className='flex items-center gap-3'>
-                            <LuUserRound 
-                                className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
-                                data-aos="fade-left"
-                                data-aos-delay="400"
-                            />
+
+                        {/* Mobile User Actions - Only Hamburger + Shopping Bag */}
+                        <div className='flex lg:hidden items-center gap-3'>
+                            {/* Shopping Bag remains visible on mobile */}
                             <BsHandbag 
-                                className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
-                                data-aos="fade-left"
-                                data-aos-delay="500"
-                            />
-                            <HiOutlineMagnifyingGlass 
                                 className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
                                 data-aos="fade-left"
                                 data-aos-delay="600"
                             />
+                            
+                            {/* Mobile Menu Button */}
+                            <button 
+                                className={`text-2xl ${isHomePage ? 'text-white' : 'text-gray-800'}`}
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                data-aos="fade-left"
+                                data-aos-delay="700"
+                            >
+                                {isMobileMenuOpen ? <LuX /> : <LuMenu />}
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                {/* Mobile Menu - Fixed positioning */}
+                {/* Mobile Menu - Drawer Style */}
                 {isMobileMenuOpen && (
-                    <div 
-                        className="lg:hidden absolute top-16 left-4 right-4 bg-black bg-opacity-95 text-white rounded-lg p-4 z-40 shadow-xl"
-                        data-aos="fade-down"
-                        data-aos-duration="300"
-                    >
-                        <div className="flex flex-col space-y-4">
-                            <div className='flex items-center justify-between cursor-pointer py-2'>
-                                <span>Categories</span>
-                                <LuChevronDown />
+                    <>
+                        {/* Backdrop Overlay */}
+                        <div 
+                            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        ></div>
+                        
+                        {/* Drawer Menu */}
+                        <div 
+                            className="lg:hidden fixed top-0 right-0 h-full w-60 md:w-80 bg-white text-gray-800 z-50 shadow-2xl transform transition-transform duration-300 ease-in-out"
+                            data-aos="slide-left"
+                            data-aos-duration="300"
+                        >
+                            {/* Drawer Header */}
+                            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                                <h3 className="text-xl font-semibold">Menu</h3>
+                                <button 
+                                    className="text-2xl text-gray-600 hover:text-gray-800 transition-colors"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    <LuX />
+                                </button>
                             </div>
-                            <div className='flex items-center justify-between cursor-pointer py-2'>
-                                <span>About</span>
-                                <LuChevronDown />
-                            </div>
-                            <div className='cursor-pointer py-2'>Blog</div>
-                            <div className='cursor-pointer py-2'>Contact</div>
-                            <div className='flex items-center justify-between cursor-pointer border-t border-gray-600 pt-4 py-2'>
-                                <span>USD</span>
-                                <LuChevronDown />
-                            </div>
-                            <div className='flex items-center justify-between cursor-pointer py-2'>
-                                <span>EN</span>
-                                <LuChevronDown />
+
+                            {/* Drawer Content */}
+                            <div className="h-full overflow-y-auto p-6">
+                                <div className="flex flex-col space-y-6">
+                                    {/* User Profile and Search at Top */}
+                                    <div className='space-y-4 pb-4 border-b border-gray-200'>
+                                        <div className='flex items-center gap-3 cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors'>
+                                            <LuUserRound className="text-lg text-gray-600" />
+                                            <span className="font-medium">My Profile</span>
+                                        </div>
+                                        <div className='flex items-center gap-3 cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors'>
+                                            <HiOutlineMagnifyingGlass className="text-lg text-gray-600" />
+                                            <span className="font-medium">Search</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Currency and Language Settings */}
+                                    <div className='space-y-4 pb-4 border-b border-gray-200'>
+                                        <div className='flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors'>
+                                            <span className="font-medium">USD</span>
+                                            <LuChevronDown className="text-gray-500" />
+                                        </div>
+                                        <div className='flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors'>
+                                            <span className="font-medium">EN</span>
+                                            <LuChevronDown className="text-gray-500" />
+                                        </div>
+                                    </div>
+
+                                    {/* Navigation Links */}
+                                    <div className='space-y-2 pb-4 border-b border-gray-200'>
+                                        <div className='flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors'>
+                                            <span className="font-medium">Categories</span>
+                                            <LuChevronDown className="text-gray-500" />
+                                        </div>
+                                        <div className='flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors'>
+                                            <span className="font-medium">About</span>
+                                            <LuChevronDown className="text-gray-500" />
+                                        </div>
+                                        <div className='cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors font-medium'>
+                                            Blog
+                                        </div>
+                                        <div className='cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors font-medium'>
+                                            Contact
+                                        </div>
+                                    </div>
+
+                                    
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </>
                 )}
             </nav>
 
