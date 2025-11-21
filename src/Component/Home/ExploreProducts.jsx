@@ -82,7 +82,7 @@ const ExploreProducts = () => {
 
       {/* Desktop Design */}
       <div 
-        className='hidden sm:flex items-center justify-between gap-2 sm:gap-3'
+        className='hidden sm:flex items-center justify-between gap-5 sm:gap-3'
         data-aos="fade-up"
         data-aos-delay="200"
         data-aos-duration="1000"
@@ -96,7 +96,7 @@ const ExploreProducts = () => {
               index % 2 === 1 ? 'mt-8 sm:mt-10 md:mt-14' : ''
             }`}
             style={{
-              width: hoveredIndex === index ? '256px' : '176px',
+              width: hoveredIndex === index ? '256px' : '210px',
               height: '70vh',
             }}
             data-aos="fade-up"
@@ -107,7 +107,7 @@ const ExploreProducts = () => {
             <div className="hidden sm:block md:hidden">
               <div
                 style={{
-                  width: hoveredIndex === index ? '256px' : '176px',
+                  width: hoveredIndex === index ? '256px' : '210px',
                   height: '60vh',
                   transform: hoveredIndex === index ? 'scale(1.05)' : 'scale(1)',
                 }}
@@ -125,7 +125,7 @@ const ExploreProducts = () => {
             <div className="hidden md:block lg:hidden">
               <div
                 style={{
-                  width: hoveredIndex === index ? '256px' : '176px',
+                  width: hoveredIndex === index ? '256px' : '210px',
                   height: '65vh',
                   transform: hoveredIndex === index ? 'scale(1.05)' : 'scale(1)',
                 }}
@@ -143,7 +143,7 @@ const ExploreProducts = () => {
             <div className="hidden lg:block">
               <div
                 style={{
-                  width: hoveredIndex === index ? '256px' : '176px',
+                  width: hoveredIndex === index ? '256px' : '210px',
                   height: '70vh',
                   transform: hoveredIndex === index ? 'scale(1.05)' : 'scale(1)',
                 }}
