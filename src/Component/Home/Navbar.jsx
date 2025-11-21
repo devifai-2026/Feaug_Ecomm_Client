@@ -127,51 +127,82 @@ const Navbar = () => {
                     </div>
                 </div>
 
-                {/* Mobile Menu - Fixed positioning */}
+                {/* Mobile Menu - Drawer Style */}
                 {isMobileMenuOpen && (
-                    <div 
-                        className="lg:hidden absolute top-16 left-4 right-4 bg-black bg-opacity-95 text-white rounded-lg p-4 z-40 shadow-xl"
-                        data-aos="fade-down"
-                        data-aos-duration="300"
-                    >
-                        <div className="flex flex-col space-y-4">
-                            {/* Navigation Links */}
-                            <div className='flex items-center justify-between cursor-pointer py-2'>
-                                <span>Categories</span>
-                                <LuChevronDown />
+                    <>
+                        {/* Backdrop Overlay */}
+                        <div 
+                            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        ></div>
+                        
+                        {/* Drawer Menu */}
+                        <div 
+                            className="lg:hidden fixed top-0 right-0 h-full w-60 md:w-80 bg-white text-gray-800 z-50 shadow-2xl transform transition-transform duration-300 ease-in-out"
+                            data-aos="slide-left"
+                            data-aos-duration="300"
+                        >
+                            {/* Drawer Header */}
+                            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                                <h3 className="text-xl font-semibold">Menu</h3>
+                                <button 
+                                    className="text-2xl text-gray-600 hover:text-gray-800 transition-colors"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    <LuX />
+                                </button>
                             </div>
-                            <div className='flex items-center justify-between cursor-pointer py-2'>
-                                <span>About</span>
-                                <LuChevronDown />
-                            </div>
-                            <div className='cursor-pointer py-2'>Blog</div>
-                            <div className='cursor-pointer py-2'>Contact</div>
-                            
-                            {/* User Actions moved inside mobile menu */}
-                            <div className='border-t border-gray-600 pt-4'>
-                                <div className='flex items-center justify-between cursor-pointer py-2'>
-                                    <span>USD</span>
-                                    <LuChevronDown />
-                                </div>
-                                <div className='flex items-center justify-between cursor-pointer py-2'>
-                                    <span>EN</span>
-                                    <LuChevronDown />
-                                </div>
-                                
-                                {/* User Profile and Search inside mobile menu */}
-                                <div className='flex items-center gap-4 pt-3 border-t border-gray-600 mt-2'>
-                                    <div className='flex items-center gap-2 cursor-pointer py-2'>
-                                        <LuUserRound className="text-lg" />
-                                        <span>Profile</span>
+
+                            {/* Drawer Content */}
+                            <div className="h-full overflow-y-auto p-6">
+                                <div className="flex flex-col space-y-6">
+                                    {/* User Profile and Search at Top */}
+                                    <div className='space-y-4 pb-4 border-b border-gray-200'>
+                                        <div className='flex items-center gap-3 cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors'>
+                                            <LuUserRound className="text-lg text-gray-600" />
+                                            <span className="font-medium">My Profile</span>
+                                        </div>
+                                        <div className='flex items-center gap-3 cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors'>
+                                            <HiOutlineMagnifyingGlass className="text-lg text-gray-600" />
+                                            <span className="font-medium">Search</span>
+                                        </div>
                                     </div>
-                                    <div className='flex items-center gap-2 cursor-pointer py-2'>
-                                        <HiOutlineMagnifyingGlass className="text-lg" />
-                                        <span>Search</span>
+
+                                    {/* Currency and Language Settings */}
+                                    <div className='space-y-4 pb-4 border-b border-gray-200'>
+                                        <div className='flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors'>
+                                            <span className="font-medium">USD</span>
+                                            <LuChevronDown className="text-gray-500" />
+                                        </div>
+                                        <div className='flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors'>
+                                            <span className="font-medium">EN</span>
+                                            <LuChevronDown className="text-gray-500" />
+                                        </div>
                                     </div>
+
+                                    {/* Navigation Links */}
+                                    <div className='space-y-2 pb-4 border-b border-gray-200'>
+                                        <div className='flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors'>
+                                            <span className="font-medium">Categories</span>
+                                            <LuChevronDown className="text-gray-500" />
+                                        </div>
+                                        <div className='flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors'>
+                                            <span className="font-medium">About</span>
+                                            <LuChevronDown className="text-gray-500" />
+                                        </div>
+                                        <div className='cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors font-medium'>
+                                            Blog
+                                        </div>
+                                        <div className='cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors font-medium'>
+                                            Contact
+                                        </div>
+                                    </div>
+
+                                    
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </>
                 )}
             </nav>
 
