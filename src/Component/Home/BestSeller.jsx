@@ -123,7 +123,7 @@ const BestSeller = () => {
       </div>
       
       {/* Main Content */}
-      <div className="flex flex-col lg:flex-row items-start justify-between gap-8">
+      <div className="flex flex-col lg:flex-row items-start justify-between gap-2">
         {/* Seasonal Sale */}
         <div className="w-full lg:w-1/3">
           <div className="relative">
@@ -176,7 +176,7 @@ const BestSeller = () => {
           </div>
 
           {/* Products Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {visibleProducts.map((product, index) => (
               <div 
                 key={product.id}
@@ -212,14 +212,18 @@ const BestSeller = () => {
                   </div>
 
                   {/* Add to Cart Button */}
-                  <button className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-transparent border-t-2 border-b-2 border-r border-l text-white py-2 px-3 text-sm font-medium transition-all duration-300 text-nowrap ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                  <button className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-transparent  text-black bg-white w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                     ADD TO CART
                   </button>
                 </div>
 
                 {/* Product Info */}
                 <div className="mt-4">
-                  <h3 className="text-lg font-semibold mb-2">{product.title}</h3>
+                  <h3 className={`text-lg font-semibold mb-2 transition-colors duration-300 ${
+                    hoveredCard === index ? 'text-orange-800' : 'text-gray-900'
+                  }`}>
+                    {product.title}
+                  </h3>
                   <div className="flex items-center gap-2">
                     {product.originalPrice ? (
                       <>

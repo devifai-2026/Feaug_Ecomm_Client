@@ -32,7 +32,7 @@ const ExploreProducts = () => {
                 key={index}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                className='relative flex-shrink-0 w-64 h-80 snap-center transition-all duration-300 cursor-pointer'
+                className='relative flex-shrink-0 w-64 h-80 snap-center transition-all duration-300 ease-out cursor-pointer'
                 data-aos="zoom-in"
                 data-aos-delay={index * 100}
                 data-aos-duration="600"
@@ -40,7 +40,7 @@ const ExploreProducts = () => {
                 <img
                   src={ring}
                   alt={product.label}
-                  className='w-full h-full object-cover'
+                  className='w-full h-full object-cover transition-transform duration-300'
                 />
                 
                 {/* Gradient Overlay */}
@@ -66,9 +66,9 @@ const ExploreProducts = () => {
                     <div 
                       className='mt-4'
                       data-aos="fade-up"
-                      data-aos-delay="200"
+                      data-aos-delay="100"
                     >
-                      <button className='w-full py-3 border border-white text-white text-sm font-light tracking-wide hover:bg-white hover:text-black transition-all duration-300 backdrop-blur-sm bg-white/10'>
+                      <button className='w-full py-3 border border-white text-white text-sm font-light tracking-wide hover:bg-white hover:text-black transition-all duration-200 backdrop-blur-sm bg-white/10'>
                         SHOP NOW
                       </button>
                     </div>
@@ -82,7 +82,7 @@ const ExploreProducts = () => {
 
       {/* Desktop Design */}
       <div 
-        className='hidden sm:flex items-center justify-between gap-5 sm:gap-3'
+        className='hidden sm:flex items-center justify-between gap-3 md:gap-4 lg:gap-6'
         data-aos="fade-up"
         data-aos-delay="200"
         data-aos-duration="1000"
@@ -92,12 +92,14 @@ const ExploreProducts = () => {
             key={index}
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
-            className={`relative overflow-hidden transition-all duration-500 ease-out cursor-pointer ${
+            className={`relative overflow-hidden transition-all duration-500 ease-out cursor-pointer flex-1 ${
               index % 2 === 1 ? 'mt-8 sm:mt-10 md:mt-14' : ''
             }`}
             style={{
-              width: hoveredIndex === index ? '256px' : '210px',
+              flex: hoveredIndex === index ? '1.2' : '1',
               height: '70vh',
+              transition: 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              minWidth: '0', // Important for flex items to shrink properly
             }}
             data-aos="fade-up"
             data-aos-delay={index * 150 + 300}
@@ -107,9 +109,8 @@ const ExploreProducts = () => {
             <div className="hidden sm:block md:hidden">
               <div
                 style={{
-                  width: hoveredIndex === index ? '256px' : '210px',
+                  width: '100%',
                   height: '60vh',
-                  transform: hoveredIndex === index ? 'scale(1.05)' : 'scale(1)',
                 }}
                 data-aos="zoom-in"
                 data-aos-delay={index * 100 + 400}
@@ -117,7 +118,11 @@ const ExploreProducts = () => {
                 <img
                   src={ring}
                   alt={product.label}
-                  className='w-full h-full object-cover transition-transform duration-700'
+                  className='w-full h-full object-cover transition-transform duration-500 ease-out'
+                  style={{
+                    transform: hoveredIndex === index ? 'scale(1.05)' : 'scale(1)',
+                    transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                  }}
                 />
               </div>
             </div>
@@ -125,9 +130,8 @@ const ExploreProducts = () => {
             <div className="hidden md:block lg:hidden">
               <div
                 style={{
-                  width: hoveredIndex === index ? '256px' : '210px',
+                  width: '100%',
                   height: '65vh',
-                  transform: hoveredIndex === index ? 'scale(1.05)' : 'scale(1)',
                 }}
                 data-aos="zoom-in"
                 data-aos-delay={index * 100 + 400}
@@ -135,7 +139,11 @@ const ExploreProducts = () => {
                 <img
                   src={ring}
                   alt={product.label}
-                  className='w-full h-full object-cover transition-transform duration-700'
+                  className='w-full h-full object-cover transition-transform duration-500 ease-out'
+                  style={{
+                    transform: hoveredIndex === index ? 'scale(1.05)' : 'scale(1)',
+                    transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                  }}
                 />
               </div>
             </div>
@@ -143,9 +151,8 @@ const ExploreProducts = () => {
             <div className="hidden lg:block">
               <div
                 style={{
-                  width: hoveredIndex === index ? '256px' : '210px',
+                  width: '100%',
                   height: '70vh',
-                  transform: hoveredIndex === index ? 'scale(1.05)' : 'scale(1)',
                 }}
                 data-aos="zoom-in"
                 data-aos-delay={index * 100 + 400}
@@ -153,7 +160,11 @@ const ExploreProducts = () => {
                 <img
                   src={ring}
                   alt={product.label}
-                  className='w-full h-full object-cover transition-transform duration-700'
+                  className='w-full h-full object-cover transition-transform duration-500 ease-out'
+                  style={{
+                    transform: hoveredIndex === index ? 'scale(1.05)' : 'scale(1)',
+                    transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                  }}
                 />
               </div>
             </div>
@@ -163,30 +174,34 @@ const ExploreProducts = () => {
               {hoveredIndex === index && (
                 <div 
                   className='text-center'
-                  data-aos="fade-in"
-                  data-aos-delay="100"
-                  data-aos-duration="600"
+                  style={{
+                    transition: 'all 0.3s ease-out',
+                    animation: 'fadeIn 0.3s ease-out',
+                  }}
                 >
                   <h3 
                     className='text-white font-light tracking-wider text-lg sm:text-xl md:text-2xl mb-2 sm:mb-3'
-                    data-aos="fade-down"
-                    data-aos-delay="200"
+                    style={{
+                      animation: 'slideDown 0.3s ease-out 0.1s both',
+                    }}
                   >
                     {product.label}
                   </h3>
                   {product.subtitle && (
                     <p 
                       className='text-white text-xs sm:text-sm font-light mb-4 sm:mb-6'
-                      data-aos="fade-down"
-                      data-aos-delay="300"
+                      style={{
+                        animation: 'slideDown 0.3s ease-out 0.15s both',
+                      }}
                     >
                       {product.subtitle}
                     </p>
                   )}
                   <button 
-                    className='px-4 sm:px-6 py-2 border border-white text-white text-xs font-light tracking-wide hover:bg-white hover:text-black transition-all duration-300'
-                    data-aos="zoom-in"
-                    data-aos-delay="400"
+                    className='px-4 sm:px-6 py-2 border border-white text-white text-xs font-light tracking-wide hover:bg-white hover:text-black transition-all duration-300 ease-out'
+                    style={{
+                      animation: 'zoomIn 0.3s ease-out 0.2s both',
+                    }}
                   >
                     SHOP NOW
                   </button>
@@ -198,15 +213,17 @@ const ExploreProducts = () => {
             {hoveredIndex !== index && (
               <div 
                 className='absolute bottom-20 left-1/2 transform -translate-x-1/2 text-white font-light tracking-wider'
-                data-aos="fade-in"
-                data-aos-delay={index * 100 + 500}
+                style={{
+                  transition: 'all 0.3s ease-out',
+                }}
               >
                 {product.label.split('').map((char, i) => (
                   <div 
                     key={i} 
-                    className='text-base sm:text-lg md:text-xl lg:text-2xl font-semibold leading-4 sm:leading-5 md:leading-5 lg:leading-6 text-center'
-                    data-aos="fade-up"
-                    data-aos-delay={i * 50 + index * 100 + 600}
+                    className='text-base sm:text-lg md:text-xl lg:text-2xl font-semibold leading-4 sm:leading-5 md:leading-5 lg:leading-6 text-center transition-all duration-200'
+                    style={{
+                      transition: 'all 0.2s ease-out',
+                    }}
                   >
                     {char}
                   </div>
@@ -216,6 +233,34 @@ const ExploreProducts = () => {
           </div>
         ))}
       </div>
+
+      {/* Add custom animations */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideDown {
+          from { 
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes zoomIn {
+          from { 
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to { 
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}</style>
     </div>
   );
 };
