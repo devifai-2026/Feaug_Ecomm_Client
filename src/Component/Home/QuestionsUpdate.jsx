@@ -34,13 +34,11 @@ const QuestionsUpdate = () => {
                     {questions.map((item, index) => (
                         <div 
                             key={index} 
-                            className={`bg-white transition-all duration-300 ${
+                            className={`bg-white transition-all duration-300 overflow-hidden ${
                                 openIndex === index 
                                     ? 'border-2 border-orange-900' 
                                     : ''
                             }`}
-                            data-aos="fade-up"
-                            data-aos-delay={index * 150 + 300}
                         >
                             {/* Question header with +/- icon */}
                             <div 
@@ -59,12 +57,18 @@ const QuestionsUpdate = () => {
                                 </div>
                             </div>
                             
-                            {/* Answer section */}
-                            {openIndex === index && (
+                            {/* Answer section with smooth animation */}
+                            <div 
+                                className={`transition-all duration-300 ease-in-out ${
+                                    openIndex === index 
+                                        ? 'max-h-96 opacity-100' 
+                                        : 'max-h-0 opacity-0'
+                                }`}
+                            >
                                 <div className='px-4 pb-4 ml-9'>
                                     <p className='text-gray-600'>{item.answer}</p>
                                 </div>
-                            )}
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -83,7 +87,7 @@ const QuestionsUpdate = () => {
                     data-aos="slide-up"
                     data-aos-delay="400"
                  >
-                    <img className='h-40 w-40 object-cover' src={img} alt="" />
+                    <img className=' h-60 md:h-40 w-40 object-cover' src={img} alt="" />
                     <div className='space-y-3'>
                         <p className='uppercase text-orange-900 text-sm font-medium'>TIPS</p>
                         <p className='text-base uppercase font-semibold'>How to choose the perfect <br /> Engagement ring for <br /> Beloved one</p>
@@ -98,7 +102,7 @@ const QuestionsUpdate = () => {
                     data-aos="slide-up"
                     data-aos-delay="500"
                  >
-                    <img className='h-40 w-40 object-cover' src={img} alt="" />
+                    <img className='h-60 md:h-40 w-40 object-cover' src={img} alt="" />
                     <div className='space-y-3'>
                         <p className='uppercase text-orange-900 text-sm font-medium'>GUIDE</p>
                         <p className='text-base uppercase font-semibold'>Caring for your jewelry: <br /> Maintenance & Cleaning <br />Complete Guide</p>
