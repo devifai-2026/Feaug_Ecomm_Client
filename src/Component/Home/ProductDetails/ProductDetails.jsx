@@ -261,61 +261,62 @@ const ProductDetails = () => {
           Back to Products
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Product Images Section */}
-          <div className="">
-            {/* Main Image - No arrows */}
-            <div className="relative flex justify-center p-2 sm:p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* Product Images Section - Fixed */}
+          <div className="space-y-4">
+            {/* Main Image - Centered */}
+            <div className="flex justify-center">
               <img
                 src={productImages[selectedImageIndex]}
                 alt={product.title}
-                className="w-full max-w-md h-[350px] sm:h-[450px] object-contain"
+                className="w-full max-w-lg h-[460px] md:h-[485px] lg:h-[460px] object-cover"
               />
             </div>
 
-            {/* Thumbnail Images with Scroll - Fixed scrollbar */}
-            <div className="flex items-center justify-center gap-1 sm:gap-2 mt-2 sm:mt-4">
-              <button
-                onClick={() => scrollThumbnails("left")}
-                className="p-1 sm:p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0"
-              >
-                <BsChevronLeft className="text-gray-600 text-sm sm:text-base" />
-              </button>
+            {/* Thumbnail Images with Scroll - Centered */}
+            <div className="flex justify-center">
+              <div className="flex items-center gap-2 max-w-lg w-full">
+                <button
+                  onClick={() => scrollThumbnails("left")}
+                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0"
+                >
+                  <BsChevronLeft className="text-gray-600" />
+                </button>
 
-              <div
-                ref={thumbnailContainerRef}
-                className="flex gap-1 sm:gap-2 overflow-x-auto max-w-xs md:max-w-md px-1 sm:px-2 scrollbar-hide"
-                style={{
-                  scrollbarWidth: "none",
-                  msOverflowStyle: "none",
-                  WebkitOverflowScrolling: "touch",
-                }}
-              >
-                {productImages.map((image, index) => (
-                  <div
-                    key={index}
-                    className={`flex-shrink-0 cursor-pointer border-2 transition-all duration-200 ${
-                      selectedImageIndex === index
-                        ? "border-orange-500 shadow-md"
-                        : "border-transparent hover:border-gray-300"
-                    }`}
-                    onClick={() => handleThumbnailClick(index)}
-                  >
-                    <img
-                      src={image}
-                      alt={`${product.title} ${index + 1}`}
-                      className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 object-cover"
-                    />
-                  </div>
-                ))}
+                <div
+                  ref={thumbnailContainerRef}
+                  className="flex gap-2 overflow-x-auto flex-1 justify-center px-2 scrollbar-hide"
+                  style={{
+                    scrollbarWidth: "none",
+                    msOverflowStyle: "none",
+                  }}
+                >
+                  {productImages.map((image, index) => (
+                    <div
+                      key={index}
+                      className={`flex-shrink-0 cursor-pointer border-2 transition-all duration-200 ${
+                        selectedImageIndex === index
+                          ? "border-orange-500 shadow-md"
+                          : "border-transparent hover:border-gray-300"
+                      }`}
+                      onClick={() => handleThumbnailClick(index)}
+                    >
+                      <img
+                        src={image}
+                        alt={`${product.title} ${index + 1}`}
+                        className="w-16 h-16 md:w-20 md:h-20 object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => scrollThumbnails("right")}
+                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0"
+                >
+                  <BsChevronRight className="text-gray-600" />
+                </button>
               </div>
-
-              <button
-                onClick={() => scrollThumbnails("right")}
-                className="p-1 sm:p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0"
-              >
-                <BsChevronRight className="text-gray-600 text-sm sm:text-base" />
-              </button>
             </div>
           </div>
 
@@ -375,19 +376,19 @@ const ProductDetails = () => {
             </div>
 
             {/* Quantity Selector */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center justify-between gap-6">
               <span className="text-gray-700 font-medium">Quantity:</span>
-              <div className="flex items-center">
+              <div className="flex items-center ">
                 <button
                   onClick={decreaseQuantity}
-                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors"
+                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors font-bold"
                 >
                   -
                 </button>
-                <span className="px-4 py-2 ">{quantity}</span>
+                <span className="px-4 py-2  border-gray-300 font-bold">{quantity}</span>
                 <button
                   onClick={increaseQuantity}
-                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors"
+                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors font-bold"
                 >
                   +
                 </button>
@@ -396,7 +397,7 @@ const ProductDetails = () => {
 
             {/* Add to Cart Button */}
             <div className="flex gap-4">
-              <button className="flex-1 bg-black text-white py-3 px-6  hover:bg-gray-800 transition-colors font-semibold">
+              <button className="flex-1 bg-black text-white py-3 px-6 hover:bg-gray-800 transition-colors font-semibold">
                 Add to Cart
               </button>
             </div>
@@ -425,7 +426,7 @@ const ProductDetails = () => {
           </div>
           
           {/* Description Details Tabs - Vertical Layout */}
-          <div className="lg:col-span-2 mt-8">
+          <div className="md:col-span-2 mt-8">
             <div className="flex flex-col lg:flex-row gap-8">
               {/* Vertical Tabs Navigation */}
               <div className="lg:w-1/4">
@@ -434,7 +435,7 @@ const ProductDetails = () => {
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`w-40 lg:w-full text-center lg:text-left py-3  px-4 font-medium transition-colors ${
+                      className={`w-40 lg:w-full text-center lg:text-left py-3 px-4 font-medium transition-colors ${
                         activeTab === tab 
                           ? "bg-black text-white" 
                           : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
