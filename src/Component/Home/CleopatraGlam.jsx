@@ -1,7 +1,8 @@
 import React from 'react';
 import banner from "../../assets/cleopatra/freepik__design-editorial-soft-studio-light-photography-hig__70850.png";
-import { GiEarrings, GiHeartNecklace, GiJewelCrown } from 'react-icons/gi';
+import { GiEarrings, GiHeartNecklace, GiZigzagLeaf } from 'react-icons/gi';
 import { FaArrowRightLong } from 'react-icons/fa6';
+import { RxDividerVertical } from 'react-icons/rx';
 
 const CleopatraGlam = () => {
     return (
@@ -10,7 +11,8 @@ const CleopatraGlam = () => {
            <div className='relative'>
              <img className='w-full h-[40vh] md:h-[50vh] lg:h-[60vh] object-cover' src={banner} alt="" />
               <div className='space-y-2 md:space-y-3 max-w-xs md:max-w-sm lg:max-w-md absolute right-2 md:right-5 top-1/2 transform -translate-y-1/2 p-4 md:p-0 text-right md:text-right lg:text-left'>
-                <p className='text-orange-950 text-sm md:text-base'>Collection</p>
+                <p className='text-orange-950 text-sm md:text-base flex items-center gap-3'>Collection  <RxDividerVertical className="h-10 w-7" /></p>
+                <GiZigzagLeaf className='h-12 w-12'/>
                 <h2 className='text-xl md:text-2xl lg:text-3xl'>Cleopatra Glam</h2>
                 <p className='text-orange-900 text-xs md:text-sm lg:text-base'>Introducing our new mesmerizing jewellery collection.Embarace your inner allure with the timeless elegance and radiant beauty of ancient Egypt, now available exclusive on AXELS jewelry</p>
                 <button className='border-black border-2 px-2 py-1 md:px-3 md:py-2 bg-transparent text-sm md:text-base'>SHOP NOW</button>
