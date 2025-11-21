@@ -21,17 +21,16 @@ const Navbar = () => {
             {/* Navbar */}
             <nav className={`relative z-30 px-4 py-4 lg:px-8 ${!isHomePage ? 'bg-white' : ''}`}>
                 <div className="max-w-[90%] mx-auto flex justify-between items-center">
-                    {/* Mobile Menu Button */}
-                    <button 
-                        className={`lg:hidden text-2xl ${isHomePage ? 'text-white' : 'text-gray-800'}`}
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        data-aos="fade-right"
-                        data-aos-delay="100"
-                    >
-                        {isMobileMenuOpen ? <LuX /> : <LuMenu />}
-                    </button>
+                    {/* Left Section - Logo */}
+                    <div data-aos="zoom-in" data-aos-delay="100">
+                        <Link to="/">
+                            <h2 className={`uppercase text-2xl md:3xl lg:text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                                Feaug
+                            </h2>
+                        </Link>
+                    </div>
 
-                    {/* Left Section - Navigation Links (Desktop) */}
+                    {/* Center Section - Navigation Links (Desktop) */}
                     <div className={`hidden lg:flex items-center gap-6 ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
                         <div 
                             className='flex items-center gap-1 cursor-pointer group relative'
@@ -65,51 +64,65 @@ const Navbar = () => {
                         </p>
                     </div>
 
-                    {/* Center Section - Logo */}
-                    <div data-aos="zoom-in" data-aos-delay="100">
-                        <Link to="/">
-                            <h2 className={`uppercase text-xl sm:text-2xl lg:text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
-                                Feaug
-                            </h2>
-                        </Link>
-                    </div>
-
                     {/* Right Section - User Actions */}
                     <div className={`flex items-center gap-4 ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
-                        <div 
-                            className='hidden sm:flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3'
-                            data-aos="fade-down"
-                            data-aos-delay="200"
-                        >
-                            <p>USD</p>
-                            <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
+                        {/* Desktop User Actions */}
+                        <div className='hidden lg:flex items-center gap-4'>
+                            <div 
+                                className='flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3'
+                                data-aos="fade-down"
+                                data-aos-delay="200"
+                            >
+                                <p>USD</p>
+                                <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
+                            </div>
+                            
+                            <div 
+                                className='flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3'
+                                data-aos="fade-down"
+                                data-aos-delay="300"
+                            >
+                                <p>EN</p>
+                                <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
+                            </div>
+                            
+                            <div className='flex items-center gap-3'>
+                                <LuUserRound 
+                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    data-aos="fade-left"
+                                    data-aos-delay="400"
+                                />
+                                <HiOutlineMagnifyingGlass 
+                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    data-aos="fade-left"
+                                    data-aos-delay="500"
+                                />
+                                <BsHandbag 
+                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    data-aos="fade-left"
+                                    data-aos-delay="600"
+                                />
+                            </div>
                         </div>
-                        
-                        <div 
-                            className='hidden sm:flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3'
-                            data-aos="fade-down"
-                            data-aos-delay="300"
-                        >
-                            <p>EN</p>
-                            <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
-                        </div>
-                        
-                        <div className='flex items-center gap-3'>
-                            <LuUserRound 
-                                className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
-                                data-aos="fade-left"
-                                data-aos-delay="400"
-                            />
+
+                        {/* Mobile User Actions - Only Hamburger + Shopping Bag */}
+                        <div className='flex lg:hidden items-center gap-3'>
+                            {/* Shopping Bag remains visible on mobile */}
                             <BsHandbag 
-                                className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
-                                data-aos="fade-left"
-                                data-aos-delay="500"
-                            />
-                            <HiOutlineMagnifyingGlass 
                                 className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
                                 data-aos="fade-left"
                                 data-aos-delay="600"
                             />
+                            
+                            {/* Mobile Menu Button */}
+                            <button 
+                                className={`text-2xl ${isHomePage ? 'text-white' : 'text-gray-800'}`}
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                data-aos="fade-left"
+                                data-aos-delay="700"
+                            >
+                                {isMobileMenuOpen ? <LuX /> : <LuMenu />}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -122,6 +135,7 @@ const Navbar = () => {
                         data-aos-duration="300"
                     >
                         <div className="flex flex-col space-y-4">
+                            {/* Navigation Links */}
                             <div className='flex items-center justify-between cursor-pointer py-2'>
                                 <span>Categories</span>
                                 <LuChevronDown />
@@ -132,13 +146,29 @@ const Navbar = () => {
                             </div>
                             <div className='cursor-pointer py-2'>Blog</div>
                             <div className='cursor-pointer py-2'>Contact</div>
-                            <div className='flex items-center justify-between cursor-pointer border-t border-gray-600 pt-4 py-2'>
-                                <span>USD</span>
-                                <LuChevronDown />
-                            </div>
-                            <div className='flex items-center justify-between cursor-pointer py-2'>
-                                <span>EN</span>
-                                <LuChevronDown />
+                            
+                            {/* User Actions moved inside mobile menu */}
+                            <div className='border-t border-gray-600 pt-4'>
+                                <div className='flex items-center justify-between cursor-pointer py-2'>
+                                    <span>USD</span>
+                                    <LuChevronDown />
+                                </div>
+                                <div className='flex items-center justify-between cursor-pointer py-2'>
+                                    <span>EN</span>
+                                    <LuChevronDown />
+                                </div>
+                                
+                                {/* User Profile and Search inside mobile menu */}
+                                <div className='flex items-center gap-4 pt-3 border-t border-gray-600 mt-2'>
+                                    <div className='flex items-center gap-2 cursor-pointer py-2'>
+                                        <LuUserRound className="text-lg" />
+                                        <span>Profile</span>
+                                    </div>
+                                    <div className='flex items-center gap-2 cursor-pointer py-2'>
+                                        <HiOutlineMagnifyingGlass className="text-lg" />
+                                        <span>Search</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
