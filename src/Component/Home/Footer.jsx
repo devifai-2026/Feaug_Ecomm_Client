@@ -5,7 +5,7 @@ import { MdOutlineMailOutline } from 'react-icons/md';
 
 const Footer = () => {
     return (
-        <div className=" font-sans text-gray-800 mt-12 max-w-[90%] mx-auto">
+        <div className=" font-sans text-gray-800 mt-12 mb-12 max-w-[90%] mx-auto">
             {/* Main Footer Content */}
             <div className="flex flex-col md:flex-row flex-wrap justify-between gap-6 sm:gap-8 bg-stone-100 p-6 sm:p-8 lg:p-10 ">
                 
@@ -74,6 +74,7 @@ const Footer = () => {
                         placeholder="Enter your email address"
                         className="w-full max-w-xs mx-auto md:mx-0 border-b border-gray-300 bg-transparent px-1 py-2 text-gray-600 placeholder-gray-400 focus:outline-none focus:border-gray-600 text-xs sm:text-sm"
                     />
+                    <button className='bg-[#C19A6B] mt-4 px-4 py-3 w-[75%] text-center uppercase text-white'>Subscribe</button>
                 </div>
             </div>
 
