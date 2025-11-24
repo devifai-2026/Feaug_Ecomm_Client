@@ -9,7 +9,7 @@ const Navbar = () => {
     const location = useLocation();
     const isHomePage = location.pathname === '/';
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [cartCount] = useState(0); // You can update this state with actual cart count
+    const [cartCount] = useState(0);
 
     return (
         <div 
@@ -22,8 +22,12 @@ const Navbar = () => {
             {/* Navbar */}
             <nav className={`relative z-30 px-4 py-4 lg:px-8 ${!isHomePage ? 'bg-white' : ''}`}>
                 <div className="max-w-[90%] mx-auto flex justify-between items-center">
-                    {/* Left Section - Logo */}
-                    <div data-aos="zoom-in" data-aos-delay="100">
+                    {/* Left Section - Logo - Hidden on lg devices */}
+                    <div 
+                        data-aos="zoom-in" 
+                        data-aos-delay="100"
+                        className="lg:hidden"
+                    >
                         <Link to="/">
                             <h2 className={`uppercase text-2xl md:3xl lg:text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
                                 Feaug
@@ -31,7 +35,7 @@ const Navbar = () => {
                         </Link>
                     </div>
 
-                    {/* Center Section - Navigation Links (Desktop) */}
+                    {/* Center Section - Navigation Links (Desktop) - Now acts as right section on lg */}
                     <div className={`hidden lg:flex items-center gap-6 ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
                         <div 
                             className='flex items-center gap-1 cursor-pointer group relative'
@@ -63,6 +67,19 @@ const Navbar = () => {
                         >
                             Contact
                         </p>
+                    </div>
+
+                    {/* Center Logo - Only visible on lg devices */}
+                    <div 
+                        className="hidden lg:flex absolute left-1/2 transform -translate-x-1/2"
+                        data-aos="zoom-in" 
+                        data-aos-delay="100"
+                    >
+                        <Link to="/">
+                            <h2 className={`uppercase text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                                Feaug
+                            </h2>
+                        </Link>
                     </div>
 
                     {/* Right Section - User Actions */}

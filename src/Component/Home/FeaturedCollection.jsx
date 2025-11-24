@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import img from "../../assets/Features/freepik__portrait-of-a-girl-with-sparkling-jewelry-radiant-__27577.png"
+import one from "../../assets/FeaturedCollection/one.webp"
+import two from "../../assets/FeaturedCollection/two.png"
+import three from "../../assets/FeaturedCollection/three.webp"
+import four from "../../assets/FeaturedCollection/four.webp"
+import five from "../../assets/FeaturedCollection/five.webp"
+import six from "../../assets/FeaturedCollection/six.webp"
+import seven from "../../assets/FeaturedCollection/seven.jpeg"
+import eight from "../../assets/FeaturedCollection/eight.webp"
 import { BsArrowsAngleExpand, BsCurrencyDollar, BsHeart, BsShare } from 'react-icons/bs';
 import { FaArrowRightLong } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom'; 
@@ -8,16 +15,15 @@ const FeaturedCollection = () => {
     const [hoveredCard, setHoveredCard] = useState(null);
     const navigate = useNavigate(); 
 
-
     const products = [
-        { id: 1, title: "Diamond Necklace", price: 299.99, image: img, discount: null },
-        { id: 2, title: "Diamond Necklace", price: 299.99, image: img, discount: null },
-        { id: 3, title: "Diamond Necklace", price: 299.99, image: img, discount: null },
-        { id: 4, title: "Diamond Necklace", price: 299.99, image: img, discount: "-20% off" },
-        { id: 5, title: "Diamond Necklace", price: 299.99, image: img, discount: null },
-        { id: 6, title: "Diamond Necklace", price: 299.99, image: img, discount: "-50% off" },
-        { id: 7, title: "Diamond Necklace", price: 299.99, image: img, discount: null },
-        { id: 8, title: "Diamond Necklace", price: 299.99, image: img, discount: null }
+        { id: 1, title: "Diamond Necklace", price: 299.99, image: one, discount: null },
+        { id: 2, title: "Diamond Necklace", price: 299.99, image: two, discount: null },
+        { id: 3, title: "Diamond Necklace", price: 299.99, image: three, discount: null },
+        { id: 4, title: "Diamond Necklace", price: 299.99, image: four, discount: "-20% off" },
+        { id: 5, title: "Diamond Necklace", price: 299.99, image: five, discount: null },
+        { id: 6, title: "Diamond Necklace", price: 299.99, image: six, discount: "-50% off" },
+        { id: 7, title: "Diamond Necklace", price: 299.99, image: seven, discount: null },
+        { id: 8, title: "Diamond Necklace", price: 299.99, image: eight, discount: null }
     ];
 
     const handleCardClick = (productId) => {
@@ -99,13 +105,8 @@ const FeaturedCollection = () => {
 
                             {/* Add to Cart Button - Bottom of Image */}
                             <button 
-<<<<<<< Updated upstream
-                                className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-                                onClick={(e) => e.stopPropagation()} // Prevent navigation when clicking button
-=======
                                 className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] hover:scale-105 uppercase tracking-widest ${hoveredCard === index ? 'opacity-100 translate-y-0 ' : 'opacity-0 translate-y-4'}`}
                                 onClick={(e) => e.stopPropagation()}
->>>>>>> Stashed changes
                             >
                                 Add to Cart
                             </button>

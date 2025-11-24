@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import sale from "../../assets/BestSeller/freepik__women-adorned-with-layered-necklaces-and-gemstone-__87328.png";
-import jewelry from "../../assets/BestSeller/jewelery.png";
+import sale from "../../assets/BestSeller/left.jpeg";
+import one from "../../assets/BestSeller/one.webp";
+import two from "../../assets/BestSeller/two.webp";
+import three from "../../assets/BestSeller/three.webp";
 import { BsHeart, BsShare, BsArrowsAngleExpand } from 'react-icons/bs';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -17,70 +19,70 @@ const BestSeller = () => {
       title: "Arch Pendant Necklace", 
       price: 149.99, 
       originalPrice: null,
-      image: jewelry 
+      image: one 
     },
     { 
       id: 2,
       title: "Golden Pearls Bracelet", 
       price: 89.99, 
       originalPrice: 103.40,
-      image: jewelry 
+      image: two 
     },
     { 
       id: 3,
       title: "Diamond Engagement Ring", 
       price: 799.99, 
       originalPrice: null,
-      image: jewelry 
+      image: three 
     },
     { 
       id: 4,
       title: "Silver Chain Necklace", 
       price: 129.99, 
       originalPrice: null,
-      image: jewelry 
+      image: two 
     },
     { 
       id: 5,
       title: "Ruby Earrings", 
       price: 199.99, 
       originalPrice: 249.99,
-      image: jewelry 
+      image: three 
     },
     { 
       id: 6,
       title: "Pearl Drop Earrings", 
       price: 159.99, 
       originalPrice: null,
-      image: jewelry 
+      image: one 
     },
     { 
       id: 7,
       title: "Gold Plated Bracelet", 
       price: 69.99, 
       originalPrice: 89.99,
-      image: jewelry 
+      image: two 
     },
     { 
       id: 8,
       title: "Sapphire Ring", 
       price: 299.99, 
       originalPrice: null,
-      image: jewelry 
+      image: one 
     },
     { 
       id: 9,
       title: "Crystal Pendant", 
       price: 79.99, 
       originalPrice: 99.99,
-      image: jewelry 
+      image: three 
     },
     { 
       id: 10,
       title: "Diamond Stud Earrings", 
       price: 349.99, 
       originalPrice: null,
-      image: jewelry 
+      image: one 
     },
   ];
 
@@ -138,11 +140,7 @@ const BestSeller = () => {
               <p className="text-lg font-semibold">SALE</p>
               <p className="text-2xl font-bold">15%</p>
               <p className="text-xl font-bold">Seasonal Sale</p>
-<<<<<<< Updated upstream
-              <button className="border-2 border-white px-6 py-2 hover:bg-white hover:text-black transition-colors duration-300">
-=======
               <button className="border border-white px-6 py-2 hover:bg-white hover:text-black transition-all duration-300 transform hover:scale-105">
->>>>>>> Stashed changes
                 SHOP NOW
               </button>
             </div>
@@ -163,7 +161,7 @@ const BestSeller = () => {
             <div className="flex items-center gap-4 mt-4 sm:mt-0" data-aos="fade-down" data-aos-delay="400">
               <button 
                 onClick={prevSlide}
-                className="w-10 h-10 flex items-center justify-center   transition-colors"
+                className="w-10 h-10 flex items-center justify-center transition-colors"
               >
                 &lt;
               </button>
@@ -172,7 +170,7 @@ const BestSeller = () => {
               </span>
               <button 
                 onClick={nextSlide}
-                className="w-10 h-10 flex items-center justify-center  transition-colors"
+                className="w-10 h-10 flex items-center justify-center transition-colors"
               >
                 &gt;
               </button>
@@ -216,11 +214,7 @@ const BestSeller = () => {
                   </div>
 
                   {/* Add to Cart Button */}
-<<<<<<< Updated upstream
-                  <button className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-transparent border-t-2 border-b-2 border-r border-l text-white py-2 px-3 text-sm font-medium transition-all duration-300 text-nowrap ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-=======
                   <button className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-transparent text-black bg-white w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
->>>>>>> Stashed changes
                     ADD TO CART
                   </button>
                 </div>
