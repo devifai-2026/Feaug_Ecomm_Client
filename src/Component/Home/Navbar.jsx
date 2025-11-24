@@ -6,98 +6,128 @@ import { BsHandbag } from "react-icons/bs";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 
 const Navbar = () => {
-  const location = useLocation();
-  const isHomePage = location.pathname === "/";
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [cartCount] = useState(0); // You can update this state with actual cart count
+    const location = useLocation();
+    const isHomePage = location.pathname === '/';
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [cartCount] = useState(0);
 
-  return (
-    <div
-      className={
-        isHomePage
-          ? `bg-cover bg-center bg-no-repeat min-h-[60vh] md:min-h[70vh] lg:min-h-[90vh]`
-          : ""
-      }
-      style={isHomePage ? { backgroundImage: `url(${banner})` } : {}}
-    >
-      {/* Navbar */}
-      <nav
-        className={`relative z-30 px-4 py-4 lg:px-8 ${
-          !isHomePage ? "bg-white" : ""
-        }`}
-      >
-        <div className="max-w-[90%] mx-auto flex justify-between items-center">
-          {/* Left Section - Logo */}
-          <div
-            data-aos="zoom-in"
-            data-aos-delay="100"
-            className="lg:absolute lg:left-1/2 lg:transform lg:-translate-x-1/2"
-          >
-            <Link to="/">
-              <h2
-                className={`uppercase text-2xl md:3xl lg:text-3xl font-bold font-playfair ${
-                  isHomePage ? "text-white" : "text-gray-800"
-                }`}
-              >
-                Feaug
-              </h2>
-            </Link>
-          </div>
+    return (
+        <div 
+            className={isHomePage ? 
+                `bg-cover bg-center bg-no-repeat min-h-[60vh] md:min-h[70vh] lg:min-h-[90vh]` : 
+                ''
+            }
+            style={isHomePage ? { backgroundImage: `url(${banner})` } : {}}
+        >
+            {/* Navbar */}
+            <nav className={`relative z-30 px-4 py-4 lg:px-8 ${!isHomePage ? 'bg-white' : ''}`}>
+                <div className="max-w-[90%] mx-auto flex justify-between items-center">
+                    {/* Left Section - Logo - Hidden on lg devices */}
+                    <div 
+                        data-aos="zoom-in" 
+                        data-aos-delay="100"
+                        className="lg:hidden"
+                    >
+                        <Link to="/">
+                            <h2 className={`uppercase text-2xl md:3xl lg:text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                                Feaug
+                            </h2>
+                        </Link>
+                    </div>
 
-          {/* Center Section - Navigation Links (Desktop) */}
-          <div
-            className={`hidden lg:flex items-center gap-6 ${
-              isHomePage ? "text-white" : "text-gray-800"
-            }`}
-          >
-            <div
-              className="flex items-center gap-1 cursor-pointer group relative"
-              data-aos="fade-down"
-              data-aos-delay="200"
-            >
-              <p>Categories</p>
-              <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
-            </div>
-            <div
-              className="flex items-center gap-1 cursor-pointer group relative"
-              data-aos="fade-down"
-              data-aos-delay="300"
-            >
-              <p>About</p>
-              <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
-            </div>
-            <p
-              className="cursor-pointer"
-              data-aos="fade-down"
-              data-aos-delay="400"
-            >
-              Blog
-            </p>
-            <p
-              className="cursor-pointer"
-              data-aos="fade-down"
-              data-aos-delay="500"
-            >
-              Contact
-            </p>
-          </div>
+                    {/* Center Section - Navigation Links (Desktop) - Now acts as right section on lg */}
+                    <div className={`hidden lg:flex items-center gap-6 ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                        <div 
+                            className='flex items-center gap-1 cursor-pointer group relative'
+                            data-aos="fade-down"
+                            data-aos-delay="200"
+                        >
+                            <p>Categories</p>
+                            <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
+                        </div>
+                        <div 
+                            className='flex items-center gap-1 cursor-pointer group relative'
+                            data-aos="fade-down"
+                            data-aos-delay="300"
+                        >
+                            <p>About</p>
+                            <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
+                        </div>
+                        <p 
+                            className='cursor-pointer'
+                            data-aos="fade-down"
+                            data-aos-delay="400"
+                        >
+                            Blog
+                        </p>
+                        <p 
+                            className='cursor-pointer'
+                            data-aos="fade-down"
+                            data-aos-delay="500"
+                        >
+                            Contact
+                        </p>
+                    </div>
 
-          {/* Right Section - User Actions */}
-          <div
-            className={`flex items-center gap-4 ${
-              isHomePage ? "text-white" : "text-gray-800"
-            }`}
-          >
-            {/* Desktop User Actions */}
-            <div className="hidden lg:flex items-center gap-4">
-              <div
-                className="flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3"
-                data-aos="fade-down"
-                data-aos-delay="200"
-              >
-                <p>USD</p>
-                <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
-              </div>
+                    {/* Center Logo - Only visible on lg devices */}
+                    <div 
+                        className="hidden lg:flex absolute left-1/2 transform -translate-x-1/2"
+                        data-aos="zoom-in" 
+                        data-aos-delay="100"
+                    >
+                        <Link to="/">
+                            <h2 className={`uppercase text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                                Feaug
+                            </h2>
+                        </Link>
+                    </div>
+
+                    {/* Right Section - User Actions */}
+                    <div className={`flex items-center gap-4 ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                        {/* Desktop User Actions */}
+                        <div className='hidden lg:flex items-center gap-4'>
+                            <div 
+                                className='flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3'
+                                data-aos="fade-down"
+                                data-aos-delay="200"
+                            >
+                                <p>USD</p>
+                                <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
+                            </div>
+                            
+                            <div 
+                                className='flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3'
+                                data-aos="fade-down"
+                                data-aos-delay="300"
+                            >
+                                <p>EN</p>
+                                <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
+                            </div>
+                            
+                            <div className='flex items-center gap-3'>
+                                <LuUserRound 
+                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    data-aos="fade-left"
+                                    data-aos-delay="400"
+                                />
+                                <HiOutlineMagnifyingGlass 
+                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    data-aos="fade-left"
+                                    data-aos-delay="500"
+                                />
+                                {/* Shopping Bag with Count Badge - Always Visible */}
+                                <div className="relative">
+                                    <BsHandbag 
+                                        className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                        data-aos="fade-left"
+                                        data-aos-delay="600"
+                                    />
+                                    <span className="absolute -bottom-2 -right-2 bg-amber-700  text-white text-xs rounded-full h-4 w-4 flex items-center justify-center ">
+                                        {cartCount}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
 
               <div
                 className="flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3"

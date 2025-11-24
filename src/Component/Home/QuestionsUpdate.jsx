@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import img from "../../assets/QuestionsUpdate/freepik__wearing-jewelry-chunky-silver-bracelet-with-hammer__7512.png"
+import img from "../../assets/QuestionsUpdate/ringTwo.webp"
+import imgTwo from "../../assets/QuestionsUpdate/ring.webp"
 import { FaArrowRightLong } from 'react-icons/fa6';
 import { FiPlus, FiMinus } from 'react-icons/fi';
 
@@ -88,21 +89,13 @@ const QuestionsUpdate = () => {
                     data-aos="slide-up"
                     data-aos-delay="400"
                  >
-                    <div className='flex items-center gap-3'>
-                        <div className='relative overflow-hidden'>
-                            <img 
-                                className='h-60 md:h-40 w-40 object-cover transition-all duration-300 group-hover:scale-105' 
-                                src={img} 
-                                alt="" 
-                            />
-                        </div>
-                        <div className='space-y-3 flex-1'>
-                            <p className='uppercase text-orange-900 text-sm font-medium'>TIPS</p>
-                            <p className='text-base uppercase font-semibold'>How to choose the perfect <br /> Engagement ring for <br /> Beloved one</p>
-                            <div className='space-y-1'>
-                                <p className='text-gray-500 text-xs'>Jane Thompson</p>
-                                <p className='text-gray-500'>May 10, 2023</p>
-                            </div>
+                    <img className=' h-60 md:h-40 w-40 object-cover' src={imgTwo} alt="" />
+                    <div className='space-y-3'>
+                        <p className='uppercase text-orange-900 text-sm font-medium'>TIPS</p>
+                        <p className='text-base uppercase font-semibold'>How to choose the perfect <br /> Engagement ring for <br /> Beloved one</p>
+                        <div className='space-y-1'>
+                            <p className='text-gray-500'>Jane Thompson</p>
+                            <p className='text-gray-500'>May 10, 2023</p>
                         </div>
                     </div>
                     {/* Black Border - Show on hover */}

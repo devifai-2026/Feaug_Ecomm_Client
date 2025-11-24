@@ -1,15 +1,35 @@
 import React, { useState } from 'react';
-import ring from "../../assets/cleopatra/ring.png"
+import one from "../../assets/ExploreProducts/one.webp"
+import two from "../../assets/ExploreProducts/two.webp"
+import three from "../../assets/ExploreProducts/three.webp"
+import four from "../../assets/ExploreProducts/four.jpeg"
+import five from "../../assets/ExploreProducts/five.webp"
 
 const ExploreProducts = () => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const products = [
-    { label: 'BRACELETS' },
-    { label: 'EARRINGS' },
-    { label: 'RINGS', subtitle: 'All-time favorite' },
-    { label: 'NECKLACES' },
-    { label: 'WATCHES' },
+    { 
+      label: 'BRACELETS',
+      image: one
+    },
+    { 
+      label: 'EARRINGS',
+      image: two
+    },
+    { 
+      label: 'RINGS', 
+      subtitle: 'All-time favorite',
+      image: three
+    },
+    { 
+      label: 'NECKLACES',
+      image: four
+    },
+    { 
+      label: 'WATCHES',
+      image: five
+    },
   ];
 
   return (
@@ -38,7 +58,7 @@ const ExploreProducts = () => {
                 data-aos-duration="600"
               >
                 <img
-                  src={ring}
+                  src={product.image}
                   alt={product.label}
                   className='w-full h-full object-cover transition-transform duration-300'
                 />
@@ -116,7 +136,7 @@ const ExploreProducts = () => {
                 data-aos-delay={index * 100 + 400}
               >
                 <img
-                  src={ring}
+                  src={product.image}
                   alt={product.label}
                   className='w-full h-full object-cover transition-transform duration-500 ease-out'
                   style={{
@@ -137,7 +157,7 @@ const ExploreProducts = () => {
                 data-aos-delay={index * 100 + 400}
               >
                 <img
-                  src={ring}
+                  src={product.image}
                   alt={product.label}
                   className='w-full h-full object-cover transition-transform duration-500 ease-out'
                   style={{
@@ -158,7 +178,7 @@ const ExploreProducts = () => {
                 data-aos-delay={index * 100 + 400}
               >
                 <img
-                  src={ring}
+                  src={product.image}
                   alt={product.label}
                   className='w-full h-full object-cover transition-transform duration-500 ease-out'
                   style={{

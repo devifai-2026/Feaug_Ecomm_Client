@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import img from "../../../assets/Features/freepik__portrait-of-a-girl-with-sparkling-jewelry-radiant-__27577.png";
 import {
   BsArrowLeft,
   BsHeart,
@@ -11,6 +10,11 @@ import {
   BsChevronRight,
 } from "react-icons/bs";
 import RelatedProducts from "./RelatedProduct";
+import BigImg from "../../../assets/ProductDetails/DetailsMainImg.webp"
+import sone from "../../../assets/ProductDetails/sone.webp"
+import stwo from "../../../assets/ProductDetails/stwo.webp"
+import sthree from "../../../assets/ProductDetails/sthree.webp"
+import sfour from "../../../assets/ProductDetails/sfour.webp"
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -18,14 +22,31 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("DESCRIPTION");
+  const [isHovering, setIsHovering] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: 0, y: 0 });
   const thumbnailContainerRef = useRef(null);
+  const imgRef = useRef(null);
 
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const productImages = [img, img, img, img, img, img, img];
+  const productImages = [BigImg, sone, stwo, sthree, sfour, stwo, sthree];
+
+  // NEW: Auto-scroll thumbnails to selected image
+  useEffect(() => {
+    if (thumbnailContainerRef.current) {
+      const thumbnailWidth = 80; // Approximate width of each thumbnail + gap
+      const container = thumbnailContainerRef.current;
+      const scrollPosition = selectedImageIndex * thumbnailWidth;
+      
+      container.scrollTo({
+        left: scrollPosition,
+        behavior: 'smooth'
+      });
+    }
+  }, [selectedImageIndex]);
 
   const product = {
     id: id,
@@ -40,6 +61,13 @@ const ProductDetails = () => {
     category: "Necklaces",
     tags: ["Diamond", "Gold", "Luxury", "Elegant"],
     delivery: "check your location",
+  };
+
+  const handleMouseMove = (e) => {
+    const { left, top, width, height } = imgRef.current.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomPos({ x, y });
   };
 
   const renderStars = (rating) => {
@@ -120,20 +148,20 @@ const ProductDetails = () => {
                 <h4 className="font-semibold mb-2">Product Specifications</h4>
                 <ul className="space-y-2">
                   <li className="flex justify-between">
-                    <span>Material:</span>
-                    <span>18K Pure Gold</span>
+                    <span className="text-sm md:text-base">Material:</span>
+                    <span className="text-xs md:text-sm">18K Pure Gold</span>
                   </li>
                   <li className="flex justify-between">
-                    <span>Diamond Quality:</span>
-                    <span>VS1-SI1</span>
+                    <span className="text-sm md:text-base">Diamond Quality:</span>
+                    <span className="text-xs md:text-sm">VS1-SI1</span>
                   </li>
                   <li className="flex justify-between">
-                    <span>Diamond Color:</span>
-                    <span>G-H</span>
+                    <span className="text-sm md:text-base">Diamond Color:</span>
+                    <span className="text-xs md:text-sm">G-H</span>
                   </li>
                   <li className="flex justify-between">
-                    <span>Closure Type:</span>
-                    <span>Lever-back</span>
+                    <span className="text-sm md:text-base">Closure Type:</span>
+                    <span className="text-xs md:text-sm">Lever-back</span>
                   </li>
                 </ul>
               </div>
@@ -141,16 +169,16 @@ const ProductDetails = () => {
                 <h4 className="font-semibold mb-2">Dimensions</h4>
                 <ul className="space-y-2">
                   <li className="flex justify-between">
-                    <span>Length:</span>
-                    <span>2.5 inches</span>
+                    <span className="text-sm md:text-base">Length:</span>
+                    <span className="text-xs md:text-sm">2.5 inches</span>
                   </li>
                   <li className="flex justify-between">
-                    <span>Width:</span>
-                    <span>0.5 inches</span>
+                    <span className="text-sm md:text-base">Width:</span>
+                    <span className="text-xs md:text-sm">0.5 inches</span>
                   </li>
                   <li className="flex justify-between">
-                    <span>Weight:</span>
-                    <span>3.2 grams</span>
+                    <span className="text-sm md:text-base">Weight:</span>
+                    <span className="text-xs md:text-sm">3.2 grams</span>
                   </li>
                 </ul>
               </div>
@@ -264,18 +292,75 @@ const ProductDetails = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* Product Images Section */}
           <div className="space-y-4">
-            {/* Main Image - Centered */}
-            <div className="flex justify-center group cursor-pointer overflow-hidden">
+            {/* Main Product Image with Zoom */}
+            <div
+              className="flex justify-center mx-auto mb-6 relative group cursor-crosshair"
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+              onMouseMove={handleMouseMove}
+            >
+              {/* Main Product Image - NOW DYNAMIC */}
               <img
-                src={productImages[selectedImageIndex]}
+                ref={imgRef}
+                src={productImages[selectedImageIndex]} // ← CHANGED: Now uses selected image
                 alt={product.title}
-                className="w-full max-w-lg h-[460px] md:h-[485px] lg:h-[460px] object-cover transition-all duration-300 group-hover:scale-105"
+                className="w-full max-w-lg h-auto max-h-[500px] object-contain transition-transform duration-300 hover:scale-105"
               />
+
+              {/* Blue mesh overlay (desktop only) */}
+              {isHovering && (
+                <div
+                  className="hidden md:block absolute pointer-events-none border border-blue-500 rounded-sm"
+                  style={{
+                    width: "150px",
+                    height: "150px",
+                    left: `calc(${zoomPos.x}% - 50px)`,
+                    top: `calc(${zoomPos.y}% - 50px)`,
+                    backgroundImage: `
+                      linear-gradient(to right, rgba(59,130,246,0.3) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(59,130,246,0.3) 1px, transparent 1px)
+                    `,
+                    backgroundSize: "8px 8px",
+                    backgroundColor: "rgba(59,130,246,0.1)",
+                    boxShadow: "0 0 8px rgba(59,130,246,0.4)",
+                    zIndex: 10,
+                  }}
+                ></div>
+              )}
+
+              {/* Zoomed Image (desktop only) - NOW DYNAMIC */}
+              {isHovering && (
+                <div className="hidden md:block absolute top-1/2 left-[100%] -translate-y-1/2 w-[610px] h-[500px] border border-gray-200 overflow-hidden z-10 bg-white shadow-lg rounded-md">
+                  <img
+                    src={productImages[selectedImageIndex]} // ← CHANGED: Now uses selected image
+                    alt="Zoomed"
+                    className="absolute object-contain transition-transform duration-100 pt-14"
+                    style={{
+                      transform: `translate(-${zoomPos.x}%, -${zoomPos.y}%) scale(1.7)`,
+                      transformOrigin: "top left",
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* Navigation Arrows for Main Image */}
+              <button
+                onClick={prevImage}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
+              >
+                <BsChevronLeft className="text-gray-700" />
+              </button>
+              <button
+                onClick={nextImage}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
+              >
+                <BsChevronRight className="text-gray-700" />
+              </button>
             </div>
 
-            {/* Thumbnail Images with Scroll - Centered */}
+            {/* Thumbnail Images with Scroll - UPDATED to show all thumbnails */}
             <div className="flex justify-center">
-              <div className="flex items-center gap-2 max-w-lg w-full">
+              <div className="flex items-center gap-2 w-full max-w-2xl"> {/* Increased max-width */}
                 <button
                   onClick={() => scrollThumbnails("left")}
                   className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
@@ -285,10 +370,11 @@ const ProductDetails = () => {
 
                 <div
                   ref={thumbnailContainerRef}
-                  className="flex gap-2 overflow-x-auto flex-1 justify-center px-2 scrollbar-hide"
+                  className="flex gap-2 overflow-x-auto flex-1 justify-start px-2 scrollbar-hide" 
                   style={{
                     scrollbarWidth: "none",
                     msOverflowStyle: "none",
+                    minHeight: "84px" 
                   }}
                 >
                   {productImages.map((image, index) => (
@@ -430,33 +516,33 @@ const ProductDetails = () => {
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Description Details Tabs - Vertical Layout */}
-          <div className="md:col-span-2 mt-8">
-            <div className="flex flex-col lg:flex-row gap-8">
-              {/* Vertical Tabs Navigation */}
-              <div className="lg:w-1/4">
-                <div className="space-y-1 border-r border-gray-200 pr-4">
-                  {["DESCRIPTION", "DETAILS", "SIZING GUIDE", "REVIEWS"].map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`w-40 lg:w-full text-center lg:text-left py-3 px-4 font-medium transition-all duration-300 hover:scale-105 ${
-                        activeTab === tab 
-                          ? "bg-black text-white" 
-                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                      }`}
-                    >
-                      {tab}
-                    </button>
-                  ))}
-                </div>
+        {/* Description Details Tabs - Vertical Layout */}
+        <div className="mt-8">
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Vertical Tabs Navigation */}
+            <div className="lg:w-1/4">
+              <div className="space-y-1 border-r border-gray-200 pr-4">
+                {["DESCRIPTION", "DETAILS", "SIZING GUIDE", "REVIEWS"].map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`w-40 lg:w-full text-center lg:text-left py-3 px-4 font-medium transition-all duration-300 hover:scale-105 ${
+                      activeTab === tab 
+                        ? "bg-black text-white" 
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
               </div>
+            </div>
 
-              {/* Tab Content */}
-              <div className="lg:w-3/4 py-2">
-                {renderTabContent()}
-              </div>
+            {/* Tab Content */}
+            <div className="lg:w-3/4 py-2">
+              {renderTabContent()}
             </div>
           </div>
         </div>
