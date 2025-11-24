@@ -43,7 +43,7 @@ const FeaturedCollection = () => {
                 <p 
                     className='text-nowrap flex items-center gap-2 cursor-pointer hover:gap-3 transition-all duration-300'
                     data-aos="fade-down"
-                    data-aos-delay="200"
+                    data-aos-delay="100"
                 >
                     View More <FaArrowRightLong />
                 </p>
@@ -57,7 +57,7 @@ const FeaturedCollection = () => {
                         className='relative overflow-hidden group cursor-pointer'
                         onMouseEnter={() => setHoveredCard(index)}
                         onMouseLeave={() => setHoveredCard(null)}
-                        onClick={() => handleCardClick(product.id)} // Add click handler
+                        onClick={() => handleCardClick(product.id)} 
                         data-aos="fade-up"
                         data-aos-delay={(index % 4) * 100 + 200}
                         data-aos-duration="800"
@@ -103,7 +103,7 @@ const FeaturedCollection = () => {
                                 </button>
                             </div>
 
-                            {/* Add to Cart Button - Bottom of Image */}
+                         
                             <button 
                                 className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] hover:scale-105 uppercase tracking-widest ${hoveredCard === index ? 'opacity-100 translate-y-0 ' : 'opacity-0 translate-y-4'}`}
                                 onClick={(e) => e.stopPropagation()}

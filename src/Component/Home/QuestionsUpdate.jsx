@@ -35,13 +35,11 @@ const QuestionsUpdate = () => {
                     {questions.map((item, index) => (
                         <div 
                             key={index} 
-                            className={`bg-white transition-all duration-300 ${
+                            className={`bg-white transition-all duration-300 overflow-hidden ${
                                 openIndex === index 
                                     ? 'border-2 border-orange-900' 
                                     : ''
                             }`}
-                            data-aos="fade-up"
-                            data-aos-delay={index * 150 + 300}
                         >
                             {/* Question header with +/- icon */}
                             <div 
@@ -60,12 +58,18 @@ const QuestionsUpdate = () => {
                                 </div>
                             </div>
                             
-                            {/* Answer section */}
-                            {openIndex === index && (
+                            {/* Answer section with smooth animation */}
+                            <div 
+                                className={`transition-all duration-300 ease-in-out ${
+                                    openIndex === index 
+                                        ? 'max-h-96 opacity-100' 
+                                        : 'max-h-0 opacity-0'
+                                }`}
+                            >
                                 <div className='px-4 pb-4 ml-9'>
                                     <p className='text-gray-600'>{item.answer}</p>
                                 </div>
-                            )}
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -73,14 +77,15 @@ const QuestionsUpdate = () => {
 
             {/* Latest Update Section */}
             <div 
-                className='flex-1 bg-neutral-100 p-6 flex flex-col'
+                className='flex-1  flex flex-col'
                 data-aos="flip-right"
                 data-aos-delay="300"
             >
                 <h2 className='text-2xl font-bold mb-8'>Latest Updates</h2>
                 <div className='flex-1 space-y-6'>
+                 {/* First Article */}
                  <div 
-                    className='flex items-center gap-3'
+                    className='relative group cursor-pointer overflow-hidden'
                     data-aos="slide-up"
                     data-aos-delay="400"
                  >
@@ -93,24 +98,40 @@ const QuestionsUpdate = () => {
                             <p className='text-gray-500'>May 10, 2023</p>
                         </div>
                     </div>
+                    {/* Black Border - Show on hover */}
+                    <div className="absolute inset-0  group-hover:border-black transition-all duration-300"></div>
                  </div>
+
+                 {/* Second Article */}
                  <div 
-                    className='flex items-center gap-3'
+                    className='relative group cursor-pointer overflow-hidden'
                     data-aos="slide-up"
                     data-aos-delay="500"
                  >
-                    <img className='h-60 md:h-40 w-40 object-cover' src={img} alt="" />
-                    <div className='space-y-3'>
-                        <p className='uppercase text-orange-900 text-sm font-medium'>GUIDE</p>
-                        <p className='text-base uppercase font-semibold'>Caring for your jewelry: <br /> Maintenance & Cleaning <br />Complete Guide</p>
-                        <div className='space-y-1'>
-                            <p className='text-gray-500'>Michael Davis</p>
-                            <p className='text-gray-500'>February 5, 2023</p>
+                    <div className='flex items-center gap-3'>
+                        <div className='relative overflow-hidden'>
+                            <img 
+                                className='h-60 md:h-40 w-40 object-cover transition-all duration-300 group-hover:scale-105' 
+                                src={img} 
+                                alt="" 
+                            />
+                        </div>
+                        <div className='space-y-3 flex-1'>
+                            <p className='uppercase text-orange-900 text-sm font-medium'>GUIDE</p>
+                            <p className='text-base uppercase font-semibold'>Caring for your jewelry: <br /> Maintenance & Cleaning <br />Complete Guide</p>
+                            <div className='space-y-1'>
+                                <p className='text-gray-500 text-xs'>Michael Davis</p>
+                                <p className='text-gray-500'>February 5, 2023</p>
+                            </div>
                         </div>
                     </div>
+                    {/* Black Border - Show on hover */}
+                    <div className="absolute inset-0  group-hover:border-black transition-all duration-300"></div>
                  </div>
+
+                 {/* View All Articles Link */}
                  <p 
-                    className='flex items-center gap-2 mt-6 text-gray-700 font-medium cursor-pointer hover:text-orange-900 transition-colors'
+                    className='flex items-center gap-2 mt-6 text-gray-700 cursor-pointer hover:text-orange-900 transition-colors font-bold'
                     data-aos="fade-in"
                     data-aos-delay="600"
                  >
