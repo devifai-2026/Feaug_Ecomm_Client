@@ -34,13 +34,11 @@ const QuestionsUpdate = () => {
                     {questions.map((item, index) => (
                         <div 
                             key={index} 
-                            className={`bg-white transition-all duration-300 ${
+                            className={`bg-white transition-all duration-300 overflow-hidden ${
                                 openIndex === index 
                                     ? 'border-2 border-orange-900' 
                                     : ''
                             }`}
-                            data-aos="fade-up"
-                            data-aos-delay={index * 150 + 300}
                         >
                             {/* Question header with +/- icon */}
                             <div 
@@ -59,12 +57,18 @@ const QuestionsUpdate = () => {
                                 </div>
                             </div>
                             
-                            {/* Answer section */}
-                            {openIndex === index && (
+                            {/* Answer section with smooth animation */}
+                            <div 
+                                className={`transition-all duration-300 ease-in-out ${
+                                    openIndex === index 
+                                        ? 'max-h-96 opacity-100' 
+                                        : 'max-h-0 opacity-0'
+                                }`}
+                            >
                                 <div className='px-4 pb-4 ml-9'>
                                     <p className='text-gray-600'>{item.answer}</p>
                                 </div>
-                            )}
+                            </div>
                         </div>
                     ))}
                 </div>
