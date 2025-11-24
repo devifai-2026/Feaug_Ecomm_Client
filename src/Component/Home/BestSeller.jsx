@@ -212,7 +212,7 @@ const BestSeller = () => {
                   </div>
 
                   {/* Add to Cart Button */}
-                  <button className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-transparent border-t-2 border-b-2 border-r border-l text-white py-2 px-3 text-sm font-medium transition-all duration-300 text-nowrap ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                  <button className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-transparent  text-black bg-white w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                     ADD TO CART
                   </button>
                 </div>
