@@ -3,7 +3,7 @@ import ring from "../../assets/BottomBanner/ring.png";
 
 const TopFooter = () => {
   return (
-    <div className="max-w-[90%] mx-auto mt-16 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="max-w-[90%] mx-auto mt-16 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
       <img 
         className="w-full h-64 object-cover" 
         src={ring} 
