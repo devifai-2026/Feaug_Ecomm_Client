@@ -284,11 +284,14 @@ const ProductDetails = () => {
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-all duration-300 hover:scale-105 mb-6"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-all duration-300 hover:scale-105 mb-6"
         >
+          <BsArrowLeft className="text-lg transition-transform duration-300 group-hover:scale-110" />
           <BsArrowLeft className="text-lg transition-transform duration-300 group-hover:scale-110" />
           Back to Products
         </button>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* Product Images Section */}
           <div className="space-y-4">
@@ -403,10 +406,35 @@ const ProductDetails = () => {
                   <BsChevronRight className="text-gray-600" />
                 </button>
               </div>
+                <button
+                  onClick={() => scrollThumbnails("right")}
+                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
+                >
+                  <BsChevronRight className="text-gray-600" />
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Product Info */}
+          <div className="space-y-6 flex flex-col justify-between">
+            {/* Top Section - Breadcrumbs to Description */}
+            <div className="space-y-6">
+              {/* Breadcrumbs */}
+              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <Link
+                  to="/"
+                  className="cursor-pointer hover:text-gray-700 transition-all duration-300 hover:scale-105"
+                >
+                  Home
+                </Link>
+                <span className="text-gray-400">|</span>
+                <span className="cursor-pointer hover:text-gray-700 transition-all duration-300 hover:scale-105">
+                  Products
+                </span>
+                <span className="text-gray-400">|</span>
+                <span className="text-gray-800 font-medium transition-all duration-300 hover:scale-105">Details</span>
+              </div>
           <div className="space-y-6 flex flex-col justify-between">
             {/* Top Section - Breadcrumbs to Description */}
             <div className="space-y-6">
@@ -430,7 +458,18 @@ const ProductDetails = () => {
               <h1 className="text-3xl font-bold text-gray-800 transition-all duration-300 hover:scale-105 cursor-default">
                 {product.title}
               </h1>
+              <p className="text-yellow-700 uppercase transition-all duration-300 hover:scale-105 cursor-default">{product.subtitle}</p>
+              <h1 className="text-3xl font-bold text-gray-800 transition-all duration-300 hover:scale-105 cursor-default">
+                {product.title}
+              </h1>
 
+              <div className="flex items-center gap-4">
+                <p className="text-2xl font-semibold text-gray-700 flex items-center gap-1 transition-all duration-300 hover:scale-105 cursor-default">
+                  <BsCurrencyDollar className="transition-transform duration-300 group-hover:scale-110" />
+                  {product.price}
+                </p>
+                <span className="text-green-600 font-medium transition-all duration-300 hover:scale-105 cursor-default">In Stock</span>
+              </div>
               <div className="flex items-center gap-4">
                 <p className="text-2xl font-semibold text-gray-700 flex items-center gap-1 transition-all duration-300 hover:scale-105 cursor-default">
                   <BsCurrencyDollar className="transition-transform duration-300 group-hover:scale-110" />
@@ -442,7 +481,28 @@ const ProductDetails = () => {
               <p className="text-gray-600 leading-relaxed transition-all duration-300 hover:scale-105 cursor-default">
                 {product.description}
               </p>
+              <p className="text-gray-600 leading-relaxed transition-all duration-300 hover:scale-105 cursor-default">
+                {product.description}
+              </p>
 
+              {/* Rating and Reviews */}
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-default">
+                  <div className="flex items-center gap-1">
+                    {renderStars(product.rating)}
+                  </div>
+                  <span className="text-gray-600 text-sm">
+                    ({product.reviews} reviews)
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button className="p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110">
+                    <BsHeart className="text-xl text-gray-600 hover:text-red-500 transition-transform duration-300" />
+                  </button>
+                  <button className="p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110">
+                    <BsShare className="text-xl text-gray-600 hover:text-blue-500 transition-transform duration-300" />
+                  </button>
+                </div>
               {/* Rating and Reviews */}
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-default">
@@ -485,7 +545,34 @@ const ProductDetails = () => {
                   </button>
                 </div>
               </div>
+            {/* Bottom Section - Quantity to Add to Cart */}
+            <div className="space-y-6">
+              {/* Quantity Selector */}
+              <div className="flex items-center justify-between">
+                <span className="text-gray-700 font-medium transition-all duration-300 hover:scale-105">Quantity:</span>
+                <div className="flex items-center transition-all duration-300 hover:scale-105">
+                  <button
+                    onClick={decreaseQuantity}
+                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 transition-all duration-300 hover:scale-110 font-bold"
+                  >
+                    -
+                  </button>
+                  <span className="px-6 py-2 font-bold transition-all duration-300 hover:scale-105">{quantity}</span>
+                  <button
+                    onClick={increaseQuantity}
+                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 transition-all duration-300 hover:scale-110 font-bold"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
 
+              {/* Add to Cart Button */}
+              <div className="flex gap-4">
+                <button className="flex-1 bg-black text-white py-3 px-6 hover:bg-gray-800 transition-all duration-300 hover:scale-105 font-semibold">
+                  Add to Cart
+                </button>
+              </div>
               {/* Add to Cart Button */}
               <div className="flex gap-4">
                 <button className="flex-1 bg-black text-white py-3 px-6 hover:bg-gray-800 transition-all duration-300 hover:scale-105 font-semibold">
