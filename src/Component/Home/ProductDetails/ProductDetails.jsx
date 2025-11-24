@@ -255,9 +255,9 @@ const ProductDetails = () => {
       <div className="max-w-[90%] mx-auto py-6">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors mb-6"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-all duration-300 hover:scale-105 mb-6"
         >
-          <BsArrowLeft className="text-lg" />
+          <BsArrowLeft className="text-lg transition-transform duration-300 group-hover:scale-110" />
           Back to Products
         </button>
 
@@ -265,11 +265,11 @@ const ProductDetails = () => {
           {/* Product Images Section */}
           <div className="space-y-4">
             {/* Main Image - Centered */}
-            <div className="flex justify-center">
+            <div className="flex justify-center group cursor-pointer overflow-hidden">
               <img
                 src={productImages[selectedImageIndex]}
                 alt={product.title}
-                className="w-full max-w-lg h-[460px] md:h-[485px] lg:h-[460px] object-cover"
+                className="w-full max-w-lg h-[460px] md:h-[485px] lg:h-[460px] object-cover transition-all duration-300 group-hover:scale-105"
               />
             </div>
 
@@ -278,7 +278,7 @@ const ProductDetails = () => {
               <div className="flex items-center gap-2 max-w-lg w-full">
                 <button
                   onClick={() => scrollThumbnails("left")}
-                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0"
+                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
                 >
                   <BsChevronLeft className="text-gray-600" />
                 </button>
@@ -294,7 +294,7 @@ const ProductDetails = () => {
                   {productImages.map((image, index) => (
                     <div
                       key={index}
-                      className={`flex-shrink-0 cursor-pointer border-2 transition-all duration-200 ${
+                      className={`flex-shrink-0 cursor-pointer border-2 transition-all duration-300 ${
                         selectedImageIndex === index
                           ? "border-orange-500 shadow-md"
                           : "border-transparent hover:border-gray-300"
@@ -304,7 +304,7 @@ const ProductDetails = () => {
                       <img
                         src={image}
                         alt={`${product.title} ${index + 1}`}
-                        className="w-16 h-16 md:w-20 md:h-20 object-cover"
+                        className="w-16 h-16 md:w-20 md:h-20 object-cover transition-all duration-300 hover:scale-110"
                       />
                     </div>
                   ))}
@@ -312,7 +312,7 @@ const ProductDetails = () => {
 
                 <button
                   onClick={() => scrollThumbnails("right")}
-                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0"
+                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
                 >
                   <BsChevronRight className="text-gray-600" />
                 </button>
@@ -328,38 +328,38 @@ const ProductDetails = () => {
               <div className="flex items-center space-x-2 text-sm text-gray-500">
                 <Link
                   to="/"
-                  className="cursor-pointer hover:text-gray-700 transition-colors"
+                  className="cursor-pointer hover:text-gray-700 transition-all duration-300 hover:scale-105"
                 >
                   Home
                 </Link>
                 <span className="text-gray-400">|</span>
-                <span className="cursor-pointer hover:text-gray-700 transition-colors">
+                <span className="cursor-pointer hover:text-gray-700 transition-all duration-300 hover:scale-105">
                   Products
                 </span>
                 <span className="text-gray-400">|</span>
-                <span className="text-gray-800 font-medium">Details</span>
+                <span className="text-gray-800 font-medium transition-all duration-300 hover:scale-105">Details</span>
               </div>
 
-              <p className="text-yellow-700 uppercase">{product.subtitle}</p>
-              <h1 className="text-3xl font-bold text-gray-800">
+              <p className="text-yellow-700 uppercase transition-all duration-300 hover:scale-105 cursor-default">{product.subtitle}</p>
+              <h1 className="text-3xl font-bold text-gray-800 transition-all duration-300 hover:scale-105 cursor-default">
                 {product.title}
               </h1>
 
               <div className="flex items-center gap-4">
-                <p className="text-2xl font-semibold text-gray-700 flex items-center gap-1">
-                  <BsCurrencyDollar />
+                <p className="text-2xl font-semibold text-gray-700 flex items-center gap-1 transition-all duration-300 hover:scale-105 cursor-default">
+                  <BsCurrencyDollar className="transition-transform duration-300 group-hover:scale-110" />
                   {product.price}
                 </p>
-                <span className="text-green-600 font-medium">In Stock</span>
+                <span className="text-green-600 font-medium transition-all duration-300 hover:scale-105 cursor-default">In Stock</span>
               </div>
 
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-gray-600 leading-relaxed transition-all duration-300 hover:scale-105 cursor-default">
                 {product.description}
               </p>
 
               {/* Rating and Reviews */}
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-default">
                   <div className="flex items-center gap-1">
                     {renderStars(product.rating)}
                   </div>
@@ -368,11 +368,11 @@ const ProductDetails = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="p-2 hover:bg-gray-50 transition-colors">
-                    <BsHeart className="text-xl text-gray-600 hover:text-red-500" />
+                  <button className="p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110">
+                    <BsHeart className="text-xl text-gray-600 hover:text-red-500 transition-transform duration-300" />
                   </button>
-                  <button className="p-2 hover:bg-gray-50 transition-colors">
-                    <BsShare className="text-xl text-gray-600 hover:text-blue-500" />
+                  <button className="p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110">
+                    <BsShare className="text-xl text-gray-600 hover:text-blue-500 transition-transform duration-300" />
                   </button>
                 </div>
               </div>
@@ -382,18 +382,18 @@ const ProductDetails = () => {
             <div className="space-y-6">
               {/* Quantity Selector */}
               <div className="flex items-center justify-between">
-                <span className="text-gray-700 font-medium">Quantity:</span>
-                <div className="flex items-center ">
+                <span className="text-gray-700 font-medium transition-all duration-300 hover:scale-105">Quantity:</span>
+                <div className="flex items-center transition-all duration-300 hover:scale-105">
                   <button
                     onClick={decreaseQuantity}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 transition-colors font-bold"
+                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 transition-all duration-300 hover:scale-110 font-bold"
                   >
                     -
                   </button>
-                  <span className="px-6 py-2   font-bold">{quantity}</span>
+                  <span className="px-6 py-2 font-bold transition-all duration-300 hover:scale-105">{quantity}</span>
                   <button
                     onClick={increaseQuantity}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 transition-colors font-bold"
+                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 transition-all duration-300 hover:scale-110 font-bold"
                   >
                     +
                   </button>
@@ -402,37 +402,35 @@ const ProductDetails = () => {
 
               {/* Add to Cart Button */}
               <div className="flex gap-4">
-                <button className="flex-1 bg-black text-white py-3 px-6 hover:bg-gray-800 transition-colors font-semibold">
+                <button className="flex-1 bg-black text-white py-3 px-6 hover:bg-gray-800 transition-all duration-300 hover:scale-105 font-semibold">
                   Add to Cart
                 </button>
               </div>
 
               {/* Additional Product Information */}
               <div className="border-t pt-4 space-y-1">
-                <div className="flex justify-between py-1">
-                  <span className="text-gray-600">Product Number:</span>
-                  <span className="font-medium">{product.productNumber}</span>
+                <div className="flex justify-between py-1 group cursor-pointer">
+                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">Product Number:</span>
+                  <span className="font-medium transition-all duration-300 group-hover:scale-105">{product.productNumber}</span>
                 </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-gray-600">Category:</span>
-                  <span className="font-medium">{product.category}</span>
+                <div className="flex justify-between py-1 group cursor-pointer">
+                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">Category:</span>
+                  <span className="font-medium transition-all duration-300 group-hover:scale-105">{product.category}</span>
                 </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-gray-600">Tags:</span>
-                  <span className="font-medium">{product.tags.join(", ")}</span>
+                <div className="flex justify-between py-1 group cursor-pointer">
+                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">Tags:</span>
+                  <span className="font-medium transition-all duration-300 group-hover:scale-105">{product.tags.join(", ")}</span>
                 </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-gray-600">Delivery:</span>
-                  <span className="font-medium text-gray-600 underline">
+                <div className="flex justify-between py-1 group cursor-pointer">
+                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">Delivery:</span>
+                  <span className="font-medium text-gray-600 underline transition-all duration-300 group-hover:scale-105">
                     {product.delivery}
                   </span>
                 </div>
               </div>
             </div>
-            
           </div>
 
-          
           {/* Description Details Tabs - Vertical Layout */}
           <div className="md:col-span-2 mt-8">
             <div className="flex flex-col lg:flex-row gap-8">
@@ -443,7 +441,7 @@ const ProductDetails = () => {
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`w-40 lg:w-full text-center lg:text-left py-3 px-4 font-medium transition-colors ${
+                      className={`w-40 lg:w-full text-center lg:text-left py-3 px-4 font-medium transition-all duration-300 hover:scale-105 ${
                         activeTab === tab 
                           ? "bg-black text-white" 
                           : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
