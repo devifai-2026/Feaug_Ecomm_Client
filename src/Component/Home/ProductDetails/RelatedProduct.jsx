@@ -10,11 +10,11 @@ const RelatedProducts = () => {
             {/* Related Products Section */}
             <div>
                 <h2 className='text-2xl md:text-3xl font-bold mb-8 md:mb-10 text-center md:text-left'>Related Products</h2>
-                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-3'>
                     {/* Product 1 */}
                     <div className=''>
                         <img 
-                            className='w-full h-64 sm:h-80 md:h-[400px] object-cover rounded-lg' 
+                            className='w-full h-64 sm:h-80 md:h-[400px] object-cover ' 
                             src={img} 
                             alt="Golden Pearls Bracelet" 
                         />
@@ -28,7 +28,7 @@ const RelatedProducts = () => {
                     {/* Product 2 */}
                     <div className=''>
                         <img 
-                            className='w-full h-64 sm:h-80 md:h-[400px] object-cover rounded-lg' 
+                            className='w-full h-64 sm:h-80 md:h-[400px] object-cover ' 
                             src={img} 
                             alt="Golden Pearls Bracelet" 
                         />
@@ -42,7 +42,7 @@ const RelatedProducts = () => {
                     {/* Product 3 */}
                     <div className=''>
                         <img 
-                            className='w-full h-64 sm:h-80 md:h-[400px] object-cover rounded-lg' 
+                            className='w-full h-64 sm:h-80 md:h-[400px] object-cover ' 
                             src={img} 
                             alt="Golden Pearls Bracelet" 
                         />
@@ -54,9 +54,7 @@ const RelatedProducts = () => {
                     </div>
                 </div>
             </div>
-            <div className='mt-10 mb-10'>
-                <hr />
-            </div>
+          
         </div>
     );
 };

@@ -429,7 +429,9 @@ const ProductDetails = () => {
                 </div>
               </div>
             </div>
+            
           </div>
+
           
           {/* Description Details Tabs - Vertical Layout */}
           <div className="md:col-span-2 mt-8">
