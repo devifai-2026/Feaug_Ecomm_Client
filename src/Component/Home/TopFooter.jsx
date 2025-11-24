@@ -34,14 +34,11 @@ const TopFooter = () => {
         alt="Ring" 
         data-aos="zoom-out"
         data-aos-delay="400"
-      >
-        <img 
-          className="w-full h-64 object-cover transition-all duration-300 group-hover:scale-105" 
-          src={ring} 
-          alt="Ring" 
-        />
+      />
+       
       </div>
-    </div>
+   
+  
   );
 };
 

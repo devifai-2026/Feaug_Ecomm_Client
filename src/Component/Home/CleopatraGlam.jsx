@@ -23,7 +23,7 @@ const CleopatraGlam = () => {
                </div>
                 <h2 className='text-xl md:text-2xl lg:text-3xl'>Cleopatra Glam</h2>
                 <p className='text-gray-500 text-xs md:text-sm lg:text-base'>Introducing our new mesmerizing jewellery collection.Embarace your inner allure with the timeless elegance and radiant beauty of ancient Egypt, now available exclusive on AXELS jewelry</p>
-                <button className='border-black border-2 px-2 py-1 md:px-3 md:py-2 bg-transparent text-sm md:text-base'>SHOP NOW</button>
+                <button className='border-black border-2 px-2 py-1 md:px-3 md:py-2 bg-transparent text-sm md:text-base w-[40%]'>SHOP NOW</button>
               </div>
            </div>
             

@@ -34,10 +34,10 @@ const ProductDetails = () => {
 
   const productImages = [BigImg, sone, stwo, sthree, sfour, stwo, sthree];
 
-  // NEW: Auto-scroll thumbnails to selected image
+  // Auto-scroll thumbnails to selected image
   useEffect(() => {
     if (thumbnailContainerRef.current) {
-      const thumbnailWidth = 80; // Approximate width of each thumbnail + gap
+      const thumbnailWidth = 80;
       const container = thumbnailContainerRef.current;
       const scrollPosition = selectedImageIndex * thumbnailWidth;
       
@@ -284,14 +284,11 @@ const ProductDetails = () => {
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-all duration-300 hover:scale-105 mb-6"
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-all duration-300 hover:scale-105 mb-6"
         >
-          <BsArrowLeft className="text-lg transition-transform duration-300 group-hover:scale-110" />
           <BsArrowLeft className="text-lg transition-transform duration-300 group-hover:scale-110" />
           Back to Products
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* Product Images Section */}
           <div className="space-y-4">
@@ -302,10 +299,10 @@ const ProductDetails = () => {
               onMouseLeave={() => setIsHovering(false)}
               onMouseMove={handleMouseMove}
             >
-              {/* Main Product Image - NOW DYNAMIC */}
+              {/* Main Product Image */}
               <img
                 ref={imgRef}
-                src={productImages[selectedImageIndex]} // ← CHANGED: Now uses selected image
+                src={productImages[selectedImageIndex]}
                 alt={product.title}
                 className="w-full max-w-lg h-auto max-h-[500px] object-contain transition-transform duration-300 hover:scale-105"
               />
@@ -331,11 +328,11 @@ const ProductDetails = () => {
                 ></div>
               )}
 
-              {/* Zoomed Image (desktop only) - NOW DYNAMIC */}
+              {/* Zoomed Image (desktop only) */}
               {isHovering && (
                 <div className="hidden md:block absolute top-1/2 left-[100%] -translate-y-1/2 w-[610px] h-[500px] border border-gray-200 overflow-hidden z-10 bg-white shadow-lg rounded-md">
                   <img
-                    src={productImages[selectedImageIndex]} // ← CHANGED: Now uses selected image
+                    src={productImages[selectedImageIndex]}
                     alt="Zoomed"
                     className="absolute object-contain transition-transform duration-100 pt-14"
                     style={{
@@ -361,9 +358,9 @@ const ProductDetails = () => {
               </button>
             </div>
 
-            {/* Thumbnail Images with Scroll - UPDATED to show all thumbnails */}
+            {/* Thumbnail Images with Scroll */}
             <div className="flex justify-center">
-              <div className="flex items-center gap-2 w-full max-w-2xl"> {/* Increased max-width */}
+              <div className="flex items-center gap-2 w-full max-w-2xl">
                 <button
                   onClick={() => scrollThumbnails("left")}
                   className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
@@ -373,11 +370,11 @@ const ProductDetails = () => {
 
                 <div
                   ref={thumbnailContainerRef}
-                  className="flex gap-2 overflow-x-auto flex-1 justify-start px-2 scrollbar-hide" 
+                  className="flex gap-2 overflow-x-auto flex-1 justify-start px-2 scrollbar-hide"
                   style={{
                     scrollbarWidth: "none",
                     msOverflowStyle: "none",
-                    minHeight: "84px" 
+                    minHeight: "84px"
                   }}
                 >
                   {productImages.map((image, index) => (
@@ -399,13 +396,6 @@ const ProductDetails = () => {
                   ))}
                 </div>
 
-                <button
-                  onClick={() => scrollThumbnails("right")}
-                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
-                >
-                  <BsChevronRight className="text-gray-600" />
-                </button>
-              </div>
                 <button
                   onClick={() => scrollThumbnails("right")}
                   className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
@@ -435,29 +425,7 @@ const ProductDetails = () => {
                 <span className="text-gray-400">|</span>
                 <span className="text-gray-800 font-medium transition-all duration-300 hover:scale-105">Details</span>
               </div>
-          <div className="space-y-6 flex flex-col justify-between">
-            {/* Top Section - Breadcrumbs to Description */}
-            <div className="space-y-6">
-              {/* Breadcrumbs */}
-              <div className="flex items-center space-x-2 text-sm text-gray-500">
-                <Link
-                  to="/"
-                  className="cursor-pointer hover:text-gray-700 transition-all duration-300 hover:scale-105"
-                >
-                  Home
-                </Link>
-                <span className="text-gray-400">|</span>
-                <span className="cursor-pointer hover:text-gray-700 transition-all duration-300 hover:scale-105">
-                  Products
-                </span>
-                <span className="text-gray-400">|</span>
-                <span className="text-gray-800 font-medium transition-all duration-300 hover:scale-105">Details</span>
-              </div>
 
-              <p className="text-yellow-700 uppercase transition-all duration-300 hover:scale-105 cursor-default">{product.subtitle}</p>
-              <h1 className="text-3xl font-bold text-gray-800 transition-all duration-300 hover:scale-105 cursor-default">
-                {product.title}
-              </h1>
               <p className="text-yellow-700 uppercase transition-all duration-300 hover:scale-105 cursor-default">{product.subtitle}</p>
               <h1 className="text-3xl font-bold text-gray-800 transition-all duration-300 hover:scale-105 cursor-default">
                 {product.title}
@@ -470,39 +438,11 @@ const ProductDetails = () => {
                 </p>
                 <span className="text-green-600 font-medium transition-all duration-300 hover:scale-105 cursor-default">In Stock</span>
               </div>
-              <div className="flex items-center gap-4">
-                <p className="text-2xl font-semibold text-gray-700 flex items-center gap-1 transition-all duration-300 hover:scale-105 cursor-default">
-                  <BsCurrencyDollar className="transition-transform duration-300 group-hover:scale-110" />
-                  {product.price}
-                </p>
-                <span className="text-green-600 font-medium transition-all duration-300 hover:scale-105 cursor-default">In Stock</span>
-              </div>
 
               <p className="text-gray-600 leading-relaxed transition-all duration-300 hover:scale-105 cursor-default">
                 {product.description}
               </p>
-              <p className="text-gray-600 leading-relaxed transition-all duration-300 hover:scale-105 cursor-default">
-                {product.description}
-              </p>
 
-              {/* Rating and Reviews */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-default">
-                  <div className="flex items-center gap-1">
-                    {renderStars(product.rating)}
-                  </div>
-                  <span className="text-gray-600 text-sm">
-                    ({product.reviews} reviews)
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button className="p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110">
-                    <BsHeart className="text-xl text-gray-600 hover:text-red-500 transition-transform duration-300" />
-                  </button>
-                  <button className="p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110">
-                    <BsShare className="text-xl text-gray-600 hover:text-blue-500 transition-transform duration-300" />
-                  </button>
-                </div>
               {/* Rating and Reviews */}
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-default">
@@ -545,34 +485,7 @@ const ProductDetails = () => {
                   </button>
                 </div>
               </div>
-            {/* Bottom Section - Quantity to Add to Cart */}
-            <div className="space-y-6">
-              {/* Quantity Selector */}
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700 font-medium transition-all duration-300 hover:scale-105">Quantity:</span>
-                <div className="flex items-center transition-all duration-300 hover:scale-105">
-                  <button
-                    onClick={decreaseQuantity}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 transition-all duration-300 hover:scale-110 font-bold"
-                  >
-                    -
-                  </button>
-                  <span className="px-6 py-2 font-bold transition-all duration-300 hover:scale-105">{quantity}</span>
-                  <button
-                    onClick={increaseQuantity}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 transition-all duration-300 hover:scale-110 font-bold"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
 
-              {/* Add to Cart Button */}
-              <div className="flex gap-4">
-                <button className="flex-1 bg-black text-white py-3 px-6 hover:bg-gray-800 transition-all duration-300 hover:scale-105 font-semibold">
-                  Add to Cart
-                </button>
-              </div>
               {/* Add to Cart Button */}
               <div className="flex gap-4">
                 <button className="flex-1 bg-black text-white py-3 px-6 hover:bg-gray-800 transition-all duration-300 hover:scale-105 font-semibold">
@@ -634,6 +547,7 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
+
       <RelatedProducts />
     </div>
   );
