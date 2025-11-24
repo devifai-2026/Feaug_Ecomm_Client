@@ -82,22 +82,65 @@ const Navbar = () => {
                         </Link>
                     </div>
 
-          {/* Right Section - User Actions */}
-          <div
-            className={`flex items-center gap-4 ${
-              isHomePage ? "text-white" : "text-gray-800"
-            }`}
-          >
-            {/* Desktop User Actions */}
-            <div className="hidden lg:flex items-center gap-4">
-              <div
-                className="flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3"
-                data-aos="fade-down"
-                data-aos-delay="200"
-              >
-                <p>USD</p>
-                <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
-              </div>
+                    {/* Center Logo - Only visible on lg devices */}
+                    <div 
+                        className="hidden lg:flex absolute left-1/2 transform -translate-x-1/2"
+                        data-aos="zoom-in" 
+                        data-aos-delay="100"
+                    >
+                        <Link to="/">
+                            <h2 className={`uppercase text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                                Feaug
+                            </h2>
+                        </Link>
+                    </div>
+
+                    {/* Right Section - User Actions */}
+                    <div className={`flex items-center gap-4 ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                        {/* Desktop User Actions */}
+                        <div className='hidden lg:flex items-center gap-4'>
+                            <div 
+                                className='flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3'
+                                data-aos="fade-down"
+                                data-aos-delay="200"
+                            >
+                                <p>USD</p>
+                                <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
+                            </div>
+                            
+                            <div 
+                                className='flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3'
+                                data-aos="fade-down"
+                                data-aos-delay="300"
+                            >
+                                <p>EN</p>
+                                <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
+                            </div>
+                            
+                            <div className='flex items-center gap-3'>
+                                <LuUserRound 
+                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    data-aos="fade-left"
+                                    data-aos-delay="400"
+                                />
+                                <HiOutlineMagnifyingGlass 
+                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    data-aos="fade-left"
+                                    data-aos-delay="500"
+                                />
+                                {/* Shopping Bag with Count Badge - Always Visible */}
+                                <div className="relative">
+                                    <BsHandbag 
+                                        className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                        data-aos="fade-left"
+                                        data-aos-delay="600"
+                                    />
+                                    <span className="absolute -bottom-2 -right-2 bg-amber-700  text-white text-xs rounded-full h-4 w-4 flex items-center justify-center ">
+                                        {cartCount}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
 
               <div
                 className="flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3"
