@@ -76,7 +76,7 @@ const QuestionsUpdate = () => {
 
             {/* Latest Update Section */}
             <div 
-                className='flex-1 bg-neutral-100 p-6 flex flex-col'
+                className='flex-1  flex flex-col'
                 data-aos="flip-right"
                 data-aos-delay="300"
             >
