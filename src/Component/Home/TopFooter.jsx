@@ -7,24 +7,32 @@ import four from "../../assets/TopFooter/four.webp";
 const TopFooter = () => {
   return (
     <div className="max-w-[90%] mx-auto mt-16 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
-      <img 
-        className="w-full h-64 object-cover" 
-        src={one} 
-        alt="Ring" 
+      <div 
+        className="w-full h-64 overflow-hidden group"
         data-aos="zoom-in"
         data-aos-delay="100"
-      />
-      <img 
-        className="w-full h-64 object-cover" 
-        src={two} 
-        alt="Ring" 
+      >
+        <img 
+          className="w-full h-64 object-cover transition-all duration-300 group-hover:scale-105" 
+          src={one} 
+          alt="Jewelry" 
+        />
+      </div>
+      
+      <div 
+        className="w-full h-64 overflow-hidden group"
         data-aos="fade-up"
         data-aos-delay="200"
-      />
-      <img 
-        className="w-full h-64 object-cover" 
-        src={three} 
-        alt="Ring" 
+      >
+        <img 
+          className="w-full h-64 object-cover transition-all duration-300 group-hover:scale-105" 
+          src={two} 
+          alt="Jewelry" 
+        />
+      </div>
+      
+      <div 
+        className="w-full h-64 overflow-hidden group"
         data-aos="fade-down"
         data-aos-delay="300"
       />

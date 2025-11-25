@@ -77,7 +77,7 @@ const QuestionsUpdate = () => {
 
             {/* Latest Update Section */}
             <div 
-                className='flex-1  flex flex-col'
+                className='flex-1 flex flex-col'
                 data-aos="flip-right"
                 data-aos-delay="300"
             >
@@ -106,10 +106,9 @@ const QuestionsUpdate = () => {
                                 <p className='text-gray-500'>May 10, 2023</p>
                             </div>
                         </div>
+                        {/* Black Border - Show on hover */}
+                        <div className="absolute inset-0 group-hover:border-2 border-black transition-all duration-300"></div>
                     </div>
-                    {/* Black Border - Show on hover */}
-                    <div className="absolute inset-0  group-hover:border-black transition-all duration-300"></div>
-                 </div>
 
                  {/* Second Article */}
                  <div 
@@ -133,20 +132,19 @@ const QuestionsUpdate = () => {
                                 <p className='text-gray-500 text-xs'>February 5, 2023</p>
                             </div>
                         </div>
+                        {/* Black Border - Show on hover */}
+                        <div className="absolute inset-0 group-hover:border-2 border-black transition-all duration-300"></div>
                     </div>
-                    {/* Black Border - Show on hover */}
-                    <div className="absolute inset-0  group-hover:border-black transition-all duration-300"></div>
-                 </div>
 
-                 {/* View All Articles Link */}
-                 <p 
-                    className='flex items-center gap-2 mt-6 text-gray-700 cursor-pointer hover:text-orange-900 transition-colors font-bold'
-                    data-aos="fade-in"
-                    data-aos-delay="600"
-                 >
-                    View All Articles
-                    <FaArrowRightLong className='text-orange-900'/>
-                 </p>
+                    {/* View All Articles Link */}
+                    <p 
+                        className='flex items-center gap-2 mt-6 text-gray-700 cursor-pointer hover:text-orange-900 transition-colors font-bold'
+                        data-aos="fade-in"
+                        data-aos-delay="600"
+                    >
+                        View All Articles
+                        <FaArrowRightLong className='text-orange-900'/>
+                    </p>
                 </div>
             </div>
         </div>

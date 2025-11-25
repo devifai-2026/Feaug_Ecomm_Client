@@ -14,7 +14,7 @@ const Navbar = () => {
     return (
         <div 
             className={isHomePage ? 
-                `bg-cover bg-center bg-no-repeat min-h-[60vh] md:min-h[70vh] lg:min-h-[90vh]` : 
+                `bg-cover bg-center bg-no-repeat min-h-[60vh] md:min-h-[70vh] lg:min-h-[90vh]` : 
                 ''
             }
             style={isHomePage ? { backgroundImage: `url(${banner})` } : {}}
@@ -29,8 +29,8 @@ const Navbar = () => {
                         className="lg:hidden"
                     >
                         <Link to="/">
-                            <h2 className={`uppercase text-2xl md:3xl lg:text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
-                                Feauag
+                            <h2 className={`uppercase text-2xl md:text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                                Feaug
                             </h2>
                         </Link>
                     </div>
@@ -115,7 +115,7 @@ const Navbar = () => {
                                     data-aos="fade-left"
                                     data-aos-delay="500"
                                 />
-                                {/* Shopping Bag with Count Badge - Always Visible */}
+                                {/* Shopping Bag with Count Badge */}
                                 <div className="relative">
                                     <BsHandbag 
                                         className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
