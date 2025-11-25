@@ -173,7 +173,7 @@ const Navbar = () => {
                                 data-aos="fade-down"
                                 data-aos-delay="200"
                             >
-                                <p>USD</p>
+                                <p>INR</p>
                                 <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
                             </div>
                             
@@ -197,7 +197,7 @@ const Navbar = () => {
                                     data-aos="fade-left"
                                     data-aos-delay="500"
                                 />
-                                {/* Shopping Bag with Count Badge - Always Visible */}
+                                {/* Shopping Bag with Count Badge */}
                                 <div className="relative">
                                     <BsHandbag 
                                         className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
@@ -220,7 +220,7 @@ const Navbar = () => {
                                     data-aos="fade-left"
                                     data-aos-delay="600"
                                 />
-                                <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                                <span className="absolute  -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
                                     {cartCount}
                                 </span>
                             </div>
@@ -282,7 +282,7 @@ const Navbar = () => {
                                     {/* Currency and Language Settings */}
                                     <div className="space-y-4 pb-4 border-b border-gray-200">
                                         <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                                            <span className="font-medium">USD</span>
+                                            <span className="font-medium">INR</span>
                                             <LuChevronDown className="text-gray-500" />
                                         </div>
                                         <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">

@@ -4,12 +4,12 @@ import {
   BsArrowLeft,
   BsHeart,
   BsShare,
-  BsCurrencyDollar,
   BsStarFill,
   BsChevronLeft,
   BsChevronRight,
   BsEye,
   BsEyeFill,
+  BsCurrencyRupee
 } from "react-icons/bs";
 import RelatedProducts from "./RelatedProduct";
 import BigImg from "../../../assets/ProductDetails/DetailsMainImg.webp";
@@ -497,7 +497,7 @@ const ProductDetails = () => {
 
               <div className="flex items-center gap-4">
                 <p className="text-2xl font-semibold text-gray-700 flex items-center gap-1 transition-all duration-300 hover:scale-105 cursor-default">
-                  <BsCurrencyDollar className="transition-transform duration-300 group-hover:scale-110" />
+                  <BsCurrencyRupee className="transition-transform duration-300 group-hover:scale-110" />
                   {product.price}
                 </p>
                 <span className="text-green-600 font-medium transition-all duration-300 hover:scale-105 cursor-default">
