@@ -19,11 +19,13 @@ const Navbar = () => {
     // Carousel state
     const [currentSlide, setCurrentSlide] = useState(0);
 
-    return (
-        <div 
-            className={isHomePage ? 
-                `bg-cover bg-center bg-no-repeat min-h-[60vh] md:min-h-[70vh] lg:min-h-[90vh]` : 
-                ''
+    // Scroll effect for navbar background
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 50) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
             }
         };
 
@@ -109,8 +111,8 @@ const Navbar = () => {
                         className="lg:hidden"
                     >
                         <Link to="/">
-                            <h2 className={`uppercase text-2xl md:text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
-                                Feaug
+                            <h2 className={`uppercase text-2xl md:3xl lg:text-3xl font-bold font-playfair ${getTextColor()}`}>
+                                Feauag
                             </h2>
                         </Link>
                     </div>
@@ -225,9 +227,7 @@ const Navbar = () => {
 
                             {/* Mobile Menu Button */}
                             <button
-                                className={`text-2xl ${
-                                isHomePage ? "text-white" : "text-gray-800"
-                                }`}
+                                className={`text-2xl ${getTextColor()}`}
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 data-aos="fade-left"
                                 data-aos-delay="700"
