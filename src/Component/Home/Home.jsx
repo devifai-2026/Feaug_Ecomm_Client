@@ -8,6 +8,7 @@ import FlashSale from './FlashSale';
 import TopFooter from './TopFooter';
 import BestSeller from './BestSeller';
 import QuestionsUpdate from './QuestionsUpdate';
+import FAQ from './FAQ';
 
 const Home = () => {
     return (
@@ -19,6 +20,7 @@ const Home = () => {
             <BestSeller></BestSeller>
             <Services></Services>
             <FlashSale></FlashSale>
+            <FAQ></FAQ>
             <QuestionsUpdate></QuestionsUpdate>
             <TopFooter></TopFooter>
         </div>
