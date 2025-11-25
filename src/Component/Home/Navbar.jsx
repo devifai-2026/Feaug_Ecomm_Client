@@ -138,7 +138,7 @@ const Navbar = () => {
                                     data-aos="fade-left"
                                     data-aos-delay="600"
                                 />
-                                <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                                <span className="absolute  -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
                                     {cartCount}
                                 </span>
                             </div>
@@ -146,7 +146,7 @@ const Navbar = () => {
                             {/* Mobile Menu Button */}
                             <button
                                 className={`text-2xl ${
-                                    isHomePage ? "text-white" : "text-gray-800"
+                                isHomePage ? "text-white" : "text-gray-800"
                                 }`}
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 data-aos="fade-left"
