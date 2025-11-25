@@ -5,46 +5,66 @@ import three from "../../assets/TopFooter/three.webp";
 import four from "../../assets/TopFooter/four.webp";
 
 const TopFooter = () => {
+  const categories = [
+    { 
+      image: one, 
+      name: "Engagement Rings",
+      aos: "zoom-in",
+      delay: "100"
+    },
+    { 
+      image: two, 
+      name: "Wedding Bands",
+      aos: "fade-up", 
+      delay: "200"
+    },
+    { 
+      image: three, 
+      name: "Diamond Jewelry",
+      aos: "fade-down",
+      delay: "300"
+    },
+    { 
+      image: four, 
+      name: "Luxury Collection",
+      aos: "zoom-out",
+      delay: "400"
+    }
+  ];
+
   return (
     <div className="max-w-[90%] mx-auto mt-16 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
-      <div 
-        className="w-full h-64 overflow-hidden group"
-        data-aos="zoom-in"
-        data-aos-delay="100"
-      >
-        <img 
-          className="w-full h-64 object-cover transition-all duration-300 group-hover:scale-105" 
-          src={one} 
-          alt="Jewelry" 
-        />
-      </div>
-      
-      <div 
-        className="w-full h-64 overflow-hidden group"
-        data-aos="fade-up"
-        data-aos-delay="200"
-      >
-        <img 
-          className="w-full h-64 object-cover transition-all duration-300 group-hover:scale-105" 
-          src={two} 
-          alt="Jewelry" 
-        />
-      </div>
-      
-      <div 
-        className="w-full h-64 overflow-hidden group"
-        data-aos="fade-down"
-        data-aos-delay="300"
-      />
-      <div className="relative group">
-        <img 
-          className="w-full h-64 object-cover transition-all duration-300 group-hover:scale-105" 
-          src={four} 
-          alt="Ring" 
-          data-aos="zoom-out"
-          data-aos-delay="400"
-        />
-      </div>
+      {categories.map((category, index) => (
+        <div 
+          key={index}
+          className="w-full h-64 overflow-hidden group relative cursor-pointer"
+          data-aos={category.aos}
+          data-aos-delay={category.delay}
+        >
+          <img 
+            className="w-full h-64 object-cover transition-all duration-500 group-hover:scale-110" 
+            src={category.image} 
+            alt={category.name} 
+          />
+          
+          {/* Mobile & Tablet: Always visible */}
+          <div className="md:block lg:hidden absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+            <h3 className="text-white text-sm font-semibold text-center">
+              {category.name}
+            </h3>
+          </div>
+          
+          {/* Desktop: Show on hover */}
+          <div className="hidden lg:flex absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-500 items-center justify-center">
+            <div className="text-center transform translate-y-8 group-hover:translate-y-0 transition-all duration-500">
+              <h3 className="text-white text-xl font-bold mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-200">
+                {category.name}
+              </h3>
+             
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
