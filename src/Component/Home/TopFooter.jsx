@@ -54,7 +54,8 @@ const TopFooter = () => {
           alt="Jewelry" 
         />
       </div>
-    </div>
+   
+  
   );
 };
 
