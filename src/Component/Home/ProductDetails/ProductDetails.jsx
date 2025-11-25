@@ -9,14 +9,14 @@ import {
   BsChevronLeft,
   BsChevronRight,
   BsEye,
-  BsEyeFill
+  BsEyeFill,
 } from "react-icons/bs";
 import RelatedProducts from "./RelatedProduct";
-import BigImg from "../../../assets/ProductDetails/DetailsMainImg.webp"
-import sone from "../../../assets/ProductDetails/sone.webp"
-import stwo from "../../../assets/ProductDetails/stwo.webp"
-import sthree from "../../../assets/ProductDetails/sthree.webp"
-import sfour from "../../../assets/ProductDetails/sfour.webp"
+import BigImg from "../../../assets/ProductDetails/DetailsMainImg.webp";
+import sone from "../../../assets/ProductDetails/sone.webp";
+import stwo from "../../../assets/ProductDetails/stwo.webp";
+import sthree from "../../../assets/ProductDetails/sthree.webp";
+import sfour from "../../../assets/ProductDetails/sfour.webp";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -44,10 +44,10 @@ const ProductDetails = () => {
       const thumbnailWidth = 80;
       const container = thumbnailContainerRef.current;
       const scrollPosition = selectedImageIndex * thumbnailWidth;
-      
+
       container.scrollTo({
         left: scrollPosition,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   }, [selectedImageIndex]);
@@ -56,7 +56,7 @@ const ProductDetails = () => {
   useEffect(() => {
     // View count increment interval
     const viewCountInterval = setInterval(() => {
-      setViewCount(prev => {
+      setViewCount((prev) => {
         const increment = Math.floor(Math.random() * 50) + 30; // 30-80 increment
         const newCount = prev + increment;
         return newCount > 850 ? 40 : newCount; // Reset if exceeds 850
@@ -142,28 +142,31 @@ const ProductDetails = () => {
         return (
           <div className="prose max-w-none">
             <p className="text-gray-600 leading-relaxed">
-              Introducing our exquisite Rhea Gold Earrings from the River Luxe Collection. 
-              These earrings are the epitome of sophistication and grace, designed to make 
-              a statement on any occasion. Crafted with meticulous attention to detail, 
-              they showcase the timeless beauty of diamonds in a breathtaking drop design.
+              Introducing our exquisite Rhea Gold Earrings from the River Luxe
+              Collection. These earrings are the epitome of sophistication and
+              grace, designed to make a statement on any occasion. Crafted with
+              meticulous attention to detail, they showcase the timeless beauty
+              of diamonds in a breathtaking drop design.
             </p>
-            
+
             <p className="text-gray-600 leading-relaxed mt-4">
-              The diamonds, carefully selected for their exceptional quality, radiate 
-              brilliance and sparkle with every movement. Set in lustrous 18K pure gold, 
-              these earrings exude a luxurious and refined aura. The white gold complements 
-              the diamonds beautifully, enhancing its natural luminosity and creating a 
-              harmonious combination of elegance and glamour. Come with secure lever-back 
-              closures, providing both a secure fit and ease of wearing. The lightweight 
-              design ensures that you can enjoy wearing these earrings for extended periods 
-              without any discomfort.
+              The diamonds, carefully selected for their exceptional quality,
+              radiate brilliance and sparkle with every movement. Set in
+              lustrous 18K pure gold, these earrings exude a luxurious and
+              refined aura. The white gold complements the diamonds beautifully,
+              enhancing its natural luminosity and creating a harmonious
+              combination of elegance and glamour. Come with secure lever-back
+              closures, providing both a secure fit and ease of wearing. The
+              lightweight design ensures that you can enjoy wearing these
+              earrings for extended periods without any discomfort.
             </p>
-            
+
             <p className="text-gray-600 leading-relaxed mt-4">
-              Whether you're attending a formal event, celebrating a special occasion, 
-              or simply want to elevate your everyday style, these Diamond Drop Earrings 
-              are the perfect choice. They effortlessly add a touch of sophistication and 
-              glamour to any ensemble, making them a versatile and timeless accessory.
+              Whether you're attending a formal event, celebrating a special
+              occasion, or simply want to elevate your everyday style, these
+              Diamond Drop Earrings are the perfect choice. They effortlessly
+              add a touch of sophistication and glamour to any ensemble, making
+              them a versatile and timeless accessory.
             </p>
           </div>
         );
@@ -179,7 +182,9 @@ const ProductDetails = () => {
                     <span className="text-xs md:text-sm">18K Pure Gold</span>
                   </li>
                   <li className="flex justify-between">
-                    <span className="text-sm md:text-base">Diamond Quality:</span>
+                    <span className="text-sm md:text-base">
+                      Diamond Quality:
+                    </span>
                     <span className="text-xs md:text-sm">VS1-SI1</span>
                   </li>
                   <li className="flex justify-between">
@@ -219,15 +224,21 @@ const ProductDetails = () => {
             <div className="space-y-3">
               <div className="border-l-4 border-yellow-500 pl-4">
                 <h4 className="font-medium">Small (1-1.5 inches)</h4>
-                <p className="text-sm">Perfect for everyday wear and subtle elegance</p>
+                <p className="text-sm">
+                  Perfect for everyday wear and subtle elegance
+                </p>
               </div>
               <div className="border-l-4 border-yellow-500 pl-4">
                 <h4 className="font-medium">Medium (1.5-2.5 inches)</h4>
-                <p className="text-sm">Ideal for special occasions and evening events</p>
+                <p className="text-sm">
+                  Ideal for special occasions and evening events
+                </p>
               </div>
               <div className="border-l-4 border-yellow-500 pl-4">
                 <h4 className="font-medium">Large (2.5+ inches)</h4>
-                <p className="text-sm">Make a bold statement for formal events</p>
+                <p className="text-sm">
+                  Make a bold statement for formal events
+                </p>
               </div>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
@@ -258,19 +269,35 @@ const ProductDetails = () => {
                     <span className="text-sm w-4">{star}</span>
                     <BsStarFill className="text-yellow-400" />
                     <div className="flex-1 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-yellow-400 h-2 rounded-full" 
-                        style={{ width: `${star === 5 ? '80%' : star === 4 ? '15%' : star === 3 ? '5%' : '0%'}` }}
+                      <div
+                        className="bg-yellow-400 h-2 rounded-full"
+                        style={{
+                          width: `${
+                            star === 5
+                              ? "80%"
+                              : star === 4
+                              ? "15%"
+                              : star === 3
+                              ? "5%"
+                              : "0%"
+                          }`,
+                        }}
                       ></div>
                     </div>
                     <span className="text-sm w-8">
-                      {star === 5 ? '80%' : star === 4 ? '15%' : star === 3 ? '5%' : '0%'}
+                      {star === 5
+                        ? "80%"
+                        : star === 4
+                        ? "15%"
+                        : star === 3
+                        ? "5%"
+                        : "0%"}
                     </span>
                   </div>
                 ))}
               </div>
             </div>
-            
+
             <div className="space-y-4">
               <div className="border-b pb-4">
                 <div className="flex justify-between items-start mb-2">
@@ -282,9 +309,12 @@ const ProductDetails = () => {
                   </div>
                   <span className="text-sm text-gray-500">2 weeks ago</span>
                 </div>
-                <p>Absolutely stunning! The craftsmanship is exceptional and they're so comfortable to wear all day.</p>
+                <p>
+                  Absolutely stunning! The craftsmanship is exceptional and
+                  they're so comfortable to wear all day.
+                </p>
               </div>
-              
+
               <div className="border-b pb-4">
                 <div className="flex justify-between items-start mb-2">
                   <div>
@@ -295,7 +325,10 @@ const ProductDetails = () => {
                   </div>
                   <span className="text-sm text-gray-500">1 month ago</span>
                 </div>
-                <p>Beautiful earrings, perfect for my wife's birthday. The gold quality is excellent.</p>
+                <p>
+                  Beautiful earrings, perfect for my wife's birthday. The gold
+                  quality is excellent.
+                </p>
               </div>
             </div>
           </div>
@@ -401,7 +434,7 @@ const ProductDetails = () => {
                   style={{
                     scrollbarWidth: "none",
                     msOverflowStyle: "none",
-                    minHeight: "84px"
+                    minHeight: "84px",
                   }}
                 >
                   {productImages.map((image, index) => (
@@ -450,10 +483,14 @@ const ProductDetails = () => {
                   Products
                 </span>
                 <span className="text-gray-400">|</span>
-                <span className="text-gray-800 font-medium transition-all duration-300 hover:scale-105">Details</span>
+                <span className="text-gray-800 font-medium transition-all duration-300 hover:scale-105">
+                  Details
+                </span>
               </div>
 
-              <p className="text-yellow-700 uppercase transition-all duration-300 hover:scale-105 cursor-default">{product.subtitle}</p>
+              <p className="text-yellow-700 uppercase transition-all duration-300 hover:scale-105 cursor-default">
+                {product.subtitle}
+              </p>
               <h1 className="text-3xl font-bold text-gray-800 transition-all duration-300 hover:scale-105 cursor-default">
                 {product.title}
               </h1>
@@ -463,7 +500,9 @@ const ProductDetails = () => {
                   <BsCurrencyDollar className="transition-transform duration-300 group-hover:scale-110" />
                   {product.price}
                 </p>
-                <span className="text-green-600 font-medium transition-all duration-300 hover:scale-105 cursor-default">In Stock</span>
+                <span className="text-green-600 font-medium transition-all duration-300 hover:scale-105 cursor-default">
+                  In Stock
+                </span>
               </div>
 
               <p className="text-gray-600 leading-relaxed transition-all duration-300 hover:scale-105 cursor-default">
@@ -495,7 +534,9 @@ const ProductDetails = () => {
             <div className="space-y-6">
               {/* Quantity Selector */}
               <div className="flex items-center justify-between">
-                <span className="text-gray-700 font-medium transition-all duration-300 hover:scale-105">Quantity:</span>
+                <span className="text-gray-700 font-medium transition-all duration-300 hover:scale-105">
+                  Quantity:
+                </span>
                 <div className="flex items-center transition-all duration-300 hover:scale-105">
                   <button
                     onClick={decreaseQuantity}
@@ -503,7 +544,9 @@ const ProductDetails = () => {
                   >
                     -
                   </button>
-                  <span className="px-6 py-2 font-bold transition-all duration-300 hover:scale-105">{quantity}</span>
+                  <span className="px-6 py-2 font-bold transition-all duration-300 hover:scale-105">
+                    {quantity}
+                  </span>
                   <button
                     onClick={increaseQuantity}
                     className="px-4 py-2 text-gray-600 hover:bg-gray-100 transition-all duration-300 hover:scale-110 font-bold"
@@ -523,22 +566,56 @@ const ProductDetails = () => {
               {/* Additional Product Information */}
               <div className="border-t pt-4 space-y-1">
                 <div className="flex justify-between py-1 group cursor-pointer">
-                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">Product Number:</span>
-                  <span className="font-medium transition-all duration-300 group-hover:scale-105">{product.productNumber}</span>
+                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">
+                    Product Number:
+                  </span>
+                  <span className="font-medium transition-all duration-300 group-hover:scale-105">
+                    {product.productNumber}
+                  </span>
                 </div>
                 <div className="flex justify-between py-1 group cursor-pointer">
-                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">Category:</span>
-                  <span className="font-medium transition-all duration-300 group-hover:scale-105">{product.category}</span>
+                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">
+                    Category:
+                  </span>
+                  <span className="font-medium transition-all duration-300 group-hover:scale-105">
+                    {product.category}
+                  </span>
                 </div>
                 <div className="flex justify-between py-1 group cursor-pointer">
-                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">Tags:</span>
-                  <span className="font-medium transition-all duration-300 group-hover:scale-105">{product.tags.join(", ")}</span>
+                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">
+                    Tags:
+                  </span>
+                  <span className="font-medium transition-all duration-300 group-hover:scale-105">
+                    {product.tags.join(", ")}
+                  </span>
                 </div>
                 <div className="flex justify-between py-1 group cursor-pointer">
-                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">Delivery:</span>
+                  <span className="text-gray-600 transition-all duration-300 group-hover:scale-105">
+                    Delivery:
+                  </span>
                   <span className="font-medium text-gray-600 underline transition-all duration-300 group-hover:scale-105">
                     {product.delivery}
                   </span>
+                </div>
+              </div>
+              <div className="mt-12 mb-8">
+                <div className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg p-6 text-center">
+                  <div className="flex items-center justify-center gap-3">
+                    {isEyeOpen ? (
+                      <BsEyeFill className="text-2xl text-blue-600 animate-pulse" />
+                    ) : (
+                      <BsEye className="text-2xl text-blue-600" />
+                    )}
+                    <span className="text-lg font-semibold text-gray-700">
+                      Currently Viewing This Product:{" "}
+                      <span className="text-blue-600 font-bold text-xl">
+                        {viewCount}
+                      </span>
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-2">
+                    People are actively viewing this product right now
+                  </p>
                 </div>
               </div>
             </div>
@@ -551,50 +628,30 @@ const ProductDetails = () => {
             {/* Vertical Tabs Navigation */}
             <div className="lg:w-1/4">
               <div className="space-y-1 border-r border-gray-200 pr-4">
-                {["DESCRIPTION", "DETAILS", "SIZING GUIDE", "REVIEWS"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`w-40 lg:w-full text-center lg:text-left py-3 px-4 font-medium transition-all duration-300 hover:scale-105 ${
-                      activeTab === tab 
-                        ? "bg-black text-white" 
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
+                {["DESCRIPTION", "DETAILS", "SIZING GUIDE", "REVIEWS"].map(
+                  (tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`w-40 lg:w-full text-center lg:text-left py-3 px-4 font-medium transition-all duration-300 hover:scale-105 ${
+                        activeTab === tab
+                          ? "bg-black text-white"
+                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  )
+                )}
               </div>
             </div>
 
             {/* Tab Content */}
-            <div className="lg:w-3/4 py-2">
-              {renderTabContent()}
-            </div>
+            <div className="lg:w-3/4 py-2">{renderTabContent()}</div>
           </div>
         </div>
 
         {/* Currently Viewing Section */}
-        <div className="mt-12 mb-8">
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg p-6 text-center">
-            <div className="flex items-center justify-center gap-3">
-              {isEyeOpen ? (
-                <BsEyeFill className="text-2xl text-blue-600 animate-pulse" />
-              ) : (
-                <BsEye className="text-2xl text-blue-600" />
-              )}
-              <span className="text-lg font-semibold text-gray-700">
-                Currently Viewing This Product:{" "}
-                <span className="text-blue-600 font-bold text-xl">
-                  {viewCount}+
-                </span>
-              </span>
-            </div>
-            <p className="text-sm text-gray-500 mt-2">
-              People are actively viewing this product right now
-            </p>
-          </div>
-        </div>
       </div>
 
       <RelatedProducts />
