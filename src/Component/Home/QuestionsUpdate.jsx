@@ -30,7 +30,7 @@ const QuestionsUpdate = () => {
                 data-aos="flip-left"
                 data-aos-delay="200"
             >
-                <h2 className='text-2xl font-bold mb-8'>Questions</h2>
+                <h2 className='text-2xl font-bold mb-8'>FAQ2</h2>
                 <div className='space-y-4 flex-1'>
                     {questions.map((item, index) => (
                         <div 
