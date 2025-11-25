@@ -8,6 +8,7 @@ import { LuUserRound, LuChevronDown, LuMenu, LuX } from "react-icons/lu";
 import { BsHandbag } from "react-icons/bs";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import { FaRegHeart } from "react-icons/fa6";
 
 const Navbar = () => {
     const location = useLocation();
@@ -197,6 +198,17 @@ const Navbar = () => {
                                     data-aos="fade-left"
                                     data-aos-delay="500"
                                 />
+                                {/* Wishlist with Count Badge */}
+                                <div className="relative">
+                                    <FaRegHeart 
+                                        className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                        data-aos="fade-left"
+                                        data-aos-delay="600"
+                                    />
+                                    <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                                        {cartCount}
+                                    </span>
+                                </div>
                                 {/* Shopping Bag with Count Badge */}
                                 <div className="relative">
                                     <BsHandbag 
@@ -213,6 +225,17 @@ const Navbar = () => {
 
                         {/* Mobile User Actions - Only Hamburger + Shopping Bag */}
                         <div className="flex lg:hidden items-center gap-3">
+                            {/* Wishlist with Count Badge - Always Visible */}
+                            <div className="relative">
+                                <FaRegHeart
+                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    data-aos="fade-left"
+                                    data-aos-delay="600"
+                                />
+                                <span className="absolute  -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                                    {cartCount}
+                                </span>
+                            </div>
                             {/* Shopping Bag with Count Badge - Always Visible */}
                             <div className="relative">
                                 <BsHandbag
