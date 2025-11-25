@@ -4,7 +4,7 @@ import sale from "../../assets/BestSeller/left.jpeg";
 import one from "../../assets/BestSeller/one.webp";
 import two from "../../assets/BestSeller/two.webp";
 import three from "../../assets/BestSeller/three.webp";
-import { BsHeart, BsShare, BsArrowsAngleExpand } from 'react-icons/bs';
+import { BsHeart, BsShare, BsArrowsAngleExpand, BsCurrencyRupee } from 'react-icons/bs';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
@@ -230,11 +230,11 @@ const BestSeller = () => {
                   <div className="flex items-center gap-2">
                     {product.originalPrice ? (
                       <>
-                        <span className="text-gray-600 font-bold">${product.price}</span>
-                        <span className="text-gray-400 line-through text-sm">${product.originalPrice}</span>
+                        <span className="text-gray-600 font-bold flex items-center gap-1"><BsCurrencyRupee />{product.price}</span>
+                        <span className="text-gray-400 line-through text-sm flex items-center gap-1"><BsCurrencyRupee />{product.originalPrice}</span>
                       </>
                     ) : (
-                      <span className="text-gray-600 font-bold">${product.price}</span>
+                      <span className="text-gray-600 font-bold flex items-center gap-1"><BsCurrencyRupee />{product.price}</span>
                     )}
                   </div>
                 </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import img from "../../../assets/RelatedProduct/freepik__make-a-jeweley-different-as-a-bold-statement-cuff-__6555.png"
+import { BsCurrencyRupee } from 'react-icons/bs';
 
 const RelatedProducts = () => {
     return (
@@ -22,8 +23,8 @@ const RelatedProducts = () => {
                         </div>
                         <h2 className='text-lg md:text-xl font-semibold mt-4 mb-2 transition-all duration-300 group-hover:scale-105'>Golden Pearls Bracelet</h2>
                         <div className='flex items-center gap-2'>
-                            <p className='text-gray-500 line-through text-sm md:text-base transition-all duration-300 group-hover:scale-105'>$129.99</p>
-                            <p className='text-lg md:text-xl font-bold text-gray-800 transition-all duration-300 group-hover:scale-105'>$89.99</p>
+                            <p className='text-gray-500 line-through text-sm md:text-base transition-all duration-300 group-hover:scale-105 flex items-center gap-1'><BsCurrencyRupee />129.99</p>
+                            <p className='text-lg md:text-xl font-bold text-gray-800 transition-all duration-300 group-hover:scale-105 flex items-center gap-1'><BsCurrencyRupee />89.99</p>
                         </div>
                     </div>
                     
@@ -38,8 +39,8 @@ const RelatedProducts = () => {
                         </div>
                         <h2 className='text-lg md:text-xl font-semibold mt-4 mb-2 transition-all duration-300 group-hover:scale-105'>Golden Pearls Bracelet</h2>
                         <div className='flex items-center gap-2'>
-                            <p className='text-gray-500 line-through text-sm md:text-base transition-all duration-300 group-hover:scale-105'>$129.99</p>
-                            <p className='text-lg md:text-xl font-bold text-gray-800 transition-all duration-300 group-hover:scale-105'>$89.99</p>
+                            <p className='text-gray-500 line-through text-sm md:text-base transition-all duration-300 group-hover:scale-105 flex items-center gap-1'><BsCurrencyRupee />129.99</p>
+                            <p className='text-lg md:text-xl font-bold text-gray-800 transition-all duration-300 group-hover:scale-105 flex items-center gap-1'><BsCurrencyRupee />89.99</p>
                         </div>
                     </div>
                     
@@ -54,8 +55,8 @@ const RelatedProducts = () => {
                         </div>
                         <h2 className='text-lg md:text-xl font-semibold mt-4 mb-2 transition-all duration-300 group-hover:scale-105'>Golden Pearls Bracelet</h2>
                         <div className='flex items-center gap-2'>
-                            <p className='text-gray-500 line-through text-sm md:text-base transition-all duration-300 group-hover:scale-105'>$129.99</p>
-                            <p className='text-lg md:text-xl font-bold text-gray-800 transition-all duration-300 group-hover:scale-105'>$89.99</p>
+                            <p className='text-gray-500 line-through text-sm md:text-base transition-all duration-300 group-hover:scale-105 flex items-center gap-1'><BsCurrencyRupee />129.99</p>
+                            <p className='text-lg md:text-xl font-bold text-gray-800 transition-all duration-300 group-hover:scale-105 flex items-center gap-1'><BsCurrencyRupee />89.99</p>
                         </div>
                     </div>
                 </div>
