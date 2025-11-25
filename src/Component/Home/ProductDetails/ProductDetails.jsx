@@ -8,6 +8,8 @@ import {
   BsStarFill,
   BsChevronLeft,
   BsChevronRight,
+  BsEye,
+  BsEyeFill
 } from "react-icons/bs";
 import RelatedProducts from "./RelatedProduct";
 import BigImg from "../../../assets/ProductDetails/DetailsMainImg.webp"
@@ -24,6 +26,8 @@ const ProductDetails = () => {
   const [activeTab, setActiveTab] = useState("DESCRIPTION");
   const [isHovering, setIsHovering] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 0, y: 0 });
+  const [viewCount, setViewCount] = useState(40);
+  const [isEyeOpen, setIsEyeOpen] = useState(true);
   const thumbnailContainerRef = useRef(null);
   const imgRef = useRef(null);
 
@@ -47,6 +51,29 @@ const ProductDetails = () => {
       });
     }
   }, [selectedImageIndex]);
+
+  // View count and eye animation effects
+  useEffect(() => {
+
+    const viewCountInterval = setInterval(() => {
+      setViewCount(prev => {
+        const increment = Math.floor(Math.random() * 50) + 30; 
+        const newCount = prev + increment;
+        return newCount > 850 ? 40 : newCount; 
+      });
+    }, 30000); // Every 30 seconds
+
+    // Eye blink interval
+    const eyeInterval = setInterval(() => {
+      setIsEyeOpen(false);
+      setTimeout(() => setIsEyeOpen(true), 200); 
+    }, 3000); // Blink every 3 seconds
+
+    return () => {
+      clearInterval(viewCountInterval);
+      clearInterval(eyeInterval);
+    };
+  }, []);
 
   const product = {
     id: id,
@@ -544,6 +571,28 @@ const ProductDetails = () => {
             <div className="lg:w-3/4 py-2">
               {renderTabContent()}
             </div>
+          </div>
+        </div>
+
+        {/* Currently Viewing Section */}
+        <div className="mt-12 mb-8">
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg p-6 text-center">
+            <div className="flex items-center justify-center gap-3">
+              {isEyeOpen ? (
+                <BsEyeFill className="text-2xl text-blue-600 animate-pulse" />
+              ) : (
+                <BsEye className="text-2xl text-blue-600" />
+              )}
+              <span className="text-lg font-semibold text-gray-700">
+                Currently Viewing This Product:{" "}
+                <span className="text-blue-600 font-bold text-xl">
+                  {viewCount}+
+                </span>
+              </span>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              People are actively viewing this product right now
+            </p>
           </div>
         </div>
       </div>
