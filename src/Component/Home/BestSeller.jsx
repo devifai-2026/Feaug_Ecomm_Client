@@ -7,6 +7,7 @@ import three from "../../assets/BestSeller/three.webp";
 import { BsHeart, BsShare, BsArrowsAngleExpand } from 'react-icons/bs';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 const BestSeller = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -163,7 +164,7 @@ const BestSeller = () => {
                 onClick={prevSlide}
                 className="w-10 h-10 flex items-center justify-center transition-colors"
               >
-                &lt;
+                <MdKeyboardArrowLeft />
               </button>
               <span className="text-sm font-medium">
                 {currentSlide + 1}/{totalSlides}
@@ -172,7 +173,7 @@ const BestSeller = () => {
                 onClick={nextSlide}
                 className="w-10 h-10 flex items-center justify-center transition-colors"
               >
-                &gt;
+               <MdKeyboardArrowRight />
               </button>
             </div>
           </div>
