@@ -1,26 +1,108 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import banner from "../../assets/Banner/freepik__design-editorial-soft-studio-light-photography-hig__84582.png";
+import banner from "../../assets/Banner/one.png";
+import banneTwo from "../../assets/Banner/two.png";
+import bannerThree from "../../assets/Banner/three.png";
+import bannerFour from "../../assets/Banner/four.png";
 import { LuUserRound, LuChevronDown, LuMenu, LuX } from "react-icons/lu";
 import { BsHandbag } from "react-icons/bs";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 const Navbar = () => {
     const location = useLocation();
     const isHomePage = location.pathname === '/';
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [cartCount] = useState(0);
+    const [isScrolled, setIsScrolled] = useState(false);
+    
+    // Carousel state
+    const [currentSlide, setCurrentSlide] = useState(0);
+
+    // Scroll effect for navbar background
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 50) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Carousel content
+    const carouselSlides = [
+        {
+            title: "Discover Sparkle",
+            subtitle: "With Style",
+            description: "Whether casual or formal, find the perfect jewelry for every occasion.",
+            background: banner
+        },
+        {
+            title: "Elegant Collection",
+            subtitle: "Timeless Beauty",
+            description: "Explore our exclusive range of handcrafted jewelry pieces.",
+            background: banneTwo
+        },
+        {
+            title: "Luxury Redefined",
+            subtitle: "Premium Quality",
+            description: "Experience the finest craftsmanship in every piece we create.",
+            background: bannerThree
+        },
+        {
+            title: "Special Offers",
+            subtitle: "Limited Edition",
+            description: "Don't miss out on our exclusive seasonal collections.",
+            background: bannerFour
+        }
+    ];
+
+    // Auto carousel effect
+    useEffect(() => {
+        if (!isHomePage) return;
+        
+        const interval = setInterval(() => {
+            setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
+        }, 5000); // Change slide every 5 seconds
+
+        return () => clearInterval(interval);
+    }, [isHomePage, carouselSlides.length]);
+
+    // Manual slide navigation
+    const goToSlide = (index) => {
+        setCurrentSlide(index);
+    };
+
+    const nextSlide = () => {
+        setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
+    };
+
+    const prevSlide = () => {
+        setCurrentSlide((prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length);
+    };
+
+    // Determine navbar background color
+    const getNavbarBackground = () => {
+        if (!isHomePage) return 'bg-white'; // Always white on non-home pages
+        if (isScrolled) return 'bg-white shadow-md'; // White with shadow when scrolled
+        return 'bg-transparent'; // Transparent when at top on home page
+    };
+
+    // Determine text color based on background
+    const getTextColor = () => {
+        if (!isHomePage) return 'text-gray-800'; // Dark text on white background
+        if (isScrolled) return 'text-gray-800'; // Dark text when scrolled
+        return 'text-white'; // White text when transparent
+    };
 
     return (
-        <div 
-            className={isHomePage ? 
-                `bg-cover bg-center bg-no-repeat min-h-[60vh] md:min-h[70vh] lg:min-h-[90vh]` : 
-                ''
-            }
-            style={isHomePage ? { backgroundImage: `url(${banner})` } : {}}
-        >
-            {/* Navbar */}
-            <nav className={`relative z-30 px-4 py-4 lg:px-8 ${!isHomePage ? 'bg-white' : ''}`}>
+        <div className="relative">
+            {/* Fixed Navbar */}
+            <nav className={`fixed top-0 left-0 right-0 z-50 px-4 py-4 lg:px-8 transition-all duration-300 ${getNavbarBackground()}`}>
                 <div className="max-w-[90%] mx-auto flex justify-between items-center">
                     {/* Left Section - Logo - Hidden on lg devices */}
                     <div 
@@ -29,14 +111,14 @@ const Navbar = () => {
                         className="lg:hidden"
                     >
                         <Link to="/">
-                            <h2 className={`uppercase text-2xl md:3xl lg:text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                            <h2 className={`uppercase text-2xl md:3xl lg:text-3xl font-bold font-playfair ${getTextColor()}`}>
                                 Feauag
                             </h2>
                         </Link>
                     </div>
 
                     {/* Center Section - Navigation Links (Desktop) */}
-                    <div className={`hidden lg:flex items-center gap-6 ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                    <div className={`hidden lg:flex items-center gap-6 ${getTextColor()}`}>
                         <div 
                             className='flex items-center gap-1 cursor-pointer group relative'
                             data-aos="fade-down"
@@ -76,14 +158,14 @@ const Navbar = () => {
                         data-aos-delay="100"
                     >
                         <Link to="/">
-                            <h2 className={`uppercase text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                            <h2 className={`uppercase text-3xl font-bold font-playfair ${getTextColor()}`}>
                                 Feauag
                             </h2>
                         </Link>
                     </div>
 
                     {/* Right Section - User Actions */}
-                    <div className={`flex items-center gap-4 ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                    <div className={`flex items-center gap-4 ${getTextColor()}`}>
                         {/* Desktop User Actions */}
                         <div className='hidden lg:flex items-center gap-4'>
                             <div 
@@ -91,7 +173,7 @@ const Navbar = () => {
                                 data-aos="fade-down"
                                 data-aos-delay="200"
                             >
-                                <p>USD</p>
+                                <p>INR</p>
                                 <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
                             </div>
                             
@@ -145,9 +227,7 @@ const Navbar = () => {
 
                             {/* Mobile Menu Button */}
                             <button
-                                className={`text-2xl ${
-                                    isHomePage ? "text-white" : "text-gray-800"
-                                }`}
+                                className={`text-2xl ${getTextColor()}`}
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 data-aos="fade-left"
                                 data-aos-delay="700"
@@ -202,7 +282,7 @@ const Navbar = () => {
                                     {/* Currency and Language Settings */}
                                     <div className="space-y-4 pb-4 border-b border-gray-200">
                                         <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                                            <span className="font-medium">USD</span>
+                                            <span className="font-medium">INR</span>
                                             <LuChevronDown className="text-gray-500" />
                                         </div>
                                         <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
@@ -235,44 +315,94 @@ const Navbar = () => {
                 )}
             </nav>
 
-            {/* Banner Content - Text Only Animations */}
+            {/* Hero Section with Auto Carousel - Only on Home Page */}
             {isHomePage && (
-                <div className="relative z-10 flex flex-col items-center justify-center text-center text-white min-h-[70vh] px-4 max-w-[90%] mx-auto">
-                    <h1
-                        className="text-3xl sm:text-4xl md:text-5xl lg:text-8xl font-bold mb-4 drop-shadow-lg text-center uppercase"
-                        data-aos="slide-down"
-                        data-aos-delay="200"
-                        data-aos-duration="800"
-                    >
-                        Discover Sparkle
-                    </h1>
-                    <h1
-                        className="text-3xl sm:text-4xl md:text-5xl lg:text-8xl font-bold mb-4 drop-shadow-lg text-center uppercase"
-                        data-aos="slide-up"
-                        data-aos-delay="400"
-                        data-aos-duration="800"
-                    >
-                        With Style
-                    </h1>
-                    <p
-                        className="text-lg sm:text-xl md:text-2xl mb-8 drop-shadow-md max-w-2xl"
-                        data-aos="fade-in"
-                        data-aos-delay="600"
-                        data-aos-duration="1000"
-                    >
-                        Whether casual or formal , find the perfect jewelry for every
-                        occasion.
-                    </p>
+                <div className="relative min-h-[90vh] mt-0">
+                    {/* Carousel Slides */}
+                    {carouselSlides.map((slide, index) => (
+                        <div
+                            key={index}
+                            className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-in-out ${
+                                index === currentSlide ? 'opacity-100' : 'opacity-0'
+                            }`}
+                            style={{ backgroundImage: `url(${slide.background})` }}
+                        >
+                            {/* Overlay for better text readability */}
+                            <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+                            
+                            {/* Carousel Content */}
+                            <div className={`relative z-10 flex flex-col items-center justify-center text-center text-white min-h-[90vh] px-4 max-w-[90%] mx-auto transition-transform duration-1000 ${
+                                index === currentSlide ? 'translate-y-0' : 'translate-y-10'
+                            }`}>
+                                <h1
+                                    className="text-3xl sm:text-4xl md:text-5xl lg:text-8xl font-bold mb-4 drop-shadow-lg text-center uppercase"
+                                    data-aos="slide-down"
+                                    data-aos-delay="200"
+                                    data-aos-duration="800"
+                                >
+                                    {slide.title}
+                                </h1>
+                                <h1
+                                    className="text-3xl sm:text-4xl md:text-5xl lg:text-8xl font-bold mb-4 drop-shadow-lg text-center uppercase"
+                                    data-aos="slide-up"
+                                    data-aos-delay="400"
+                                    data-aos-duration="800"
+                                >
+                                    {slide.subtitle}
+                                </h1>
+                                <p
+                                    className="text-lg sm:text-xl md:text-2xl mb-8 drop-shadow-md max-w-2xl"
+                                    data-aos="fade-in"
+                                    data-aos-delay="600"
+                                    data-aos-duration="1000"
+                                >
+                                    {slide.description}
+                                </p>
+                                <button
+                                    className="bg-transparent text-white font-semibold py-2 px-6 sm:py-3 sm:px-8 transition duration-300 transform hover:scale-110 text-sm sm:text-base border-t-2 border-b-2 border-r border-l"
+                                    data-aos="bounce-in"
+                                    data-aos-delay="800"
+                                    data-aos-duration="600"
+                                >
+                                    Shop Now
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+
+                    {/* Carousel Navigation Dots */}
+                    <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex space-x-3">
+                        {carouselSlides.map((_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => goToSlide(index)}
+                                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                                    index === currentSlide 
+                                        ? 'bg-white scale-125' 
+                                        : 'bg-white bg-opacity-50 hover:bg-opacity-75'
+                                }`}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Navigation Arrows */}
                     <button
-                        className="bg-transparent text-white font-semibold py-2 px-6 sm:py-3 sm:px-8 transition duration-300 transform hover:scale-110 text-sm sm:text-base border-t-2 border-b-2 border-r border-l"
-                        data-aos="bounce-in"
-                        data-aos-delay="800"
-                        data-aos-duration="600"
+                        onClick={prevSlide}
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-3 rounded-full transition-all duration-300"
                     >
-                        Shop Now
+                        <MdKeyboardArrowLeft />
+                    </button>
+                    <button
+                        onClick={nextSlide}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-3 rounded-full transition-all duration-300"
+                    >
+                       <MdKeyboardArrowRight />
                     </button>
                 </div>
             )}
+
+            {/* Spacer for fixed navbar on non-home pages */}
+            {!isHomePage && <div className="h-20"></div>}
         </div>
     );
 };
