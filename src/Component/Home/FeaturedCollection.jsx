@@ -7,7 +7,7 @@ import five from "../../assets/FeaturedCollection/five.webp"
 import six from "../../assets/FeaturedCollection/six.webp"
 import seven from "../../assets/FeaturedCollection/seven.jpeg"
 import eight from "../../assets/FeaturedCollection/eight.webp"
-import { BsArrowsAngleExpand, BsCurrencyDollar, BsHeart, BsShare } from 'react-icons/bs';
+import { BsArrowsAngleExpand, BsCurrencyRupee, BsHeart, BsShare } from 'react-icons/bs';
 import { FaArrowRightLong } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom'; 
 
@@ -126,7 +126,7 @@ const FeaturedCollection = () => {
                                 data-aos="fade-up"
                                 data-aos-delay="400"
                             >
-                                <BsCurrencyDollar />
+                               <BsCurrencyRupee />
                                 {product.price}
                             </p>
                         </div>

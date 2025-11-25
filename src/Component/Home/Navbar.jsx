@@ -91,7 +91,7 @@ const Navbar = () => {
                                 data-aos="fade-down"
                                 data-aos-delay="200"
                             >
-                                <p>USD</p>
+                                <p>INR</p>
                                 <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
                             </div>
                             
@@ -202,7 +202,7 @@ const Navbar = () => {
                                     {/* Currency and Language Settings */}
                                     <div className="space-y-4 pb-4 border-b border-gray-200">
                                         <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                                            <span className="font-medium">USD</span>
+                                            <span className="font-medium">INR</span>
                                             <LuChevronDown className="text-gray-500" />
                                         </div>
                                         <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
