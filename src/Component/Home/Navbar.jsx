@@ -19,13 +19,11 @@ const Navbar = () => {
     // Carousel state
     const [currentSlide, setCurrentSlide] = useState(0);
 
-    // Scroll effect for navbar background
-    useEffect(() => {
-        const handleScroll = () => {
-            if (window.scrollY > 50) {
-                setIsScrolled(true);
-            } else {
-                setIsScrolled(false);
+    return (
+        <div 
+            className={isHomePage ? 
+                `bg-cover bg-center bg-no-repeat min-h-[60vh] md:min-h-[70vh] lg:min-h-[90vh]` : 
+                ''
             }
         };
 
@@ -111,8 +109,8 @@ const Navbar = () => {
                         className="lg:hidden"
                     >
                         <Link to="/">
-                            <h2 className={`uppercase text-2xl md:3xl lg:text-3xl font-bold font-playfair ${getTextColor()}`}>
-                                Feauag
+                            <h2 className={`uppercase text-2xl md:text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                                Feaug
                             </h2>
                         </Link>
                     </div>
@@ -197,7 +195,7 @@ const Navbar = () => {
                                     data-aos="fade-left"
                                     data-aos-delay="500"
                                 />
-                                {/* Shopping Bag with Count Badge - Always Visible */}
+                                {/* Shopping Bag with Count Badge */}
                                 <div className="relative">
                                     <BsHandbag 
                                         className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
@@ -220,14 +218,16 @@ const Navbar = () => {
                                     data-aos="fade-left"
                                     data-aos-delay="600"
                                 />
-                                <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                                <span className="absolute  -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
                                     {cartCount}
                                 </span>
                             </div>
 
                             {/* Mobile Menu Button */}
                             <button
-                                className={`text-2xl ${getTextColor()}`}
+                                className={`text-2xl ${
+                                isHomePage ? "text-white" : "text-gray-800"
+                                }`}
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 data-aos="fade-left"
                                 data-aos-delay="700"
