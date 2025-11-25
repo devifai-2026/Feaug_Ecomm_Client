@@ -30,12 +30,12 @@ const Navbar = () => {
                     >
                         <Link to="/">
                             <h2 className={`uppercase text-2xl md:3xl lg:text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
-                                Feaug
+                                Feauag
                             </h2>
                         </Link>
                     </div>
 
-                    {/* Center Section - Navigation Links (Desktop) - Now acts as right section on lg */}
+                    {/* Center Section - Navigation Links (Desktop) */}
                     <div className={`hidden lg:flex items-center gap-6 ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
                         <div 
                             className='flex items-center gap-1 cursor-pointer group relative'
@@ -77,20 +77,7 @@ const Navbar = () => {
                     >
                         <Link to="/">
                             <h2 className={`uppercase text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
-                                Feaug
-                            </h2>
-                        </Link>
-                    </div>
-
-                    {/* Center Logo - Only visible on lg devices */}
-                    <div 
-                        className="hidden lg:flex absolute left-1/2 transform -translate-x-1/2"
-                        data-aos="zoom-in" 
-                        data-aos-delay="100"
-                    >
-                        <Link to="/">
-                            <h2 className={`uppercase text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
-                                Feaug
+                                Feauag
                             </h2>
                         </Link>
                     </div>
@@ -135,7 +122,7 @@ const Navbar = () => {
                                         data-aos="fade-left"
                                         data-aos-delay="600"
                                     />
-                                    <span className="absolute -bottom-2 -right-2 bg-amber-700  text-white text-xs rounded-full h-4 w-4 flex items-center justify-center ">
+                                    <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                                         {cartCount}
                                     </span>
                                 </div>
