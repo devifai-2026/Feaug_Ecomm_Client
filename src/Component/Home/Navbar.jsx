@@ -197,7 +197,7 @@ const Navbar = () => {
                                     data-aos="fade-left"
                                     data-aos-delay="500"
                                 />
-                                {/* Shopping Bag with Count Badge - Always Visible */}
+                                {/* Shopping Bag with Count Badge */}
                                 <div className="relative">
                                     <BsHandbag 
                                         className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
@@ -220,7 +220,7 @@ const Navbar = () => {
                                     data-aos="fade-left"
                                     data-aos-delay="600"
                                 />
-                                <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                                <span className="absolute  -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
                                     {cartCount}
                                 </span>
                             </div>

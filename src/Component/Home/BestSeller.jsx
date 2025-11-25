@@ -4,9 +4,10 @@ import sale from "../../assets/BestSeller/left.jpeg";
 import one from "../../assets/BestSeller/one.webp";
 import two from "../../assets/BestSeller/two.webp";
 import three from "../../assets/BestSeller/three.webp";
-import { BsHeart, BsShare, BsArrowsAngleExpand } from 'react-icons/bs';
+import { BsHeart, BsShare, BsArrowsAngleExpand, BsCurrencyRupee } from 'react-icons/bs';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 const BestSeller = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -163,7 +164,7 @@ const BestSeller = () => {
                 onClick={prevSlide}
                 className="w-10 h-10 flex items-center justify-center transition-colors"
               >
-                &lt;
+                <MdKeyboardArrowLeft />
               </button>
               <span className="text-sm font-medium">
                 {currentSlide + 1}/{totalSlides}
@@ -172,7 +173,7 @@ const BestSeller = () => {
                 onClick={nextSlide}
                 className="w-10 h-10 flex items-center justify-center transition-colors"
               >
-                &gt;
+               <MdKeyboardArrowRight />
               </button>
             </div>
           </div>
@@ -229,11 +230,11 @@ const BestSeller = () => {
                   <div className="flex items-center gap-2">
                     {product.originalPrice ? (
                       <>
-                        <span className="text-gray-600 font-bold">${product.price}</span>
-                        <span className="text-gray-400 line-through text-sm">${product.originalPrice}</span>
+                        <span className="text-gray-600 font-bold flex items-center gap-1"><BsCurrencyRupee />{product.price}</span>
+                        <span className="text-gray-400 line-through text-sm flex items-center gap-1"><BsCurrencyRupee />{product.originalPrice}</span>
                       </>
                     ) : (
-                      <span className="text-gray-600 font-bold">${product.price}</span>
+                      <span className="text-gray-600 font-bold flex items-center gap-1"><BsCurrencyRupee />{product.price}</span>
                     )}
                   </div>
                 </div>
