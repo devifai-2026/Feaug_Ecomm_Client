@@ -177,57 +177,57 @@ const Navbar = () => {
                             <div className="flex items-center justify-between p-6 border-b border-gray-200">
                                 <h3 className="text-xl font-semibold">Menu</h3>
                                 <button
-                                className="text-2xl text-gray-600 hover:text-gray-800 transition-colors"
-                                onClick={() => setIsMobileMenuOpen(false)}
+                                    className="text-2xl text-gray-600 hover:text-gray-800 transition-colors"
+                                    onClick={() => setIsMobileMenuOpen(false)}
                                 >
-                                <LuX />
+                                    <LuX />
                                 </button>
                             </div>
 
                             {/* Drawer Content */}
                             <div className="h-full overflow-y-auto p-6">
                                 <div className="flex flex-col space-y-6">
-                                {/* User Profile and Search at Top */}
-                                <div className="space-y-4 pb-4 border-b border-gray-200">
-                                    <div className="flex items-center gap-3 cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                                    <LuUserRound className="text-lg text-gray-600" />
-                                    <span className="font-medium">My Profile</span>
+                                    {/* User Profile and Search at Top */}
+                                    <div className="space-y-4 pb-4 border-b border-gray-200">
+                                        <div className="flex items-center gap-3 cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
+                                            <LuUserRound className="text-lg text-gray-600" />
+                                            <span className="font-medium">My Profile</span>
+                                        </div>
+                                        <div className="flex items-center gap-3 cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
+                                            <HiOutlineMagnifyingGlass className="text-lg text-gray-600" />
+                                            <span className="font-medium">Search</span>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-3 cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                                    <HiOutlineMagnifyingGlass className="text-lg text-gray-600" />
-                                    <span className="font-medium">Search</span>
-                                    </div>
-                                </div>
 
-                                {/* Currency and Language Settings */}
-                                <div className="space-y-4 pb-4 border-b border-gray-200">
-                                    <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                                    <span className="font-medium">USD</span>
-                                    <LuChevronDown className="text-gray-500" />
+                                    {/* Currency and Language Settings */}
+                                    <div className="space-y-4 pb-4 border-b border-gray-200">
+                                        <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
+                                            <span className="font-medium">USD</span>
+                                            <LuChevronDown className="text-gray-500" />
+                                        </div>
+                                        <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
+                                            <span className="font-medium">EN</span>
+                                            <LuChevronDown className="text-gray-500" />
+                                        </div>
                                     </div>
-                                    <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                                    <span className="font-medium">EN</span>
-                                    <LuChevronDown className="text-gray-500" />
-                                    </div>
-                                </div>
 
-                                {/* Navigation Links */}
-                                <div className="space-y-2 pb-4 border-b border-gray-200">
-                                    <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                                    <span className="font-medium">Categories</span>
-                                    <LuChevronDown className="text-gray-500" />
+                                    {/* Navigation Links */}
+                                    <div className="space-y-2 pb-4 border-b border-gray-200">
+                                        <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
+                                            <span className="font-medium">Categories</span>
+                                            <LuChevronDown className="text-gray-500" />
+                                        </div>
+                                        <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
+                                            <span className="font-medium">About</span>
+                                            <LuChevronDown className="text-gray-500" />
+                                        </div>
+                                        <div className="cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors font-medium">
+                                            Blog
+                                        </div>
+                                        <div className="cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors font-medium">
+                                            Contact
+                                        </div>
                                     </div>
-                                    <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                                    <span className="font-medium">About</span>
-                                    <LuChevronDown className="text-gray-500" />
-                                    </div>
-                                    <div className="cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors font-medium">
-                                    Blog
-                                    </div>
-                                    <div className="cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors font-medium">
-                                    Contact
-                                    </div>
-                                </div>
                                 </div>
                             </div>
                         </div>
@@ -238,39 +238,39 @@ const Navbar = () => {
             {/* Banner Content - Text Only Animations */}
             {isHomePage && (
                 <div className="relative z-10 flex flex-col items-center justify-center text-center text-white min-h-[70vh] px-4 max-w-[90%] mx-auto">
-                <h1
-                    className="text-3xl sm:text-4xl md:text-5xl lg:text-8xl font-bold mb-4 drop-shadow-lg text-center uppercase"
-                    data-aos="slide-down"
-                    data-aos-delay="200"
-                    data-aos-duration="800"
-                >
-                    Discover Sparkle
-                </h1>
-                <h1
-                    className="text-3xl sm:text-4xl md:text-5xl lg:text-8xl font-bold mb-4 drop-shadow-lg text-center uppercase"
-                    data-aos="slide-up"
-                    data-aos-delay="400"
-                    data-aos-duration="800"
-                >
-                    With Style
-                </h1>
-                <p
-                    className="text-lg sm:text-xl md:text-2xl mb-8 drop-shadow-md max-w-2xl"
-                    data-aos="fade-in"
-                    data-aos-delay="600"
-                    data-aos-duration="1000"
-                >
-                    Whether casual or formal , find the perfect jewelry for every
-                    occasion.
-                </p>
-                <button
-                    className="bg-transparent text-white font-semibold py-2 px-6 sm:py-3 sm:px-8 transition duration-300 transform hover:scale-110 text-sm sm:text-base border-t-2 border-b-2 border-r border-l"
-                    data-aos="bounce-in"
-                    data-aos-delay="800"
-                    data-aos-duration="600"
-                >
-                    Shop Now
-                </button>
+                    <h1
+                        className="text-3xl sm:text-4xl md:text-5xl lg:text-8xl font-bold mb-4 drop-shadow-lg text-center uppercase"
+                        data-aos="slide-down"
+                        data-aos-delay="200"
+                        data-aos-duration="800"
+                    >
+                        Discover Sparkle
+                    </h1>
+                    <h1
+                        className="text-3xl sm:text-4xl md:text-5xl lg:text-8xl font-bold mb-4 drop-shadow-lg text-center uppercase"
+                        data-aos="slide-up"
+                        data-aos-delay="400"
+                        data-aos-duration="800"
+                    >
+                        With Style
+                    </h1>
+                    <p
+                        className="text-lg sm:text-xl md:text-2xl mb-8 drop-shadow-md max-w-2xl"
+                        data-aos="fade-in"
+                        data-aos-delay="600"
+                        data-aos-duration="1000"
+                    >
+                        Whether casual or formal , find the perfect jewelry for every
+                        occasion.
+                    </p>
+                    <button
+                        className="bg-transparent text-white font-semibold py-2 px-6 sm:py-3 sm:px-8 transition duration-300 transform hover:scale-110 text-sm sm:text-base border-t-2 border-b-2 border-r border-l"
+                        data-aos="bounce-in"
+                        data-aos-delay="800"
+                        data-aos-duration="600"
+                    >
+                        Shop Now
+                    </button>
                 </div>
             )}
         </div>
