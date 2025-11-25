@@ -27,7 +27,7 @@ const FeaturedCollection = () => {
     ];
 
     const handleCardClick = (productId) => {
-        navigate(`/product/${productId}`); // Navigate to product details
+        navigate(`/product/${productId}`);
     };
 
     return (
@@ -50,7 +50,7 @@ const FeaturedCollection = () => {
             </div>
             
             {/* Products Grid */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
+            <div className='grid grid-cols-2 lg:grid-cols-4 gap-6'>
                 {products.map((product, index) => (
                     <div 
                         key={product.id}
@@ -65,15 +65,15 @@ const FeaturedCollection = () => {
                         {/* Image Container */}
                         <div className='relative overflow-hidden'>
                             <img 
-                                className='w-full h-72 object-cover transition-transform duration-500 group-hover:scale-110' 
+                                className='w-full h-72 object-cover transition-transform duration-500 lg:group-hover:scale-110' 
                                 src={product.image} 
                                 alt={product.title} 
                             />
                             
-                            {/* Discount Badge - Top Left (only for cards 4 and 6) */}
+                            {/* Discount Badge - Top Left */}
                             {product.discount && (
                                 <div 
-                                    className='absolute top-3 left-3 bg-brown text-white px-3 py-1 font-semibold bg-orange-950'
+                                    className='absolute top-3 left-3 bg-brown text-white px-3 py-1 font-semibold bg-orange-950 z-10'
                                     data-aos="zoom-in"
                                     data-aos-delay="500"
                                 >
@@ -82,10 +82,35 @@ const FeaturedCollection = () => {
                             )}
                             
                             {/* Hover Icons - Top Right */}
-                            <div className={`absolute top-3 right-3 flex flex-col gap-2 transition-all duration-300 ${hoveredCard === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}>
+                            {/* Mobile & Tablet: Always visible */}
+                            <div className='lg:hidden absolute top-3 right-3 flex flex-col gap-2 z-10'>
                                 <button 
                                     className='bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors'
-                                    onClick={(e) => e.stopPropagation()} // Prevent navigation when clicking icons
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <BsHeart className='text-gray-700 hover:text-red-500' />
+                                </button>
+                                <button 
+                                    className='bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors'
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <BsShare className='text-gray-700 hover:text-blue-500' />
+                                </button>
+                                <button 
+                                    className='bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors'
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <BsArrowsAngleExpand className='text-gray-700' />
+                                </button>
+                            </div>
+                            
+                            {/* Desktop: Show on hover */}
+                            <div className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${
+                                hoveredCard === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+                            }`}>
+                                <button 
+                                    className='bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors'
+                                    onClick={(e) => e.stopPropagation()}
                                 >
                                     <BsHeart className='text-gray-700 hover:text-red-500' />
                                 </button>
@@ -103,9 +128,20 @@ const FeaturedCollection = () => {
                                 </button>
                             </div>
 
-                         
+                            {/* Add to Cart Button */}
+                            {/* Mobile & Tablet: Always visible */}
                             <button 
-                                className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] hover:scale-105 uppercase tracking-widest ${hoveredCard === index ? 'opacity-100 translate-y-0 ' : 'opacity-0 translate-y-4'}`}
+                                className='lg:hidden absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] hover:scale-105 uppercase tracking-wide text-sm text-nowrap z-10'
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                Add to Cart
+                            </button>
+                            
+                            {/* Desktop: Show on hover */}
+                            <button 
+                                className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] hover:scale-105 uppercase tracking-widest z-10 ${
+                                    hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                                }`}
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 Add to Cart

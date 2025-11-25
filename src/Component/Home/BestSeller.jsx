@@ -193,13 +193,13 @@ const BestSeller = () => {
                 {/* Image Container */}
                 <div className="relative overflow-hidden bg-gray-100">
                   <img 
-                    className="w-full h-80 object-cover transition-transform duration-500 group-hover:scale-110" 
+                    className="w-full h-80 object-cover transition-transform duration-500 lg:group-hover:scale-110" 
                     src={product.image} 
                     alt={product.title} 
                   />
                   
-                  {/* Hover Icons - Top Right */}
-                  <div className={`absolute top-3 right-3 flex flex-col gap-2 transition-all duration-300 ${hoveredCard === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}>
+                  {/* Hover Icons - Mobile & Tablet: Always visible */}
+                  <div className='lg:hidden absolute top-3 right-3 flex flex-col gap-2 z-10'>
                     <button className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors">
                       <BsHeart className="text-gray-700 hover:text-red-500" />
                     </button>
@@ -214,8 +214,33 @@ const BestSeller = () => {
                     </button>
                   </div>
 
-                  {/* Add to Cart Button */}
-                  <button className={`absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-transparent text-black bg-white w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                  {/* Hover Icons - Desktop: Show on hover */}
+                  <div className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${
+                    hoveredCard === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+                  }`}>
+                    <button className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors">
+                      <BsHeart className="text-gray-700 hover:text-red-500" />
+                    </button>
+                    <button className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors">
+                      <BsShare className="text-gray-700 hover:text-blue-500" />
+                    </button>
+                    <button 
+                      className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                      onClick={(e) => handleExpandClick(product.id, e)}
+                    >
+                      <BsArrowsAngleExpand className="text-gray-700" />
+                    </button>
+                  </div>
+
+                  {/* Add to Cart Button - Mobile & Tablet: Always visible */}
+                  <button className='lg:hidden absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-black w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest z-10'>
+                    ADD TO CART
+                  </button>
+
+                  {/* Add to Cart Button - Desktop: Show on hover */}
+                  <button className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-black w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest z-10 ${
+                    hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                  }`}>
                     ADD TO CART
                   </button>
                 </div>
