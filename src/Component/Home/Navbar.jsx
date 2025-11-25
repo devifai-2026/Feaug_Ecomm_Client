@@ -174,7 +174,7 @@ const Navbar = () => {
                                 data-aos-delay="200"
                             >
                                 <p>INR</p>
-                                <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
+                               
                             </div>
                             
                             <div 
@@ -183,7 +183,7 @@ const Navbar = () => {
                                 data-aos-delay="300"
                             >
                                 <p>EN</p>
-                                <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
+                                
                             </div>
                             
                             <div className='flex items-center gap-3'>
@@ -283,11 +283,11 @@ const Navbar = () => {
                                     <div className="space-y-4 pb-4 border-b border-gray-200">
                                         <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
                                             <span className="font-medium">INR</span>
-                                            <LuChevronDown className="text-gray-500" />
+                                           
                                         </div>
                                         <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
                                             <span className="font-medium">EN</span>
-                                            <LuChevronDown className="text-gray-500" />
+                                           
                                         </div>
                                     </div>
 

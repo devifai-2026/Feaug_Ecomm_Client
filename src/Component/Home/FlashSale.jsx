@@ -8,75 +8,62 @@ const FlashSale = () => {
             style={{
                 backgroundImage: `url(${banner})`
             }}
-            data-aos="zoom-in"
-            data-aos-duration="1000"
         >
-            {/* Background Image Zoom Effect - Separate group */}
+            {/* Background Image */}
             <div 
-                className="group-bg absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-700 ease-out group-bg-hover:scale-110"
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat"
                 style={{
                     backgroundImage: `url(${banner})`
                 }}
             ></div>
 
-            {/* Content positioned at top right - Separate group */}
+            {/* Content positioned: lg right side y-center, sm center x and y */}
             <div 
-                className="group-content absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 max-w-xs sm:max-w-sm md:max-w-lg bg-white p-4 sm:p-5 md:p-6 transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl"
-                data-aos="fade-left"
-                data-aos-delay="300"
-                data-aos-duration="800"
+                className="group-content absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 lg:top-1/2 lg:left-auto lg:right-6 lg:translate-x-0 max-w-sm md:max-w-lg lg:max-w-xl bg-white p-4 sm:p-5 md:p-6"
             >
-                <div className='border-2 border-yellow-800 border-opacity-35 p-4 sm:p-5 md:p-6 transition-all duration-500 ease-out hover:border-opacity-60'>
+                <div className='border-2 border-yellow-800 border-opacity-35 p-4 sm:p-5 md:p-6'>
                     {/* Flash Sale Badge */}
                     <p 
-                        className="text-xs sm:text-sm font-semibold tracking-wider text-center text-yellow-800 text-opacity-35 mb-3 sm:mb-4 transition-all duration-300 hover:text-opacity-60 hover:scale-105"
-                        data-aos="fade-down"
-                        data-aos-delay="500"
+                        className="text-xs sm:text-sm font-semibold tracking-wider text-center text-yellow-800 text-opacity-35 mb-3 sm:mb-4"
                     >
                         FLASH SALE
                     </p>
 
                     {/* Product Title */}
                     <h1 
-                        className="text-base sm:text-lg md:text-xl lg:text-2xl font-light mb-3 sm:mb-4 text-center transition-all duration-300 hover:scale-105"
-                        data-aos="fade-down"
-                        data-aos-delay="600"
+                        className="text-base sm:text-lg md:text-xl lg:text-2xl font-light mb-3 sm:mb-4 text-center"
                     >
                         Goldenia Engagement Ring
                     </h1>
 
                     {/* Product Description */}
                     <p 
-                        className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6 text-center transition-all duration-300 hover:text-gray-600"
-                        data-aos="fade-down"
-                        data-aos-delay="700"
+                        className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6 text-center"
                     >
                         Capture the essence of eternal love with our exquisite gold diamond engagement ring, a symbol of timeless commitment.
                     </p>
 
                     {/* Timer */}
                     <div 
-                        className="flex items-center justify-center space-x-1 sm:space-x-2 mb-3 sm:mb-4 transition-all duration-300 hover:scale-105"
-                        data-aos="zoom-in"
-                        data-aos-delay="800"
+                        className="flex items-center justify-center space-x-1 sm:space-x-2 mb-3 sm:mb-4"
                     >
                         <div className="text-center">
-                            <div className="bg-white text-black rounded transition-all duration-300 hover:bg-gray-50">
+                            <div className="bg-white text-black rounded">
                                 <span className="text-lg sm:text-xl md:text-2xl font-bold">01 :</span>
                             </div>
                         </div>
                         <div className="text-center">
-                            <div className="bg-white text-black rounded transition-all duration-300 hover:bg-gray-50">
+                            <div className="bg-white text-black rounded">
                                 <span className="text-lg sm:text-xl md:text-2xl font-bold">03 :</span>
                             </div>
                         </div>
                         <div className="text-center">
-                            <div className="bg-white text-black rounded transition-all duration-300 hover:bg-gray-50">
+                            <div className="bg-white text-black rounded">
                                 <span className="text-lg sm:text-xl md:text-2xl font-bold">45 :</span>
                             </div>
                         </div>
                         <div className="text-center">
-                            <div className="bg-white text-black rounded transition-all duration-300 hover:bg-gray-50">
+                            <div className="bg-white text-black rounded">
                                 <span className="text-lg sm:text-xl md:text-2xl font-bold">17</span>
                             </div>
                         </div>
@@ -84,23 +71,19 @@ const FlashSale = () => {
 
                     {/* Timer Labels */}
                     <div 
-                        className="flex items-center justify-center space-x-3 sm:space-x-4 md:space-x-5 mb-4 sm:mb-6 transition-all duration-300 hover:scale-105"
-                        data-aos="fade-up"
-                        data-aos-delay="900"
+                        className="flex items-center justify-center space-x-3 sm:space-x-4 md:space-x-5 mb-4 sm:mb-6"
                     >
-                        <span className="text-xs text-gray-500 transition-all duration-300 hover:text-gray-700">DAYS</span>
-                        <span className="text-xs text-gray-500 transition-all duration-300 hover:text-gray-700">HOURS</span>
-                        <span className="text-xs text-gray-500 transition-all duration-300 hover:text-gray-700">MINS</span>
-                        <span className="text-xs text-gray-500 transition-all duration-300 hover:text-gray-700">SECS</span>
+                        <span className="text-xs text-gray-500">DAYS</span>
+                        <span className="text-xs text-gray-500">HOURS</span>
+                        <span className="text-xs text-gray-500">MINS</span>
+                        <span className="text-xs text-gray-500">SECS</span>
                     </div>
 
                     {/* Add to Cart Button */}
                     <div 
-                        className='flex items-center justify-center bg-yellow-800 bg-opacity-35 w-32 sm:w-36 md:w-40 mx-auto transition-all duration-500 ease-out hover:bg-opacity-60 hover:scale-110 hover:shadow-lg cursor-pointer'
-                        data-aos="flip-up"
-                        data-aos-delay="1000"
+                        className='flex items-center justify-center bg-yellow-800 bg-opacity-35 w-32 sm:w-36 md:w-40 mx-auto cursor-pointer hover:bg-opacity-60'
                     >
-                        <button className="text-white px-3 py-2 font-semibold transition-all duration-300 text-xs sm:text-sm md:text-base hover:scale-105">
+                        <button className="text-white px-3 py-2 font-semibold text-xs sm:text-sm md:text-base">
                             ADD TO CART
                         </button>
                     </div>
