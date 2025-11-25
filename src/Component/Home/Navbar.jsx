@@ -77,20 +77,7 @@ const Navbar = () => {
                     >
                         <Link to="/">
                             <h2 className={`uppercase text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
-                                Feaug
-                            </h2>
-                        </Link>
-                    </div>
-
-                    {/* Center Logo - Only visible on lg devices */}
-                    <div 
-                        className="hidden lg:flex absolute left-1/2 transform -translate-x-1/2"
-                        data-aos="zoom-in" 
-                        data-aos-delay="100"
-                    >
-                        <Link to="/">
-                            <h2 className={`uppercase text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
-                                Feaug
+                                Feauag
                             </h2>
                         </Link>
                     </div>
@@ -142,16 +129,16 @@ const Navbar = () => {
                             </div>
                         </div>
 
-                        {/* Mobile User Actions - Only Shopping Bag + Menu */}
+                        {/* Mobile User Actions - Only Hamburger + Shopping Bag */}
                         <div className="flex lg:hidden items-center gap-3">
-                            {/* Shopping Bag with Count Badge */}
+                            {/* Shopping Bag with Count Badge - Always Visible */}
                             <div className="relative">
                                 <BsHandbag
                                     className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
                                     data-aos="fade-left"
                                     data-aos-delay="600"
                                 />
-                                <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                                <span className="absolute  -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
                                     {cartCount}
                                 </span>
                             </div>
@@ -159,7 +146,7 @@ const Navbar = () => {
                             {/* Mobile Menu Button */}
                             <button
                                 className={`text-2xl ${
-                                    isHomePage ? "text-white" : "text-gray-800"
+                                isHomePage ? "text-white" : "text-gray-800"
                                 }`}
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 data-aos="fade-left"

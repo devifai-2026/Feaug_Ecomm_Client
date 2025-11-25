@@ -35,27 +35,17 @@ const TopFooter = () => {
         className="w-full h-64 overflow-hidden group"
         data-aos="fade-down"
         data-aos-delay="300"
-      >
-        <img 
-          className="w-full h-64 object-cover transition-all duration-300 group-hover:scale-105" 
-          src={three} 
-          alt="Jewelry" 
-        />
-      </div>
-      
-      <div 
-        className="w-full h-64 overflow-hidden group"
-        data-aos="zoom-out"
-        data-aos-delay="400"
-      >
+      />
+      <div className="relative group">
         <img 
           className="w-full h-64 object-cover transition-all duration-300 group-hover:scale-105" 
           src={four} 
-          alt="Jewelry" 
+          alt="Ring" 
+          data-aos="zoom-out"
+          data-aos-delay="400"
         />
       </div>
-   
-  
+    </div>
   );
 };
 
