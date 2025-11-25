@@ -84,6 +84,7 @@ const QuestionsUpdate = () => {
                 <h2 className='text-2xl font-bold mb-8'>Latest Updates</h2>
                 <div className='flex-1 space-y-6'>
                  {/* First Article - Updated to match second article design */}
+                 {/* First Article - Updated to match second article design */}
                  <div 
                     className='relative group cursor-pointer overflow-hidden'
                     data-aos="slide-up"
@@ -121,7 +122,7 @@ const QuestionsUpdate = () => {
                             <img 
                                 className='h-60 md:h-40 w-40 object-cover transition-all duration-300 group-hover:scale-105' 
                                 src={img} 
-                                alt="" 
+                                alt="Jewelry maintenance" 
                             />
                         </div>
                         <div className='space-y-3 flex-1'>
@@ -129,7 +130,7 @@ const QuestionsUpdate = () => {
                             <p className='text-sm md:text-base uppercase font-semibold'>Caring for your jewelry: <br /> Maintenance & Cleaning <br />Complete Guide</p>
                             <div className='space-y-1'>
                                 <p className='text-gray-500 text-xs'>Michael Davis</p>
-                                <p className='text-gray-500'>February 5, 2023</p>
+                                <p className='text-gray-500 text-xs'>February 5, 2023</p>
                             </div>
                         </div>
                     </div>

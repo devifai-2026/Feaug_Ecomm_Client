@@ -34,10 +34,10 @@ const ProductDetails = () => {
 
   const productImages = [BigImg, sone, stwo, sthree, sfour, stwo, sthree];
 
-  // NEW: Auto-scroll thumbnails to selected image
+  // Auto-scroll thumbnails to selected image
   useEffect(() => {
     if (thumbnailContainerRef.current) {
-      const thumbnailWidth = 80; // Approximate width of each thumbnail + gap
+      const thumbnailWidth = 80;
       const container = thumbnailContainerRef.current;
       const scrollPosition = selectedImageIndex * thumbnailWidth;
       
@@ -299,10 +299,10 @@ const ProductDetails = () => {
               onMouseLeave={() => setIsHovering(false)}
               onMouseMove={handleMouseMove}
             >
-              {/* Main Product Image - NOW DYNAMIC */}
+              {/* Main Product Image */}
               <img
                 ref={imgRef}
-                src={productImages[selectedImageIndex]} // ← CHANGED: Now uses selected image
+                src={productImages[selectedImageIndex]}
                 alt={product.title}
                 className="w-full max-w-lg h-auto max-h-[500px] object-contain transition-transform duration-300 hover:scale-105"
               />
@@ -328,11 +328,11 @@ const ProductDetails = () => {
                 ></div>
               )}
 
-              {/* Zoomed Image (desktop only) - NOW DYNAMIC */}
+              {/* Zoomed Image (desktop only) */}
               {isHovering && (
                 <div className="hidden md:block absolute top-1/2 left-[100%] -translate-y-1/2 w-[610px] h-[500px] border border-gray-200 overflow-hidden z-10 bg-white shadow-lg rounded-md">
                   <img
-                    src={productImages[selectedImageIndex]} // ← CHANGED: Now uses selected image
+                    src={productImages[selectedImageIndex]}
                     alt="Zoomed"
                     className="absolute object-contain transition-transform duration-100 pt-14"
                     style={{
@@ -358,9 +358,9 @@ const ProductDetails = () => {
               </button>
             </div>
 
-            {/* Thumbnail Images with Scroll - UPDATED to show all thumbnails */}
+            {/* Thumbnail Images with Scroll */}
             <div className="flex justify-center">
-              <div className="flex items-center gap-2 w-full max-w-2xl"> {/* Increased max-width */}
+              <div className="flex items-center gap-2 w-full max-w-2xl">
                 <button
                   onClick={() => scrollThumbnails("left")}
                   className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
@@ -370,11 +370,11 @@ const ProductDetails = () => {
 
                 <div
                   ref={thumbnailContainerRef}
-                  className="flex gap-2 overflow-x-auto flex-1 justify-start px-2 scrollbar-hide" 
+                  className="flex gap-2 overflow-x-auto flex-1 justify-start px-2 scrollbar-hide"
                   style={{
                     scrollbarWidth: "none",
                     msOverflowStyle: "none",
-                    minHeight: "84px" 
+                    minHeight: "84px"
                   }}
                 >
                   {productImages.map((image, index) => (
@@ -547,6 +547,7 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
+
       <RelatedProducts />
     </div>
   );

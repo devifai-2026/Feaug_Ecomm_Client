@@ -82,6 +82,19 @@ const Navbar = () => {
                         </Link>
                     </div>
 
+                    {/* Center Logo - Only visible on lg devices */}
+                    <div 
+                        className="hidden lg:flex absolute left-1/2 transform -translate-x-1/2"
+                        data-aos="zoom-in" 
+                        data-aos-delay="100"
+                    >
+                        <Link to="/">
+                            <h2 className={`uppercase text-3xl font-bold font-playfair ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
+                                Feaug
+                            </h2>
+                        </Link>
+                    </div>
+
                     {/* Right Section - User Actions */}
                     <div className={`flex items-center gap-4 ${isHomePage ? 'text-white' : 'text-gray-800'}`}>
                         {/* Desktop User Actions */}
