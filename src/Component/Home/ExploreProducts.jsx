@@ -43,16 +43,14 @@ const ExploreProducts = () => {
         Explore Products
       </h2>
 
-      {/* Mobile Design */}
+      {/* Mobile Design - NOW STATIC */}
       <div className='block sm:hidden'>
         <div className='relative'>
           <div className='flex overflow-x-auto snap-x snap-mandatory scrollbar-hide space-x-4 pb-4'>
             {products.map((product, index) => (
               <div
                 key={index}
-                onMouseEnter={() => setHoveredIndex(index)}
-                onMouseLeave={() => setHoveredIndex(null)}
-                className='relative flex-shrink-0 w-64 h-80 snap-center transition-all duration-300 ease-out cursor-pointer'
+                className='relative flex-shrink-0 w-64 h-80 snap-center cursor-pointer'
                 data-aos="zoom-in"
                 data-aos-delay={index * 100}
                 data-aos-duration="600"
@@ -60,13 +58,13 @@ const ExploreProducts = () => {
                 <img
                   src={product.image}
                   alt={product.label}
-                  className='w-full h-full object-cover transition-transform duration-300'
+                  className='w-full h-full object-cover'
                 />
                 
                 {/* Gradient Overlay */}
                 <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent'></div>
                 
-                {/* Content */}
+                {/* Content - ALWAYS VISIBLE NOW */}
                 <div className='absolute bottom-0 left-0 right-0 p-6'>
                   <div className='flex items-center justify-between'>
                     <div>
@@ -81,18 +79,12 @@ const ExploreProducts = () => {
                     </div>
                   </div>
                   
-                  {/* Shop Now Button - Show on hover for mobile */}
-                  {hoveredIndex === index && (
-                    <div 
-                      className='mt-4'
-                      data-aos="fade-up"
-                      data-aos-delay="100"
-                    >
-                      <button className='w-full py-3 border border-white text-white text-sm font-light tracking-wide hover:bg-white hover:text-black transition-all duration-200 backdrop-blur-sm bg-white/10'>
-                        SHOP NOW
-                      </button>
-                    </div>
-                  )}
+                  {/* Shop Now Button - ALWAYS VISIBLE NOW */}
+                  <div className='mt-4'>
+                    <button className='w-full py-3 border border-white text-white text-sm font-light tracking-wide bg-white/10'>
+                      SHOP NOW
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -100,7 +92,7 @@ const ExploreProducts = () => {
         </div>
       </div>
 
-      {/* Desktop Design */}
+      {/* Desktop Design - EXACTLY THE SAME AS BEFORE */}
       <div 
         className='hidden sm:flex items-center justify-between gap-3 md:gap-4 lg:gap-6'
         data-aos="fade-up"

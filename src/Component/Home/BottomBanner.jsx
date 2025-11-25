@@ -56,15 +56,14 @@ const BottomBanner = () => {
                         alt={category.title} 
                     />
                     
-                    {/* Title - Show on hover */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-opacity-70 p-3 transform translate-y-full group-hover:translate-y-0 transition-all duration-300">
+                    {/* Title - Always visible on mobile & tablet, hover on desktop */}
+                    <div className="absolute bottom-0 left-0 right-0  bg-opacity-80 p-3 lg:transform lg:translate-y-full lg:group-hover:translate-y-0 transition-all duration-300">
                         <h3 className="text-black text-center text-lg uppercase tracking-widest">
                             {category.title}
                         </h3>
                     </div>
 
-                    {/* Black Border - Show on hover */}
-                    <div className="absolute inset-0 border border-transparent group-hover:border-black transition-all duration-300"></div>
+                   
                 </div>
             ))}
         </div>
