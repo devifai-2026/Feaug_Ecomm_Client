@@ -103,7 +103,7 @@ const Navbar = () => {
     return (
         <div className="relative">
             {/* Fixed Navbar */}
-            <nav className={`fixed top-0 left-0 right-0 z-50 px-4 py-4 lg:px-8 transition-all duration-300 ${getNavbarBackground()}`}>
+            <nav className={`fixed top-0 left-0 right-0 z-50  py-4  transition-all duration-300 ${getNavbarBackground()}`}>
                 <div className="max-w-[90%] mx-auto flex justify-between items-center">
                     {/* Left Section - Logo - Hidden on lg devices */}
                     <div 
@@ -120,14 +120,16 @@ const Navbar = () => {
 
                     {/* Center Section - Navigation Links (Desktop) */}
                     <div className={`hidden lg:flex items-center gap-6 ${getTextColor()}`}>
+                        <Link to="/categories">
                         <div 
                             className='flex items-center gap-1 cursor-pointer group relative'
                             data-aos="fade-down"
                             data-aos-delay="200"
                         >
-                            <p>Categories</p>
+                               <p>Categories</p>
                             <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
                         </div>
+                            </Link>
                         <div 
                             className='flex items-center gap-1 cursor-pointer group relative'
                             data-aos="fade-down"
@@ -316,10 +318,12 @@ const Navbar = () => {
 
                                     {/* Navigation Links */}
                                     <div className="space-y-2 pb-4 border-b border-gray-200">
+                                            <Link to='/categories'>
                                         <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                                            <span className="font-medium">Categories</span>
+                                              <span className="font-medium">Categories</span>
                                             <LuChevronDown className="text-gray-500" />
                                         </div>
+                                            </Link>
                                         <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
                                             <span className="font-medium">About</span>
                                             <LuChevronDown className="text-gray-500" />

@@ -4,6 +4,9 @@ import sale from "../../assets/BestSeller/left.jpeg";
 import one from "../../assets/BestSeller/one.webp";
 import two from "../../assets/BestSeller/two.webp";
 import three from "../../assets/BestSeller/three.webp";
+import oneAngle from "../../assets/BestSeller/oneAngle.jpg"; 
+import twoAngle from "../../Assets/BestSeller/twoAngle.webp"; 
+import threeAngle from "../../Assets/BestSeller/threeAngle.jpg"; 
 import { BsHeart, BsShare, BsArrowsAngleExpand, BsCurrencyRupee } from 'react-icons/bs';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -20,70 +23,80 @@ const BestSeller = () => {
       title: "Arch Pendant Necklace", 
       price: 149.99, 
       originalPrice: null,
-      image: one 
+      image: one,
+      angleImage: oneAngle
     },
     { 
       id: 2,
       title: "Golden Pearls Bracelet", 
       price: 89.99, 
       originalPrice: 103.40,
-      image: two 
+      image: two,
+      angleImage: twoAngle
     },
     { 
       id: 3,
       title: "Diamond Engagement Ring", 
       price: 799.99, 
       originalPrice: null,
-      image: three 
+      image: three,
+      angleImage: threeAngle
     },
     { 
       id: 4,
       title: "Silver Chain Necklace", 
       price: 129.99, 
       originalPrice: null,
-      image: two 
+      image: two,
+      angleImage: twoAngle
     },
     { 
       id: 5,
       title: "Ruby Earrings", 
       price: 199.99, 
       originalPrice: 249.99,
-      image: three 
+      image: three,
+      angleImage: threeAngle
     },
     { 
       id: 6,
       title: "Pearl Drop Earrings", 
       price: 159.99, 
       originalPrice: null,
-      image: one 
+      image: one,
+      angleImage: oneAngle
     },
     { 
       id: 7,
       title: "Gold Plated Bracelet", 
       price: 69.99, 
       originalPrice: 89.99,
-      image: two 
+      image: two,
+      angleImage: twoAngle
     },
     { 
       id: 8,
       title: "Sapphire Ring", 
       price: 299.99, 
       originalPrice: null,
-      image: one 
+      image: one,
+      angleImage: oneAngle
     },
     { 
       id: 9,
       title: "Crystal Pendant", 
       price: 79.99, 
       originalPrice: 99.99,
-      image: three 
+      image: three,
+      angleImage: threeAngle
     },
     { 
       id: 10,
       title: "Diamond Stud Earrings", 
       price: 349.99, 
       originalPrice: null,
-      image: one 
+      image: one,
+      angleImage: oneAngle
     },
   ];
 
@@ -192,10 +205,22 @@ const BestSeller = () => {
               >
                 {/* Image Container */}
                 <div className="relative overflow-hidden bg-gray-100">
+                  {/* Main Image */}
                   <img 
-                    className="w-full h-80 object-cover transition-transform duration-500 lg:group-hover:scale-110" 
+                    className={`w-full h-80 object-cover transition-opacity duration-500 ${
+                      hoveredCard === index ? 'opacity-0' : 'opacity-100'
+                    }`} 
                     src={product.image} 
                     alt={product.title} 
+                  />
+                  
+                  {/* Angle Image - Shows on hover */}
+                  <img 
+                    className={`absolute top-0 left-0 w-full h-80 object-cover transition-opacity duration-500 ${
+                      hoveredCard === index ? 'opacity-100' : 'opacity-0'
+                    }`} 
+                    src={product.angleImage} 
+                    alt={`${product.title} - alternate angle`} 
                   />
                   
                   {/* Hover Icons - Mobile & Tablet: Always visible */}

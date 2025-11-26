@@ -43,10 +43,10 @@ const ExploreProducts = () => {
         Explore Products
       </h2>
 
-      {/* Mobile Design - NOW STATIC */}
+      {/* Mobile Design - Horizontal Scroll without scrollbar */}
       <div className='block sm:hidden'>
         <div className='relative'>
-          <div className='flex overflow-x-auto snap-x snap-mandatory scrollbar-hide space-x-4 pb-4'>
+          <div className='flex overflow-x-auto snap-x snap-mandatory space-x-4 pb-4 scroll-smooth hide-scrollbar'>
             {products.map((product, index) => (
               <div
                 key={index}
@@ -92,7 +92,7 @@ const ExploreProducts = () => {
         </div>
       </div>
 
-      {/* Desktop Design - EXACTLY THE SAME AS BEFORE */}
+      {/* Desktop Design */}
       <div 
         className='hidden sm:flex items-center justify-between gap-3 md:gap-4 lg:gap-6'
         data-aos="fade-up"
@@ -111,7 +111,7 @@ const ExploreProducts = () => {
               flex: hoveredIndex === index ? '1.2' : '1',
               height: '70vh',
               transition: 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-              minWidth: '0', // Important for flex items to shrink properly
+              minWidth: '0',
             }}
             data-aos="fade-up"
             data-aos-delay={index * 150 + 300}
@@ -246,7 +246,7 @@ const ExploreProducts = () => {
         ))}
       </div>
 
-      {/* Add custom animations */}
+      {/* Custom CSS to hide scrollbar */}
       <style jsx>{`
         @keyframes fadeIn {
           from { opacity: 0; }
@@ -271,6 +271,17 @@ const ExploreProducts = () => {
             opacity: 1;
             transform: scale(1);
           }
+        }
+        
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .hide-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
         }
       `}</style>
     </div>

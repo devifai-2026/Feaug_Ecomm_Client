@@ -7,6 +7,14 @@ import five from "../../assets/FeaturedCollection/five.webp"
 import six from "../../assets/FeaturedCollection/six.webp"
 import seven from "../../assets/FeaturedCollection/seven.jpeg"
 import eight from "../../assets/FeaturedCollection/eight.webp"
+import oneAngle from "../../assets/FeaturedCollection/oneAngle.webp"
+import twoAngle from "../../assets/FeaturedCollection/twoAngle.webp"
+import threeAngle from "../../assets/FeaturedCollection/threeAngle.webp"
+import fourAngle from "../../assets/FeaturedCollection/fiveAngle.jpg"
+import fiveAngle from "../../assets/FeaturedCollection/fiveAngle.jpg"
+import sixAngle from "../../assets/FeaturedCollection/sixAngle.avif"
+import sevenAngle from "../../assets/FeaturedCollection/sevenAngle.webp"
+import eightAngle from "../../assets/FeaturedCollection/eightAngle.webp"
 import { BsArrowsAngleExpand, BsCurrencyRupee, BsHeart, BsShare } from 'react-icons/bs';
 import { FaArrowRightLong } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom'; 
@@ -16,14 +24,14 @@ const FeaturedCollection = () => {
     const navigate = useNavigate(); 
 
     const products = [
-        { id: 1, title: "Diamond Necklace", price: 299.99, image: one, discount: null },
-        { id: 2, title: "Diamond Necklace", price: 299.99, image: two, discount: null },
-        { id: 3, title: "Diamond Necklace", price: 299.99, image: three, discount: null },
-        { id: 4, title: "Diamond Necklace", price: 299.99, image: four, discount: "-20% off" },
-        { id: 5, title: "Diamond Necklace", price: 299.99, image: five, discount: null },
-        { id: 6, title: "Diamond Necklace", price: 299.99, image: six, discount: "-50% off" },
-        { id: 7, title: "Diamond Necklace", price: 299.99, image: seven, discount: null },
-        { id: 8, title: "Diamond Necklace", price: 299.99, image: eight, discount: null }
+        { id: 1, title: "Diamond Necklace", price: 299.99, image: one, angleImage: oneAngle, discount: null },
+        { id: 2, title: "Diamond Necklace", price: 299.99, image: two, angleImage: twoAngle, discount: null },
+        { id: 3, title: "Diamond Necklace", price: 299.99, image: three, angleImage: threeAngle, discount: null },
+        { id: 4, title: "Diamond Necklace", price: 299.99, image: four, angleImage: fourAngle, discount: "-20% off" },
+        { id: 5, title: "Diamond Necklace", price: 299.99, image: five, angleImage: fiveAngle, discount: null },
+        { id: 6, title: "Diamond Necklace", price: 299.99, image: six, angleImage: sixAngle, discount: "-50% off" },
+        { id: 7, title: "Diamond Necklace", price: 299.99, image: seven, angleImage: sevenAngle, discount: null },
+        { id: 8, title: "Diamond Necklace", price: 299.99, image: eight, angleImage: eightAngle, discount: null }
     ];
 
     const handleCardClick = (productId) => {
@@ -64,10 +72,22 @@ const FeaturedCollection = () => {
                     >
                         {/* Image Container */}
                         <div className='relative overflow-hidden'>
+                            {/* Main Image */}
                             <img 
-                                className='w-full h-72 object-cover transition-transform duration-500 lg:group-hover:scale-110' 
+                                className={`w-full h-72 object-cover transition-opacity duration-500 ${
+                                    hoveredCard === index ? 'opacity-0' : 'opacity-100'
+                                }`} 
                                 src={product.image} 
                                 alt={product.title} 
+                            />
+                            
+                            {/* Angle Image - Shows on hover */}
+                            <img 
+                                className={`absolute top-0 left-0 w-full h-72 object-cover transition-opacity duration-500 ${
+                                    hoveredCard === index ? 'opacity-100' : 'opacity-0'
+                                }`} 
+                                src={product.angleImage} 
+                                alt={`${product.title} - alternate angle`} 
                             />
                             
                             {/* Discount Badge - Top Left */}
