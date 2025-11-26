@@ -8,6 +8,7 @@ import { useEffect } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import ProductDetails from './Component/Home/ProductDetails/ProductDetails'
+import Category from './Component/Category/Category'
 
 function App() {
 
@@ -27,6 +28,7 @@ function App() {
         <Route path="/" element={<Layout></Layout>}>
           <Route index element={<Home></Home>}></Route>
           <Route path="product/:id" element={<ProductDetails />}></Route> 
+          <Route path="categories" element={<Category />}></Route> 
         </Route>
       </Routes>
     </>
