@@ -686,19 +686,19 @@ const Category = () => {
          <div className="mb-10 relative max-w-[90%] mx-auto">
   <img
     className="h-[50vh] w-full object-cover"
-    src={topBanner}
+    src={bottomBanner}
     alt="Categories Banner"
   />
-  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl lg:top-1/2 lg:left-auto lg:right-6 lg:translate-x-0 p-3 sm:p-4 md:p-6">
-    <div className="text-center md:text-left bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-2xl p-4 sm:p-6 md:p-8">
-      <p className="uppercase tracking-widest flex items-center gap-2 mb-4 sm:mb-6 justify-center md:justify-start text-black text-sm md:text-base lg:text-lg">
-        Collection <RxDividerVertical className="text-black" />
+  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl lg:top-1/2 lg:left-auto lg:right-3 lg:translate-x-0 p-3 sm:p-4 md:p-6">
+    <div className="text-center md:text-left   p-4 sm:p-6 md:p-8">
+      <p className="uppercase tracking-widest flex items-center gap-2 mb-4 sm:mb-6 justify-center md:justify-start text-white text-sm md:text-base lg:text-lg">
+        Collection <RxDividerVertical className="text-white" />
       </p>
       <div className="space-y-2 sm:space-y-3">
-        <h2 className="text-lg sm:text-xl md:text-3xl text-black font-semibold">
+        <h2 className="text-lg sm:text-xl md:text-3xl text-white font-semibold">
           Sommelier
         </h2>
-        <div className="text-gray-800 ">
+        <div className="text-white ">
           <p className="text-xs sm:text-sm leading-tight">
             Introducing our new minimalistic  collection
           </p>
@@ -706,7 +706,7 @@ const Category = () => {
             Suitable for the active yet elegant
           </p>
         </div>
-        <button className=" border border-black text-black px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap mt-3 sm:mt-4   text-xs sm:text-sm">
+        <button className=" border border-white text-white px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap mt-3 sm:mt-4   text-xs sm:text-sm">
           Shop Now
         </button>
       </div>
