@@ -10,7 +10,7 @@ const SliderLogo = () => {
     const logos = [one, two, three, four, five];
     
     return (
-        <div className='bg-slate-100 py-6 md:py-8 overflow-hidden mt-16'>
+        <div className='bg-gray-50 py-6 md:py-8 overflow-hidden mt-16'>
             <Marquee
                 speed={40}
                 gradient={false}
