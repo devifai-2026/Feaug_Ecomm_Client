@@ -23,8 +23,9 @@ import seven from "../../assets/Categories/seven.jpeg";
 import eight from "../../assets/Categories/eight.webp";
 import { IoMdShare, IoMdClose } from "react-icons/io";
 import { MdOutlineCurrencyRupee } from "react-icons/md";
-import { RxDividerVertical } from "react-icons/rx";
+import { RxDividerVertical, RxDragHandleHorizontal } from "react-icons/rx";
 import SliderLogo from "./SliderLogo";
+import { HiOutlineSquares2X2 } from "react-icons/hi2";
 
 const Category = () => {
   const [priceRange, setPriceRange] = useState([250, 5000]);
@@ -36,6 +37,7 @@ const Category = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(0);
   const [hoveredCategory, setHoveredCategory] = useState(null);
+  const [layout, setLayout] = useState('grid'); // 'grid' or 'list'
   const productsPerPage = 12;
 
   // Mock products data - same 12 products
@@ -302,145 +304,172 @@ const Category = () => {
     </button>
   );
 
-  const SidebarContent = () => (
-    <div className="h-full overflow-y-auto">
-      {/* Categories */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Categories</h3>
-        <ul className="space-y-2">
-          {categories.map((category, index) => (
-            <li key={index}>
-              <button
-                className={`w-full text-left py-1 transition-all duration-300 ease-in-out relative group ${
-                  index === activeCategory
-                    ? "text-black font-medium ml-3"
-                    : "text-gray-600 hover:text-black hover:ml-3"
-                }`}
-                onMouseEnter={() => setHoveredCategory(index)}
-                onMouseLeave={() => setHoveredCategory(null)}
-                onClick={() => setActiveCategory(index)}
-              >
-                {/* Golden separator - visible on active and hover */}
-                {(index === activeCategory || index === hoveredCategory) && (
-                  <span className="absolute -left-3 top-1/2 transform -translate-y-1/2 text-amber-500 font-bold transition-all duration-300 text-2xl ">
-                    |
-                  </span>
-                )}
-                <span className="transition-all duration-300 group-hover:font-medium">
-                  {category}
-                </span>
-                
-                {/* Highlight background effect */}
-                <div className={`absolute inset-0 -z-10  rounded-lg transition-all duration-300 ${
-                  index === activeCategory 
-                    ? "opacity-100 scale-100" 
-                    : index === hoveredCategory
-                    ? "opacity-50 scale-100"
-                    : "opacity-0 scale-95"
-                }`} />
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Price Filter */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Price</h3>
-        <div className="space-y-4">
-          <div className="text-sm text-gray-600 flex items-center gap-1">
-            Price: <MdOutlineCurrencyRupee />
-            {priceRange[0]} - <MdOutlineCurrencyRupee />
-            {priceRange[1]}
-          </div>
-          <div className="relative pt-1">
-            <input
-              type="range"
-              min="250"
-              max="5000"
-              value={priceRange[1]}
-              onChange={(e) =>
-                setPriceRange([priceRange[0], parseInt(e.target.value)])
-              }
-              className="w-full h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer slider"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Material Filter */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Material</h3>
-        <div className="space-y-3">
-          {materials.map((material, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedMaterials[material.name] || false}
-                  onChange={() => handleMaterialToggle(material.name)}
-                  className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
-                />
-                <span className="text-sm text-gray-600">{material.name}</span>
-              </label>
-              <span className="text-xs text-gray-500">({material.count})</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Brands Filter */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Brands</h3>
-        <div className="space-y-3">
-          {brands.map((brand, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedBrands[brand.name] || false}
-                  onChange={() => handleBrandToggle(brand.name)}
-                  className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
-                />
-                <span className="text-sm text-gray-600">{brand.name}</span>
-              </label>
-              <span className="text-xs text-gray-500">({brand.count})</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Size Filter */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Size</h3>
-        <div className="grid grid-cols-3 gap-2">
-          {sizes.map((size, index) => (
+const SidebarContent = () => (
+  <div className="h-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    {/* Categories */}
+    <div className="mb-8">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Categories</h3>
+      <ul className="space-y-2">
+        {categories.map((category, index) => (
+          <li key={index}>
             <button
-              key={index}
-              onClick={() => handleSizeToggle(size)}
-              className={`py-2 text-sm border rounded transition-colors ${
-                selectedSizes[size]
-                  ? "bg-black text-white border-black"
-                  : "bg-white text-gray-600 border-gray-300 hover:border-gray-400"
+              className={`w-full text-left py-1 transition-all duration-300 ease-in-out relative group ${
+                index === activeCategory
+                  ? "text-black font-medium ml-3"
+                  : "text-gray-600 hover:text-black hover:ml-3"
               }`}
+              onMouseEnter={() => setHoveredCategory(index)}
+              onMouseLeave={() => setHoveredCategory(null)}
+              onClick={() => setActiveCategory(index)}
             >
-              {size}
+              {(index === activeCategory || index === hoveredCategory) && (
+                <span className="absolute -left-3 top-1/2 transform -translate-y-1/2 text-amber-500 font-bold transition-all duration-300 text-2xl">
+                  |
+                </span>
+              )}
+              <span className="transition-all duration-300 group-hover:font-medium">
+                {category}
+              </span>
+              
+              <div className={`absolute inset-0 -z-10 rounded-lg transition-all duration-300 ${
+                index === activeCategory 
+                  ? "opacity-100 scale-100" 
+                  : index === hoveredCategory
+                  ? "opacity-50 scale-100"
+                  : "opacity-0 scale-95"
+              }`} />
             </button>
-          ))}
-        </div>
-      </div>
+          </li>
+        ))}
+      </ul>
+    </div>
 
-      {/* Clear All Filters */}
-      <div className="border-t pt-4">
-        <button
-          onClick={clearAllFilters}
-          className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          X CLEAR ALL FILTER
-        </button>
+{/* Price Filter - CUSTOM PRICE BAR */}
+<div className="mb-8">
+  <h3 className="text-lg font-semibold text-gray-900 mb-4">Price</h3>
+
+  <div className="text-sm text-gray-600 flex items-center gap-1 mb-4">
+    Price: <MdOutlineCurrencyRupee />
+    {priceRange[0]} - <MdOutlineCurrencyRupee />
+    {priceRange[1]}
+  </div>
+
+  {/* Custom Price Bar */}
+  <div className="px-2">
+    <div className="relative">
+      {/* Track */}
+      <div className="h-2 bg-gray-300 rounded-full">
+        {/* Filled Track */}
+        <div 
+          className="h-2 bg-amber-700 rounded-full absolute top-0 left-0"
+          style={{
+            width: `${((priceRange[1] - 250) / (5000 - 250)) * 100}%`
+          }}
+        ></div>
+      </div>
+      
+      {/* Slider Input */}
+      <input
+        type="range"
+        min="250"
+        max="5000"
+        value={priceRange[1]}
+        onChange={(e) =>
+          setPriceRange([priceRange[0], parseInt(e.target.value)])
+        }
+        className="absolute top-0 left-0 w-full h-2 opacity-0 cursor-pointer"
+      />
+      
+      {/* Custom Thumb */}
+      <div 
+        className="absolute top-1/2 w-4 h-4 bg-white border-2 border-amber-700 rounded-full shadow-lg transform -translate-y-1/2 -translate-x-1/2 cursor-pointer"
+        style={{
+          left: `${((priceRange[1] - 250) / (5000 - 250)) * 100}%`
+        }}
+      ></div>
+    </div>
+    
+    {/* Price Labels */}
+    <div className="flex justify-between text-xs text-gray-500 mt-3">
+      <span><MdOutlineCurrencyRupee className="inline" />250</span>
+      <span><MdOutlineCurrencyRupee className="inline" />5000</span>
+    </div>
+  </div>
+</div>
+
+    {/* Material Filter */}
+    <div className="mb-8">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Material</h3>
+      <div className="space-y-3">
+        {materials.map((material, index) => (
+          <div key={index} className="flex items-center justify-between">
+            <label className="flex items-center space-x-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selectedMaterials[material.name] || false}
+                onChange={() => handleMaterialToggle(material.name)}
+                className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+              />
+              <span className="text-sm text-gray-600">{material.name}</span>
+            </label>
+            <span className="text-xs text-gray-500">({material.count})</span>
+          </div>
+        ))}
       </div>
     </div>
-  );
+
+    {/* Brands Filter */}
+    <div className="mb-8">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Brands</h3>
+      <div className="space-y-3">
+        {brands.map((brand, index) => (
+          <div key={index} className="flex items-center justify-between">
+            <label className="flex items-center space-x-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selectedBrands[brand.name] || false}
+                onChange={() => handleBrandToggle(brand.name)}
+                className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+              />
+              <span className="text-sm text-gray-600">{brand.name}</span>
+            </label>
+            <span className="text-xs text-gray-500">({brand.count})</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Size Filter */}
+    <div className="mb-8">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Size</h3>
+      <div className="grid grid-cols-3 gap-2">
+        {sizes.map((size, index) => (
+          <button
+            key={index}
+            onClick={() => handleSizeToggle(size)}
+            className={`py-2 text-sm border rounded transition-colors ${
+              selectedSizes[size]
+                ? "bg-black text-white border-black"
+                : "bg-white text-gray-600 border-gray-300 hover:border-gray-400"
+            }`}
+          >
+            {size}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {/* Clear All Filters */}
+    <div className="border-t pt-4">
+      <button
+        onClick={clearAllFilters}
+        className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+      >
+        X CLEAR ALL FILTER
+      </button>
+    </div>
+  </div>
+);
 
   return (
     <div className="min-h-screen bg-white">
@@ -500,7 +529,7 @@ const Category = () => {
 </div> 
  {/* Mobile Filter Header */}
             <div className="lg:hidden flex items-center justify-between mb-6 mt-6">
-              <h1 className="text-2xl font-bold text-gray-900">Our Products</h1>
+              <h1 className="text-2xl lg:text-4xl font-semibold text-gray-900">Our Products</h1>
               <button
                 onClick={() => setIsDrawerOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -513,41 +542,76 @@ const Category = () => {
             {/* Header - Desktop */}
             <div className="hidden lg:flex justify-between items-center mb-8">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                <h1 className="text-4xl font-semibold text-gray-900 mb-2">
                   Our Products
                 </h1>
                 <p className="text-sm text-gray-600">{getShowingText()}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-600">Sort by</span>
-                <select className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black">
+                <select className="px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black">
                   <option>Popularity</option>
                   <option>Price: Low to High</option>
                   <option>Price: High to Low</option>
                   <option>Newest</option>
                 </select>
+
+                <span className="text-sm text-amber-700">|</span>
+                <div className="flex items-center">
+                  <button
+                    onClick={() => setLayout('grid')}
+                    className={`p-2 transition-colors ${
+                      layout === 'grid' 
+                        ? 'text-amber-700 ' 
+                        : 'text-gray-600 hover:text-amber-700'
+                    }`}
+                  >
+                    <HiOutlineSquares2X2 className="text-lg" />
+                  </button>
+                  <button
+                    onClick={() => setLayout('list')}
+                    className={`p-2 transition-colors ${
+                      layout === 'list' 
+                        ? 'text-amber-700 ' 
+                        : 'text-gray-600 hover:text-amber-700'
+                    }`}
+                  >
+                    <RxDragHandleHorizontal className="text-lg" />
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Products Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6 mb-12">
+            {/* Products Grid/List */}
+            <div className={`mb-12 ${
+              layout === 'grid' 
+                ? 'grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6' 
+                : 'space-y-4'
+            }`}>
               {currentProducts.map((product) => (
                 <div
                   key={`${product.id}-${currentPage}`}
-                  className="group relative bg-white rounded-lg transition-all duration-300"
+                  className={`group relative bg-white transition-all duration-300 ${
+                    layout === 'grid' 
+                      ? 'border border-gray-200' 
+                      : 'flex border border-gray-200'
+                  } ${
+                    hoveredProduct === `${product.id}-${currentPage}`
+                      ? "border-2 border-amber-500"
+                      : ""
+                  }`}
                   onMouseEnter={() =>
                     setHoveredProduct(`${product.id}-${currentPage}`)
                   }
                   onMouseLeave={() => setHoveredProduct(null)}
                 >
-                  {/* Product Image Container - Rectangular Shape */}
+                  {/* Product Image Container */}
                   <div
-                    className={`relative bg-gray-100 rounded-lg overflow-hidden transition-all duration-300 ${
-                      hoveredProduct === `${product.id}-${currentPage}`
-                        ? "border-2 border-amber-500"
-                        : "border border-gray-200"
+                    className={`relative bg-gray-100 overflow-hidden transition-all duration-300 ${
+                      layout === 'grid' 
+                        ? 'aspect-[3/4]' 
+                        : 'w-48 aspect-[3/4] flex-shrink-0'
                     }`}
-                    style={{ aspectRatio: "3/4" }}
                   >
                     <img
                       src={product.image}
@@ -555,47 +619,48 @@ const Category = () => {
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
 
-                    {/* Product Info - Bottom Section */}
-                    <div className="absolute bottom-0 left-0 right-0 p-3">
-                      <h3 className="font-semibold mb-1 text-sm text-center line-clamp-2">
+                    {/* Product Info Overlay */}
+                    <div className={`absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent`}>
+                      {/* Action Icons - Horizontal row above title */}
+                      <div className={`flex justify-center space-x-2 mb-2 transition-all duration-300 ${
+                        layout === 'grid' 
+                          ? 'opacity-0 group-hover:opacity-100' 
+                          : 'opacity-100'
+                      }`}>
+                        <button className="bg-white bg-opacity-80 p-2 rounded-full shadow-lg hover:bg-amber-50 hover:text-amber-600 transition-all duration-300">
+                          <FaRegHeart className="text-xs md:text-sm" />
+                        </button>
+                        <button className="bg-white bg-opacity-80 p-2 rounded-full shadow-lg hover:bg-amber-50 hover:text-amber-600 transition-all duration-300">
+                          <FaShoppingBag className="text-xs md:text-sm" />
+                        </button>
+                        <button className="bg-white bg-opacity-80 p-2 rounded-full shadow-lg hover:bg-amber-50 hover:text-amber-600 transition-all duration-300">
+                          <IoMdShare className="text-xs md:text-sm" />
+                        </button>
+                      </div>
+
+                      {/* Product Title */}
+                      <h3 className={`font-semibold mb-1 text-sm line-clamp-2 text-white text-center`}>
                         {product.name}
                       </h3>
-                      <p className="text-sm font-medium text-center flex items-center gap-1 justify-center">
+                      
+                      {/* Product Price */}
+                      <p className={`text-sm font-medium flex items-center gap-1 justify-center text-white`}>
                         <MdOutlineCurrencyRupee className="text-base" />
                         {product.price}
                       </p>
                     </div>
-
-                    {/* Static Action Icons for Mobile & Tablet */}
-                    <div className="lg:hidden absolute top-2 right-2 flex flex-col space-y-2">
-                      <button className="bg-white bg-opacity-80 p-2 rounded-full shadow-lg hover:bg-amber-50 hover:text-amber-600 transition-all duration-300">
-                        <FaRegHeart className="text-xs md:text-sm" />
-                      </button>
-                      <button className="bg-white bg-opacity-80 p-2 rounded-full shadow-lg hover:bg-amber-50 hover:text-amber-600 transition-all duration-300">
-                        <FaShoppingBag className="text-xs md:text-sm" />
-                      </button>
-                      <button className="bg-white bg-opacity-80 p-2 rounded-full shadow-lg hover:bg-amber-50 hover:text-amber-600 transition-all duration-300">
-                        <IoMdShare className="text-xs md:text-sm" />
-                      </button>
-                    </div>
-
-                    {/* Hover Overlay with Action Icons - Desktop Only */}
-                    {hoveredProduct === `${product.id}-${currentPage}` && (
-                      <div className="hidden lg:flex absolute inset-0 items-center justify-center bg-black bg-opacity-20">
-                        <div className="flex space-x-3">
-                          <button className="bg-white p-3 rounded-full shadow-lg hover:bg-amber-50 hover:text-amber-600 transition-all duration-300 transform hover:scale-110">
-                            <FaRegHeart className="text-lg" />
-                          </button>
-                          <button className="bg-white p-3 rounded-full shadow-lg hover:bg-amber-50 hover:text-amber-600 transition-all duration-300 transform hover:scale-110">
-                            <FaShoppingBag className="text-lg" />
-                          </button>
-                          <button className="bg-white p-3 rounded-full shadow-lg hover:bg-amber-50 hover:text-amber-600 transition-all duration-300 transform hover:scale-110">
-                            <IoMdShare className="text-lg" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
                   </div>
+
+                  {/* Additional info for list layout */}
+                  {layout === 'list' && (
+                    <div className="flex-1 p-4">
+                      <p className="text-sm text-gray-600 mb-2">Material: {product.material}</p>
+                      <p className="text-sm text-gray-600">Brand: {product.brand}</p>
+                      <p className="text-sm text-gray-600 mt-2 line-clamp-3">
+                        This beautiful {product.name.toLowerCase()} is perfect for any occasion...
+                      </p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -685,25 +750,6 @@ const Category = () => {
       {/* Floating Filter Button for Mobile */}
       <FilterButton />
 
-      {/* Custom slider styles */}
-      <style jsx>{`
-        .slider::-webkit-slider-thumb {
-          appearance: none;
-          height: 18px;
-          width: 18px;
-          border-radius: 50%;
-          background: #000;
-          cursor: pointer;
-        }
-        .slider::-moz-range-thumb {
-          height: 18px;
-          width: 18px;
-          border-radius: 50%;
-          background: #000;
-          cursor: pointer;
-          border: none;
-        }
-      `}</style>
       {/* Last */}
          <div className="mb-10 relative max-w-[90%] mx-auto">
   <img
