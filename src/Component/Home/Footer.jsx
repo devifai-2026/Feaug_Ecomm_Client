@@ -7,11 +7,11 @@ const Footer = () => {
     return (
         <div className="font-sans text-gray-800 mt-12 mb-12 max-w-[90%] mx-auto">
             {/* Main Footer Content */}
-            <div className="flex flex-col md:flex-row flex-wrap justify-between gap-6 sm:gap-8 bg-stone-100 p-6 sm:p-8 lg:p-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 justify-between gap-4 lg:gap-6 bg-stone-100 p-6 sm:p-8 lg:p-5">
                 
-                {/* Contact Info Section - Full width on sm, part of first row on md */}
-                <div className="w-full md:w-auto md:flex-1 min-w-[250px] text-center sm:text-left">
-                    <div className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8 text-gray-800">
+                {/* Contact Info Section */}
+                <div className="w-full lg:w-auto lg:flex-1 min-w-[250px] text-center sm:text-left">
+                    <div className="text-3xl md:text-4xl font-bold mb-6 sm:mb-8 text-gray-800">
                         FEAUAG
                     </div>
                     <div className="text-gray-600 leading-relaxed space-y-3">
@@ -30,39 +30,36 @@ const Footer = () => {
                     </div>
                 </div>
 
-                {/* Company and Support Links - Flex row on sm, part of first row on md */}
-                <div className="w-full sm:flex sm:justify-around md:flex-1 md:flex-row md:justify-between lg:justify-around">
-                    {/* Company Links */}
-                    <div className="flex-1 min-w-[150px] mb-6 sm:mb-0 text-center sm:text-left">
-                        <div className="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800">
-                            Company
-                        </div>
-                        <div className="flex flex-col gap-2 text-gray-600">
-                            <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>About Us</div>
-                            <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Testimonials</div>
-                            <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>FAQs</div>
-                            <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Terms & Condition</div>
-                            <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Latest Update</div>
-                        </div>
+                {/* Company Links */}
+                <div className="w-full lg:w-auto lg:flex-1 min-w-[150px] text-center sm:text-left">
+                    <div className="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800">
+                        Company
                     </div>
-
-                    {/* Support Links */}
-                    <div className="flex-1 min-w-[150px] text-center sm:text-left">
-                        <div className="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800">
-                            Support
-                        </div>
-                        <div className="flex flex-col gap-2 text-gray-600">
-                            <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Order Tracking</div>
-                            <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Payment Guide</div>
-                            <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Help Centre</div>
-                            <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Privacy Policy</div>
-                            <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Return Policy</div>
-                        </div>
+                    <div className="flex flex-col gap-2 text-gray-600">
+                        <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>About Us</div>
+                        <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Testimonials</div>
+                        <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>FAQs</div>
+                        <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Terms & Condition</div>
+                        <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Latest Update</div>
                     </div>
                 </div>
 
-                {/* Newsletter Section - Full width on sm, second row on md */}
-                <div className="w-full md:w-full lg:flex-1 lg:w-auto min-w-[250px] text-center sm:text-left mt-6 md:mt-0">
+                {/* Support Links */}
+                <div className="w-full lg:w-auto lg:flex-1 min-w-[150px] text-center sm:text-left">
+                    <div className="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800">
+                        Support
+                    </div>
+                    <div className="flex flex-col gap-2 text-gray-600">
+                        <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Order Tracking</div>
+                        <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Payment Guide</div>
+                        <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Help Centre</div>
+                        <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Privacy Policy</div>
+                        <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Return Policy</div>
+                    </div>
+                </div>
+
+                {/* Newsletter Section */}
+                <div className="w-full lg:w-auto lg:flex-1 min-w-[250px] text-center sm:text-left">
                     <div className="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800">
                         Newsletter
                     </div>
@@ -74,7 +71,7 @@ const Footer = () => {
                         placeholder="Enter your email address"
                         className="w-full max-w-xs mx-auto md:mx-0 border-b border-gray-300 bg-transparent px-1 py-2 text-gray-600 placeholder-gray-400 focus:outline-none focus:border-gray-600 text-xs sm:text-sm transition-all duration-300 hover:scale-105 focus:scale-105"
                     />
-                    <button className='group bg-[#C19A6B] mt-4 px-4 py-3 w-[75%] md:w-[45%] lg:w-[75%] text-center uppercase text-white ml-0 md:ml-3 lg:ml-0 transition-all duration-300 hover:scale-105'>
+                    <button className='group bg-[#C19A6B] mt-4 px-4 py-3 w-[75%] md:w-[45%] lg:w-[85%] max-w-xs mx-auto md:mx-0 text-center uppercase text-white transition-all duration-300 hover:scale-105'>
                         <span className='transition-transform duration-300 group-hover:scale-105'>Subscribe</span>
                     </button>
                 </div>

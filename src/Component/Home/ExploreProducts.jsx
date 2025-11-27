@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import one from "../../assets/ExploreProducts/one.webp"
 import two from "../../assets/ExploreProducts/two.webp"
 import three from "../../assets/ExploreProducts/three.webp"
@@ -7,6 +7,9 @@ import five from "../../assets/ExploreProducts/five.webp"
 
 const ExploreProducts = () => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const scrollContainerRef = useRef(null);
+  const autoScrollRef = useRef(null);
 
   const products = [
     { 
@@ -32,6 +35,86 @@ const ExploreProducts = () => {
     },
   ];
 
+  // Auto scroll functionality
+  useEffect(() => {
+    if (!scrollContainerRef.current) return;
+
+    const scrollContainer = scrollContainerRef.current;
+    let isUserScrolling = false;
+    let scrollTimeout;
+
+    const handleUserScroll = () => {
+      isUserScrolling = true;
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        isUserScrolling = false;
+      }, 1000);
+    };
+
+    // Auto scroll function
+    const autoScroll = () => {
+      if (isUserScrolling) return;
+
+      const container = scrollContainerRef.current;
+      if (!container) return;
+
+      const scrollWidth = container.scrollWidth;
+      const clientWidth = container.clientWidth;
+      const maxScrollLeft = scrollWidth - clientWidth;
+
+      if (container.scrollLeft >= maxScrollLeft) {
+        // If at the end, scroll back to start
+        container.scrollTo({
+          left: 0,
+          behavior: 'smooth'
+        });
+        setCurrentSlide(0);
+      } else {
+        // Scroll to next card
+        const nextSlide = (currentSlide + 1) % products.length;
+        const cardWidth = 256; // w-64 = 256px
+        const gap = 16; // space-x-4 = 16px
+        const scrollPosition = nextSlide * (cardWidth + gap);
+
+        container.scrollTo({
+          left: scrollPosition,
+          behavior: 'smooth'
+        });
+        setCurrentSlide(nextSlide);
+      }
+    };
+
+    // Set up auto scroll interval
+    autoScrollRef.current = setInterval(autoScroll, 3000);
+
+    // Add scroll event listener
+    scrollContainer.addEventListener('scroll', handleUserScroll);
+
+    // Clean up
+    return () => {
+      if (autoScrollRef.current) {
+        clearInterval(autoScrollRef.current);
+      }
+      scrollContainer.removeEventListener('scroll', handleUserScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [currentSlide, products.length]);
+
+  // Handle manual scroll to update current slide
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+
+    const container = scrollContainerRef.current;
+    const scrollLeft = container.scrollLeft;
+    const cardWidth = 256; // w-64 = 256px
+    const gap = 16; // space-x-4 = 16px
+    const newSlide = Math.round(scrollLeft / (cardWidth + gap));
+    
+    if (newSlide !== currentSlide && newSlide >= 0 && newSlide < products.length) {
+      setCurrentSlide(newSlide);
+    }
+  };
+
   return (
     <div className='max-w-[90%] mx-auto mt-8 sm:mt-12 md:mt-16'>
       <h2 
@@ -43,10 +126,15 @@ const ExploreProducts = () => {
         Explore Products
       </h2>
 
-      {/* Mobile Design - Horizontal Scroll without scrollbar */}
+      {/* Mobile Design - Horizontal Scroll with auto-scroll */}
       <div className='block sm:hidden'>
         <div className='relative'>
-          <div className='flex overflow-x-auto snap-x snap-mandatory space-x-4 pb-4 scroll-smooth hide-scrollbar'>
+          <div 
+            ref={scrollContainerRef}
+            onScroll={handleScroll}
+            className='flex overflow-x-auto snap-x snap-mandatory space-x-4 pb-4 scroll-smooth hide-scrollbar'
+            style={{ scrollBehavior: 'smooth' }}
+          >
             {products.map((product, index) => (
               <div
                 key={index}
@@ -81,12 +169,39 @@ const ExploreProducts = () => {
                   
                   {/* Shop Now Button - ALWAYS VISIBLE NOW */}
                   <div className='mt-4'>
-                    <button className='w-full py-3 border border-white text-white text-sm font-light tracking-wide bg-white/10'>
+                    <button className='w-full py-3 border border-white text-white text-sm font-light tracking-wide bg-white/10 hover:bg-white hover:text-black transition-all duration-300'>
                       SHOP NOW
                     </button>
                   </div>
                 </div>
               </div>
+            ))}
+          </div>
+
+          {/* Scroll indicators */}
+          <div className="flex justify-center mt-4 space-x-2">
+            {products.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  const container = scrollContainerRef.current;
+                  if (container) {
+                    const cardWidth = 256;
+                    const gap = 16;
+                    const scrollPosition = index * (cardWidth + gap);
+                    container.scrollTo({
+                      left: scrollPosition,
+                      behavior: 'smooth'
+                    });
+                    setCurrentSlide(index);
+                  }
+                }}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === currentSlide 
+                    ? 'bg-black w-4' 
+                    : 'bg-gray-300'
+                }`}
+              />
             ))}
           </div>
         </div>
@@ -282,6 +397,11 @@ const ExploreProducts = () => {
         .hide-scrollbar {
           -ms-overflow-style: none;  /* IE and Edge */
           scrollbar-width: none;  /* Firefox */
+        }
+
+        /* Smooth scrolling */
+        .scroll-smooth {
+          scroll-behavior: smooth;
         }
       `}</style>
     </div>

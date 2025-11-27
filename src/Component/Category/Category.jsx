@@ -1,8 +1,4 @@
-import React, {
-  useState,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   FaRegHeart,
@@ -12,7 +8,7 @@ import {
   FaFilter,
 } from "react-icons/fa";
 import topBanner from "../../assets/Categories/topBanner.png";
-import bottomBanner from "../../assets/Categories/bottomBanner.png"
+import bottomBanner from "../../assets/Categories/bottomBanner.png";
 import one from "../../assets/Categories/one.webp";
 import two from "../../assets/Categories/two.png";
 import three from "../../assets/Categories/three.webp";
@@ -23,8 +19,9 @@ import seven from "../../assets/Categories/seven.jpeg";
 import eight from "../../assets/Categories/eight.webp";
 import { IoMdShare, IoMdClose } from "react-icons/io";
 import { MdOutlineCurrencyRupee } from "react-icons/md";
-import { RxDividerVertical } from "react-icons/rx";
+import { RxDividerVertical, RxDragHandleHorizontal } from "react-icons/rx";
 import SliderLogo from "./SliderLogo";
+import { HiOutlineSquares2X2 } from "react-icons/hi2";
 
 const Category = () => {
   const [priceRange, setPriceRange] = useState([250, 5000]);
@@ -34,6 +31,9 @@ const Category = () => {
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(0);
+  const [hoveredCategory, setHoveredCategory] = useState(null);
+  const [layout, setLayout] = useState("grid"); // 'grid' or 'list'
   const productsPerPage = 12;
 
   // Mock products data - same 12 products
@@ -301,7 +301,7 @@ const Category = () => {
   );
 
   const SidebarContent = () => (
-    <div className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {/* Categories */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Categories</h3>
@@ -309,29 +309,64 @@ const Category = () => {
           {categories.map((category, index) => (
             <li key={index}>
               <button
-                className={`w-full text-left py-1 transition-colors ${
-                  index === 0
-                    ? "text-gray-900 font-medium"
-                    : "text-gray-600 hover:text-gray-900"
+                className={`w-full text-left py-1 transition-all duration-300 ease-in-out relative group ${
+                  index === activeCategory
+                    ? "text-black font-medium ml-3"
+                    : "text-gray-600 hover:text-black hover:ml-3"
                 }`}
+                onMouseEnter={() => setHoveredCategory(index)}
+                onMouseLeave={() => setHoveredCategory(null)}
+                onClick={() => setActiveCategory(index)}
               >
-                {category}
+                {(index === activeCategory || index === hoveredCategory) && (
+                  <span className="absolute -left-3 top-1/2 transform -translate-y-1/2 text-[#a67c00] font-bold transition-all duration-300 text-2xl">
+                    |
+                  </span>
+                )}
+                <span className="transition-all duration-300 group-hover:font-medium">
+                  {category}
+                </span>
+
+                <div
+                  className={`absolute inset-0 -z-10 rounded-lg transition-all duration-300 ${
+                    index === activeCategory
+                      ? "opacity-100 scale-100"
+                      : index === hoveredCategory
+                      ? "opacity-50 scale-100"
+                      : "opacity-0 scale-95"
+                  }`}
+                />
               </button>
             </li>
           ))}
         </ul>
       </div>
 
-      {/* Price Filter */}
+      {/* Price Filter - CUSTOM PRICE BAR */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Price</h3>
-        <div className="space-y-4">
-          <div className="text-sm text-gray-600 flex items-center gap-1">
-            Price: <MdOutlineCurrencyRupee />
-            {priceRange[0]} - <MdOutlineCurrencyRupee />
-            {priceRange[1]}
-          </div>
-          <div className="relative pt-1">
+
+        <div className="text-sm text-gray-600 flex items-center gap-1 mb-4">
+          Price: <MdOutlineCurrencyRupee />
+          {priceRange[0]} - <MdOutlineCurrencyRupee />
+          {priceRange[1]}
+        </div>
+
+        {/* Custom Price Bar */}
+        <div className="px-2">
+          <div className="relative">
+            {/* Track */}
+            <div className="h-2 bg-gray-300 rounded-full">
+              {/* Filled Track */}
+              <div
+                className="h-2 bg-[#a67c00] rounded-full absolute top-0 left-0"
+                style={{
+                  width: `${((priceRange[1] - 250) / (5000 - 250)) * 100}%`,
+                }}
+              ></div>
+            </div>
+
+            {/* Slider Input */}
             <input
               type="range"
               min="250"
@@ -340,8 +375,28 @@ const Category = () => {
               onChange={(e) =>
                 setPriceRange([priceRange[0], parseInt(e.target.value)])
               }
-              className="w-full h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer slider"
+              className="absolute top-0 left-0 w-full h-2 opacity-0 cursor-pointer"
             />
+
+            {/* Custom Thumb */}
+            <div
+              className="absolute top-1/2 w-4 h-4 bg-white border-2 border-[#a67c00] rounded-full shadow-lg transform -translate-y-1/2 -translate-x-1/2 cursor-pointer"
+              style={{
+                left: `${((priceRange[1] - 250) / (5000 - 250)) * 100}%`,
+              }}
+            ></div>
+          </div>
+
+          {/* Price Labels */}
+          <div className="flex justify-between text-xs text-gray-500 mt-3">
+            <span>
+              <MdOutlineCurrencyRupee className="inline" />
+              250
+            </span>
+            <span>
+              <MdOutlineCurrencyRupee className="inline" />
+              5000
+            </span>
           </div>
         </div>
       </div>
@@ -445,40 +500,42 @@ const Category = () => {
 
           {/* Right Side - Products */}
           <div className="col-span-12 lg:col-span-9">
-          {/* Top Banner */}
-<div className="mb-10 relative">
-  <img
-    className="h-[50vh] w-full object-cover"
-    src={topBanner}
-    alt="Categories Banner"
-  />
-  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl lg:top-1/2 lg:left-auto lg:right-6 lg:translate-x-0 p-3 sm:p-4 md:p-6">
-    <div className="text-center md:text-left bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-2xl p-4 sm:p-6 md:p-8">
-      <p className="uppercase tracking-widest flex items-center gap-2 mb-4 sm:mb-6 justify-center md:justify-start text-black text-sm md:text-base lg:text-lg">
-        New Arrival <RxDividerVertical className="text-black" />
-      </p>
-      <div className="space-y-2 sm:space-y-3">
-        <h2 className="text-lg sm:text-xl md:text-3xl text-black font-semibold">
-          Flower Power
-        </h2>
-        <div className="text-gray-800 ">
-          <p className="text-xs sm:text-sm leading-tight">
-            Introducing our new mesmerizing jewelry collection
-          </p>
-          <p className="text-xs sm:text-sm leading-tight">
-            Mesmerizing your inner allure with the timeless elegance
-          </p>
-        </div>
-        <button className=" border border-black text-black px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap mt-3 sm:mt-4   text-xs sm:text-sm">
-          Shop Now
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+            {/* Top Banner */}
+            <div className="mb-10 relative">
+              <img
+                className="h-[50vh] w-full object-cover"
+                src={topBanner}
+                alt="Categories Banner"
+              />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-xs sm:max-w-sm md:max-w-md lg:left-[unset] lg:right-6 lg:translate-x-0 p-3 sm:p-4 md:p-6">
+                <div className="text-center md:text-left p-4 sm:p-6 md:p-8">
+                  <p className="uppercase tracking-widest flex items-center gap-2 mb-8 lg:mb-6 justify-center md:justify-start text-white  text-lg md:text-xl lg:text-xl">
+                    New Arrival <RxDividerVertical className="text-white " />
+                  </p>
+                  <div className="space-y-4 lg:space-y-3">
+                    <h2 className="text-3xl md:text-4xl text-white  font-semibold">
+                      Flower Power
+                    </h2>
+                    <div className="text-white  ">
+                      <p className="text-xs md:text-sm leading-tight">
+                        Introducing our new mesmerizing jewelry collection
+                      </p>
+                      <p className="text-xs md:text-sm leading-tight">
+                        Mesmerizing your inner allure with the timeless elegance
+                      </p>
+                    </div>
+                    <button className=" border border-white  text-white  px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap mt-3 sm:mt-4   text-xs sm:text-sm w-[40%]">
+                      Shop Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
             {/* Mobile Filter Header */}
             <div className="lg:hidden flex items-center justify-between mb-6 mt-6">
-              <h1 className="text-2xl font-bold text-gray-900">Our Products</h1>
+              <h1 className="text-2xl lg:text-4xl font-semibold text-gray-900">
+                Our Products
+              </h1>
               <button
                 onClick={() => setIsDrawerOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -491,41 +548,78 @@ const Category = () => {
             {/* Header - Desktop */}
             <div className="hidden lg:flex justify-between items-center mb-8">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                <h1 className="text-4xl font-semibold text-gray-900 mb-2">
                   Our Products
                 </h1>
                 <p className="text-sm text-gray-600">{getShowingText()}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-600">Sort by</span>
-                <select className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black">
+                <select className="px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black">
                   <option>Popularity</option>
                   <option>Price: Low to High</option>
                   <option>Price: High to Low</option>
                   <option>Newest</option>
                 </select>
+
+                <span className="text-sm text-[#a67c00]">|</span>
+                <div className="flex items-center">
+                  <button
+                    onClick={() => setLayout("grid")}
+                    className={`p-2 transition-colors ${
+                      layout === "grid"
+                        ? "text-[#a67c00] "
+                        : "text-gray-600 hover:text-[#a67c00]"
+                    }`}
+                  >
+                    <HiOutlineSquares2X2 className="text-lg" />
+                  </button>
+                  <button
+                    onClick={() => setLayout("list")}
+                    className={`p-2 transition-colors ${
+                      layout === "list"
+                        ? "text-[#a67c00] "
+                        : "text-gray-600 hover:text-[#a67c00]"
+                    }`}
+                  >
+                    <RxDragHandleHorizontal className="text-lg" />
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Products Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6 mb-12">
+            {/* Products Grid/List */}
+            <div
+              className={`mb-12 ${
+                layout === "grid"
+                  ? "grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6"
+                  : "space-y-4"
+              }`}
+            >
               {currentProducts.map((product) => (
                 <div
                   key={`${product.id}-${currentPage}`}
-                  className="group relative bg-white rounded-lg transition-all duration-300"
+                  className={`group relative bg-white transition-all duration-300 ${
+                    layout === "grid"
+                      ? "border border-gray-200"
+                      : "flex border border-gray-200"
+                  } ${
+                    hoveredProduct === `${product.id}-${currentPage}`
+                      ? "border-2 border-amber-500"
+                      : ""
+                  }`}
                   onMouseEnter={() =>
                     setHoveredProduct(`${product.id}-${currentPage}`)
                   }
                   onMouseLeave={() => setHoveredProduct(null)}
                 >
-                  {/* Product Image Container - Rectangular Shape */}
+                  {/* Product Image Container */}
                   <div
-                    className={`relative bg-gray-100 rounded-lg overflow-hidden transition-all duration-300 ${
-                      hoveredProduct === `${product.id}-${currentPage}`
-                        ? "border-2 border-amber-500"
-                        : "border border-gray-200"
+                    className={`relative bg-gray-100 overflow-hidden transition-all duration-300 ${
+                      layout === "grid"
+                        ? "aspect-[3/4]"
+                        : "w-48 aspect-[3/4] flex-shrink-0"
                     }`}
-                    style={{ aspectRatio: "3/4" }}
                   >
                     <img
                       src={product.image}
@@ -533,47 +627,84 @@ const Category = () => {
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
 
-                    {/* Product Info - Bottom Section */}
-                    <div className="absolute bottom-0 left-0 right-0 p-3">
-                      <h3 className="font-semibold mb-1 text-sm text-center line-clamp-2">
+                    {/* Action Icons - Static flex-col top-right for md and sm only */}
+                    <div className="absolute top-2 right-2 flex flex-col space-y-2 opacity-100 md:opacity-100 lg:hidden">
+                      <button className="p-2 rounded-full text-[#a67c00] hover:text-red-600 transition-all duration-300 bg-white bg-opacity-80">
+                        <FaRegHeart className="text-xs md:text-sm" />
+                      </button>
+                      <button className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300 bg-white bg-opacity-80">
+                        <IoMdShare className="text-xs md:text-sm" />
+                      </button>
+                      <button className="p-2 rounded-full text-[#a67c00] hover:text-green-600 transition-all duration-300 bg-white bg-opacity-80">
+                        <FaShoppingBag className="text-xs md:text-sm" />
+                      </button>
+                    </div>
+
+                    {/* Product Info Overlay - For desktop and tablet */}
+                    <div
+                      className={`hidden md:block absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent`}
+                    >
+                      {/* Action Icons - Horizontal row above title (for lg devices only) */}
+                      <div
+                        className={`hidden lg:flex justify-center space-x-2 mb-2 transition-all duration-300 ${
+                          layout === "grid"
+                            ? "opacity-0 group-hover:opacity-100"
+                            : "opacity-100"
+                        }`}
+                      >
+                        <button className="p-2 rounded-full text-[#a67c00] hover:text-red-600 transition-all duration-300">
+                          <FaRegHeart className="text-lg" />
+                        </button>
+                        <button className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300">
+                          <IoMdShare className="text-lg" />
+                        </button>
+                        <button className="p-2 rounded-full text-[#a67c00] hover:text-green-600 transition-all duration-300">
+                          <FaShoppingBag className="text-lg" />
+                        </button>
+                      </div>
+
+                      {/* Product Title and Price - For desktop and tablet */}
+                      <h3
+                        className={`font-semibold mb-1 text-sm line-clamp-2 text-white text-center`}
+                      >
                         {product.name}
                       </h3>
-                      <p className="text-sm font-medium text-center flex items-center gap-1 justify-center">
+
+                      <p
+                        className={`text-sm font-medium flex items-center gap-1 justify-center text-white`}
+                      >
                         <MdOutlineCurrencyRupee className="text-base" />
                         {product.price}
                       </p>
                     </div>
-
-                    {/* Static Action Icons for Mobile & Tablet */}
-                    <div className="lg:hidden absolute top-2 right-2 flex flex-col space-y-2">
-                      <button className="bg-white bg-opacity-80 p-2 rounded-full shadow-lg hover:bg-amber-50 hover:text-amber-600 transition-all duration-300">
-                        <FaRegHeart className="text-xs md:text-sm" />
-                      </button>
-                      <button className="bg-white bg-opacity-80 p-2 rounded-full shadow-lg hover:bg-amber-50 hover:text-amber-600 transition-all duration-300">
-                        <FaShoppingBag className="text-xs md:text-sm" />
-                      </button>
-                      <button className="bg-white bg-opacity-80 p-2 rounded-full shadow-lg hover:bg-amber-50 hover:text-amber-600 transition-all duration-300">
-                        <IoMdShare className="text-xs md:text-sm" />
-                      </button>
-                    </div>
-
-                    {/* Hover Overlay with Action Icons - Desktop Only */}
-                    {hoveredProduct === `${product.id}-${currentPage}` && (
-                      <div className="hidden lg:flex absolute inset-0 items-center justify-center bg-black bg-opacity-20">
-                        <div className="flex space-x-3">
-                          <button className="bg-white p-3 rounded-full shadow-lg hover:bg-amber-50 hover:text-amber-600 transition-all duration-300 transform hover:scale-110">
-                            <FaRegHeart className="text-lg" />
-                          </button>
-                          <button className="bg-white p-3 rounded-full shadow-lg hover:bg-amber-50 hover:text-amber-600 transition-all duration-300 transform hover:scale-110">
-                            <FaShoppingBag className="text-lg" />
-                          </button>
-                          <button className="bg-white p-3 rounded-full shadow-lg hover:bg-amber-50 hover:text-amber-600 transition-all duration-300 transform hover:scale-110">
-                            <IoMdShare className="text-lg" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
                   </div>
+
+                  {/* Product Title and Price - For mobile only (outside below the card) */}
+                  <div className="md:hidden p-3">
+                    <h3 className="font-semibold text-sm line-clamp-2 text-gray-900 text-center">
+                      {product.name}
+                    </h3>
+                    <p className="text-sm font-medium flex items-center gap-1 justify-center text-gray-900">
+                      <MdOutlineCurrencyRupee className="text-base" />
+                      {product.price}
+                    </p>
+                  </div>
+
+                  {/* Additional info for list layout */}
+                  {layout === "list" && (
+                    <div className="flex-1 p-4">
+                      <p className="text-sm text-gray-600 mb-2">
+                        Material: {product.material}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Brand: {product.brand}
+                      </p>
+                      <p className="text-sm text-gray-600 mt-2 line-clamp-3">
+                        This beautiful {product.name.toLowerCase()} is perfect
+                        for any occasion...
+                      </p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -663,57 +794,43 @@ const Category = () => {
       {/* Floating Filter Button for Mobile */}
       <FilterButton />
 
-      {/* Custom slider styles */}
-      <style jsx>{`
-        .slider::-webkit-slider-thumb {
-          appearance: none;
-          height: 18px;
-          width: 18px;
-          border-radius: 50%;
-          background: #000;
-          cursor: pointer;
-        }
-        .slider::-moz-range-thumb {
-          height: 18px;
-          width: 18px;
-          border-radius: 50%;
-          background: #000;
-          cursor: pointer;
-          border: none;
-        }
-      `}</style>
-      {/* Last */}
-         <div className="mb-10 relative max-w-[90%] mx-auto">
-  <img
-    className="h-[50vh] w-full object-cover"
-    src={bottomBanner}
-    alt="Categories Banner"
-  />
-  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl lg:top-1/2 lg:left-auto lg:right-3 lg:translate-x-0 p-3 sm:p-4 md:p-6">
-    <div className="text-center md:text-left   p-4 sm:p-6 md:p-8">
-      <p className="uppercase tracking-widest flex items-center gap-2 mb-4 sm:mb-6 justify-center md:justify-start text-white text-sm md:text-base lg:text-lg">
-        Collection <RxDividerVertical className="text-white" />
-      </p>
-      <div className="space-y-2 sm:space-y-3">
-        <h2 className="text-lg sm:text-xl md:text-3xl text-white font-semibold">
-          Sommelier
-        </h2>
-        <div className="text-white ">
-          <p className="text-xs sm:text-sm leading-tight">
-            Introducing our new minimalistic  collection
-          </p>
-          <p className="text-xs sm:text-sm leading-tight">
-            Suitable for the active yet elegant
-          </p>
+      {/* Last Banner*/}
+      <div className="mb-10 relative max-w-[90%] mx-auto">
+        <img
+          className="h-[50vh] w-full object-cover"
+          src={bottomBanner}
+          alt="Categories Banner"
+        />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-xs sm:max-w-sm md:max-w-md lg:left-[unset] lg:right-6 lg:translate-x-0 p-3 sm:p-4 md:p-6">
+          <div className="flex flex-col justify-between h-full text-center md:text-left p-4 sm:p-6 md:p-4 gap-16 lg:gap-12">
+            {/* Collection text at top */}
+            <div>
+              <p className="uppercase tracking-widest flex items-center gap-2 justify-center md:justify-start text-white text-sm md:text-base lg:text-lg">
+                Collection <RxDividerVertical className="text-white" />
+              </p>
+            </div>
+            
+            {/* Rest of the content */}
+            <div className="space-y-4">
+              <h2 className="text-3xl md:text-4xl text-white font-semibold">
+                Sommelier
+              </h2>
+              <div className="text-white">
+                <p className="text-sm md:text-base  leading-tight">
+                  Introducing our new minimalistic collection
+                </p>
+                <p className="text-sm md:text-base  leading-tight">
+                  Suitable for the active yet elegant
+                </p>
+              </div>
+              <button className="border border-white text-white px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap text-xs sm:text-sm w-[40%]">
+                Shop Now
+              </button>
+            </div>
+          </div>
         </div>
-        <button className=" border border-white text-white px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap mt-3 sm:mt-4   text-xs sm:text-sm">
-          Shop Now
-        </button>
       </div>
-    </div>
-  </div>
-</div>
-<SliderLogo></SliderLogo>
+      <SliderLogo></SliderLogo>
     </div>
   );
 };

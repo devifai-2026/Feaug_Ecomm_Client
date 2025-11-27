@@ -200,7 +200,8 @@ const Navbar = () => {
                                     data-aos="fade-left"
                                     data-aos-delay="500"
                                 />
-                                {/* Wishlist with Count Badge */}
+                               <div className="flex items-center gap-5">
+                                 {/* Wishlist with Count Badge */}
                                 <div className="relative">
                                     <FaRegHeart 
                                         className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
@@ -222,11 +223,12 @@ const Navbar = () => {
                                         {cartCount}
                                     </span>
                                 </div>
+                               </div>
                             </div>
                         </div>
 
                         {/* Mobile User Actions - Only Hamburger + Shopping Bag */}
-                        <div className="flex lg:hidden items-center gap-3">
+                        <div className="flex lg:hidden items-center gap-6">
                             {/* Wishlist with Count Badge - Always Visible */}
                             <div className="relative">
                                 <FaRegHeart

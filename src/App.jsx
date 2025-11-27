@@ -25,8 +25,7 @@ function App() {
       easing: 'ease-in-out', 
     });
 
-
-    const interval = setInterval(() => {
+    const showToast = () => {
       toast.success('Subhojit Dutta purchased necklace!', {
         position: "top-right",
         autoClose: 5000,
@@ -37,10 +36,13 @@ function App() {
         progress: undefined,
         theme: "light",
       });
-    },  10000); 
+      
+      setTimeout(showToast, 4 * 60 * 1000);
+    };
 
+    const timeoutId = setTimeout(showToast, 4 * 60 * 1000);
 
-    return () => clearInterval(interval);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (
