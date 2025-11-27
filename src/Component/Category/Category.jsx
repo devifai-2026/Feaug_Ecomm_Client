@@ -34,6 +34,8 @@ const Category = () => {
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(0);
+  const [hoveredCategory, setHoveredCategory] = useState(null);
   const productsPerPage = 12;
 
   // Mock products data - same 12 products
@@ -309,13 +311,33 @@ const Category = () => {
           {categories.map((category, index) => (
             <li key={index}>
               <button
-                className={`w-full text-left py-1 transition-colors ${
-                  index === 0
-                    ? "text-gray-900 font-medium"
-                    : "text-gray-600 hover:text-gray-900"
+                className={`w-full text-left py-1 transition-all duration-300 ease-in-out relative group ${
+                  index === activeCategory
+                    ? "text-black font-medium ml-3"
+                    : "text-gray-600 hover:text-black hover:ml-3"
                 }`}
+                onMouseEnter={() => setHoveredCategory(index)}
+                onMouseLeave={() => setHoveredCategory(null)}
+                onClick={() => setActiveCategory(index)}
               >
-                {category}
+                {/* Golden separator - visible on active and hover */}
+                {(index === activeCategory || index === hoveredCategory) && (
+                  <span className="absolute -left-3 top-1/2 transform -translate-y-1/2 text-amber-500 font-bold transition-all duration-300 text-2xl ">
+                    |
+                  </span>
+                )}
+                <span className="transition-all duration-300 group-hover:font-medium">
+                  {category}
+                </span>
+                
+                {/* Highlight background effect */}
+                <div className={`absolute inset-0 -z-10  rounded-lg transition-all duration-300 ${
+                  index === activeCategory 
+                    ? "opacity-100 scale-100" 
+                    : index === hoveredCategory
+                    ? "opacity-50 scale-100"
+                    : "opacity-0 scale-95"
+                }`} />
               </button>
             </li>
           ))}
