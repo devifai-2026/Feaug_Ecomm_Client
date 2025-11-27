@@ -467,38 +467,38 @@ const Category = () => {
 
           {/* Right Side - Products */}
           <div className="col-span-12 lg:col-span-9">
-          {/* Top Banner */}
+{/* Top Banner */}
 <div className="mb-10 relative">
   <img
     className="h-[50vh] w-full object-cover"
     src={topBanner}
     alt="Categories Banner"
   />
-  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl lg:top-1/2 lg:left-auto lg:right-6 lg:translate-x-0 p-3 sm:p-4 md:p-6">
-    <div className="text-center md:text-left bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-2xl p-4 sm:p-6 md:p-8">
-      <p className="uppercase tracking-widest flex items-center gap-2 mb-4 sm:mb-6 justify-center md:justify-start text-black text-sm md:text-base lg:text-lg">
-        New Arrival <RxDividerVertical className="text-black" />
+  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-xs sm:max-w-sm md:max-w-md lg:left-[unset] lg:right-6 lg:translate-x-0 p-3 sm:p-4 md:p-6">
+    <div className="text-center md:text-left p-4 sm:p-6 md:p-8">
+      <p className="uppercase tracking-widest flex items-center gap-2 mb-8 lg:mb-6 justify-center md:justify-start text-white  text-lg md:text-xl lg:text-xl">
+        New Arrival <RxDividerVertical className="text-white " />
       </p>
-      <div className="space-y-2 sm:space-y-3">
-        <h2 className="text-lg sm:text-xl md:text-3xl text-black font-semibold">
+      <div className="space-y-4 lg:space-y-3">
+        <h2 className="text-3xl md:text-4xl text-white  font-semibold">
           Flower Power
         </h2>
-        <div className="text-gray-800 ">
-          <p className="text-xs sm:text-sm leading-tight">
+        <div className="text-white  ">
+          <p className="text-xs md:text-sm leading-tight">
             Introducing our new mesmerizing jewelry collection
           </p>
-          <p className="text-xs sm:text-sm leading-tight">
+          <p className="text-xs md:text-sm leading-tight">
             Mesmerizing your inner allure with the timeless elegance
           </p>
         </div>
-        <button className=" border border-black text-black px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap mt-3 sm:mt-4   text-xs sm:text-sm">
+        <button className=" border border-white  text-white  px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap mt-3 sm:mt-4   text-xs sm:text-sm">
           Shop Now
         </button>
       </div>
     </div>
   </div>
-</div>
-            {/* Mobile Filter Header */}
+</div> 
+ {/* Mobile Filter Header */}
             <div className="lg:hidden flex items-center justify-between mb-6 mt-6">
               <h1 className="text-2xl font-bold text-gray-900">Our Products</h1>
               <button
