@@ -13,6 +13,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProductDetails from './Component/Home/ProductDetails/ProductDetails'
 import Category from './Component/Category/Category'
+import About from './Component/Pages/About'
+import Contact from './Component/Pages/Contact'
 
 function App() {
 
@@ -66,6 +68,8 @@ function App() {
           <Route index element={<Home></Home>}></Route>
           <Route path="product/:id" element={<ProductDetails />}></Route> 
           <Route path="categories" element={<Category />}></Route> 
+          <Route path="about" element={<About />}></Route> 
+          <Route path="contact" element={<Contact />}></Route> 
         </Route>
       </Routes>
     </>

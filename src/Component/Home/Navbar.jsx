@@ -130,14 +130,16 @@ const Navbar = () => {
                             <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
                         </div>
                             </Link>
-                        <div 
+                       <Link to='/about'>
+                            <div 
                             className='flex items-center gap-1 cursor-pointer group relative'
                             data-aos="fade-down"
                             data-aos-delay="300"
                         >
                             <p>About</p>
-                            <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
+                           
                         </div>
+                       </Link>
                         <p 
                             className='cursor-pointer'
                             data-aos="fade-down"
@@ -145,13 +147,15 @@ const Navbar = () => {
                         >
                             Blog
                         </p>
-                        <p 
+                       <Link to='/contact'>
+                           <p 
                             className='cursor-pointer'
                             data-aos="fade-down"
                             data-aos-delay="500"
                         >
                             Contact
                         </p>
+                       </Link>
                     </div>
 
                     {/* Center Logo - Only visible on lg devices */}
@@ -326,16 +330,20 @@ const Navbar = () => {
                                             <LuChevronDown className="text-gray-500" />
                                         </div>
                                             </Link>
-                                        <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
+                                        <Link to='/about'>
+                                           <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
                                             <span className="font-medium">About</span>
                                             <LuChevronDown className="text-gray-500" />
                                         </div>
+                                        </Link>
                                         <div className="cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors font-medium">
                                             Blog
                                         </div>
-                                        <div className="cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors font-medium">
+                                       <Link to='/contact'>
+                                           <div className="cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors font-medium">
                                             Contact
                                         </div>
+                                       </Link>
                                     </div>
                                 </div>
                             </div>
