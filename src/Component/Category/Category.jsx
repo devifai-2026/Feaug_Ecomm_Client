@@ -500,37 +500,42 @@ const Category = () => {
 
           {/* Right Side - Products */}
           <div className="col-span-12 lg:col-span-9">
-            {/* Top Banner */}
-            <div className="mb-10 relative">
-              <img
-                className="h-[50vh] w-full object-cover"
-                src={topBanner}
-                alt="Categories Banner"
-              />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-xs sm:max-w-sm md:max-w-md lg:left-[unset] lg:right-6 lg:translate-x-0 p-3 sm:p-4 md:p-6">
-                <div className="text-center md:text-left p-4 sm:p-6 md:p-8">
-                  <p className="uppercase tracking-widest flex items-center gap-2 mb-8 lg:mb-6 justify-center md:justify-start text-white  text-lg md:text-xl lg:text-xl">
-                    New Arrival <RxDividerVertical className="text-white " />
-                  </p>
-                  <div className="space-y-4 lg:space-y-3">
-                    <h2 className="text-3xl md:text-4xl text-white  font-semibold">
-                      Flower Power
-                    </h2>
-                    <div className="text-white  ">
-                      <p className="text-xs md:text-sm leading-tight">
-                        Introducing our new mesmerizing jewelry collection
-                      </p>
-                      <p className="text-xs md:text-sm leading-tight">
-                        Mesmerizing your inner allure with the timeless elegance
-                      </p>
-                    </div>
-                    <button className=" border border-white  text-white  px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap mt-3 sm:mt-4   text-xs sm:text-sm w-[40%]">
-                      Shop Now
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+           {/* Top Banner */}
+<div className="mb-10 relative max-w-[90%] mx-auto">
+  <img
+    className="h-[50vh] w-full object-cover"
+    src={topBanner}
+    alt="Categories Banner"
+  />
+  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-xs sm:max-w-sm md:max-w-md lg:left-[unset] lg:right-6 lg:translate-x-0 p-3 sm:p-4 md:p-6">
+    <div className="flex flex-col justify-between h-full text-center md:text-left p-4 sm:p-6 md:p-6 gap-36 md:gap-52 lg:gap-16">
+      {/* New Arrival text at top */}
+      <div>
+        <p className="uppercase tracking-widest flex items-center gap-2 justify-center md:justify-start text-white text-sm md:text-base lg:text-lg">
+          New Arrival <RxDividerVertical className="text-white" />
+        </p>
+      </div>
+      
+      {/* Rest of the content */}
+      <div className="space-y-4">
+        <h2 className="text-3xl md:text-4xl text-white font-semibold">
+          Flower Power
+        </h2>
+        <div className="text-white">
+          <p className="text-sm md:text-base leading-tight">
+            Introducing our new mesmerizing jewelry collection
+          </p>
+          <p className="text-sm md:text-base leading-tight">
+            Mesmerizing your inner allure with the timeless elegance
+          </p>
+        </div>
+        <button className="border border-white text-white px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap text-xs sm:text-sm w-[40%]">
+          Shop Now
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
             {/* Mobile Filter Header */}
             <div className="lg:hidden flex items-center justify-between mb-6 mt-6">
               <h1 className="text-2xl lg:text-4xl font-semibold text-gray-900">
@@ -592,20 +597,20 @@ const Category = () => {
             <div
               className={`mb-12 ${
                 layout === "grid"
-                  ? "grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6"
+                  ? "grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6 "
                   : "space-y-4"
               }`}
             >
               {currentProducts.map((product) => (
                 <div
                   key={`${product.id}-${currentPage}`}
-                  className={`group relative bg-white transition-all duration-300 ${
+                  className={`group relative bg-white transition-all duration-300 hover:border-2 border-amber-700 ${
                     layout === "grid"
-                      ? "border border-gray-200"
-                      : "flex border border-gray-200"
+                      ? ""
+                      : "flex border border-gray-200 "
                   } ${
                     hoveredProduct === `${product.id}-${currentPage}`
-                      ? "border-2 border-amber-500"
+                      ? " "
                       : ""
                   }`}
                   onMouseEnter={() =>
@@ -615,10 +620,10 @@ const Category = () => {
                 >
                   {/* Product Image Container */}
                   <div
-                    className={`relative bg-gray-100 overflow-hidden transition-all duration-300 ${
+                    className={`relative bg-gray-100 overflow-hidden transition-all duration-300  ${
                       layout === "grid"
-                        ? "aspect-[3/4]"
-                        : "w-48 aspect-[3/4] flex-shrink-0"
+                        ? "aspect-[3/4] "
+                        : "w-48 aspect-[3/4] flex-shrink-0 "
                     }`}
                   >
                     <img
@@ -642,13 +647,13 @@ const Category = () => {
 
                     {/* Product Info Overlay - For desktop and tablet */}
                     <div
-                      className={`hidden md:block absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent`}
+                      className={`hidden md:block absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent `}
                     >
                       {/* Action Icons - Horizontal row above title (for lg devices only) */}
                       <div
                         className={`hidden lg:flex justify-center space-x-2 mb-2 transition-all duration-300 ${
                           layout === "grid"
-                            ? "opacity-0 group-hover:opacity-100"
+                            ? "opacity-0 group-hover:opacity-100 "
                             : "opacity-100"
                         }`}
                       >
@@ -802,7 +807,7 @@ const Category = () => {
           alt="Categories Banner"
         />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-xs sm:max-w-sm md:max-w-md lg:left-[unset] lg:right-6 lg:translate-x-0 p-3 sm:p-4 md:p-6">
-          <div className="flex flex-col justify-between h-full text-center md:text-left p-4 sm:p-6 md:p-4 gap-16 lg:gap-12">
+          <div className="flex flex-col justify-between h-full text-center md:text-left p-4 sm:p-6 md:p-6 gap-36 md:gap-52 lg:gap-24">
             {/* Collection text at top */}
             <div>
               <p className="uppercase tracking-widest flex items-center gap-2 justify-center md:justify-start text-white text-sm md:text-base lg:text-lg">
