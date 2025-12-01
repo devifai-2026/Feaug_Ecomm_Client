@@ -34,6 +34,11 @@ const Navbar = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    // Check if a link is active
+    const isActiveLink = (path) => {
+        return location.pathname === path;
+    };
+
     // Carousel content
     const carouselSlides = [
         {
@@ -100,10 +105,33 @@ const Navbar = () => {
         return 'text-white'; // White text when transparent
     };
 
+    // Get link color with hover and active states
+    const getLinkColor = (path) => {
+        const baseColor = getTextColor();
+        const activeColor = 'text-[#C19A6B]';
+        const hoverColor = 'hover:text-[#C19A6B]';
+        
+        if (isActiveLink(path)) {
+            return activeColor;
+        }
+        return `${baseColor} ${hoverColor}`;
+    };
+
+    // Get mobile link color
+    const getMobileLinkColor = (path) => {
+        const activeColor = 'text-[#C19A6B]';
+        const hoverColor = 'hover:text-[#C19A6B]';
+        
+        if (isActiveLink(path)) {
+            return activeColor;
+        }
+        return `text-gray-800 ${hoverColor}`;
+    };
+
     return (
         <div className="relative">
             {/* Fixed Navbar */}
-            <nav className={`fixed top-0 left-0 right-0 z-50  py-4  transition-all duration-300 ${getNavbarBackground()}`}>
+            <nav className={`fixed top-0 left-0 right-0 z-50 py-4 transition-all duration-300 ${getNavbarBackground()}`}>
                 <div className="max-w-[90%] mx-auto flex justify-between items-center">
                     {/* Left Section - Logo - Hidden on lg devices */}
                     <div 
@@ -121,41 +149,46 @@ const Navbar = () => {
                     {/* Center Section - Navigation Links (Desktop) */}
                     <div className={`hidden lg:flex items-center gap-6 ${getTextColor()}`}>
                         <Link to="/categories">
-                        <div 
-                            className='flex items-center gap-1 cursor-pointer group relative'
-                            data-aos="fade-down"
-                            data-aos-delay="200"
-                        >
-                               <p>Categories</p>
-                            <LuChevronDown className="text-sm transition-transform duration-200 group-hover:rotate-180" />
-                        </div>
-                            </Link>
-                       <Link to='/about'>
                             <div 
-                            className='flex items-center gap-1 cursor-pointer group relative'
-                            data-aos="fade-down"
-                            data-aos-delay="300"
-                        >
-                            <p>About</p>
-                           
-                        </div>
-                       </Link>
-                        <p 
-                            className='cursor-pointer'
-                            data-aos="fade-down"
-                            data-aos-delay="400"
-                        >
-                            Blog
-                        </p>
-                       <Link to='/contact'>
-                           <p 
-                            className='cursor-pointer'
-                            data-aos="fade-down"
-                            data-aos-delay="500"
-                        >
-                            Contact
-                        </p>
-                       </Link>
+                                className='flex items-center gap-1 cursor-pointer group relative'
+                                data-aos="fade-down"
+                                data-aos-delay="200"
+                            >
+                                <p className={`transition-colors duration-300 ${getLinkColor('/categories')}`}>
+                                    Categories
+                                </p>
+                                <LuChevronDown className={`text-sm transition-all duration-200 group-hover:text-[#C19A6B] ${isActiveLink('/categories') ? 'text-[#C19A6B]' : ''}`} />
+                            </div>
+                        </Link>
+                        <Link to='/about'>
+                            <div 
+                                className='flex items-center gap-1 cursor-pointer group relative'
+                                data-aos="fade-down"
+                                data-aos-delay="300"
+                            >
+                                <p className={`transition-colors duration-300 ${getLinkColor('/about')}`}>
+                                    About
+                                </p>
+                            </div>
+                        </Link>
+                        <Link to='/blog'>
+                            <p 
+                                className={`cursor-pointer transition-colors duration-300 ${getLinkColor('/blog')}`}
+                                data-aos="fade-down"
+                                data-aos-delay="400"
+                            >
+                                Blog
+                            </p>
+                        </Link>
+                        <Link to='/contact'>
+                            <p 
+                                className={`cursor-pointer transition-colors duration-300 ${getLinkColor('/contact')}`}
+                                data-aos="fade-down"
+                                data-aos-delay="500"
+                            >
+                                Contact
+                            </p>
+                        </Link>
                     </div>
 
                     {/* Center Logo - Only visible on lg devices */}
@@ -180,8 +213,7 @@ const Navbar = () => {
                                 data-aos="fade-down"
                                 data-aos-delay="200"
                             >
-                                <p>INR</p>
-                               
+                                <p className="transition-colors duration-300 hover:text-[#C19A6B]">INR</p>
                             </div>
                             
                             <div 
@@ -189,45 +221,44 @@ const Navbar = () => {
                                 data-aos="fade-down"
                                 data-aos-delay="300"
                             >
-                                <p>EN</p>
-                                
+                                <p className="transition-colors duration-300 hover:text-[#C19A6B]">EN</p>
                             </div>
                             
                             <div className='flex items-center gap-3'>
                                 <LuUserRound 
-                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    className="text-xl cursor-pointer hover:text-[#C19A6B] transition-colors duration-300"
                                     data-aos="fade-left"
                                     data-aos-delay="400"
                                 />
                                 <HiOutlineMagnifyingGlass 
-                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    className="text-xl cursor-pointer hover:text-[#C19A6B] transition-colors duration-300"
                                     data-aos="fade-left"
                                     data-aos-delay="500"
                                 />
-                               <div className="flex items-center gap-5">
-                                 {/* Wishlist with Count Badge */}
-                                <div className="relative">
-                                    <FaRegHeart 
-                                        className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
-                                        data-aos="fade-left"
-                                        data-aos-delay="600"
-                                    />
-                                    <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                                        {cartCount}
-                                    </span>
+                                <div className="flex items-center gap-5">
+                                    {/* Wishlist with Count Badge */}
+                                    <div className="relative">
+                                        <FaRegHeart 
+                                            className="text-xl cursor-pointer hover:text-[#C19A6B] transition-colors duration-300"
+                                            data-aos="fade-left"
+                                            data-aos-delay="600"
+                                        />
+                                        <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                                            {cartCount}
+                                        </span>
+                                    </div>
+                                    {/* Shopping Bag with Count Badge */}
+                                    <div className="relative">
+                                        <BsHandbag 
+                                            className="text-xl cursor-pointer hover:text-[#C19A6B] transition-colors duration-300"
+                                            data-aos="fade-left"
+                                            data-aos-delay="600"
+                                        />
+                                        <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                                            {cartCount}
+                                        </span>
+                                    </div>
                                 </div>
-                                {/* Shopping Bag with Count Badge */}
-                                <div className="relative">
-                                    <BsHandbag 
-                                        className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
-                                        data-aos="fade-left"
-                                        data-aos-delay="600"
-                                    />
-                                    <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                                        {cartCount}
-                                    </span>
-                                </div>
-                               </div>
                             </div>
                         </div>
 
@@ -236,29 +267,29 @@ const Navbar = () => {
                             {/* Wishlist with Count Badge - Always Visible */}
                             <div className="relative">
                                 <FaRegHeart
-                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    className="text-xl cursor-pointer hover:text-[#C19A6B] transition-colors duration-300"
                                     data-aos="fade-left"
                                     data-aos-delay="600"
                                 />
-                                <span className="absolute  -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                                <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
                                     {cartCount}
                                 </span>
                             </div>
                             {/* Shopping Bag with Count Badge - Always Visible */}
                             <div className="relative">
                                 <BsHandbag
-                                    className="text-xl cursor-pointer hover:text-gray-300 transition-colors"
+                                    className="text-xl cursor-pointer hover:text-[#C19A6B] transition-colors duration-300"
                                     data-aos="fade-left"
                                     data-aos-delay="600"
                                 />
-                                <span className="absolute  -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                                <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
                                     {cartCount}
                                 </span>
                             </div>
 
                             {/* Mobile Menu Button */}
                             <button
-                                className={`text-2xl ${getTextColor()}`}
+                                className={`text-2xl transition-colors duration-300 hover:text-[#C19A6B] ${getTextColor()}`}
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 data-aos="fade-left"
                                 data-aos-delay="700"
@@ -288,7 +319,7 @@ const Navbar = () => {
                             <div className="flex items-center justify-between p-6 border-b border-gray-200">
                                 <h3 className="text-xl font-semibold">Menu</h3>
                                 <button
-                                    className="text-2xl text-gray-600 hover:text-gray-800 transition-colors"
+                                    className="text-2xl text-gray-600 hover:text-[#C19A6B] transition-colors duration-300"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     <LuX />
@@ -302,48 +333,56 @@ const Navbar = () => {
                                     <div className="space-y-4 pb-4 border-b border-gray-200">
                                         <div className="flex items-center gap-3 cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
                                             <LuUserRound className="text-lg text-gray-600" />
-                                            <span className="font-medium">My Profile</span>
+                                            <span className="font-medium hover:text-[#C19A6B] transition-colors duration-300">My Profile</span>
                                         </div>
                                         <div className="flex items-center gap-3 cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
                                             <HiOutlineMagnifyingGlass className="text-lg text-gray-600" />
-                                            <span className="font-medium">Search</span>
+                                            <span className="font-medium hover:text-[#C19A6B] transition-colors duration-300">Search</span>
                                         </div>
                                     </div>
 
                                     {/* Currency and Language Settings */}
                                     <div className="space-y-4 pb-4 border-b border-gray-200">
                                         <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                                            <span className="font-medium">INR</span>
-                                           
+                                            <span className="font-medium hover:text-[#C19A6B] transition-colors duration-300">INR</span>
                                         </div>
                                         <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                                            <span className="font-medium">EN</span>
-                                           
+                                            <span className="font-medium hover:text-[#C19A6B] transition-colors duration-300">EN</span>
                                         </div>
                                     </div>
 
                                     {/* Navigation Links */}
                                     <div className="space-y-2 pb-4 border-b border-gray-200">
-                                            <Link to='/categories'>
-                                        <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                                              <span className="font-medium">Categories</span>
-                                            <LuChevronDown className="text-gray-500" />
-                                        </div>
-                                            </Link>
-                                        <Link to='/about'>
-                                           <div className="flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                                            <span className="font-medium">About</span>
-                                            <LuChevronDown className="text-gray-500" />
-                                        </div>
+                                        <Link to='/categories' onClick={() => setIsMobileMenuOpen(false)}>
+                                            <div className={`flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors ${isActiveLink('/categories') ? 'bg-gray-50' : ''}`}>
+                                                <span className={`font-medium transition-colors duration-300 ${getMobileLinkColor('/categories')}`}>
+                                                    Categories
+                                                </span>
+                                                <LuChevronDown className={`transition-colors duration-300 ${isActiveLink('/categories') ? 'text-[#C19A6B]' : 'text-gray-500'}`} />
+                                            </div>
                                         </Link>
-                                        <div className="cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors font-medium">
-                                            Blog
-                                        </div>
-                                       <Link to='/contact'>
-                                           <div className="cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors font-medium">
-                                            Contact
-                                        </div>
-                                       </Link>
+                                        <Link to='/about' onClick={() => setIsMobileMenuOpen(false)}>
+                                            <div className={`flex items-center justify-between cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors ${isActiveLink('/about') ? 'bg-gray-50' : ''}`}>
+                                                <span className={`font-medium transition-colors duration-300 ${getMobileLinkColor('/about')}`}>
+                                                    About
+                                                </span>
+                                                <LuChevronDown className={`transition-colors duration-300 ${isActiveLink('/about') ? 'text-[#C19A6B]' : 'text-gray-500'}`} />
+                                            </div>
+                                        </Link>
+                                        <Link to='/blog' onClick={() => setIsMobileMenuOpen(false)}>
+                                            <div className={`cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors ${isActiveLink('/blog') ? 'bg-gray-50' : ''}`}>
+                                                <span className={`font-medium transition-colors duration-300 ${getMobileLinkColor('/blog')}`}>
+                                                    Blog
+                                                </span>
+                                            </div>
+                                        </Link>
+                                        <Link to='/contact' onClick={() => setIsMobileMenuOpen(false)}>
+                                            <div className={`cursor-pointer py-3 hover:bg-gray-50 px-3 rounded-lg transition-colors ${isActiveLink('/contact') ? 'bg-gray-50' : ''}`}>
+                                                <span className={`font-medium transition-colors duration-300 ${getMobileLinkColor('/contact')}`}>
+                                                    Contact
+                                                </span>
+                                            </div>
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
@@ -396,7 +435,7 @@ const Navbar = () => {
                                     {slide.description}
                                 </p>
                                 <button
-                                    className="bg-transparent text-white font-semibold py-2 px-6 sm:py-3 sm:px-8 transition duration-300 transform hover:scale-110 text-sm sm:text-base border-t-2 border-b-2 border-r border-l"
+                                    className="bg-transparent text-white font-semibold py-2 px-6 sm:py-3 sm:px-8 transition duration-300 transform hover:scale-110 text-sm sm:text-base border-t-2 border-b-2 border-r border-l hover:border-[#C19A6B] hover:text-[#C19A6B]"
                                     data-aos="bounce-in"
                                     data-aos-delay="800"
                                     data-aos-duration="600"
@@ -416,7 +455,7 @@ const Navbar = () => {
                                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
                                     index === currentSlide 
                                         ? 'bg-white scale-125' 
-                                        : 'bg-white bg-opacity-50 hover:bg-opacity-75'
+                                        : 'bg-white bg-opacity-50 hover:bg-opacity-75 hover:scale-110'
                                 }`}
                             />
                         ))}
@@ -425,13 +464,13 @@ const Navbar = () => {
                     {/* Navigation Arrows */}
                     <button
                         onClick={prevSlide}
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-3 rounded-full transition-all duration-300"
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-3 rounded-full transition-all duration-300 hover:text-[#C19A6B]"
                     >
                         <MdKeyboardArrowLeft />
                     </button>
                     <button
                         onClick={nextSlide}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-3 rounded-full transition-all duration-300"
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-3 rounded-full transition-all duration-300 hover:text-[#C19A6B]"
                     >
                        <MdKeyboardArrowRight />
                     </button>

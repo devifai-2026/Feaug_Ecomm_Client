@@ -19,7 +19,7 @@ const About = () => {
     <div className="px-4 sm:px-6 lg:px-8">
       {/* Hero Section */}
       <div 
-        className="mt-8 md:mt-16 space-y-8 md:space-y-16 text-center max-w-2xl mx-auto"
+        className="mt-8 md:mt-16 space-y-8 md:space-y-16 text-center max-w-[75%] mx-auto"
         data-aos="fade-up"
       >
         <h2 className="uppercase tracking-[0.3rem] text-center text-[#C19A6B] text-sm md:text-base">
