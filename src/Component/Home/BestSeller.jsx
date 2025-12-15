@@ -7,15 +7,21 @@ import three from "../../assets/BestSeller/three.webp";
 import oneAngle from "../../assets/BestSeller/oneAngle.jpg"; 
 import twoAngle from "../../Assets/BestSeller/twoAngle.webp"; 
 import threeAngle from "../../Assets/BestSeller/threeAngle.jpg"; 
-import { BsHeart, BsShare, BsArrowsAngleExpand, BsCurrencyRupee } from 'react-icons/bs';
+import { BsHeart, BsShare, BsArrowsAngleExpand, BsCurrencyRupee, BsHeartFill } from 'react-icons/bs';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import { FaArrowRightLong } from "react-icons/fa6";
+import toast, { Toaster } from 'react-hot-toast';
+import { useWishlist } from '../Context/WishlistContext';
+import { useCart } from '../Context/CartContext';
 
 const BestSeller = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [hoveredCard, setHoveredCard] = useState(null);
   const navigate = useNavigate();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { addToCart } = useCart();
 
   const products = [
     { 
@@ -24,7 +30,9 @@ const BestSeller = () => {
       price: 149.99, 
       originalPrice: null,
       image: one,
-      angleImage: oneAngle
+      angleImage: oneAngle,
+      description: "Beautiful arch pendant necklace",
+      rating: 4.5
     },
     { 
       id: 2,
@@ -32,7 +40,9 @@ const BestSeller = () => {
       price: 89.99, 
       originalPrice: 103.40,
       image: two,
-      angleImage: twoAngle
+      angleImage: twoAngle,
+      description: "Elegant golden pearls bracelet",
+      rating: 4.2
     },
     { 
       id: 3,
@@ -40,7 +50,9 @@ const BestSeller = () => {
       price: 799.99, 
       originalPrice: null,
       image: three,
-      angleImage: threeAngle
+      angleImage: threeAngle,
+      description: "Gorgeous diamond engagement ring",
+      rating: 4.8
     },
     { 
       id: 4,
@@ -48,7 +60,9 @@ const BestSeller = () => {
       price: 129.99, 
       originalPrice: null,
       image: two,
-      angleImage: twoAngle
+      angleImage: twoAngle,
+      description: "Classic silver chain necklace",
+      rating: 4.3
     },
     { 
       id: 5,
@@ -56,7 +70,9 @@ const BestSeller = () => {
       price: 199.99, 
       originalPrice: 249.99,
       image: three,
-      angleImage: threeAngle
+      angleImage: threeAngle,
+      description: "Stunning ruby earrings",
+      rating: 4.6
     },
     { 
       id: 6,
@@ -64,7 +80,9 @@ const BestSeller = () => {
       price: 159.99, 
       originalPrice: null,
       image: one,
-      angleImage: oneAngle
+      angleImage: oneAngle,
+      description: "Elegant pearl drop earrings",
+      rating: 4.4
     },
     { 
       id: 7,
@@ -72,7 +90,9 @@ const BestSeller = () => {
       price: 69.99, 
       originalPrice: 89.99,
       image: two,
-      angleImage: twoAngle
+      angleImage: twoAngle,
+      description: "Stylish gold plated bracelet",
+      rating: 4.1
     },
     { 
       id: 8,
@@ -80,7 +100,9 @@ const BestSeller = () => {
       price: 299.99, 
       originalPrice: null,
       image: one,
-      angleImage: oneAngle
+      angleImage: oneAngle,
+      description: "Beautiful sapphire ring",
+      rating: 4.7
     },
     { 
       id: 9,
@@ -88,7 +110,9 @@ const BestSeller = () => {
       price: 79.99, 
       originalPrice: 99.99,
       image: three,
-      angleImage: threeAngle
+      angleImage: threeAngle,
+      description: "Sparkling crystal pendant",
+      rating: 4.0
     },
     { 
       id: 10,
@@ -96,7 +120,9 @@ const BestSeller = () => {
       price: 349.99, 
       originalPrice: null,
       image: one,
-      angleImage: oneAngle
+      angleImage: oneAngle,
+      description: "Classic diamond stud earrings",
+      rating: 4.9
     },
   ];
 
@@ -127,6 +153,117 @@ const BestSeller = () => {
     navigate(`/product/${productId}`);
   };
 
+  // Handle Add to Cart
+  const handleAddToCart = (product, e) => {
+    e.stopPropagation();
+    
+    addToCart({
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      image: product.image,
+      description: product.description,
+      rating: product.rating
+    }, 1);
+    
+    toast.success(
+      <div>
+        <p className="font-semibold">Added to cart!</p>
+        <p className="text-sm">{product.title}</p>
+      </div>,
+      {
+        icon: '🛒',
+        duration: 3000,
+        style: {
+          background: '#f0fdf4',
+          border: '1px solid #bbf7d0',
+        },
+      }
+    );
+  };
+
+  // Handle Wishlist Click
+  const handleWishlistClick = (product, e) => {
+    e.stopPropagation();
+    
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+      toast.custom((t) => (
+        <div className="animate-slideInRight max-w-md w-full bg-white shadow-lg flex border border-gray-200">
+          <div className="flex-1 w-0 p-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0 pt-0.5">
+                <BsHeartFill className="h-6 w-6 text-red-500" />
+              </div>
+              <div className="ml-3 flex-1">
+                <p className="text-sm font-medium text-gray-900">
+                  Removed from wishlist
+                </p>
+                <p className="mt-1 text-sm text-gray-500">
+                  {product.title} has been removed
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex border-l border-gray-200">
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                navigate('/wishlist');
+              }}
+              className="w-full border border-transparent p-4 flex items-center justify-center text-sm font-medium text-pink-600 hover:text-pink-500 transition-colors"
+            >
+              View Wishlist
+            </button>
+          </div>
+        </div>
+      ), {
+        duration: 4000,
+      });
+    } else {
+      addToWishlist({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        originalPrice: product.originalPrice || product.price,
+        image: product.image,
+        angleImage: product.angleImage,
+        description: product.description,
+        rating: product.rating,
+        inStock: true
+      });
+      
+      toast.success(
+        <div>
+          <p className="font-semibold">Added to wishlist!</p>
+          <p className="text-sm">{product.title}</p>
+        </div>,
+        {
+          icon: '❤️',
+          duration: 3000,
+          style: {
+            background: '#fff5f5',
+            border: '1px solid #fca5a5',
+          },
+          iconTheme: {
+            primary: '#ef4444',
+            secondary: '#fff',
+          },
+        }
+      );
+    }
+  };
+
+  // Handle view wishlist
+  const handleViewWishlist = () => {
+    navigate('/wishlist');
+  };
+
+  // Handle view more
+  const handleViewMore = () => {
+    navigate('/products');
+  };
+
   // Refresh AOS when slide changes
   useEffect(() => {
     AOS.refresh();
@@ -134,6 +271,34 @@ const BestSeller = () => {
 
   return (
     <div className="mt-16 max-w-[90%] mx-auto overflow-hidden">
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#fff',
+            border: '1px solid #e5e7eb',
+          },
+        }}
+      />
+
+      <style jsx>{`
+        @keyframes slideInRight {
+          from {
+            transform: translateX(50px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        
+        .animate-slideInRight {
+          animation: slideInRight 0.3s ease-out;
+        }
+      `}</style>
+
       <div className="mb-10">
         <hr />
       </div>
@@ -154,7 +319,10 @@ const BestSeller = () => {
               <p className="text-lg font-semibold">SALE</p>
               <p className="text-2xl font-bold">15%</p>
               <p className="text-xl font-bold">Seasonal Sale</p>
-              <button className="border border-white px-6 py-2 hover:bg-white hover:text-black transition-all duration-300 transform hover:scale-105">
+              <button 
+                onClick={handleViewMore}
+                className="border border-white px-6 py-2 hover:bg-white hover:text-black transition-all duration-300 transform hover:scale-105"
+              >
                 SHOP NOW
               </button>
             </div>
@@ -171,125 +339,179 @@ const BestSeller = () => {
               </p>
             </div>
             
-            {/* Slider Pagination */}
-            <div className="flex items-center gap-4 mt-4 sm:mt-0" data-aos="fade-down" data-aos-delay="400">
-              <button 
-                onClick={prevSlide}
-                className="w-10 h-10 flex items-center justify-center transition-colors"
+            <div className="flex items-center gap-6 mt-4 sm:mt-0">
+              {/* View Wishlist Button */}
+              <button
+                onClick={handleViewWishlist}
+                className="text-nowrap flex items-center gap-2 cursor-pointer hover:gap-3 transition-all duration-300 text-gray-600 hover:text-gray-900 group hidden sm:flex"
+                data-aos="fade-down"
+                data-aos-delay="400"
               >
-                <MdKeyboardArrowLeft />
+                <BsHeart className="text-lg group-hover:scale-110 transition-transform" />
+                View Wishlist
+                <FaArrowRightLong className="group-hover:translate-x-1 transition-transform" />
               </button>
-              <span className="text-sm font-medium">
-                {currentSlide + 1}/{totalSlides}
-              </span>
-              <button 
-                onClick={nextSlide}
-                className="w-10 h-10 flex items-center justify-center transition-colors"
-              >
-               <MdKeyboardArrowRight />
-              </button>
+
+              {/* Slider Pagination */}
+              <div className="flex items-center gap-4" data-aos="fade-down" data-aos-delay="400">
+                <button 
+                  onClick={prevSlide}
+                  className="w-10 h-10 flex items-center justify-center transition-colors hover:bg-gray-100 rounded-full"
+                >
+                  <MdKeyboardArrowLeft className="text-xl" />
+                </button>
+                <span className="text-sm font-medium">
+                  {currentSlide + 1}/{totalSlides}
+                </span>
+                <button 
+                  onClick={nextSlide}
+                  className="w-10 h-10 flex items-center justify-center transition-colors hover:bg-gray-100 rounded-full"
+                >
+                  <MdKeyboardArrowRight className="text-xl" />
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Products Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
-            {visibleProducts.map((product, index) => (
-              <div 
-                key={product.id}
-                className="relative overflow-hidden group cursor-pointer"
-                onMouseEnter={() => setHoveredCard(index)}
-                onMouseLeave={() => setHoveredCard(null)}
-                onClick={() => handleCardClick(product.id)}
-                data-aos="fade-up"
-                data-aos-delay={index * 100 + 500}
-              >
-                {/* Image Container */}
-                <div className="relative overflow-hidden bg-gray-100">
-                  {/* Main Image */}
-                  <img 
-                    className={`w-full h-80 object-cover transition-opacity duration-500 ${
-                      hoveredCard === index ? 'opacity-0' : 'opacity-100'
-                    }`} 
-                    src={product.image} 
-                    alt={product.title} 
-                  />
-                  
-                  {/* Angle Image - Shows on hover */}
-                  <img 
-                    className={`absolute top-0 left-0 w-full h-80 object-cover transition-opacity duration-500 ${
-                      hoveredCard === index ? 'opacity-100' : 'opacity-0'
-                    }`} 
-                    src={product.angleImage} 
-                    alt={`${product.title} - alternate angle`} 
-                  />
-                  
-                  {/* Hover Icons - Mobile & Tablet: Always visible */}
-                  <div className='lg:hidden absolute top-3 right-3 flex flex-col gap-2 z-10'>
-                    <button className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors">
-                      <BsHeart className="text-gray-700 hover:text-red-500" />
-                    </button>
-                    <button className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors">
-                      <BsShare className="text-gray-700 hover:text-blue-500" />
-                    </button>
+            {visibleProducts.map((product, index) => {
+              const isInWishlistItem = isInWishlist(product.id);
+              
+              return (
+                <div 
+                  key={product.id}
+                  className="relative overflow-hidden group cursor-pointer"
+                  onMouseEnter={() => setHoveredCard(index)}
+                  onMouseLeave={() => setHoveredCard(null)}
+                  onClick={() => handleCardClick(product.id)}
+                  data-aos="fade-up"
+                  data-aos-delay={index * 100 + 500}
+                >
+                  {/* Image Container */}
+                  <div className="relative overflow-hidden bg-gray-100">
+                    {/* Main Image */}
+                    <img 
+                      className={`w-full h-80 object-cover transition-opacity duration-500 ${
+                        hoveredCard === index ? 'opacity-0' : 'opacity-100'
+                      }`} 
+                      src={product.image} 
+                      alt={product.title} 
+                    />
+                    
+                    {/* Angle Image - Shows on hover */}
+                    <img 
+                      className={`absolute top-0 left-0 w-full h-80 object-cover transition-opacity duration-500 ${
+                        hoveredCard === index ? 'opacity-100' : 'opacity-0'
+                      }`} 
+                      src={product.angleImage} 
+                      alt={`${product.title} - alternate angle`} 
+                    />
+                    
+                    {/* Hover Icons - Mobile & Tablet: Always visible */}
+                    <div className='lg:hidden absolute top-3 right-3 flex flex-col gap-2 z-10'>
+                      <button 
+                        className={`p-2 rounded-full shadow-lg transition-all duration-300 ${
+                          isInWishlistItem 
+                            ? 'bg-red-50 text-red-500' 
+                            : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-500'
+                        }`}
+                        onClick={(e) => handleWishlistClick(product, e)}
+                        title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}
+                      >
+                        {isInWishlistItem ? (
+                          <BsHeartFill className='text-lg' />
+                        ) : (
+                          <BsHeart className='text-lg' />
+                        )}
+                      </button>
+                      <button className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors">
+                        <BsShare className="text-gray-700 hover:text-blue-500" />
+                      </button>
+                      <button 
+                        className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                        onClick={(e) => handleExpandClick(product.id, e)}
+                      >
+                        <BsArrowsAngleExpand className="text-gray-700" />
+                      </button>
+                    </div>
+
+                    {/* Hover Icons - Desktop: Show on hover */}
+                    <div className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${
+                      hoveredCard === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+                    }`}>
+                      <button 
+                        className={`p-2 rounded-full shadow-lg transition-all duration-300 ${
+                          isInWishlistItem 
+                            ? 'bg-red-50 text-red-500' 
+                            : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-500'
+                        }`}
+                        onClick={(e) => handleWishlistClick(product, e)}
+                        title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}
+                      >
+                        {isInWishlistItem ? (
+                          <BsHeartFill className='text-lg' />
+                        ) : (
+                          <BsHeart className='text-lg' />
+                        )}
+                      </button>
+                      <button className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors">
+                        <BsShare className="text-gray-700 hover:text-blue-500" />
+                      </button>
+                      <button 
+                        className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                        onClick={(e) => handleExpandClick(product.id, e)}
+                      >
+                        <BsArrowsAngleExpand className="text-gray-700" />
+                      </button>
+                    </div>
+
+                    {/* Add to Cart Button - Mobile & Tablet: Always visible */}
                     <button 
-                      className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
-                      onClick={(e) => handleExpandClick(product.id, e)}
+                      className='lg:hidden absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-black w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest z-10'
+                      onClick={(e) => handleAddToCart(product, e)}
                     >
-                      <BsArrowsAngleExpand className="text-gray-700" />
+                      ADD TO CART
                     </button>
-                  </div>
 
-                  {/* Hover Icons - Desktop: Show on hover */}
-                  <div className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${
-                    hoveredCard === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
-                  }`}>
-                    <button className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors">
-                      <BsHeart className="text-gray-700 hover:text-red-500" />
-                    </button>
-                    <button className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors">
-                      <BsShare className="text-gray-700 hover:text-blue-500" />
-                    </button>
+                    {/* Add to Cart Button - Desktop: Show on hover */}
                     <button 
-                      className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
-                      onClick={(e) => handleExpandClick(product.id, e)}
+                      className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-black w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest z-10 ${
+                        hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                      }`}
+                      onClick={(e) => handleAddToCart(product, e)}
                     >
-                      <BsArrowsAngleExpand className="text-gray-700" />
+                      ADD TO CART
                     </button>
                   </div>
 
-                  {/* Add to Cart Button - Mobile & Tablet: Always visible */}
-                  <button className='lg:hidden absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-black w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest z-10'>
-                    ADD TO CART
-                  </button>
-
-                  {/* Add to Cart Button - Desktop: Show on hover */}
-                  <button className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-black w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest z-10 ${
-                    hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                  }`}>
-                    ADD TO CART
-                  </button>
-                </div>
-
-                {/* Product Info */}
-                <div className="mt-4">
-                  <h3 className={`text-lg font-semibold mb-2 transition-colors duration-300 ${
-                    hoveredCard === index ? 'text-orange-800' : 'text-gray-900'
-                  }`}>
-                    {product.title}
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    {product.originalPrice ? (
-                      <>
-                        <span className="text-gray-600 font-bold flex items-center gap-1"><BsCurrencyRupee />{product.price}</span>
-                        <span className="text-gray-400 line-through text-sm flex items-center gap-1"><BsCurrencyRupee />{product.originalPrice}</span>
-                      </>
-                    ) : (
-                      <span className="text-gray-600 font-bold flex items-center gap-1"><BsCurrencyRupee />{product.price}</span>
-                    )}
+                  {/* Product Info */}
+                  <div className="mt-4">
+                    <h3 className={`text-lg font-semibold mb-2 transition-colors duration-300 ${
+                      hoveredCard === index ? 'text-orange-800' : 'text-gray-900'
+                    }`}>
+                      {product.title}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      {product.originalPrice ? (
+                        <>
+                          <span className="text-gray-600 font-bold flex items-center gap-1">
+                            <BsCurrencyRupee />{product.price}
+                          </span>
+                          <span className="text-gray-400 line-through text-sm flex items-center gap-1">
+                            <BsCurrencyRupee />{product.originalPrice}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-gray-600 font-bold flex items-center gap-1">
+                          <BsCurrencyRupee />{product.price}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

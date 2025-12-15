@@ -9,16 +9,56 @@ import { BsHandbag } from "react-icons/bs";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { FaRegHeart } from "react-icons/fa6";
+import { useCart } from "../context/CartContext";
 
 const Navbar = () => {
     const location = useLocation();
     const isHomePage = location.pathname === '/';
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [cartCount] = useState(0);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [wishlistCount, setWishlistCount] = useState(0);
     
     // Carousel state
     const [currentSlide, setCurrentSlide] = useState(0);
+
+    // Get cart from context - Use getTotalUniqueItems instead of getTotalItems
+    const { getTotalUniqueItems } = useCart();
+
+    // Get wishlist count from localStorage
+    useEffect(() => {
+        const updateWishlistCount = () => {
+            try {
+                const savedWishlist = localStorage.getItem('wishlist');
+                if (savedWishlist) {
+                    const wishlistItems = JSON.parse(savedWishlist);
+                    setWishlistCount(wishlistItems.length);
+                } else {
+                    setWishlistCount(0);
+                }
+            } catch (error) {
+                console.error('Error parsing wishlist:', error);
+                setWishlistCount(0);
+            }
+        };
+
+        // Initial load
+        updateWishlistCount();
+
+        // Listen for storage changes (from other tabs/windows)
+        const handleStorageChange = () => {
+            updateWishlistCount();
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        // Polling to check for changes (in case same tab updates)
+        const interval = setInterval(updateWishlistCount, 1000);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            clearInterval(interval);
+        };
+    }, []);
 
     // Scroll effect for navbar background
     useEffect(() => {
@@ -237,27 +277,31 @@ const Navbar = () => {
                                 />
                                 <div className="flex items-center gap-5">
                                     {/* Wishlist with Count Badge */}
-                                    <div className="relative">
+                                   <Link to='/wishlist'>
+                                      <div className="relative">
                                         <FaRegHeart 
                                             className="text-xl cursor-pointer hover:text-[#C19A6B] transition-colors duration-300"
                                             data-aos="fade-left"
                                             data-aos-delay="600"
                                         />
                                         <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                                            {cartCount}
+                                            {wishlistCount}
                                         </span>
                                     </div>
+                                   </Link>
                                     {/* Shopping Bag with Count Badge */}
-                                    <div className="relative">
+                                   <Link to='/cart'>
+                                          <div className="relative">
                                         <BsHandbag 
                                             className="text-xl cursor-pointer hover:text-[#C19A6B] transition-colors duration-300"
                                             data-aos="fade-left"
                                             data-aos-delay="600"
                                         />
                                         <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                                            {cartCount}
+                                            {getTotalUniqueItems()} {/* Changed to getTotalUniqueItems */}
                                         </span>
                                     </div>
+                                   </Link>
                                 </div>
                             </div>
                         </div>
@@ -265,27 +309,31 @@ const Navbar = () => {
                         {/* Mobile User Actions - Only Hamburger + Shopping Bag */}
                         <div className="flex lg:hidden items-center gap-6">
                             {/* Wishlist with Count Badge - Always Visible */}
-                            <div className="relative">
+                           <Link to='/wishlist'>
+                                 <div className="relative">
                                 <FaRegHeart
                                     className="text-xl cursor-pointer hover:text-[#C19A6B] transition-colors duration-300"
                                     data-aos="fade-left"
                                     data-aos-delay="600"
                                 />
                                 <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
-                                    {cartCount}
+                                    {wishlistCount}
                                 </span>
                             </div>
+                           </Link>
                             {/* Shopping Bag with Count Badge - Always Visible */}
-                            <div className="relative">
+                         <Link to='/cart'>
+                                 <div className="relative">
                                 <BsHandbag
                                     className="text-xl cursor-pointer hover:text-[#C19A6B] transition-colors duration-300"
                                     data-aos="fade-left"
                                     data-aos-delay="600"
                                 />
                                 <span className="absolute -bottom-2 -right-2 bg-amber-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
-                                    {cartCount}
+                                    {getTotalUniqueItems()} {/* Changed to getTotalUniqueItems */}
                                 </span>
                             </div>
+                         </Link>
 
                             {/* Mobile Menu Button */}
                             <button

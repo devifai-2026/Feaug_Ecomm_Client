@@ -15,6 +15,8 @@ import ProductDetails from './Component/Home/ProductDetails/ProductDetails'
 import Category from './Component/Category/Category'
 import About from './Component/Pages/About'
 import Contact from './Component/Pages/Contact'
+import Wishlist from './Component/Pages/Wishlist/Wishlist'
+import Cart from './Component/Pages/Cart/Cart'
 
 function App() {
 
@@ -50,7 +52,7 @@ function App() {
   return (
     <>
    
-      <ToastContainer
+      {/* <ToastContainer
         position="top-right"
         autoClose={5000}
         hideProgressBar={false}
@@ -61,7 +63,7 @@ function App() {
         draggable
         pauseOnHover
         theme="light"
-      />
+      /> */}
       
       <Routes>
         <Route path="/" element={<Layout></Layout>}>
@@ -70,6 +72,9 @@ function App() {
           <Route path="categories" element={<Category />}></Route> 
           <Route path="about" element={<About />}></Route> 
           <Route path="contact" element={<Contact />}></Route> 
+          <Route path="wishlist" element={<Wishlist />}></Route> 
+          <Route path="cart" element={<Cart />}></Route> 
+
         </Route>
       </Routes>
     </>
