@@ -22,12 +22,19 @@ function App() {
 
   useEffect(() => {
   
-    AOS.init({
-      duration: 1000, 
-      once: false, 
-      offset: 100, 
-      easing: 'ease-in-out', 
-    });
+    // Initialize AOS with better settings to prevent layout shift
+   AOS.init({
+  duration: 800,
+  once: true,
+  offset: 120,
+  easing: 'ease-out',
+  disable: window.innerWidth < 768, // Disable on mobile
+});
+
+    // Refresh AOS after page load to ensure proper initialization
+    setTimeout(() => {
+      AOS.refresh();
+    }, 100);
 
     const showToast = () => {
       toast.success('Subhojit Dutta purchased necklace!', {
@@ -51,8 +58,7 @@ function App() {
 
   return (
     <>
-   
-      {/* <ToastContainer
+      <ToastContainer
         position="top-right"
         autoClose={5000}
         hideProgressBar={false}
@@ -63,7 +69,7 @@ function App() {
         draggable
         pauseOnHover
         theme="light"
-      /> */}
+      />
       
       <Routes>
         <Route path="/" element={<Layout></Layout>}>
@@ -74,7 +80,6 @@ function App() {
           <Route path="contact" element={<Contact />}></Route> 
           <Route path="wishlist" element={<Wishlist />}></Route> 
           <Route path="cart" element={<Cart />}></Route> 
-
         </Route>
       </Routes>
     </>
