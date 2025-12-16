@@ -10,7 +10,7 @@ import {
     BsShieldCheck,
     BsArrowRepeat
 } from 'react-icons/bs';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { useCart } from '../../context/CartContext';
 
@@ -416,12 +416,14 @@ const Cart = () => {
                                     </div>
 
                                     {/* Checkout Button */}
-                                    <button
+                                   <Link to='/checkout'>
+                                        <button
                                         onClick={handleProceedToCheckout}
                                         className="w-full mt-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white font-bold text-lg hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
                                     >
                                         Proceed to Checkout
                                     </button>
+                                   </Link>
                                 </div>
 
                                 {/* Trust Badges */}
