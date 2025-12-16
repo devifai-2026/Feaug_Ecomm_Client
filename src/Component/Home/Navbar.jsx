@@ -195,9 +195,11 @@ const Navbar = () => {
                             </div>
                             
                             <div className='flex items-center gap-3'>
-                                <LuUserRound 
-                                    className="text-xl cursor-pointer hover:text-[#C19A6B] transition-colors duration-300"
-                                />
+                              <Link to='/login'>
+  <LuUserRound 
+    className="text-xl cursor-pointer hover:text-[#C19A6B] transition-colors duration-300"
+  />
+</Link>
                                 <HiOutlineMagnifyingGlass 
                                     className="text-xl cursor-pointer hover:text-[#C19A6B] transition-colors duration-300"
                                 />
@@ -286,10 +288,11 @@ const Navbar = () => {
                             <div className="h-full overflow-y-auto p-4">
                                 <div className="flex flex-col space-y-4">
                                     <div className="space-y-3 pb-4 border-b border-gray-200">
-                                        <div className="flex items-center gap-3 cursor-pointer py-2 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                                            <LuUserRound className="text-lg text-gray-600" />
-                                            <span className="font-medium hover:text-[#C19A6B] transition-colors duration-300">My Profile</span>
-                                        </div>
+                                        <Link to='/login'>
+  <LuUserRound 
+    className="text-xl cursor-pointer hover:text-[#C19A6B] transition-colors duration-300"
+  />
+</Link>
                                         <div className="flex items-center gap-3 cursor-pointer py-2 hover:bg-gray-50 px-3 rounded-lg transition-colors">
                                             <HiOutlineMagnifyingGlass className="text-lg text-gray-600" />
                                             <span className="font-medium hover:text-[#C19A6B] transition-colors duration-300">Search</span>

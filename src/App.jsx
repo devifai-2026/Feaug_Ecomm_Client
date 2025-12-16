@@ -17,6 +17,10 @@ import About from './Component/Pages/About'
 import Contact from './Component/Pages/Contact'
 import Wishlist from './Component/Pages/Wishlist/Wishlist'
 import Cart from './Component/Pages/Cart/Cart'
+import Register from './Component/Pages/Register/Register'
+import Login from './Component/Pages/Login/Login'
+import ForgotPassword from './Component/Pages/Login/ForgotPassword'
+import Checkout from './Component/Pages/Cart/Checkout'
 
 function App() {
 
@@ -80,6 +84,10 @@ function App() {
           <Route path="contact" element={<Contact />}></Route> 
           <Route path="wishlist" element={<Wishlist />}></Route> 
           <Route path="cart" element={<Cart />}></Route> 
+          <Route path="checkout" element={<Checkout />}></Route> 
+          <Route path="register" element={<Register />}></Route> 
+          <Route path="login" element={<Login />}></Route> 
+          <Route path="forgotPassword" element={<ForgotPassword />}></Route> 
         </Route>
       </Routes>
     </>
