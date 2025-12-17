@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import BottomBanner from './BottomBanner';
 import FeaturedCollection from './FeaturedCollection';
 import CleopatraGlam from './CleopatraGlam';
@@ -11,6 +11,10 @@ import QuestionsUpdate from './QuestionsUpdate';
 import FAQ from './FAQ';
 
 const Home = () => {
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     return (
         <div>
             <BottomBanner></BottomBanner>

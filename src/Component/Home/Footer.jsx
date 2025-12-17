@@ -2,6 +2,7 @@ import React from 'react';
 import { FiPhoneCall } from 'react-icons/fi';
 import { IoLocationOutline } from 'react-icons/io5';
 import { MdOutlineMailOutline } from 'react-icons/md';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
     return (
@@ -37,9 +38,9 @@ const Footer = () => {
                     </div>
                     <div className="flex flex-col gap-2 text-gray-600">
                         <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>About Us</div>
-                        <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Testimonials</div>
+                      <Link to="/testimonials">  <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Testimonials</div></Link>
                         <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>FAQs</div>
-                        <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Terms & Condition</div>
+                      <Link to="/terms-condition">  <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Terms & Conditions</div></Link>
                         <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Latest Update</div>
                     </div>
                 </div>
@@ -52,9 +53,9 @@ const Footer = () => {
                     <div className="flex flex-col gap-2 text-gray-600">
                         <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Order Tracking</div>
                         <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Payment Guide</div>
-                        <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Help Centre</div>
-                        <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Privacy Policy</div>
-                        <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Return Policy</div>
+                       <Link to="/helpCenter"> <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Help Centre</div></Link>
+                       <Link to="/privacyPolicy"> <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Privacy Policy</div></Link>
+                        <Link to="/returnPolicy"> <div className='group text-xs sm:text-sm hover:text-gray-800 cursor-pointer transition-all duration-300 hover:scale-105'>Return Policy</div></Link>   
                     </div>
                 </div>
 
