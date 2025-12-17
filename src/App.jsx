@@ -21,6 +21,14 @@ import Register from './Component/Pages/Register/Register'
 import Login from './Component/Pages/Login/Login'
 import ForgotPassword from './Component/Pages/Login/ForgotPassword'
 import Checkout from './Component/Pages/Cart/Checkout'
+import HelpCenter from './Component/Pages/Footer/HelpCenter'
+import PrivacyPolicy from './Component/Pages/Footer/PrivacyPolicy'
+import ReturnPolicy from './Component/Pages/Footer/ReturnPolicy'
+import Testimonials from './Component/Pages/Footer/Testimonials'
+import TermsCondition from './Component/Pages/Footer/TermsCondition'
+import MyProfile from './Component/Pages/MyProfile/MyProfile'
+import MyOrders from './Component/Pages/MyOrders/MyOrders'
+import OrderDetails from './Component/Pages/MyOrders/OrderDetails'
 
 function App() {
 
@@ -88,6 +96,15 @@ function App() {
           <Route path="register" element={<Register />}></Route> 
           <Route path="login" element={<Login />}></Route> 
           <Route path="forgotPassword" element={<ForgotPassword />}></Route> 
+          <Route path="helpCenter" element={<HelpCenter />}></Route> 
+          <Route path="privacyPolicy" element={<PrivacyPolicy />}></Route> 
+          <Route path="returnPolicy" element={<ReturnPolicy />}></Route> 
+          <Route path="testimonials" element={<Testimonials />}></Route> 
+          <Route path="terms-condition" element={<TermsCondition />}></Route> 
+          <Route path="myProfile" element={<MyProfile />}></Route> 
+          <Route path="myOrders" element={<MyOrders />}></Route> 
+          <Route path="orderDetails/:orderId" element={<OrderDetails />}></Route>
+          
         </Route>
       </Routes>
     </>

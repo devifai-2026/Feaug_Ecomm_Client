@@ -19,7 +19,7 @@ const Cart = () => {
     const navigate = useNavigate();
     const [promoCode, setPromoCode] = useState('');
     const [isApplyingPromo, setIsApplyingPromo] = useState(false);
-    const [selectedShipping, setSelectedShipping] = useState('standard');
+
 
     const {
         cartItems,
@@ -30,14 +30,9 @@ const Cart = () => {
         clearCart,
         getTotalItems,
         getSubtotal,
-        getTotal
+   
     } = useCart();
 
-    const shippingOptions = [
-        { id: 'standard', name: 'Standard Shipping', cost: 50, days: '5-7 business days' },
-        { id: 'express', name: 'Express Shipping', cost: 150, days: '2-3 business days' },
-        { id: 'nextDay', name: 'Next Day Delivery', cost: 300, days: '1 business day' }
-    ];
 
     const handleRemoveItem = (item, e) => {
         e.stopPropagation();
@@ -110,7 +105,7 @@ const Cart = () => {
         return price * item.quantity;
     };
 
-    const selectedShippingOption = shippingOptions.find(option => option.id === selectedShipping);
+
 
     // Debug log to check cart items
     console.log('Cart Items in Cart Page:', cartItems);
@@ -339,45 +334,7 @@ const Cart = () => {
                                             </span>
                                         </div>
                                         
-                                        {/* Shipping Options */}
-                                        <div className="border-t border-gray-100 pt-3">
-                                            <h3 className="font-medium text-gray-700 mb-3">Shipping</h3>
-                                            <div className="space-y-2">
-                                                {shippingOptions.map((option) => (
-                                                    <label
-                                                        key={option.id}
-                                                        className={`flex items-center justify-between p-3 border cursor-pointer transition-all duration-200 ${
-                                                            selectedShipping === option.id 
-                                                                ? 'border-amber-500 bg-amber-50' 
-                                                                : 'border-gray-200 hover:border-gray-300'
-                                                        }`}
-                                                    >
-                                                        <div className="flex items-center gap-3">
-                                                            <input
-                                                                type="radio"
-                                                                name="shipping"
-                                                                value={option.id}
-                                                                checked={selectedShipping === option.id}
-                                                                onChange={(e) => setSelectedShipping(e.target.value)}
-                                                                className="text-amber-600 focus:ring-amber-500"
-                                                            />
-                                                            <div>
-                                                                <div className="font-medium text-gray-800">
-                                                                    {option.name}
-                                                                </div>
-                                                                <div className="text-sm text-gray-500">
-                                                                    {option.days}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <span className="font-medium flex items-center">
-                                                            <BsCurrencyRupee className="text-sm mr-1" />
-                                                            {option.cost}
-                                                        </span>
-                                                    </label>
-                                                ))}
-                                            </div>
-                                        </div>
+                                       
                                     </div>
 
                                     {/* Promo Code */}
@@ -405,10 +362,7 @@ const Cart = () => {
                                     <div className="border-t border-gray-200 pt-4 space-y-2">
                                         <div className="flex justify-between text-lg">
                                             <span className="font-bold text-gray-800">Total</span>
-                                            <span className="font-bold text-gray-900 flex items-center">
-                                                <BsCurrencyRupee className="text-base mr-1" />
-                                                {getTotal(selectedShippingOption?.cost || 0).toFixed(2)}
-                                            </span>
+                                            
                                         </div>
                                         <p className="text-sm text-gray-500">
                                             Including all taxes and shipping

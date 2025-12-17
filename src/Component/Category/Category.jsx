@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FaRegHeart,
   FaShoppingBag,
@@ -35,6 +35,12 @@ const Category = () => {
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [layout, setLayout] = useState("grid"); // 'grid' or 'list'
   const productsPerPage = 12;
+
+  const navigate =useNavigate();
+
+   const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+  };
 
   // Mock products data - same 12 products
   const baseProducts = [
@@ -601,117 +607,130 @@ const Category = () => {
                   : "space-y-4"
               }`}
             >
-              {currentProducts.map((product) => (
-                <div
-                  key={`${product.id}-${currentPage}`}
-                  className={`group relative bg-white transition-all duration-300 hover:border-2 border-amber-700 ${
-                    layout === "grid"
-                      ? ""
-                      : "flex border border-gray-200 "
-                  } ${
-                    hoveredProduct === `${product.id}-${currentPage}`
-                      ? " "
-                      : ""
-                  }`}
-                  onMouseEnter={() =>
-                    setHoveredProduct(`${product.id}-${currentPage}`)
-                  }
-                  onMouseLeave={() => setHoveredProduct(null)}
-                >
-                  {/* Product Image Container */}
-                  <div
-                    className={`relative bg-gray-100 overflow-hidden transition-all duration-300  ${
-                      layout === "grid"
-                        ? "aspect-[3/4] "
-                        : "w-48 aspect-[3/4] flex-shrink-0 "
-                    }`}
-                  >
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
+            {currentProducts.map((product) => (
+    <div
+      key={`${product.id}-${currentPage}`}
+      className={`group relative bg-white transition-all duration-300 hover:border-2 border-amber-700 ${
+        layout === "grid"
+          ? ""
+          : "flex border border-gray-200 "
+      } ${
+        hoveredProduct === `${product.id}-${currentPage}`
+          ? " "
+          : ""
+      }`}
+      onMouseEnter={() =>
+        setHoveredProduct(`${product.id}-${currentPage}`)
+      }
+      onMouseLeave={() => setHoveredProduct(null)}
+    >
+      {/* Make the image container clickable */}
+      <div 
+        className={`relative bg-gray-100 overflow-hidden transition-all duration-300 cursor-pointer ${
+          layout === "grid"
+            ? "aspect-[3/4] "
+            : "w-48 aspect-[3/4] flex-shrink-0 "
+        }`}
+        onClick={() => handleProductClick(product.id)}
+      >
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
 
-                    {/* Action Icons - Static flex-col top-right for md and sm only */}
-                    <div className="absolute top-2 right-2 flex flex-col space-y-2 opacity-100 md:opacity-100 lg:hidden">
-                      <button className="p-2 rounded-full text-[#a67c00] hover:text-red-600 transition-all duration-300 bg-white bg-opacity-80">
-                        <FaRegHeart className="text-xs md:text-sm" />
-                      </button>
-                      <button className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300 bg-white bg-opacity-80">
-                        <IoMdShare className="text-xs md:text-sm" />
-                      </button>
-                      <button className="p-2 rounded-full text-[#a67c00] hover:text-green-600 transition-all duration-300 bg-white bg-opacity-80">
-                        <FaShoppingBag className="text-xs md:text-sm" />
-                      </button>
-                    </div>
+        {/* Action Icons - Static flex-col top-right for md and sm only */}
+        <div 
+          className="absolute top-2 right-2 flex flex-col space-y-2 opacity-100 md:opacity-100 lg:hidden"
+          onClick={(e) => e.stopPropagation()} // Prevent navigation when clicking icons
+        >
+          <button className="p-2 rounded-full text-[#a67c00] hover:text-red-600 transition-all duration-300 bg-white bg-opacity-80">
+            <FaRegHeart className="text-xs md:text-sm" />
+          </button>
+          <button className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300 bg-white bg-opacity-80">
+            <IoMdShare className="text-xs md:text-sm" />
+          </button>
+          <button className="p-2 rounded-full text-[#a67c00] hover:text-green-600 transition-all duration-300 bg-white bg-opacity-80">
+            <FaShoppingBag className="text-xs md:text-sm" />
+          </button>
+        </div>
 
-                    {/* Product Info Overlay - For desktop and tablet */}
-                    <div
-                      className={`hidden md:block absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent `}
-                    >
-                      {/* Action Icons - Horizontal row above title (for lg devices only) */}
-                      <div
-                        className={`hidden lg:flex justify-center space-x-2 mb-2 transition-all duration-300 ${
-                          layout === "grid"
-                            ? "opacity-0 group-hover:opacity-100 "
-                            : "opacity-100"
-                        }`}
-                      >
-                        <button className="p-2 rounded-full text-[#a67c00] hover:text-red-600 transition-all duration-300">
-                          <FaRegHeart className="text-lg" />
-                        </button>
-                        <button className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300">
-                          <IoMdShare className="text-lg" />
-                        </button>
-                        <button className="p-2 rounded-full text-[#a67c00] hover:text-green-600 transition-all duration-300">
-                          <FaShoppingBag className="text-lg" />
-                        </button>
-                      </div>
+        {/* Product Info Overlay - For desktop and tablet */}
+        <div
+          className={`hidden md:block absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent `}
+        >
+          {/* Action Icons - Horizontal row above title (for lg devices only) */}
+          <div
+            className={`hidden lg:flex justify-center space-x-2 mb-2 transition-all duration-300 ${
+              layout === "grid"
+                ? "opacity-0 group-hover:opacity-100 "
+                : "opacity-100"
+            }`}
+            onClick={(e) => e.stopPropagation()} // Prevent navigation when clicking icons
+          >
+            <button className="p-2 rounded-full text-[#a67c00] hover:text-red-600 transition-all duration-300">
+              <FaRegHeart className="text-lg" />
+            </button>
+            <button className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300">
+              <IoMdShare className="text-lg" />
+            </button>
+            <button className="p-2 rounded-full text-[#a67c00] hover:text-green-600 transition-all duration-300">
+              <FaShoppingBag className="text-lg" />
+            </button>
+          </div>
 
-                      {/* Product Title and Price - For desktop and tablet */}
-                      <h3
-                        className={`font-semibold mb-1 text-sm line-clamp-2 text-white text-center`}
-                      >
-                        {product.name}
-                      </h3>
+          {/* Product Title and Price - For desktop and tablet */}
+          <div onClick={() => handleProductClick(product.id)}>
+            <h3
+              className={`font-semibold mb-1 text-sm line-clamp-2 text-white text-center cursor-pointer`}
+            >
+              {product.name}
+            </h3>
 
-                      <p
-                        className={`text-sm font-medium flex items-center gap-1 justify-center text-white`}
-                      >
-                        <MdOutlineCurrencyRupee className="text-base" />
-                        {product.price}
-                      </p>
-                    </div>
-                  </div>
+            <p
+              className={`text-sm font-medium flex items-center gap-1 justify-center text-white cursor-pointer`}
+            >
+              <MdOutlineCurrencyRupee className="text-base" />
+              {product.price}
+            </p>
+          </div>
+        </div>
+      </div>
 
-                  {/* Product Title and Price - For mobile only (outside below the card) */}
-                  <div className="md:hidden p-3">
-                    <h3 className="font-semibold text-sm line-clamp-2 text-gray-900 text-center">
-                      {product.name}
-                    </h3>
-                    <p className="text-sm font-medium flex items-center gap-1 justify-center text-gray-900">
-                      <MdOutlineCurrencyRupee className="text-base" />
-                      {product.price}
-                    </p>
-                  </div>
+      {/* Product Title and Price - For mobile only (outside below the card) */}
+      <div 
+        className="md:hidden p-3 cursor-pointer"
+        onClick={() => handleProductClick(product.id)}
+      >
+        <h3 className="font-semibold text-sm line-clamp-2 text-gray-900 text-center">
+          {product.name}
+        </h3>
+        <p className="text-sm font-medium flex items-center gap-1 justify-center text-gray-900">
+          <MdOutlineCurrencyRupee className="text-base" />
+          {product.price}
+        </p>
+      </div>
 
-                  {/* Additional info for list layout */}
-                  {layout === "list" && (
-                    <div className="flex-1 p-4">
-                      <p className="text-sm text-gray-600 mb-2">
-                        Material: {product.material}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Brand: {product.brand}
-                      </p>
-                      <p className="text-sm text-gray-600 mt-2 line-clamp-3">
-                        This beautiful {product.name.toLowerCase()} is perfect
-                        for any occasion...
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ))}
+      {/* Additional info for list layout */}
+      {layout === "list" && (
+        <div 
+          className="flex-1 p-4 cursor-pointer"
+          onClick={() => handleProductClick(product.id)}
+        >
+          <p className="text-sm text-gray-600 mb-2">
+            Material: {product.material}
+          </p>
+          <p className="text-sm text-gray-600">
+            Brand: {product.brand}
+          </p>
+          <p className="text-sm text-gray-600 mt-2 line-clamp-3">
+            This beautiful {product.name.toLowerCase()} is perfect
+            for any occasion...
+          </p>
+        </div>
+      )}
+    </div>
+  ))}
             </div>
 
             {/* Pagination */}

@@ -206,10 +206,8 @@ const Wishlist = () => {
                         )}
                     </div>
 
-                    <div className="text-center mb-6 md:mb-8">
-                        <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-red-50 to-pink-50 mb-3 md:mb-4 animate-scaleIn">
-                            <BsHeart className="text-2xl md:text-3xl text-red-500" />
-                        </div>
+                    <div className="text-center mb-3 md:mb-4">
+                       
                         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-1 md:mb-2 animate-slideInLeft">
                             My Wishlist
                         </h1>
@@ -348,10 +346,10 @@ const Wishlist = () => {
                     </div>
                 ) : (
                     <div
-                        className="text-center py-16 md:py-20 animate-scaleIn"
+                        className="text-center py-6 md:py-8 animate-scaleIn"
                     >
-                        <div className="w-24 h-24 md:w-32 md:h-32 mx-auto mb-4 md:mb-6 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center animate-fadeInUp">
-                            <BsHeart className="text-4xl md:text-5xl text-gray-400" />
+                        <div className="w-24 h-24 md:w-32 md:h-32 mx-auto mb-3 md:mb-4 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center animate-fadeInUp">
+                            <BsHeart className="text-4xl md:text-5xl text-red-500" />
                         </div>
                         <h3 className="text-xl md:text-2xl font-bold text-gray-700 mb-2 md:mb-3 animate-slideInLeft">
                             Your wishlist is empty
