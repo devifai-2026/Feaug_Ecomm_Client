@@ -51,7 +51,7 @@ const MyProfile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white py-12">
+      <div className="bg-gradient-to-r from-[#a17b4c] to-[#b49269] text-white py-12">
         <div className="max-w-4xl mx-auto px-4">
           <div className="flex items-center gap-4">
             <div className="relative">
@@ -60,7 +60,7 @@ const MyProfile = () => {
               </div>
               <button 
                 onClick={handleEditClick}
-                className="absolute bottom-0 right-0 bg-white text-amber-600 p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors duration-300"
+                className="absolute bottom-0 right-0 bg-white text-[#C19A6B] p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors duration-300"
               >
                 <FaEdit className="text-sm" />
               </button>
@@ -79,7 +79,7 @@ const MyProfile = () => {
             <h2 className="text-md md:text-2xl font-bold text-gray-900 text-nowrap">Personal Information</h2>
             <button
               onClick={handleEditClick}
-              className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors duration-300 text-nowrap"
+              className="flex items-center gap-2 px-4 py-2 bg-[#C19A6B] text-white hover:bg-amber-800 transition-colors duration-300 text-nowrap"
             >
               <FaEdit />
               Edit Profile
@@ -89,7 +89,7 @@ const MyProfile = () => {
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                <FaUser className="text-amber-600 mt-1" />
+                <FaUser className="text-[#C19A6B] mt-1" />
                 <div>
                   <p className="text-sm text-gray-600">Full Name</p>
                   <p className="font-medium text-gray-900">{userData.name}</p>
@@ -97,7 +97,7 @@ const MyProfile = () => {
               </div>
               
               <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                <FaEnvelope className="text-amber-600 mt-1" />
+                <FaEnvelope className="text-[#C19A6B]  mt-1" />
                 <div>
                   <p className="text-sm text-gray-600">Email Address</p>
                   <p className="font-medium text-gray-900">{userData.email}</p>
@@ -105,7 +105,7 @@ const MyProfile = () => {
               </div>
               
               <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                <FaPhone className="text-amber-600 mt-1" />
+                <FaPhone className="text-[#C19A6B]  mt-1" />
                 <div>
                   <p className="text-sm text-gray-600">Phone Number</p>
                   <p className="font-medium text-gray-900">{userData.phone}</p>
@@ -115,7 +115,7 @@ const MyProfile = () => {
 
             <div className="space-y-4">
               <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                <FaMapMarkerAlt className="text-amber-600 mt-1" />
+                <FaMapMarkerAlt className="text-[#C19A6B]  mt-1" />
                 <div>
                   <p className="text-sm text-gray-600">Address</p>
                   <p className="font-medium text-gray-900">{userData.address}</p>
@@ -123,7 +123,7 @@ const MyProfile = () => {
               </div>
               
               <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                <FaBirthdayCake className="text-amber-600 mt-1" />
+                <FaBirthdayCake className="text-[#C19A6B]  mt-1" />
                 <div>
                   <p className="text-sm text-gray-600">Date of Birth</p>
                   <p className="font-medium text-gray-900">{formatDate(userData.dob)}</p>
@@ -131,7 +131,7 @@ const MyProfile = () => {
               </div>
               
               <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                <FaCalendarAlt className="text-amber-600 mt-1" />
+                <FaCalendarAlt className="text-[#C19A6B]  mt-1" />
                 <div>
                   <p className="text-sm text-gray-600">Gender</p>
                   <p className="font-medium text-gray-900">{userData.gender}</p>
@@ -274,7 +274,7 @@ const MyProfile = () => {
                     <button
                       type="button"
                       onClick={handleSaveClick}
-                      className="px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors duration-300 flex items-center gap-2"
+                      className="px-6 py-3 bg-[#C19A6B] text-white rounded-lg hover:bg-[#987344] transition-colors duration-300 flex items-center gap-2"
                     >
                       <FaSave />
                       Save Changes
