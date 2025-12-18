@@ -59,7 +59,7 @@ const OrderDetails = () => {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Order Not Found</h2>
           <button
             onClick={() => navigate('/myOrders')}
-            className="px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors duration-300"
+            className="px-6 py-3 bg-[#C19A6B] text-white rounded-lg hover:bg-[#B08D5F] transition-colors duration-300 font-medium"
           >
             Back to My Orders
           </button>
@@ -118,7 +118,7 @@ const OrderDetails = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white py-12">
+      <div className="bg-gradient-to-r from-[#C19A6B] to-[#D4B896] text-white py-12">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
@@ -130,14 +130,14 @@ const OrderDetails = () => {
               </button>
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold mb-2">Order Details</h1>
-                <p className="text-amber-100">Order #{currentOrder.orderNo} • {formatDate(currentOrder.date)}</p>
+                <p className="text-white/90">Order #{currentOrder.orderNo} • {formatDate(currentOrder.date)}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-xl p-4">
               {getStatusIcon(currentOrder.status)}
               <div>
                 <p className="font-semibold">Order {getStatusText(currentOrder.status)}</p>
-                <p className="text-sm text-amber-100">{currentOrder.amount}</p>
+                <p className="text-sm text-white/90">{currentOrder.amount}</p>
               </div>
             </div>
           </div>
@@ -149,9 +149,9 @@ const OrderDetails = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Order Status Card */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Order Status</h2>
-              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-amber-50 to-amber-100 rounded-lg border border-amber-200">
+              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#C19A6B]/10 to-[#D4B896]/10 rounded-lg border border-[#C19A6B]/20">
                 <div className="flex items-center gap-3">
                   {getStatusIcon(currentOrder.status)}
                   <div>
@@ -166,7 +166,7 @@ const OrderDetails = () => {
                   </div>
                 </div>
                 {currentOrder.trackingId && (
-                  <div className="bg-white px-4 py-2 rounded-lg border border-amber-200">
+                  <div className="bg-white px-4 py-2 rounded-lg border border-[#C19A6B]/20">
                     <p className="text-sm text-gray-600">Tracking ID</p>
                     <p className="font-medium text-gray-900">{currentOrder.trackingId}</p>
                   </div>
@@ -175,11 +175,11 @@ const OrderDetails = () => {
             </div>
 
             {/* Order Items */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Order Items</h2>
               <div className="space-y-4">
                 {currentOrder.items.map((item, index) => (
-                  <div key={index} className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-amber-300 transition-colors duration-200">
+                  <div key={index} className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-[#C19A6B]/40 transition-colors duration-200">
                     <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                       <img 
                         src={item.image} 
@@ -205,22 +205,22 @@ const OrderDetails = () => {
           {/* Sidebar */}
           <div className="space-y-8">
             {/* Order Summary */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
               <div className="space-y-4">
                 {/* Shipping Address */}
-                <div className="p-4 border border-gray-200 rounded-lg">
+                <div className="p-4 border border-gray-200 rounded-lg hover:border-[#C19A6B]/40 transition-colors duration-200">
                   <div className="flex items-center gap-2 mb-3">
-                    <FaHome className="text-gray-500" />
+                    <FaHome className="text-[#C19A6B]" />
                     <h3 className="font-medium text-gray-900">Shipping Address</h3>
                   </div>
                   <p className="text-gray-700">{currentOrder.shippingAddress}</p>
                 </div>
 
                 {/* Payment Information */}
-                <div className="p-4 border border-gray-200 rounded-lg">
+                <div className="p-4 border border-gray-200 rounded-lg hover:border-[#C19A6B]/40 transition-colors duration-200">
                   <div className="flex items-center gap-2 mb-3">
-                    <FaCreditCard className="text-gray-500" />
+                    <FaCreditCard className="text-[#C19A6B]" />
                     <h3 className="font-medium text-gray-900">Payment Information</h3>
                   </div>
                   <div className="flex justify-between items-center">
@@ -230,7 +230,7 @@ const OrderDetails = () => {
                 </div>
 
                 {/* Price Breakdown */}
-                <div className="p-4 border border-gray-200 rounded-lg">
+                <div className="p-4 border border-gray-200 rounded-lg hover:border-[#C19A6B]/40 transition-colors duration-200">
                   <h3 className="font-medium text-gray-900 mb-3">Price Breakdown</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between">
@@ -248,7 +248,7 @@ const OrderDetails = () => {
                     <div className="border-t border-gray-200 pt-2 mt-2">
                       <div className="flex justify-between font-bold text-lg">
                         <span>Total Amount</span>
-                        <span>{currentOrder.amount}</span>
+                        <span className="text-[#C19A6B]">{currentOrder.amount}</span>
                       </div>
                     </div>
                   </div>
@@ -257,21 +257,21 @@ const OrderDetails = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Actions</h2>
               <div className="space-y-3">
                 {currentOrder.status === 'delivered' && (
                   <>
                     <button
                       onClick={handleReorder}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors duration-300"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#C19A6B] text-white rounded-lg hover:bg-[#B08D5F] transition-colors duration-300 font-medium"
                     >
                       <FaRedo />
                       Reorder
                     </button>
                     <button
                       onClick={handleWriteReview}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors duration-300"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors duration-300 font-medium"
                     >
                       <FaStar />
                       Write Review
@@ -282,7 +282,7 @@ const OrderDetails = () => {
                 {currentOrder.status === 'shipped' && (
                   <button
                     onClick={handleTrackOrder}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors duration-300"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors duration-300 font-medium"
                   >
                     <FaTruck />
                     Track Order
@@ -293,7 +293,7 @@ const OrderDetails = () => {
                 <PDFDownloadLink
                   document={<InvoicePDF order={currentOrder} />}
                   fileName={`invoice-${currentOrder.orderNo}.pdf`}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-300"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-300 font-medium"
                 >
                   {({ loading }) => (
                     <>
@@ -306,18 +306,18 @@ const OrderDetails = () => {
             </div>
 
             {/* Need Help Section */}
-            <div className="bg-gradient-to-br from-amber-50 to-white rounded-xl shadow-sm p-6 border border-amber-200">
+            <div className="bg-gradient-to-br from-[#C19A6B]/10 to-white rounded-xl shadow-sm p-6 border border-[#C19A6B]/20">
               <h3 className="font-bold text-gray-900 mb-4">Need Help with this Order?</h3>
               <div className="space-y-3">
-                <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-amber-100">
-                  <FaPhone className="text-amber-600" />
+                <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-[#C19A6B]/20 hover:border-[#C19A6B]/40 transition-colors duration-200">
+                  <FaPhone className="text-[#C19A6B]" />
                   <div>
                     <p className="font-medium text-gray-900">Call Support</p>
                     <p className="text-sm text-gray-600">+91 98765 43210</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-amber-100">
-                  <FaEnvelope className="text-amber-600" />
+                <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-[#C19A6B]/20 hover:border-[#C19A6B]/40 transition-colors duration-200">
+                  <FaEnvelope className="text-[#C19A6B]" />
                   <div>
                     <p className="font-medium text-gray-900">Email Support</p>
                     <p className="text-sm text-gray-600">support@feauag.com</p>

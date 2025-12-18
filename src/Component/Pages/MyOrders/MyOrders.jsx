@@ -107,10 +107,10 @@ const MyOrders = () => {
   ];
 
   const stats = [
-    { label: 'Total Orders', value: orders.length, icon: <FaHistory className="text-blue-500" /> },
-    { label: 'Total Spent', value: '₹1,63,646', icon: <FaRupeeSign className="text-green-500" /> },
-    { label: 'Pending Orders', value: orders.filter(o => o.status === 'processing').length, icon: <FaClock className="text-yellow-500" /> },
-    { label: 'Delivered Orders', value: orders.filter(o => o.status === 'delivered').length, icon: <FaCheckCircle className="text-purple-500" /> }
+    { label: 'Total Orders', value: orders.length, icon: <FaHistory className="text-[#C19A6B]" /> },
+    { label: 'Total Spent', value: '1,63,646', icon: <FaRupeeSign className="text-[#C19A6B]" /> },
+    { label: 'Pending Orders', value: orders.filter(o => o.status === 'processing').length, icon: <FaClock className="text-[#C19A6B]" /> },
+    { label: 'Delivered Orders', value: orders.filter(o => o.status === 'delivered').length, icon: <FaCheckCircle className="text-[#C19A6B]" /> }
   ];
 
   const filters = [
@@ -183,18 +183,18 @@ const MyOrders = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white py-12">
+      <div className="bg-gradient-to-r from-[#C19A6B] to-[#D4B896] text-white py-12">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold mb-2">My Orders</h1>
-              <p className="text-amber-100">Track and manage all your jewelry purchases</p>
+              <p className="text-amber-50/90">Track and manage all your jewelry purchases</p>
             </div>
             <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-xl p-4">
-              <FaBoxOpen className="text-2xl" />
+              <FaBoxOpen className="text-2xl text-white" />
               <div>
                 <p className="font-semibold">{orders.length} Orders</p>
-                <p className="text-sm text-amber-100">Lifetime purchases</p>
+                <p className="text-sm text-amber-50/90">Lifetime purchases</p>
               </div>
             </div>
           </div>
@@ -207,7 +207,7 @@ const MyOrders = () => {
           {stats.map((stat, index) => (
             <div 
               key={index} 
-              className="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-300 border border-gray-100"
+              className="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-300 border border-gray-100 hover:border-[#C19A6B]/20"
             >
               <div className="flex items-center gap-3">
                 <div className="text-2xl">
@@ -223,7 +223,7 @@ const MyOrders = () => {
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-100">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div className="relative flex-1">
               <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -232,11 +232,11 @@ const MyOrders = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by order number or product name..."
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C19A6B] focus:border-transparent"
               />
             </div>
             <div className="flex items-center gap-2">
-              <FaFilter className="text-gray-500" />
+              <FaFilter className="text-[#C19A6B]" />
               <span className="text-gray-700 font-medium">Filter by:</span>
             </div>
           </div>
@@ -249,8 +249,8 @@ const MyOrders = () => {
                 onClick={() => setActiveFilter(filter.key)}
                 className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
                   activeFilter === filter.key
-                    ? 'bg-amber-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-[#C19A6B] text-white hover:bg-[#B08D5F]'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900'
                 }`}
               >
                 {filter.label} ({filter.count})
@@ -260,7 +260,7 @@ const MyOrders = () => {
         </div>
 
         {/* Orders List */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
           {filteredOrders.length === 0 ? (
             <div className="p-12 text-center">
               <FaBoxOpen className="text-4xl text-gray-400 mx-auto mb-4" />
@@ -328,7 +328,7 @@ const MyOrders = () => {
                         <div className="flex flex-col gap-2">
                           <button
                             onClick={() => handleViewDetails(order)}
-                            className="flex items-center gap-2 px-3 py-1 text-sm text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded transition-colors duration-200"
+                            className="flex items-center gap-2 px-3 py-1 text-sm text-[#C19A6B] hover:text-[#B08D5F] hover:bg-[#C19A6B]/10 rounded transition-colors duration-200 font-medium"
                           >
                             <FaEye className="text-xs" />
                             View Details

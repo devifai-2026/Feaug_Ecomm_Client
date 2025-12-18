@@ -1,148 +1,681 @@
-// Component/Pages/Cart/ShippingComponent.jsx
-import React from 'react';
-import { BsTruck } from 'react-icons/bs';
+import React, { useState, useEffect } from "react";
+import {
+  BsTruck,
+  BsExclamationCircle,
+  BsPlus,
+  BsCheck,
+  BsPencil,
+  BsTrash,
+  BsStar,
+  BsStarFill,
+} from "react-icons/bs";
+import { INDIAN_STATES, validateShippingField } from "../../utils/Validation";
+
+// Mock saved addresses (in real app, fetch from backend/API)
+const DEFAULT_SAVED_ADDRESSES = [
+  {
+    id: "addr_1",
+    firstName: "Rahul",
+    lastName: "Sharma",
+    phone: "9876543210",
+    email: "rahul@example.com",
+    address: "123, MG Road, Brigade Road",
+    city: "Bangalore",
+    state: "Karnataka",
+    zipCode: "560001",
+    country: "India",
+    isDefault: true,
+    type: "home",
+    label: "Home",
+  },
+  {
+    id: "addr_2",
+    firstName: "Rahul",
+    lastName: "Sharma",
+    phone: "9876543211",
+    email: "rahul.work@example.com",
+    address: "456, Tech Park, Whitefield",
+    city: "Bangalore",
+    state: "Karnataka",
+    zipCode: "560066",
+    country: "India",
+    isDefault: false,
+    type: "work",
+    label: "Work",
+  },
+];
+
+const InputField = ({
+  label,
+  name,
+  value,
+  onChange,
+  onBlur,
+  type = "text",
+  placeholder,
+  error,
+  maxLength,
+}) => (
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      {label} <span className="text-red-500">*</span>
+    </label>
+    <input
+      name={name}
+      type={type}
+      value={value}
+      onChange={onChange}
+      onBlur={onBlur}
+      placeholder={placeholder}
+      maxLength={maxLength}
+      className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+        error
+          ? "border-red-500 focus:ring-red-500 bg-red-50"
+          : "border-gray-300 focus:ring-amber-500"
+      }`}
+    />
+    {error && (
+      <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+        <BsExclamationCircle className="text-xs" />
+        {error}
+      </p>
+    )}
+  </div>
+);
+
+const StateSelect = ({ label, name, value, onChange, onBlur, error }) => (
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      {label} <span className="text-red-500">*</span>
+    </label>
+    <select
+      name={name}
+      value={value}
+      onChange={onChange}
+      onBlur={onBlur}
+      className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+        error
+          ? "border-red-500 focus:ring-red-500 bg-red-50"
+          : "border-gray-300 focus:ring-amber-500"
+      }`}
+    >
+      <option value="">Select a state</option>
+      {INDIAN_STATES.map((state) => (
+        <option key={state} value={state}>
+          {state}
+        </option>
+      ))}
+    </select>
+    {error && (
+      <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+        <BsExclamationCircle className="text-xs" />
+        {error}
+      </p>
+    )}
+  </div>
+);
 
 const ShippingComponent = ({
-  shippingInfo,
-  handleShippingChange,
-  handleBlur,
-  getFieldError,
-  InputField,
-  TextareaField,
-  StateSelect,
+  data,
+  setData,
+  errors,
+  setErrors,
+  touched,
+  setTouched,
   saveInfo,
-  setSaveInfo
+  setSaveInfo,
 }) => {
+  const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState(DEFAULT_SAVED_ADDRESSES);
+  const [selectedAddressId, setSelectedAddressId] = useState(
+    DEFAULT_SAVED_ADDRESSES.find((addr) => addr.isDefault)?.id || null
+  );
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Load saved addresses from localStorage on component mount
+  useEffect(() => {
+    const saved = localStorage.getItem("userAddresses");
+    if (saved) {
+      const parsedAddresses = JSON.parse(saved);
+      setSavedAddresses(parsedAddresses);
+      const defaultAddress = parsedAddresses.find((addr) => addr.isDefault);
+      if (defaultAddress && !isAddingNewAddress) {
+        setSelectedAddressId(defaultAddress.id);
+        setData(defaultAddress);
+      }
+    }
+  }, []);
+
+  // Save addresses to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("userAddresses", JSON.stringify(savedAddresses));
+  }, [savedAddresses]);
+
+  // Handle saved address selection
+  const handleSelectAddress = (address) => {
+    setSelectedAddressId(address.id);
+    setData(address);
+    setIsAddingNewAddress(false);
+    setIsEditing(false);
+    // Clear errors when selecting saved address
+    setErrors({});
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // Format phone and zipcode
+    if (name === "phone") {
+      const formatted = value.replace(/\D/g, "").slice(0, 10);
+      setData({ ...data, [name]: formatted });
+    } else if (name === "zipCode") {
+      const formatted = value.replace(/\D/g, "").slice(0, 6);
+      setData({ ...data, [name]: formatted });
+    } else {
+      setData({ ...data, [name]: value });
+    }
+
+    // Validate if field was touched
+    if (touched[name]) {
+      const error = validateShippingField(name, value, data);
+      setErrors({ ...errors, [name]: error });
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched({ ...touched, [name]: true });
+    const error = validateShippingField(name, value, data);
+    setErrors({ ...errors, [name]: error });
+  };
+
+  // Add new address
+  const handleAddNewAddress = () => {
+    setIsAddingNewAddress(true);
+    setIsEditing(false);
+    setSelectedAddressId(null);
+    // Reset form for new address
+    setData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      address: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "India",
+      label: "",
+      type: "home",
+    });
+    setErrors({});
+    setTouched({});
+  };
+
+  // Save address (new or edit)
+  const handleSaveAddress = () => {
+    // Validate all fields
+    const validationErrors = {};
+    const requiredFields = [
+      "firstName",
+      "lastName",
+      "email",
+      "phone",
+      "address",
+      "city",
+      "state",
+      "zipCode",
+    ];
+
+    requiredFields.forEach((field) => {
+      const error = validateShippingField(field, data[field], data);
+      if (error) validationErrors[field] = error;
+    });
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    const newAddress = {
+      ...data,
+      id: isEditing ? data.id : `addr_${Date.now()}`,
+      isDefault: savedAddresses.length === 0 ? true : false,
+    };
+
+    if (isEditing) {
+      // Update existing address
+      const updatedAddresses = savedAddresses.map((addr) =>
+        addr.id === data.id ? newAddress : addr
+      );
+      setSavedAddresses(updatedAddresses);
+    } else {
+      // Add new address
+      setSavedAddresses([...savedAddresses, newAddress]);
+    }
+
+    // Select the newly saved address
+    setSelectedAddressId(newAddress.id);
+    setIsAddingNewAddress(false);
+    setIsEditing(false);
+  };
+
+  // Delete address
+  const handleDeleteAddress = (id) => {
+    if (savedAddresses.length <= 1) {
+      alert("You must have at least one saved address");
+      return;
+    }
+
+    const updatedAddresses = savedAddresses.filter((addr) => addr.id !== id);
+    setSavedAddresses(updatedAddresses);
+
+    if (selectedAddressId === id) {
+      const defaultAddress = updatedAddresses.find((addr) => addr.isDefault);
+      if (defaultAddress) {
+        setSelectedAddressId(defaultAddress.id);
+        setData(defaultAddress);
+      } else if (updatedAddresses.length > 0) {
+        setSelectedAddressId(updatedAddresses[0].id);
+        setData(updatedAddresses[0]);
+      } else {
+        handleAddNewAddress();
+      }
+    }
+  };
+
+  // Set as default address
+  const handleSetDefaultAddress = (id) => {
+    const updatedAddresses = savedAddresses.map((addr) => ({
+      ...addr,
+      isDefault: addr.id === id,
+    }));
+    setSavedAddresses(updatedAddresses);
+    setSelectedAddressId(id);
+  };
+
+  // Edit address
+  const handleEditAddress = (address) => {
+    setData(address);
+    setIsAddingNewAddress(true);
+    setIsEditing(true);
+    setSelectedAddressId(null);
+  };
+
+  // Cancel add/edit
+  const handleCancel = () => {
+    if (savedAddresses.length > 0) {
+      const defaultAddress = savedAddresses.find((addr) => addr.isDefault);
+      if (defaultAddress) {
+        setSelectedAddressId(defaultAddress.id);
+        setData(defaultAddress);
+      }
+    }
+    setIsAddingNewAddress(false);
+    setIsEditing(false);
+  };
+
   return (
     <div className="bg-white shadow-sm border border-gray-200 p-6 animate-fadeInUp">
-      <div className="flex items-center gap-3 mb-6">
-        <BsTruck className="text-2xl text-amber-600" />
-        <h2 className="text-2xl font-bold text-gray-800">
-          Shipping Information
-        </h2>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <InputField
-          label="First Name"
-          name="firstName"
-          value={shippingInfo.firstName}
-          onChange={handleShippingChange}
-          onBlur={handleBlur}
-          placeholder="Enter first name"
-          error={getFieldError("firstName")}
-        />
-
-        <InputField
-          label="Last Name"
-          name="lastName"
-          value={shippingInfo.lastName}
-          onChange={handleShippingChange}
-          onBlur={handleBlur}
-          placeholder="Enter last name"
-          error={getFieldError("lastName")}
-        />
-
-        <InputField
-          label="Email Address"
-          name="email"
-          type="email"
-          value={shippingInfo.email}
-          onChange={handleShippingChange}
-          onBlur={handleBlur}
-          placeholder="you@example.com"
-          error={getFieldError("email")}
-          className="md:col-span-2"
-        />
-
-        <InputField
-          label="Phone Number"
-          name="phone"
-          type="tel"
-          value={shippingInfo.phone}
-          onChange={handleShippingChange}
-          onBlur={handleBlur}
-          placeholder="Enter 10-digit phone number"
-          error={getFieldError("phone")}
-          className="md:col-span-2"
-        />
-
-        <TextareaField
-          label="Address"
-          name="address"
-          value={shippingInfo.address}
-          onChange={handleShippingChange}
-          onBlur={handleBlur}
-          placeholder="Enter full address with house number, street, etc."
-          error={getFieldError("address")}
-          className="md:col-span-2"
-        />
-
-        <InputField
-          label="City"
-          name="city"
-          value={shippingInfo.city}
-          onChange={handleShippingChange}
-          onBlur={handleBlur}
-          placeholder="Enter city"
-          error={getFieldError("city")}
-        />
-
-        <StateSelect
-          label="State"
-          name="state"
-          value={shippingInfo.state}
-          onChange={handleShippingChange}
-          onBlur={handleBlur}
-          error={getFieldError("state")}
-        />
-
-        <InputField
-          label="ZIP Code"
-          name="zipCode"
-          value={shippingInfo.zipCode}
-          onChange={handleShippingChange}
-          onBlur={handleBlur}
-          placeholder="Enter 6-digit ZIP"
-          error={getFieldError("zipCode")}
-        />
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Country
-          </label>
-          <select
-            name="country"
-            value={shippingInfo.country}
-            onChange={handleShippingChange}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 hover:border-gray-400"
-          >
-            <option value="India">India</option>
-            <option value="USA">United States</option>
-            <option value="UK">United Kingdom</option>
-            <option value="Canada">Canada</option>
-            <option value="Australia">Australia</option>
-          </select>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <BsTruck className="text-2xl text-amber-600" />
+          <h2 className="text-2xl font-bold text-gray-800">
+            Shipping Information
+          </h2>
         </div>
+        {!isAddingNewAddress && (
+          <button
+            onClick={handleAddNewAddress}
+            className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white font-medium hover:bg-amber-700 transition-colors"
+          >
+            <BsPlus className="text-lg" />
+            Add New Address
+          </button>
+        )}
       </div>
 
-      <div className="mt-6 flex items-center">
-        <input
-          type="checkbox"
-          id="saveInfo"
-          checked={saveInfo}
-          onChange={(e) => setSaveInfo(e.target.checked)}
-          className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
-        />
-        <label
-          htmlFor="saveInfo"
-          className="ml-2 block text-sm text-gray-900"
-        >
-          Save this information for next time
-        </label>
-      </div>
+      {/* Saved Addresses List */}
+      {!isAddingNewAddress ? (
+        <div className="space-y-4 mb-6">
+          <h3 className="text-lg font-semibold text-gray-700 mb-4">
+            Select Delivery Address
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {savedAddresses.map((address) => (
+              <div
+                key={address.id}
+                className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                  selectedAddressId === address.id
+                    ? "border-amber-500 bg-amber-50 border-2"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+                onClick={() => handleSelectAddress(address)}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-1 bg-gray-100 text-xs font-medium text-gray-700 rounded">
+                      {address.label || address.type}
+                    </span>
+                    {address.isDefault && (
+                      <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded flex items-center gap-1">
+                        <BsStarFill className="text-xs" /> Default
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditAddress(address);
+                      }}
+                      className="p-1 text-gray-500 hover:text-amber-600"
+                    >
+                      <BsPencil />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteAddress(address.id);
+                      }}
+                      className="p-1 text-gray-500 hover:text-red-600"
+                      disabled={savedAddresses.length <= 1}
+                    >
+                      <BsTrash />
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="font-medium">
+                    {address.firstName} {address.lastName}
+                  </p>
+                  <p className="text-sm text-gray-600">{address.address}</p>
+                  <p className="text-sm text-gray-600">
+                    {address.city}, {address.state} - {address.zipCode}
+                  </p>
+                  <p className="text-sm text-gray-600">{address.country}</p>
+                  <p className="text-sm text-gray-600">Phone: {address.phone}</p>
+                  <p className="text-sm text-gray-600">Email: {address.email}</p>
+                </div>
+                <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSetDefaultAddress(address.id);
+                    }}
+                    className={`text-xs flex items-center gap-1 ${
+                      address.isDefault
+                        ? "text-amber-600"
+                        : "text-gray-500 hover:text-amber-600"
+                    }`}
+                  >
+                    {address.isDefault ? (
+                      <BsStarFill className="text-xs" />
+                    ) : (
+                      <BsStar className="text-xs" />
+                    )}
+                    {address.isDefault ? "Default" : "Set as default"}
+                  </button>
+                  {selectedAddressId === address.id && (
+                    <BsCheck className="text-green-600" />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        /* Add/Edit Address Form */
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-700 mb-4">
+            {isEditing ? "Edit Address" : "Add New Address"}
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Address Type/Label */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Address Label
+              </label>
+              <div className="flex gap-4">
+                {["home", "work", "other"].map((type) => (
+                  <label
+                    key={type}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <input
+                      type="radio"
+                      name="type"
+                      value={type}
+                      checked={data.type === type}
+                      onChange={handleChange}
+                      className="h-4 w-4 text-amber-600"
+                    />
+                    <span className="text-sm capitalize">{type}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <InputField
+              label="First Name"
+              name="firstName"
+              value={data.firstName}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder="John"
+              error={errors.firstName}
+            />
+
+            <InputField
+              label="Last Name"
+              name="lastName"
+              value={data.lastName}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder="Doe"
+              error={errors.lastName}
+            />
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email <span className="text-red-500">*</span>
+              </label>
+              <input
+                name="email"
+                type="email"
+                value={data.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="you@example.com"
+                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors.email
+                    ? "border-red-500 focus:ring-red-500 bg-red-50"
+                    : "border-gray-300 focus:ring-amber-500"
+                }`}
+              />
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <BsExclamationCircle className="text-xs" />
+                  {errors.email}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Phone Number <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-2.5 text-gray-500">
+                  +91
+                </span>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={data.phone}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="9876543210"
+                  maxLength="10"
+                  className={`w-full pl-14 pr-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+                    errors.phone
+                      ? "border-red-500 focus:ring-red-500 bg-red-50"
+                      : "border-gray-300 focus:ring-amber-500"
+                  }`}
+                />
+                {data.phone && (
+                  <span
+                    className={`absolute right-3 top-2.5 text-sm ${
+                      data.phone.length === 10
+                        ? "text-green-600"
+                        : "text-yellow-600"
+                    }`}
+                  >
+                    {data.phone.length}/10
+                  </span>
+                )}
+              </div>
+              {errors.phone && (
+                <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+              )}
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Complete Address <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                name="address"
+                value={data.address}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="House/Flat No., Building, Street, Area"
+                rows="3"
+                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors.address
+                    ? "border-red-500 focus:ring-red-500 bg-red-50"
+                    : "border-gray-300 focus:ring-amber-500"
+                }`}
+              />
+              {errors.address && (
+                <p className="mt-1 text-sm text-red-600">{errors.address}</p>
+              )}
+            </div>
+
+            <InputField
+              label="City"
+              name="city"
+              value={data.city}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder="Bangalore"
+              error={errors.city}
+            />
+
+            <StateSelect
+              label="State"
+              name="state"
+              value={data.state}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.state}
+            />
+
+            <InputField
+              label="ZIP Code"
+              name="zipCode"
+              value={data.zipCode}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder="560001"
+              maxLength="6"
+              error={errors.zipCode}
+            />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Country
+              </label>
+              <select
+                name="country"
+                value={data.country}
+                onChange={handleChange}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+              >
+                <option value="India">India</option>
+                <option value="USA">USA</option>
+                <option value="UK">UK</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-4 mt-6">
+            <button
+              onClick={handleCancel}
+              className="px-6 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveAddress}
+              className="px-6 py-2 bg-amber-600 text-white font-medium hover:bg-amber-700 transition-colors flex items-center gap-2"
+            >
+              <BsCheck />
+              {isEditing ? "Update Address" : "Save Address"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Save for future checkbox */}
+      {!isAddingNewAddress && selectedAddressId && (
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="saveInfo"
+              checked={saveInfo}
+              onChange={(e) => setSaveInfo(e.target.checked)}
+              className="h-4 w-4 text-amber-600"
+            />
+            <label
+              htmlFor="saveInfo"
+              className="ml-2 block text-sm text-gray-900"
+            >
+              Save this address for future use
+            </label>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            This address will be added to your saved addresses list
+          </p>
+        </div>
+      )}
     </div>
   );
+};
+
+ShippingComponent.validate = async (data) => {
+  const fields = [
+    "firstName",
+    "lastName",
+    "email",
+    "phone",
+    "address",
+    "city",
+    "state",
+    "zipCode",
+  ];
+  let hasError = false;
+
+  for (let field of fields) {
+    if (validateShippingField(field, data[field], data)) {
+      hasError = true;
+      break;
+    }
+  }
+
+  return !hasError;
 };
 
 export default ShippingComponent;
