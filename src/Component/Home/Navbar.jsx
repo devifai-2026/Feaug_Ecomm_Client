@@ -8,7 +8,7 @@ import { LuUserRound, LuChevronDown, LuMenu, LuX, LuSearch, LuLogOut, LuUser, Lu
 import { BsHandbag } from "react-icons/bs";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight, MdClose } from "react-icons/md";
-import { FaRegHeart } from "react-icons/fa6";
+import { FaArrowRightLong, FaRegHeart } from "react-icons/fa6";
 import { useCart } from "../context/CartContext";
 import one from "../../assets/Navbar/eightAngle.webp";
 import two from "../../assets/Navbar/fiveAngle.jpg";
@@ -33,6 +33,12 @@ const Navbar = () => {
     
     // Carousel state
     const [currentSlide, setCurrentSlide] = useState(0);
+    
+    // Categories sliding state
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
+    const [dragStartTime, setDragStartTime] = useState(0);
 
     // Get cart from context
     const { getTotalUniqueItems } = useCart();
@@ -40,6 +46,7 @@ const Navbar = () => {
     // Refs for dropdowns
     const dropdownRef = useRef(null);
     const categoriesDropdownRef = useRef(null);
+    const categoriesContainerRef = useRef(null);
 
     // Load recent searches from localStorage
     useEffect(() => {
@@ -142,19 +149,134 @@ const Navbar = () => {
         };
     }, [isMobileMenuOpen]);
 
+    // Mouse drag functionality for categories
+    useEffect(() => {
+        if (!isCategoriesOpen || !categoriesContainerRef.current) return;
+
+        const container = categoriesContainerRef.current;
+
+        const handleMouseDown = (e) => {
+            // Check if the click is on a category button
+            const categoryButton = e.target.closest('button[class*="group"]');
+            if (categoryButton) {
+                return; // Don't start dragging if clicking on a category button
+            }
+            
+            setIsDragging(true);
+            setStartX(e.pageX - container.offsetLeft);
+            setScrollLeft(container.scrollLeft);
+            setDragStartTime(Date.now());
+            container.style.cursor = 'grabbing';
+            e.preventDefault();
+        };
+
+        const handleMouseMove = (e) => {
+            if (!isDragging) return;
+            
+            const x = e.pageX - container.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            container.scrollLeft = scrollLeft - walk;
+            
+            // Prevent text selection during drag
+            e.preventDefault();
+        };
+
+        const handleMouseUp = () => {
+            setIsDragging(false);
+            container.style.cursor = 'grab';
+            
+            // If it was a very short drag, treat it as a click on the container
+            const dragDuration = Date.now() - dragStartTime;
+            if (dragDuration < 150) {
+                // Don't do anything on quick click - let click events handle it
+            }
+        };
+
+        const handleMouseLeave = () => {
+            if (isDragging) {
+                setIsDragging(false);
+                container.style.cursor = 'grab';
+            }
+        };
+
+        // Touch events for mobile
+        const handleTouchStart = (e) => {
+            const categoryButton = e.target.closest('button[class*="group"]');
+            if (categoryButton) {
+                return;
+            }
+            
+            setIsDragging(true);
+            setStartX(e.touches[0].pageX - container.offsetLeft);
+            setScrollLeft(container.scrollLeft);
+            setDragStartTime(Date.now());
+        };
+
+        const handleTouchMove = (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.touches[0].pageX - container.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            container.scrollLeft = scrollLeft - walk;
+        };
+
+        const handleTouchEnd = () => {
+            setIsDragging(false);
+        };
+
+        // Click event handler for container to prevent navigation during drag
+        const handleClick = (e) => {
+            // If we were dragging, prevent the click
+            if (isDragging) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        };
+
+        container.addEventListener('mousedown', handleMouseDown);
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        container.addEventListener('mouseleave', handleMouseLeave);
+        container.addEventListener('touchstart', handleTouchStart, { passive: false });
+        container.addEventListener('touchmove', handleTouchMove, { passive: false });
+        container.addEventListener('touchend', handleTouchEnd);
+        container.addEventListener('click', handleClick, true);
+
+        // Set initial cursor
+        container.style.cursor = 'grab';
+
+        return () => {
+            container.removeEventListener('mousedown', handleMouseDown);
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            container.removeEventListener('mouseleave', handleMouseLeave);
+            container.removeEventListener('touchstart', handleTouchStart);
+            container.removeEventListener('touchmove', handleTouchMove);
+            container.removeEventListener('touchend', handleTouchEnd);
+            container.removeEventListener('click', handleClick, true);
+        };
+    }, [isCategoriesOpen, isDragging, startX, scrollLeft]);
+
     // Check if a link is active
     const isActiveLink = (path) => {
         return location.pathname === path;
     };
 
-    // Categories data with images
+    // Categories data with images - Expanded list
     const categories = [
-        { name: "Watch", image: one, path: "/categories" },
-        { name: "Ring", image: two, path: "/categories" },
+        { name: "Watches", image: one, path: "/categories" },
+        { name: "Rings", image: two, path: "/categories" },
         { name: "Earrings", image: three, path: "/categories" },
-        { name: "Necklace", image: four, path: "/categories" },
-        { name: "Bracelet", image: five, path: "/categories" },
-        { name: "All Jewelry", image: six, path: "/categories" }
+        { name: "Necklaces", image: four, path: "/categories" },
+        { name: "Bracelets", image: five, path: "/categories" },
+        { name: "Anklets", image: six, path: "/categories" },
+        { name: "Brooches", image: one, path: "/categories" },
+        { name: "Pendants", image: two, path: "/categories" },
+        { name: "Chains", image: three, path: "/categories" },
+        { name: "Charms", image: four, path: "/categories" },
+        { name: "Bangles", image: five, path: "/categories" },
+        { name: "Cufflinks", image: six, path: "/categories" },
+        { name: "All Jewelry", image: one, path: "/categories" }
     ];
 
     // Carousel content
@@ -283,7 +405,8 @@ const Navbar = () => {
     };
 
     // Handle categories item click
-    const handleCategoriesItemClick = (path) => {
+    const handleCategoriesItemClick = (e, path) => {
+        e.stopPropagation(); // Prevent event from bubbling up
         setIsCategoriesOpen(false);
         navigate(path);
         // Close mobile menu if open
@@ -424,33 +547,65 @@ const Navbar = () => {
                                 <LuChevronDown className={`text-sm transition-all duration-200 ${isActiveLink('/categories') ? 'text-[#C19A6B]' : 'group-hover:text-[#C19A6B]'} ${isCategoriesOpen ? 'rotate-180' : ''}`} />
                             </button>
                             
-                            {/* Categories Dropdown - Simple Horizontal Flex with Scrollbar */}
+                            {/* Categories Dropdown - Enhanced with drag functionality */}
                         
 {isCategoriesOpen && (
-    <div className="fixed left-1/2 transform -translate-x-1/2 top-16 bg-white shadow-xl border border-gray-200 z-50 overflow-hidden animate-fadeIn min-w-[500px] max-w-[95vw]">
-        <div className="p-4">
-            {/* Horizontal scrollable container */}
-            <div className="flex gap-4 overflow-x-auto horizontal-scroll pb-2">
+    <div 
+        className="fixed left-1/2 transform -translate-x-1/2 top-14 bg-white shadow-xl border border-gray-200 z-50 overflow-hidden animate-fadeIn min-w-[500px] max-w-[100vw]"
+    >
+        <div className="">
+            {/* Horizontal scrollable container with hidden scrollbar */}
+            <div 
+                ref={categoriesContainerRef}
+                className="flex gap-4 pb-2 px-4 select-none"
+                style={{
+                    overflowX: 'auto',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                    cursor: 'grab',
+                    scrollBehavior: 'smooth',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none'
+                }}
+            >
                 {categories.map((category, index) => (
-                    <button
+                    <div
                         key={index}
-                        onClick={() => handleCategoriesItemClick(category.path)}
-                        className="flex flex-col items-center flex-shrink-0 group"
+                        className="flex flex-col items-center flex-shrink-0 w-52"
                     >
-                        <div className="w-52 h-64 mb-2 overflow-hidden">
-                            <img 
-                                src={category.image} 
-                                alt={category.name}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                            />
-                        </div>
-                        <span className="text-sm font-medium text-gray-800 group-hover:text-[#C19A6B] transition-colors duration-300 whitespace-nowrap">
-                            {category.name}
-                        </span>
-                    </button>
+                        <button
+                            onClick={(e) => handleCategoriesItemClick(e, category.path)}
+                            className="flex flex-col items-center group cursor-pointer select-none w-full"
+                        >
+                            <div className="w-full h-64 mb-2 overflow-hidden">
+                                <img 
+                                    src={category.image} 
+                                    alt={category.name}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                />
+                            </div>
+                           <div className="flex items-center justify-between w-full">
+                             <span className="text-sm font-medium text-gray-800 group-hover:text-[#C19A6B] transition-colors duration-300 whitespace-nowrap">
+                                {category.name}
+                            </span>
+                            <FaArrowRightLong className="text-[#C19A6B] text-sm" />
+                           </div>
+                        </button>
+                    </div>
                 ))}
             </div>
         </div>
+        <style jsx global>{`
+            div[style*="overflow-x: auto"]::-webkit-scrollbar {
+                display: none;
+            }
+            .select-none {
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+        `}</style>
     </div>
 )}
                         </div>

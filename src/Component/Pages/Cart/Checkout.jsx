@@ -42,6 +42,11 @@ const SHIPPING_OPTIONS = [
 ];
 
 const Checkout = () => {
+  // Custom color definitions
+  const primaryColor = '#C19A6B';
+  const primaryLight = '#E8D4B9';
+  const primaryDark = '#A07A4B';
+  
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [sameAsShipping, setSameAsShipping] = useState(true);
@@ -168,7 +173,12 @@ const Checkout = () => {
         >
           <div className="relative bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-2xl shadow-2xl overflow-hidden border border-green-200 w-96">
             {/* Animated top border */}
-            <div className="h-1 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 animate-pulse"></div>
+            <div 
+              className="h-1 animate-pulse"
+              style={{ 
+                background: `linear-gradient(to right, ${primaryColor}, ${primaryDark})`
+              }}
+            ></div>
 
             {/* Close Button */}
             <button
@@ -182,25 +192,45 @@ const Checkout = () => {
             <div className="p-6 text-center pt-8">
               {/* Animated checkmark circle */}
               <div className="mb-4 flex justify-center">
-                <div className="relative w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                <div 
+                  className="relative w-20 h-20 rounded-full flex items-center justify-center shadow-lg animate-bounce"
+                  style={{ 
+                    background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryDark})`
+                  }}
+                >
                   <BsCheckCircle className="text-5xl text-white" />
                   {/* Floating particles */}
                   <div className="absolute inset-0 rounded-full">
-                    <div className="absolute top-1 right-2 w-2 h-2 bg-green-300 rounded-full animate-ping"></div>
-                    <div
-                      className="absolute bottom-2 left-3 w-1.5 h-1.5 bg-green-200 rounded-full animate-ping"
-                      style={{ animationDelay: "0.2s" }}
+                    <div 
+                      className="absolute top-1 right-2 w-2 h-2 rounded-full animate-ping"
+                      style={{ backgroundColor: primaryLight }}
                     ></div>
                     <div
-                      className="absolute top-4 left-1 w-1 h-1 bg-emerald-300 rounded-full animate-ping"
-                      style={{ animationDelay: "0.4s" }}
+                      className="absolute bottom-2 left-3 w-1.5 h-1.5 rounded-full animate-ping"
+                      style={{ 
+                        backgroundColor: primaryLight,
+                        animationDelay: "0.2s"
+                      }}
+                    ></div>
+                    <div
+                      className="absolute top-4 left-1 w-1 h-1 rounded-full animate-ping"
+                      style={{ 
+                        backgroundColor: primaryLight + '80',
+                        animationDelay: "0.4s"
+                      }}
                     ></div>
                   </div>
                 </div>
               </div>
 
               {/* Main heading */}
-              <h3 className="font-bold text-2xl bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">
+              <h3 
+                className="font-bold text-2xl bg-clip-text text-transparent mb-2"
+                style={{ 
+                  background: `linear-gradient(to right, ${primaryColor}, ${primaryDark})`,
+                  WebkitBackgroundClip: 'text'
+                }}
+              >
                 Order Placed Successfully! 🎉
               </h3>
 
@@ -210,48 +240,84 @@ const Checkout = () => {
               {/* Payment method specific messages */}
               <div className="space-y-2">
                 {paymentInfo.method === "cod" && (
-                  <div className="bg-amber-50 border border-amber-300 rounded-lg p-3 animate-slideInUp">
+                  <div 
+                    className="border rounded-lg p-3 animate-slideInUp"
+                    style={{ 
+                      backgroundColor: primaryLight + '20',
+                      borderColor: primaryColor
+                    }}
+                  >
                     <div className="flex items-center justify-center gap-2">
-                      <div className="w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center">
+                      <div 
+                        className="w-5 h-5 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: primaryColor }}
+                      >
                         <span className="text-white text-xs font-bold">!</span>
                       </div>
-                      <p className="text-sm font-semibold text-amber-800">
+                      <p 
+                        className="text-sm font-semibold"
+                        style={{ color: primaryDark }}
+                      >
                         Keep cash ready for delivery
                       </p>
                     </div>
-                    <p className="text-xs text-amber-700 mt-2">
+                    <p className="text-xs mt-2" style={{ color: primaryDark }}>
                       Our delivery partner will contact you soon
                     </p>
                   </div>
                 )}
 
                 {paymentInfo.method === "upi" && (
-                  <div className="bg-blue-50 border border-blue-300 rounded-lg p-3 animate-slideInUp">
+                  <div 
+                    className="border rounded-lg p-3 animate-slideInUp"
+                    style={{ 
+                      backgroundColor: primaryLight + '20',
+                      borderColor: primaryColor
+                    }}
+                  >
                     <div className="flex items-center justify-center gap-2">
-                      <div className="w-5 h-5 bg-blue-400 rounded-full flex items-center justify-center">
+                      <div 
+                        className="w-5 h-5 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: primaryColor }}
+                      >
                         <span className="text-white text-xs">✓</span>
                       </div>
-                      <p className="text-sm font-semibold text-blue-900">
+                      <p 
+                        className="text-sm font-semibold"
+                        style={{ color: primaryDark }}
+                      >
                         Complete payment in your UPI app
                       </p>
                     </div>
-                    <p className="text-xs text-blue-700 mt-2">
+                    <p className="text-xs mt-2" style={{ color: primaryDark }}>
                       You'll receive a payment link shortly
                     </p>
                   </div>
                 )}
 
                 {paymentInfo.method === "card" && (
-                  <div className="bg-purple-50 border border-purple-300 rounded-lg p-3 animate-slideInUp">
+                  <div 
+                    className="border rounded-lg p-3 animate-slideInUp"
+                    style={{ 
+                      backgroundColor: primaryLight + '20',
+                      borderColor: primaryColor
+                    }}
+                  >
                     <div className="flex items-center justify-center gap-2">
-                      <div className="w-5 h-5 bg-purple-400 rounded-full flex items-center justify-center">
+                      <div 
+                        className="w-5 h-5 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: primaryColor }}
+                      >
                         <span className="text-white text-xs">💳</span>
                       </div>
-                      <p className="text-sm font-semibold text-purple-900">
+                      <p 
+                        className="text-sm font-semibold"
+                        style={{ color: primaryDark }}
+                      >
                         Payment processing in progress
                       </p>
                     </div>
-                    <p className="text-xs text-purple-700 mt-2">
+                    <p className="text-xs mt-2" style={{ color: primaryDark }}>
                       Check your email for confirmation
                     </p>
                   </div>
@@ -261,15 +327,20 @@ const Checkout = () => {
               {/* Footer message */}
               <div className="mt-4 pt-4 border-t border-green-200">
                 <p className="text-xs text-gray-600">
-                  📧 Confirmation sent to your email • 🚚 Track your order
-                  anytime
+                  📧 Confirmation sent to your email • 🚚 Track your order anytime
                 </p>
               </div>
             </div>
 
             {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-green-200 rounded-full opacity-10 -mr-16 -mt-16"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-emerald-200 rounded-full opacity-10 -ml-12 -mb-12"></div>
+            <div 
+              className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 -mr-16 -mt-16"
+              style={{ backgroundColor: primaryColor }}
+            ></div>
+            <div 
+              className="absolute bottom-0 left-0 w-24 h-24 rounded-full opacity-10 -ml-12 -mb-12"
+              style={{ backgroundColor: primaryDark }}
+            ></div>
 
             <style>{`
               @keyframes slideInUp {
@@ -373,7 +444,10 @@ const Checkout = () => {
       <div className="min-h-screen bg-gray-50 py-12 px-4">
         <Toaster position="top-center" />
         <div className="max-w-6xl mx-auto text-center">
-          <BsCreditCard className="text-6xl text-gray-400 mx-auto mb-6" />
+          <BsCreditCard 
+            className="text-6xl mx-auto mb-6" 
+            style={{ color: primaryColor }} 
+          />
           <h3 className="text-2xl font-bold text-gray-700 mb-3">
             Your cart is empty
           </h3>
@@ -460,7 +534,11 @@ const Checkout = () => {
                 {step < 3 ? (
                   <button
                     onClick={handleNextStep}
-                    className="px-8 py-3 bg-amber-600 text-white font-bold hover:bg-amber-700 transition-all"
+                    className="px-8 py-3 font-bold hover:opacity-90 transition-all"
+                    style={{ 
+                      backgroundColor: primaryColor,
+                      color: 'white'
+                    }}
                   >
                     Continue to {step === 1 ? "Payment" : "Review"}
                   </button>
@@ -468,7 +546,11 @@ const Checkout = () => {
                   <button
                     onClick={handlePlaceOrder}
                     disabled={loading}
-                    className="px-8 py-3 bg-green-600 text-white font-bold hover:bg-green-700 disabled:opacity-50 transition-all"
+                    className="px-8 py-3 font-bold hover:opacity-90 disabled:opacity-50 transition-all"
+                    style={{ 
+                      backgroundColor: primaryColor,
+                      color: 'white'
+                    }}
                   >
                     {loading ? "Processing..." : "Place Order"}
                   </button>

@@ -55,65 +55,73 @@ const InputField = ({
   placeholder,
   error,
   maxLength,
-}) => (
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-2">
-      {label} <span className="text-red-500">*</span>
-    </label>
-    <input
-      name={name}
-      type={type}
-      value={value}
-      onChange={onChange}
-      onBlur={onBlur}
-      placeholder={placeholder}
-      maxLength={maxLength}
-      className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
-        error
-          ? "border-red-500 focus:ring-red-500 bg-red-50"
-          : "border-gray-300 focus:ring-amber-500"
-      }`}
-    />
-    {error && (
-      <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-        <BsExclamationCircle className="text-xs" />
-        {error}
-      </p>
-    )}
-  </div>
-);
+}) => {
+  const primaryColor = '#C19A6B';
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        {label} <span className="text-red-500">*</span>
+      </label>
+      <input
+        name={name}
+        type={type}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+          error
+            ? "border-red-500 focus:ring-red-500 bg-red-50"
+            : "border-gray-300"
+        }`}
+        style={!error ? { '--tw-ring-color': primaryColor } : {}}
+      />
+      {error && (
+        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+          <BsExclamationCircle className="text-xs" />
+          {error}
+        </p>
+      )}
+    </div>
+  );
+};
 
-const StateSelect = ({ label, name, value, onChange, onBlur, error }) => (
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-2">
-      {label} <span className="text-red-500">*</span>
-    </label>
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      onBlur={onBlur}
-      className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
-        error
-          ? "border-red-500 focus:ring-red-500 bg-red-50"
-          : "border-gray-300 focus:ring-amber-500"
-      }`}
-    >
-      <option value="">Select a state</option>
-      {INDIAN_STATES.map((state) => (
-        <option key={state} value={state}>
-          {state}
-        </option>
-      ))}
-    </select>
-    {error && (
-      <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-        <BsExclamationCircle className="text-xs" />
-        {error}
-      </p>
-    )}
-  </div>
-);
+const StateSelect = ({ label, name, value, onChange, onBlur, error }) => {
+  const primaryColor = '#C19A6B';
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        {label} <span className="text-red-500">*</span>
+      </label>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+          error
+            ? "border-red-500 focus:ring-red-500 bg-red-50"
+            : "border-gray-300"
+        }`}
+        style={!error ? { '--tw-ring-color': primaryColor } : {}}
+      >
+        <option value="">Select a state</option>
+        {INDIAN_STATES.map((state) => (
+          <option key={state} value={state}>
+            {state}
+          </option>
+        ))}
+      </select>
+      {error && (
+        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+          <BsExclamationCircle className="text-xs" />
+          {error}
+        </p>
+      )}
+    </div>
+  );
+};
 
 const ShippingComponent = ({
   data,
@@ -125,6 +133,11 @@ const ShippingComponent = ({
   saveInfo,
   setSaveInfo,
 }) => {
+  // Custom color definitions
+  const primaryColor = '#C19A6B';
+  const primaryLight = '#E8D4B9';
+  const primaryDark = '#A07A4B';
+  
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
   const [savedAddresses, setSavedAddresses] = useState(DEFAULT_SAVED_ADDRESSES);
   const [selectedAddressId, setSelectedAddressId] = useState(
@@ -317,17 +330,35 @@ const ShippingComponent = ({
 
   return (
     <div className="bg-white shadow-sm border border-gray-200 p-6 animate-fadeInUp">
-      <div className="flex items-center justify-between mb-6">
+      <style>{`
+        .custom-radio:checked {
+          background-color: ${primaryColor};
+          border-color: ${primaryColor};
+        }
+        .custom-checkbox:checked {
+          background-color: ${primaryColor};
+          border-color: ${primaryColor};
+        }
+        .custom-focus:focus {
+          --tw-ring-color: ${primaryColor};
+        }
+      `}</style>
+      
+      <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-2">
         <div className="flex items-center gap-3">
-          <BsTruck className="text-2xl text-amber-600" />
-          <h2 className="text-2xl font-bold text-gray-800">
+          <BsTruck className="text-2xl" style={{ color: primaryColor }} />
+          <h2 className="text-lg md:text-2xl font-bold text-gray-800">
             Shipping Information
           </h2>
         </div>
         {!isAddingNewAddress && (
           <button
             onClick={handleAddNewAddress}
-            className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white font-medium hover:bg-amber-700 transition-colors"
+            className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1 md:py-2 font-medium hover:opacity-90 transition-colors text-nowrap"
+            style={{ 
+              backgroundColor: primaryColor,
+              color: 'white'
+            }}
           >
             <BsPlus className="text-lg" />
             Add New Address
@@ -347,14 +378,24 @@ const ShippingComponent = ({
                 key={address.id}
                 className={`border rounded-lg p-4 cursor-pointer transition-all ${
                   selectedAddressId === address.id
-                    ? "border-amber-500 bg-amber-50 border-2"
+                    ? "border-2"
                     : "border-gray-200 hover:border-gray-300"
                 }`}
+                style={selectedAddressId === address.id ? { 
+                  borderColor: primaryColor,
+                  backgroundColor: primaryLight + '20'
+                } : {}}
                 onClick={() => handleSelectAddress(address)}
               >
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="px-2 py-1 bg-gray-100 text-xs font-medium text-gray-700 rounded">
+                    <span 
+                      className="px-2 py-1 text-xs font-medium rounded"
+                      style={{ 
+                        backgroundColor: primaryLight,
+                        color: primaryDark
+                      }}
+                    >
                       {address.label || address.type}
                     </span>
                     {address.isDefault && (
@@ -394,8 +435,10 @@ const ShippingComponent = ({
                     {address.city}, {address.state} - {address.zipCode}
                   </p>
                   <p className="text-sm text-gray-600">{address.country}</p>
-                  <p className="text-sm text-gray-600">Phone: {address.phone}</p>
+                 <div className="flex items-center gap-1">
+                   <p className="text-sm text-gray-600">Phone: {address.phone}</p>
                   <p className="text-sm text-gray-600">Email: {address.email}</p>
+                 </div>
                 </div>
                 <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
                   <button
@@ -408,6 +451,7 @@ const ShippingComponent = ({
                         ? "text-amber-600"
                         : "text-gray-500 hover:text-amber-600"
                     }`}
+                    style={address.isDefault ? { color: primaryColor } : {}}
                   >
                     {address.isDefault ? (
                       <BsStarFill className="text-xs" />
@@ -449,7 +493,7 @@ const ShippingComponent = ({
                       value={type}
                       checked={data.type === type}
                       onChange={handleChange}
-                      className="h-4 w-4 text-amber-600"
+                      className="h-4 w-4 custom-radio"
                     />
                     <span className="text-sm capitalize">{type}</span>
                   </label>
@@ -491,8 +535,8 @@ const ShippingComponent = ({
                 className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
                   errors.email
                     ? "border-red-500 focus:ring-red-500 bg-red-50"
-                    : "border-gray-300 focus:ring-amber-500"
-                }`}
+                    : "border-gray-300"
+                } custom-focus`}
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
@@ -521,8 +565,8 @@ const ShippingComponent = ({
                   className={`w-full pl-14 pr-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
                     errors.phone
                       ? "border-red-500 focus:ring-red-500 bg-red-50"
-                      : "border-gray-300 focus:ring-amber-500"
-                  }`}
+                      : "border-gray-300"
+                  } custom-focus`}
                 />
                 {data.phone && (
                   <span
@@ -555,8 +599,8 @@ const ShippingComponent = ({
                 className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
                   errors.address
                     ? "border-red-500 focus:ring-red-500 bg-red-50"
-                    : "border-gray-300 focus:ring-amber-500"
-                }`}
+                    : "border-gray-300"
+                } custom-focus`}
               />
               {errors.address && (
                 <p className="mt-1 text-sm text-red-600">{errors.address}</p>
@@ -601,7 +645,7 @@ const ShippingComponent = ({
                 name="country"
                 value={data.country}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 custom-focus"
               >
                 <option value="India">India</option>
                 <option value="USA">USA</option>
@@ -619,7 +663,11 @@ const ShippingComponent = ({
             </button>
             <button
               onClick={handleSaveAddress}
-              className="px-6 py-2 bg-amber-600 text-white font-medium hover:bg-amber-700 transition-colors flex items-center gap-2"
+              className="px-6 py-2 font-medium hover:opacity-90 transition-colors flex items-center gap-2"
+              style={{ 
+                backgroundColor: primaryColor,
+                color: 'white'
+              }}
             >
               <BsCheck />
               {isEditing ? "Update Address" : "Save Address"}
@@ -637,7 +685,7 @@ const ShippingComponent = ({
               id="saveInfo"
               checked={saveInfo}
               onChange={(e) => setSaveInfo(e.target.checked)}
-              className="h-4 w-4 text-amber-600"
+              className="h-4 w-4 custom-checkbox"
             />
             <label
               htmlFor="saveInfo"

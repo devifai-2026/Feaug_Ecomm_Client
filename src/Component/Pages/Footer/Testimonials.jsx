@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { FaStar, FaQuoteLeft, FaChevronLeft, FaChevronRight, FaGem, FaCrown, FaRing, FaHeart, FaAward, FaShieldAlt } from 'react-icons/fa';
 
 const Testimonials = () => {
+  // Custom color definitions
+  const primaryColor = '#C19A6B';
+  const primaryLight = '#E8D4B9';
+  const primaryDark = '#A07A4B';
+  
   // Scroll to top on component mount
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -85,7 +90,7 @@ const Testimonials = () => {
   ];
 
   const stats = [
-    { value: "4.9/5", label: "Average Rating", icon: <FaGem className="text-amber-500" /> },
+    { value: "4.9/5", label: "Average Rating", icon: <FaGem style={{ color: primaryColor }} /> },
     { value: "25K+", label: "Happy Customers", icon: <FaHeart className="text-red-400" /> },
     { value: "99%", label: "Purity Guarantee", icon: <FaAward className="text-blue-400" /> },
     { value: "500+", label: "Designs", icon: <FaCrown className="text-purple-400" /> }
@@ -141,7 +146,7 @@ const Testimonials = () => {
           <FaStar
             key={index}
             className={`text-sm ${
-              index < rating ? 'text-amber-500 fill-amber-500' : 'text-gray-300'
+              index < rating ? `text-[${primaryColor}] fill-[${primaryColor}]` : 'text-gray-300'
             }`}
           />
         ))}
@@ -155,7 +160,7 @@ const Testimonials = () => {
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
           <div className="flex justify-center mb-4">
-            <FaGem className="text-amber-500 text-4xl" />
+            <FaGem style={{ color: primaryColor }} className="text-4xl" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Sparkling Reviews from Our Valued Customers
@@ -183,7 +188,12 @@ const Testimonials = () => {
 
         {/* Main Testimonials Carousel */}
         <div className="relative mb-16">
-          <div className="bg-gradient-to-r from-amber-400 to-amber-600 rounded-2xl p-1 mb-8">
+          <div 
+            className="rounded-2xl p-1 mb-8"
+            style={{ 
+              background: `linear-gradient(to right, ${primaryColor}, ${primaryDark})`
+            }}
+          >
             <div className="bg-white rounded-xl p-2">
               <div className="relative overflow-hidden rounded-lg">
                 {/* Navigation Buttons */}
@@ -208,8 +218,11 @@ const Testimonials = () => {
                     <div key={testimonial.id} className="w-full flex-shrink-0 p-8 md:p-12">
                       <div className="max-w-4xl mx-auto">
                         <div className="flex items-center gap-2 mb-6">
-                          <FaQuoteLeft className="text-amber-500 text-2xl" />
-                          <span className="px-3 py-1 bg-amber-100 text-amber-800 text-sm rounded-full">
+                          <FaQuoteLeft style={{ color: primaryColor }} className="text-2xl" />
+                          <span 
+                            className="px-3 py-1 text-sm rounded-full"
+                            style={{ backgroundColor: primaryLight, color: primaryDark }}
+                          >
                             {testimonial.product}
                           </span>
                         </div>
@@ -219,7 +232,10 @@ const Testimonials = () => {
                         
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                           <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-amber-100">
+                            <div 
+                              className="w-16 h-16 rounded-full overflow-hidden border-4"
+                              style={{ borderColor: primaryLight }}
+                            >
                               <img 
                                 src={testimonial.image} 
                                 alt={testimonial.name}
@@ -243,8 +259,17 @@ const Testimonials = () => {
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-amber-50 to-white rounded-lg border border-amber-100">
-                            <div className="text-4xl font-bold text-amber-600">
+                          <div 
+                            className="flex items-center gap-4 p-4 rounded-lg border"
+                            style={{ 
+                              background: 'linear-gradient(to right, #FEF9F3, white)',
+                              borderColor: primaryLight
+                            }}
+                          >
+                            <div 
+                              className="text-4xl font-bold"
+                              style={{ color: primaryColor }}
+                            >
                               {testimonial.rating.toFixed(1)}
                             </div>
                             <div>
@@ -267,11 +292,14 @@ const Testimonials = () => {
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`w-2 h-2 rounded-full transition-all ${
+                className={`h-2 rounded-full transition-all ${
                   index === currentSlide 
-                    ? 'bg-amber-600 w-8' 
-                    : 'bg-gray-300 hover:bg-gray-400'
+                    ? 'w-8' 
+                    : 'w-2 bg-gray-300 hover:bg-gray-400'
                 }`}
+                style={{ 
+                  backgroundColor: index === currentSlide ? primaryColor : undefined 
+                }}
               />
             ))}
           </div>
@@ -305,8 +333,11 @@ const Testimonials = () => {
                 </div>
                 <div className="mt-4 h-2 bg-amber-100 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded-full"
-                    style={{ width: `${(category.rating / 5) * 100}%` }}
+                    className="h-full rounded-full"
+                    style={{ 
+                      background: `linear-gradient(to right, ${primaryColor}, ${primaryDark})`,
+                      width: `${(category.rating / 5) * 100}%`
+                    }}
                   />
                 </div>
               </div>
@@ -318,7 +349,10 @@ const Testimonials = () => {
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Recent Jewellery Reviews</h2>
-            <button className="text-amber-600 font-medium hover:text-amber-700 flex items-center gap-1">
+            <button 
+              className="font-medium hover:opacity-80 flex items-center gap-1 transition-opacity"
+              style={{ color: primaryColor }}
+            >
               View All Reviews <FaChevronRight className="text-sm" />
             </button>
           </div>
@@ -331,7 +365,10 @@ const Testimonials = () => {
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-amber-200">
+                    <div 
+                      className="w-12 h-12 rounded-full overflow-hidden border-2"
+                      style={{ borderColor: primaryLight }}
+                    >
                       <img 
                         src={testimonial.image} 
                         alt={testimonial.name}
@@ -347,7 +384,10 @@ const Testimonials = () => {
                 </div>
                 
                 <div className="mb-3">
-                  <span className="inline-block px-2 py-1 bg-amber-100 text-amber-800 text-xs rounded">
+                  <span 
+                    className="inline-block px-2 py-1 text-xs rounded"
+                    style={{ backgroundColor: primaryLight, color: primaryDark }}
+                  >
                     {testimonial.product}
                   </span>
                 </div>
@@ -357,7 +397,7 @@ const Testimonials = () => {
                 <div className="flex items-center justify-between text-sm text-gray-500 pt-4 border-t border-amber-100">
                   <span>{testimonial.date}</span>
                   <span className="flex items-center gap-1">
-                    <FaGem className="text-amber-400 text-xs" />
+                    <FaGem style={{ color: primaryColor }} className="text-xs" />
                     {testimonial.location}
                   </span>
                 </div>
@@ -367,7 +407,10 @@ const Testimonials = () => {
         </div>
 
         {/* Trust & Certification Section */}
-        <div className="mt-16 bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl p-8 text-center text-white">
+        <div 
+          className="mt-16 rounded-2xl p-8 text-center text-white"
+          style={{ background: `linear-gradient(to right, ${primaryColor}, ${primaryDark})` }}
+        >
           <div className="max-w-3xl mx-auto">
             <FaGem className="text-3xl mb-4 mx-auto text-white" />
             <h2 className="text-2xl md:text-3xl font-bold mb-4">
@@ -377,7 +420,6 @@ const Testimonials = () => {
               Every piece comes with BIS Hallmark certification and lifetime warranty. 
               Your trust is our most valuable jewel.
             </p>
-           
           </div>
         </div>
 
@@ -387,7 +429,7 @@ const Testimonials = () => {
             <p className="mb-6 font-medium">Why Customers Trust Us</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="p-4 bg-white rounded-lg border border-amber-100">
-                <FaGem className="text-amber-500 text-xl mb-2 mx-auto" />
+                <FaGem style={{ color: primaryColor }} className="text-xl mb-2 mx-auto" />
                 <div className="text-sm font-medium">BIS Hallmark Certified</div>
               </div>
               <div className="p-4 bg-white rounded-lg border border-amber-100">
@@ -407,7 +449,13 @@ const Testimonials = () => {
         </div>
 
         {/* Family Legacy Section */}
-        <div className="mt-12 bg-gradient-to-br from-amber-50 to-white rounded-2xl p-8 border border-amber-200">
+        <div 
+          className="mt-12 rounded-2xl p-8 border"
+          style={{ 
+            background: 'linear-gradient(to bottom right, #FEF9F3, white)',
+            borderColor: primaryLight
+          }}
+        >
           <div className="text-center">
             <h3 className="text-xl font-bold text-gray-900 mb-3">
               Three Generations of Trust
@@ -417,9 +465,11 @@ const Testimonials = () => {
               Our customers aren't just buying jewellery - they're investing in legacy.
             </p>
             <div className="flex justify-center">
-              <div className="inline-flex items-center gap-2 text-amber-600">
-                <FaStar className="fill-amber-500" />
-                <span className="font-semibold">Trusted by 3 generations of Indian families</span>
+              <div className="inline-flex items-center gap-2">
+                <FaStar style={{ color: primaryColor, fill: primaryColor }} />
+                <span className="font-semibold" style={{ color: primaryColor }}>
+                  Trusted by 3 generations of Indian families
+                </span>
               </div>
             </div>
           </div>

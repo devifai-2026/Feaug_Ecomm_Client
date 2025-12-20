@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaClock } from 'react-icons/fa';
 
 const HelpCenter = () => {
+  // Custom color definitions
+  const primaryColor = '#C19A6B';
+  const primaryLight = '#E8D4B9';
+  const primaryDark = '#A07A4B';
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,25 +21,25 @@ const HelpCenter = () => {
 
   const contactInfo = [
     {
-      icon: <FaPhoneAlt />,
+      icon: <FaPhoneAlt style={{ color: primaryColor }} />,
       title: 'Call Us',
       details: '+91 98765 43210',
       description: 'Available 9AM - 8PM, Mon-Sat'
     },
     {
-      icon: <FaEnvelope />,
+      icon: <FaEnvelope style={{ color: primaryColor }} />,
       title: 'Email Us',
       details: 'support@feauag.com',
       description: 'Response within 24 hours'
     },
     {
-      icon: <FaMapMarkerAlt />,
+      icon: <FaMapMarkerAlt style={{ color: primaryColor }} />,
       title: 'Visit Store',
       details: 'Find a Store',
       description: '50+ stores across India'
     },
     {
-      icon: <FaClock />,
+      icon: <FaClock style={{ color: primaryColor }} />,
       title: 'Business Hours',
       details: '9AM - 8PM',
       description: 'Monday to Saturday'
@@ -77,8 +82,11 @@ const HelpCenter = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Contact Information</h2>
             <div className="space-y-6">
               {contactInfo.map((item, index) => (
-                <div key={index} className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                  <div className="p-3 bg-amber-100 text-amber-600 rounded-lg">
+                <div key={index} className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div 
+                    className="p-3 rounded-lg"
+                    style={{ backgroundColor: primaryLight }}
+                  >
                     {item.icon}
                   </div>
                   <div>
@@ -90,7 +98,13 @@ const HelpCenter = () => {
               ))}
             </div>
 
-            <div className="mt-8 p-6 bg-amber-50 rounded-lg border border-amber-200">
+            <div 
+              className="mt-8 p-6 rounded-lg border"
+              style={{ 
+                backgroundColor: primaryLight + '20',
+                borderColor: primaryLight
+              }}
+            >
               <h3 className="font-bold text-gray-900 mb-2">Quick Tips</h3>
               <ul className="space-y-2 text-gray-700">
                 <li>• Include your order number for faster assistance</li>
@@ -115,7 +129,14 @@ const HelpCenter = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-all"
+                  style={{ 
+                    focusRingColor: primaryColor,
+                    '&:focus': {
+                      ringColor: primaryColor,
+                      borderColor: 'transparent'
+                    }
+                  }}
                   placeholder="Enter your full name"
                 />
               </div>
@@ -130,7 +151,12 @@ const HelpCenter = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent"
+                  style={{ 
+                    '&:focus': {
+                      '--tw-ring-color': primaryColor
+                    }
+                  }}
                   placeholder="you@example.com"
                 />
               </div>
@@ -144,7 +170,12 @@ const HelpCenter = () => {
                   value={formData.subject}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent"
+                  style={{ 
+                    '&:focus': {
+                      '--tw-ring-color': primaryColor
+                    }
+                  }}
                 >
                   <option value="">Select a topic</option>
                   <option value="order">Order Inquiry</option>
@@ -166,14 +197,23 @@ const HelpCenter = () => {
                   onChange={handleChange}
                   required
                   rows="6"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent resize-none"
+                  style={{ 
+                    '&:focus': {
+                      '--tw-ring-color': primaryColor
+                    }
+                  }}
                   placeholder="Please describe your issue or question in detail..."
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors"
+                className="w-full py-3 font-medium rounded-lg hover:opacity-90 transition-all"
+                style={{ 
+                  backgroundColor: primaryColor,
+                  color: 'white'
+                }}
               >
                 Send Message
               </button>

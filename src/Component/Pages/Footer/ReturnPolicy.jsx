@@ -2,6 +2,11 @@ import React, { useEffect } from 'react';
 import { FaArrowLeft, FaCheckCircle, FaTimesCircle, FaShippingFast, FaExchangeAlt, FaMoneyBillWave, FaShieldAlt } from 'react-icons/fa';
 
 const ReturnPolicy = () => {
+  // Custom color definitions
+  const primaryColor = '#C19A6B';
+  const primaryLight = '#E8D4B9';
+  const primaryDark = '#A07A4B';
+  
   // Scroll to top on component mount
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -116,8 +121,14 @@ const ReturnPolicy = () => {
             </h1>
           </div>
           
-          <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg">
-            <p className="text-amber-800 font-medium">
+          <div 
+            className="p-4 rounded-r-lg border-l-4"
+            style={{ 
+              backgroundColor: primaryLight + '20',
+              borderColor: primaryColor
+            }}
+          >
+            <p className="font-medium" style={{ color: primaryDark }}>
               Last Updated: December 1, 2023 • Easy 30-Day Return Policy
             </p>
           </div>
@@ -131,7 +142,7 @@ const ReturnPolicy = () => {
             {/* Return Conditions */}
             <section className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <FaShippingFast className="text-amber-600" />
+                <FaShippingFast style={{ color: primaryColor }} />
                 Return Eligibility
               </h2>
               
@@ -162,9 +173,18 @@ const ReturnPolicy = () => {
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {returnProcess.map((process, index) => (
                   <div key={index} className="relative">
-                    <div className="bg-gradient-to-br from-amber-50 to-white border border-amber-100 rounded-lg p-5 h-full">
+                    <div 
+                      className="rounded-lg p-5 h-full border"
+                      style={{ 
+                        background: 'linear-gradient(to bottom right, #FEF9F3, white)',
+                        borderColor: primaryLight
+                      }}
+                    >
                       <div className="text-3xl mb-3">{process.icon}</div>
-                      <div className="absolute top-4 right-4 w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                      <div 
+                        className="absolute top-4 right-4 w-8 h-8 text-white rounded-full flex items-center justify-center text-sm font-bold"
+                        style={{ backgroundColor: primaryColor }}
+                      >
                         {process.step}
                       </div>
                       <h3 className="font-semibold text-gray-900 mb-2">{process.title}</h3>
@@ -195,7 +215,7 @@ const ReturnPolicy = () => {
                 </div>
                 <div className="flex justify-between items-center pb-3 border-b">
                   <span className="text-gray-600">Return Pickup</span>
-                  <span className="font-semibold text-green-600">Free</span>
+                  <span className="font-semibold" style={{ color: primaryColor }}>Free</span>
                 </div>
                 <div className="flex justify-between items-center pb-3 border-b">
                   <span className="text-gray-600">Refund Time</span>
@@ -235,7 +255,11 @@ const ReturnPolicy = () => {
             {/* CTA Button */}
             <button 
               onClick={() => window.location.href = '/help-center'}
-              className="w-full py-3 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 font-medium rounded-lg hover:opacity-90 transition-colors flex items-center justify-center gap-2"
+              style={{ 
+                backgroundColor: primaryColor,
+                color: 'white'
+              }}
             >
               <FaShippingFast />
               Initiate Return Now
@@ -272,7 +296,12 @@ const ReturnPolicy = () => {
           </p>
           <button 
             onClick={() => window.location.href = '/contact'}
-            className="inline-flex items-center gap-2 px-6 py-3 border-2 border-amber-600 text-amber-600 font-medium rounded-lg hover:bg-amber-50 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 font-medium rounded-lg hover:opacity-80 transition-colors border-2"
+            style={{ 
+              borderColor: primaryColor,
+              color: primaryColor,
+              backgroundColor: 'transparent'
+            }}
           >
             Contact Support Team
           </button>
