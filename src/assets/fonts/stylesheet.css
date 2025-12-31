@@ -1,0 +1,182 @@
+@font-face {
+    font-family: 'Passenger Display';
+    src: url('PassengerDisplay-BoldItalic.eot');
+    src: local('Passenger Display Bold Italic'), local('PassengerDisplay-BoldItalic'),
+        url('PassengerDisplay-BoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('PassengerDisplay-BoldItalic.woff2') format('woff2'),
+        url('PassengerDisplay-BoldItalic.woff') format('woff'),
+        url('PassengerDisplay-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Passenger Display';
+    src: url('PassengerDisplay-Bold.eot');
+    src: local('Passenger Display Bold'), local('PassengerDisplay-Bold'),
+        url('PassengerDisplay-Bold.eot?#iefix') format('embedded-opentype'),
+        url('PassengerDisplay-Bold.woff2') format('woff2'),
+        url('PassengerDisplay-Bold.woff') format('woff'),
+        url('PassengerDisplay-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Passenger Display';
+    src: url('PassengerDisplay-LightItalic.eot');
+    src: local('Passenger Display Light Italic'), local('PassengerDisplay-LightItalic'),
+        url('PassengerDisplay-LightItalic.eot?#iefix') format('embedded-opentype'),
+        url('PassengerDisplay-LightItalic.woff2') format('woff2'),
+        url('PassengerDisplay-LightItalic.woff') format('woff'),
+        url('PassengerDisplay-LightItalic.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Passenger Display';
+    src: url('PassengerDisplay-Semibold.eot');
+    src: local('Passenger Display Semibold'), local('PassengerDisplay-Semibold'),
+        url('PassengerDisplay-Semibold.eot?#iefix') format('embedded-opentype'),
+        url('PassengerDisplay-Semibold.woff2') format('woff2'),
+        url('PassengerDisplay-Semibold.woff') format('woff'),
+        url('PassengerDisplay-Semibold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Passenger Display';
+    src: url('PassengerDisplay-ExtraboldItalic.eot');
+    src: local('Passenger Display Extrabold Italic'), local('PassengerDisplay-ExtraboldItalic'),
+        url('PassengerDisplay-ExtraboldItalic.eot?#iefix') format('embedded-opentype'),
+        url('PassengerDisplay-ExtraboldItalic.woff2') format('woff2'),
+        url('PassengerDisplay-ExtraboldItalic.woff') format('woff'),
+        url('PassengerDisplay-ExtraboldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Passenger Display';
+    src: url('PassengerDisplay-Extrabold.eot');
+    src: local('Passenger Display Extrabold'), local('PassengerDisplay-Extrabold'),
+        url('PassengerDisplay-Extrabold.eot?#iefix') format('embedded-opentype'),
+        url('PassengerDisplay-Extrabold.woff2') format('woff2'),
+        url('PassengerDisplay-Extrabold.woff') format('woff'),
+        url('PassengerDisplay-Extrabold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Passenger Display';
+    src: url('PassengerDisplay-MediumItalic.eot');
+    src: local('Passenger Display Medium Italic'), local('PassengerDisplay-MediumItalic'),
+        url('PassengerDisplay-MediumItalic.eot?#iefix') format('embedded-opentype'),
+        url('PassengerDisplay-MediumItalic.woff2') format('woff2'),
+        url('PassengerDisplay-MediumItalic.woff') format('woff'),
+        url('PassengerDisplay-MediumItalic.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Passenger Display';
+    src: url('PassengerDisplay-Light.eot');
+    src: local('Passenger Display Light'), local('PassengerDisplay-Light'),
+        url('PassengerDisplay-Light.eot?#iefix') format('embedded-opentype'),
+        url('PassengerDisplay-Light.woff2') format('woff2'),
+        url('PassengerDisplay-Light.woff') format('woff'),
+        url('PassengerDisplay-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Passenger Display';
+    src: url('PassengerDisplay-Italic.eot');
+    src: local('Passenger Display Italic'), local('PassengerDisplay-Italic'),
+        url('PassengerDisplay-Italic.eot?#iefix') format('embedded-opentype'),
+        url('PassengerDisplay-Italic.woff2') format('woff2'),
+        url('PassengerDisplay-Italic.woff') format('woff'),
+        url('PassengerDisplay-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Passenger Display';
+    src: url('PassengerDisplay-Extralight.eot');
+    src: local('Passenger Display Extralight'), local('PassengerDisplay-Extralight'),
+        url('PassengerDisplay-Extralight.eot?#iefix') format('embedded-opentype'),
+        url('PassengerDisplay-Extralight.woff2') format('woff2'),
+        url('PassengerDisplay-Extralight.woff') format('woff'),
+        url('PassengerDisplay-Extralight.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Passenger Display';
+    src: url('PassengerDisplay-SemiboldItalic.eot');
+    src: local('Passenger Display Semibold Italic'), local('PassengerDisplay-SemiboldItalic'),
+        url('PassengerDisplay-SemiboldItalic.eot?#iefix') format('embedded-opentype'),
+        url('PassengerDisplay-SemiboldItalic.woff2') format('woff2'),
+        url('PassengerDisplay-SemiboldItalic.woff') format('woff'),
+        url('PassengerDisplay-SemiboldItalic.ttf') format('truetype');
+    font-weight: 600;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Passenger Display';
+    src: url('PassengerDisplay-Regular.eot');
+    src: local('Passenger Display'), local('PassengerDisplay-Regular'),
+        url('PassengerDisplay-Regular.eot?#iefix') format('embedded-opentype'),
+        url('PassengerDisplay-Regular.woff2') format('woff2'),
+        url('PassengerDisplay-Regular.woff') format('woff'),
+        url('PassengerDisplay-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Passenger Display';
+    src: url('PassengerDisplay-ExtralightItalic.eot');
+    src: local('Passenger Display Extralight Italic'), local('PassengerDisplay-ExtralightItalic'),
+        url('PassengerDisplay-ExtralightItalic.eot?#iefix') format('embedded-opentype'),
+        url('PassengerDisplay-ExtralightItalic.woff2') format('woff2'),
+        url('PassengerDisplay-ExtralightItalic.woff') format('woff'),
+        url('PassengerDisplay-ExtralightItalic.ttf') format('truetype');
+    font-weight: 200;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Passenger Display';
+    src: url('PassengerDisplay-Medium.eot');
+    src: local('Passenger Display Medium'), local('PassengerDisplay-Medium'),
+        url('PassengerDisplay-Medium.eot?#iefix') format('embedded-opentype'),
+        url('PassengerDisplay-Medium.woff2') format('woff2'),
+        url('PassengerDisplay-Medium.woff') format('woff'),
+        url('PassengerDisplay-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+

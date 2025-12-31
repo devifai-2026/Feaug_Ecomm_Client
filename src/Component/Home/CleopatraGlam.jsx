@@ -1,8 +1,8 @@
 import React from "react";
 import banner from "../../assets/cleopatra/freepik__design-editorial-soft-studio-light-photography-hig__70850.png";
 import { GiLindenLeaf } from "react-icons/gi";
-import one from "../../assets/cleopatra/one.webp";
-import two from "../../assets/cleopatra/two.avif";
+import one from "../../assets/cleopatra/one.png";
+import two from "../../assets/cleopatra/two.png";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { RxDividerVertical } from "react-icons/rx";
 
@@ -52,11 +52,11 @@ const CleopatraGlam = () => {
           </div>
           <img
             src={one}
-            className="w-16 h-16 md:w-24 md:h-24 lg:w-44 lg:h-32"
+            className="w-16 h-16 md:w-24 md:h-24 lg:w-56 lg:h-40"
           />
         </div>
 
-        <div className="flex items-center justify-around w-full md:flex-1 bg-zinc-300 py-2  md:py-5 lg:py-3 px-4 md:px-0">
+        <div className="flex items-center justify-around w-full md:flex-1 bg-[#FAF9F7] py-2  md:py-5 lg:py-3 px-4 md:px-0">
           <div className="space-y-1 md:space-y-2">
             <h1 className="text-xl md:text-4xl lg:text-4xl mr-2 md:mr-0 transition-transform duration-300 group-hover:scale-105">
               Sparkle in Love
@@ -71,7 +71,7 @@ const CleopatraGlam = () => {
           </div>
           <img
             src={two}
-            className="w-16 h-16 md:w-24 md:h-24 lg:w-44 lg:h-32 "
+            className="w-16 h-16 md:w-24 md:h-24 lg:w-56 lg:h-40 "
           />
         </div>
       </div>
