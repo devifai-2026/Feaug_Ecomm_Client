@@ -3,6 +3,11 @@ import { FaGem, FaShieldAlt, FaFileContract, FaLock, FaUserShield, FaShoppingBag
 import { Link } from 'react-router-dom';
 
 const TermsCondition = () => {
+  // Custom color definitions
+  const primaryColor = '#C19A6B';
+  const primaryLight = '#E8D4B9';
+  const primaryDark = '#A07A4B';
+  
   // Scroll to top on component mount
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -12,7 +17,7 @@ const TermsCondition = () => {
     {
       id: 1,
       title: "1. Acceptance of Terms",
-      icon: <FaFileContract className="text-amber-600" />,
+      icon: <FaFileContract style={{ color: primaryColor }} />,
       content: "By accessing and using the FEAUG Jewellery website, you accept and agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you must not use our website or services."
     },
     {
@@ -29,7 +34,7 @@ const TermsCondition = () => {
     {
       id: 3,
       title: "3. Product Information & Pricing",
-      icon: <FaGem className="text-purple-600" />,
+      icon: <FaGem style={{ color: primaryColor }} />,
       content: "All jewellery products displayed are subject to availability. We make every effort to ensure accuracy in product descriptions, images, and pricing. However, we reserve the right to correct any errors and to update information at any time without prior notice.",
       subpoints: [
         "Product images are for representation and may vary slightly",
@@ -99,21 +104,19 @@ const TermsCondition = () => {
     {
       id: 10,
       title: "10. Governing Law & Jurisdiction",
-      icon: <FaCalendarAlt className="text-amber-800" />,
+      icon: <FaCalendarAlt style={{ color: primaryDark }} />,
       content: "These Terms and Conditions are governed by the laws of India. Any disputes shall be subject to the exclusive jurisdiction of courts in Mumbai."
     }
   ];
 
-
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-amber-50">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
-              <FaGem className="text-amber-500 text-5xl" />
+              <FaGem style={{ color: primaryColor }} className="text-5xl" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               Terms & Conditions
@@ -123,8 +126,14 @@ const TermsCondition = () => {
             </p>
           </div>
           
-          <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg">
-            <p className="text-amber-800">
+          <div 
+            className="p-4 rounded-r-lg border-l-4"
+            style={{ 
+              backgroundColor: primaryLight + '20',
+              borderColor: primaryColor
+            }}
+          >
+            <p style={{ color: primaryDark }}>
               <strong>Important:</strong> Please read these Terms carefully before using our website or making a purchase. Your continued use constitutes acceptance of these terms.
             </p>
           </div>
@@ -136,7 +145,7 @@ const TermsCondition = () => {
           {/* Main Content */}
           <div className="lg:col-span-3">
             {/* Introduction */}
-            <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+            <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-100">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Welcome to FEAUAG Jewellery</h2>
               <p className="text-gray-700 mb-4">
                 FEAUAG Jewellery ("we," "our," or "us") operates the website feauag.com (the "Site"). These Terms and Conditions govern your access to and use of our Site and services, including the purchase of our jewellery products.
@@ -149,9 +158,12 @@ const TermsCondition = () => {
             {/* Terms Sections */}
             <div className="space-y-6">
               {sections.map((section) => (
-                <div key={section.id} className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
+                <div key={section.id} className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow duration-300 border border-gray-100">
                   <div className="flex items-start gap-4 mb-4">
-                    <div className="p-3 bg-gray-50 rounded-lg">
+                    <div 
+                      className="p-3 rounded-lg"
+                      style={{ backgroundColor: primaryLight + '30' }}
+                    >
                       {section.icon}
                     </div>
                     <div>
@@ -162,7 +174,7 @@ const TermsCondition = () => {
                         <div className="ml-6 space-y-2">
                           {section.subpoints.map((point, index) => (
                             <div key={index} className="flex items-start gap-2">
-                              <span className="text-amber-600 mt-1">•</span>
+                              <span style={{ color: primaryColor }} className="mt-1">•</span>
                               <span className="text-gray-700">{point}</span>
                             </div>
                           ))}
@@ -173,14 +185,10 @@ const TermsCondition = () => {
                 </div>
               ))}
             </div>
-
-         
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
-           
-
             {/* Important Notice */}
             <div className="bg-red-50 border border-red-200 rounded-xl p-6">
               <h3 className="font-bold text-red-900 mb-3">Important Notice</h3>
@@ -205,17 +213,26 @@ const TermsCondition = () => {
             </div>
 
             {/* Contact Support */}
-            <div className="bg-gradient-to-br from-amber-50 to-white rounded-xl shadow-sm p-6 border border-amber-200">
+            <div 
+              className="rounded-xl shadow-sm p-6 border"
+              style={{ 
+                background: 'linear-gradient(to bottom right, #FEF9F3, white)',
+                borderColor: primaryLight
+              }}
+            >
               <h3 className="font-bold text-gray-900 mb-4">Need Help?</h3>
               <p className="text-gray-700 text-sm mb-4">
                 Have questions about our Terms & Conditions?
               </p>
-            <Link to='/contact'>
-                <button className="w-full py-3 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors flex items-center justify-center gap-2">
-                <FaPhoneAlt />
-                Contact Support
-              </button>
-            </Link>
+              <Link to='/contact'>
+                <button 
+                  className="w-full py-3 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 hover:opacity-90"
+                  style={{ backgroundColor: primaryColor, color: 'white' }}
+                >
+                  <FaPhoneAlt />
+                  Contact Support
+                </button>
+              </Link>
             </div>
 
             {/* Update Information */}
@@ -236,7 +253,10 @@ const TermsCondition = () => {
         </div>
 
         {/* Acknowledgement Section */}
-        <div className="mt-12 bg-white rounded-xl shadow-sm p-8 border border-amber-200">
+        <div 
+          className="mt-12 bg-white rounded-xl shadow-sm p-8 border"
+          style={{ borderColor: primaryLight }}
+        >
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Acknowledgement</h2>
             <div className="max-w-3xl mx-auto">
@@ -249,7 +269,7 @@ const TermsCondition = () => {
                   <span className="font-medium text-gray-900">Secure Transactions</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <FaGem className="text-amber-500" />
+                  <FaGem style={{ color: primaryColor }} />
                   <span className="font-medium text-gray-900">Certified Quality</span>
                 </div>
                 <div className="flex items-center gap-3">

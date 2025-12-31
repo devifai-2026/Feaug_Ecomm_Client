@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import one from "../../assets/BottomBanner/one.png"
 import two from "../../assets/BottomBanner/two.avif"
 import three from "../../assets/BottomBanner/three.webp"
@@ -7,6 +8,8 @@ import five from "../../assets/BottomBanner/five.webp"
 import six from "../../assets/BottomBanner/six.png"
 
 const BottomBanner = () => {
+    const navigate = useNavigate();
+    
     const categories = [
         { 
             title: "Earrings", 
@@ -40,6 +43,14 @@ const BottomBanner = () => {
         }
     ];
 
+    const handleCardClick = (categoryTitle) => {
+        // Navigate to categories page
+        navigate('/categories');
+        
+        // If you want to filter by category, you can pass state
+        // navigate('/categories', { state: { selectedCategory: categoryTitle } });
+    };
+
     return (
         <div className="max-w-[90%] mx-auto mt-16 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {categories.map((category, index) => (
@@ -48,6 +59,7 @@ const BottomBanner = () => {
                     className="relative group cursor-pointer overflow-hidden"
                     data-aos={category.animation}
                     data-aos-delay={`${(index + 1) * 100}`}
+                    onClick={() => handleCardClick(category.title)}
                 >
                     {/* Image */}
                     <img 
@@ -57,13 +69,11 @@ const BottomBanner = () => {
                     />
                     
                     {/* Title - Always visible on mobile & tablet, hover on desktop */}
-                    <div className="absolute bottom-0 left-0 right-0  bg-opacity-80 p-3 lg:transform lg:translate-y-full lg:group-hover:translate-y-0 transition-all duration-300">
+                    <div className="absolute bottom-0 left-0 right-0 bg-opacity-80 p-3 lg:transform lg:translate-y-full lg:group-hover:translate-y-0 transition-all duration-300">
                         <h3 className="text-black text-center text-lg uppercase tracking-widest">
                             {category.title}
                         </h3>
                     </div>
-
-                   
                 </div>
             ))}
         </div>

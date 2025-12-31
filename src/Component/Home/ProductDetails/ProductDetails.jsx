@@ -9,14 +9,20 @@ import {
   BsChevronRight,
   BsEye,
   BsEyeFill,
-  BsCurrencyRupee
+  BsCurrencyRupee,
+  BsHeartFill
 } from "react-icons/bs";
+import toast, { Toaster } from "react-hot-toast";
 import RelatedProducts from "./RelatedProduct";
 import BigImg from "../../../assets/ProductDetails/DetailsMainImg.webp";
 import sone from "../../../assets/ProductDetails/sone.webp";
 import stwo from "../../../assets/ProductDetails/stwo.webp";
 import sthree from "../../../assets/ProductDetails/sthree.webp";
 import sfour from "../../../assets/ProductDetails/sfour.webp";
+import { useWishlist } from "../../Context/WishlistContext";
+import { useCart } from "../../Context/CartContext";
+
+
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -31,12 +37,33 @@ const ProductDetails = () => {
   const thumbnailContainerRef = useRef(null);
   const imgRef = useRef(null);
 
+  // Use contexts
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { addToCart } = useCart();
+
+  const product = {
+    id: id,
+    title: "Diamond Necklace",
+    subtitle: "River Luxe Collection",
+    price: 299.99,
+    originalPrice: 399.99,
+    description: "This exquisite diamond necklace features brilliant cut diamonds set in premium 18k gold. Perfect for special occasions and everyday elegance.",
+    image: BigImg,
+    images: [BigImg, sone, stwo, sthree, sfour, stwo, sthree],
+    rating: 4.5,
+    reviews: 64,
+    productNumber: "PN-12345",
+    category: "Necklaces",
+    tags: ["Diamond", "Gold", "Luxury", "Elegant"],
+    delivery: "check your location",
+  };
+
+  const isProductInWishlist = isInWishlist(product.id);
+
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  const productImages = [BigImg, sone, stwo, sthree, sfour, stwo, sthree];
 
   // Auto-scroll thumbnails to selected image
   useEffect(() => {
@@ -75,22 +102,107 @@ const ProductDetails = () => {
     };
   }, []);
 
-  const product = {
-    id: id,
-    subtitle: "River Luxe Collection",
-    title: "Diamond Necklace",
-    price: 299.99,
-    description:
-      "This exquisite diamond necklace features brilliant cut diamonds set in premium 18k gold. Perfect for special occasions and everyday elegance.",
-    rating: 4.5,
-    reviews: 64,
-    productNumber: "PN-12345",
-    category: "Necklaces",
-    tags: ["Diamond", "Gold", "Luxury", "Elegant"],
-    delivery: "check your location",
+  // Add to Cart Functionality
+  const handleAddToCart = () => {
+    addToCart({
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      image: product.images[0],
+      description: product.description,
+      rating: product.rating,
+      category: product.category
+    }, quantity);
+
+    toast.success(
+      <div>
+        <p className="font-semibold">Added to cart!</p>
+        <p className="text-sm">{product.title} (x{quantity})</p>
+      </div>,
+      {
+        icon: '🛒',
+        duration: 3000,
+        style: {
+          background: '#f0fdf4',
+          border: '1px solid #bbf7d0',
+        },
+      }
+    );
+  };
+
+  // Wishlist Functionality
+  const handleWishlistClick = () => {
+    if (isProductInWishlist) {
+      removeFromWishlist(product.id);
+      toast.custom((t) => (
+        <div className="animate-slideInRight max-w-md w-full bg-white shadow-lg flex border border-gray-200">
+          <div className="flex-1 w-0 p-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0 pt-0.5">
+                <BsHeartFill className="h-6 w-6 text-red-500" />
+              </div>
+              <div className="ml-3 flex-1">
+                <p className="text-sm font-medium text-gray-900">
+                  Removed from wishlist
+                </p>
+                <p className="mt-1 text-sm text-gray-500">
+                  {product.title} has been removed
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex border-l border-gray-200">
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                navigate('/wishlist');
+              }}
+              className="w-full border border-transparent p-4 flex items-center justify-center text-sm font-medium text-pink-600 hover:text-pink-500 transition-colors"
+            >
+              View Wishlist
+            </button>
+          </div>
+        </div>
+      ), {
+        duration: 4000,
+      });
+    } else {
+      addToWishlist({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        image: product.images[0],
+        description: product.description,
+        rating: product.rating,
+        category: product.category,
+        inStock: true
+      });
+
+      toast.success(
+        <div>
+          <p className="font-semibold">Added to wishlist!</p>
+          <p className="text-sm">{product.title}</p>
+        </div>,
+        {
+          icon: '❤️',
+          duration: 3000,
+          style: {
+            background: '#fff5f5',
+            border: '1px solid #fca5a5',
+          },
+          iconTheme: {
+            primary: '#ef4444',
+            secondary: '#fff',
+          },
+        }
+      );
+    }
   };
 
   const handleMouseMove = (e) => {
+    if (!imgRef.current) return;
     const { left, top, width, height } = imgRef.current.getBoundingClientRect();
     const x = ((e.clientX - left) / width) * 100;
     const y = ((e.clientY - top) / height) * 100;
@@ -103,7 +215,7 @@ const ProductDetails = () => {
       stars.push(
         <BsStarFill
           key={i}
-          className={i <= rating ? "text-yellow-400" : "text-gray-300"}
+          className={`text-sm ${i <= rating ? "text-yellow-400" : "text-gray-300"}`}
         />
       );
     }
@@ -115,12 +227,12 @@ const ProductDetails = () => {
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
   const nextImage = () => {
-    setSelectedImageIndex((prev) => (prev + 1) % productImages.length);
+    setSelectedImageIndex((prev) => (prev + 1) % product.images.length);
   };
 
   const prevImage = () => {
     setSelectedImageIndex(
-      (prev) => (prev - 1 + productImages.length) % productImages.length
+      (prev) => (prev - 1 + product.images.length) % product.images.length
     );
   };
 
@@ -142,31 +254,13 @@ const ProductDetails = () => {
         return (
           <div className="prose max-w-none">
             <p className="text-gray-600 leading-relaxed">
-              Introducing our exquisite Rhea Gold Earrings from the River Luxe
-              Collection. These earrings are the epitome of sophistication and
-              grace, designed to make a statement on any occasion. Crafted with
-              meticulous attention to detail, they showcase the timeless beauty
-              of diamonds in a breathtaking drop design.
+              Introducing our exquisite Rhea Gold Earrings from the River Luxe Collection. These earrings are the epitome of sophistication and grace, designed to make a statement on any occasion. Crafted with meticulous attention to detail, they showcase the timeless beauty of diamonds in a breathtaking drop design.
             </p>
-
             <p className="text-gray-600 leading-relaxed mt-4">
-              The diamonds, carefully selected for their exceptional quality,
-              radiate brilliance and sparkle with every movement. Set in
-              lustrous 18K pure gold, these earrings exude a luxurious and
-              refined aura. The white gold complements the diamonds beautifully,
-              enhancing its natural luminosity and creating a harmonious
-              combination of elegance and glamour. Come with secure lever-back
-              closures, providing both a secure fit and ease of wearing. The
-              lightweight design ensures that you can enjoy wearing these
-              earrings for extended periods without any discomfort.
+              The diamonds, carefully selected for their exceptional quality, radiate brilliance and sparkle with every movement. Set in lustrous 18K pure gold, these earrings exude a luxurious and refined aura. The white gold complements the diamonds beautifully, enhancing its natural luminosity and creating a harmonious combination of elegance and glamour. Come with secure lever-back closures, providing both a secure fit and ease of wearing. The lightweight design ensures that you can enjoy wearing these earrings for extended periods without any discomfort.
             </p>
-
             <p className="text-gray-600 leading-relaxed mt-4">
-              Whether you're attending a formal event, celebrating a special
-              occasion, or simply want to elevate your everyday style, these
-              Diamond Drop Earrings are the perfect choice. They effortlessly
-              add a touch of sophistication and glamour to any ensemble, making
-              them a versatile and timeless accessory.
+              Whether you're attending a formal event, celebrating a special occasion, or simply want to elevate your everyday style, these Diamond Drop Earrings are the perfect choice. They effortlessly add a touch of sophistication and glamour to any ensemble, making them a versatile and timeless accessory.
             </p>
           </div>
         );
@@ -182,9 +276,7 @@ const ProductDetails = () => {
                     <span className="text-xs md:text-sm">18K Pure Gold</span>
                   </li>
                   <li className="flex justify-between">
-                    <span className="text-sm md:text-base">
-                      Diamond Quality:
-                    </span>
+                    <span className="text-sm md:text-base">Diamond Quality:</span>
                     <span className="text-xs md:text-sm">VS1-SI1</span>
                   </li>
                   <li className="flex justify-between">
@@ -224,21 +316,15 @@ const ProductDetails = () => {
             <div className="space-y-3">
               <div className="border-l-4 border-yellow-500 pl-4">
                 <h4 className="font-medium">Small (1-1.5 inches)</h4>
-                <p className="text-sm">
-                  Perfect for everyday wear and subtle elegance
-                </p>
+                <p className="text-sm">Perfect for everyday wear and subtle elegance</p>
               </div>
               <div className="border-l-4 border-yellow-500 pl-4">
                 <h4 className="font-medium">Medium (1.5-2.5 inches)</h4>
-                <p className="text-sm">
-                  Ideal for special occasions and evening events
-                </p>
+                <p className="text-sm">Ideal for special occasions and evening events</p>
               </div>
               <div className="border-l-4 border-yellow-500 pl-4">
                 <h4 className="font-medium">Large (2.5+ inches)</h4>
-                <p className="text-sm">
-                  Make a bold statement for formal events
-                </p>
+                <p className="text-sm">Make a bold statement for formal events</p>
               </div>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
@@ -258,9 +344,7 @@ const ProductDetails = () => {
             <div className="flex items-center gap-4">
               <div className="text-center">
                 <div className="text-3xl font-bold">4.8</div>
-                <div className="flex items-center gap-1">
-                  {renderStars(4.8)}
-                </div>
+                <div className="flex items-center gap-1">{renderStars(4.8)}</div>
                 <div className="text-sm text-gray-500">64 reviews</div>
               </div>
               <div className="flex-1 space-y-2">
@@ -273,62 +357,38 @@ const ProductDetails = () => {
                         className="bg-yellow-400 h-2 rounded-full"
                         style={{
                           width: `${
-                            star === 5
-                              ? "80%"
-                              : star === 4
-                              ? "15%"
-                              : star === 3
-                              ? "5%"
-                              : "0%"
+                            star === 5 ? "80%" : star === 4 ? "15%" : star === 3 ? "5%" : "0%"
                           }`,
                         }}
                       ></div>
                     </div>
                     <span className="text-sm w-8">
-                      {star === 5
-                        ? "80%"
-                        : star === 4
-                        ? "15%"
-                        : star === 3
-                        ? "5%"
-                        : "0%"}
+                      {star === 5 ? "80%" : star === 4 ? "15%" : star === 3 ? "5%" : "0%"}
                     </span>
                   </div>
                 ))}
               </div>
             </div>
-
             <div className="space-y-4">
               <div className="border-b pb-4">
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <h4 className="font-semibold">Sarah Johnson</h4>
-                    <div className="flex items-center gap-1">
-                      {renderStars(5)}
-                    </div>
+                    <div className="flex items-center gap-1">{renderStars(5)}</div>
                   </div>
                   <span className="text-sm text-gray-500">2 weeks ago</span>
                 </div>
-                <p>
-                  Absolutely stunning! The craftsmanship is exceptional and
-                  they're so comfortable to wear all day.
-                </p>
+                <p>Absolutely stunning! The craftsmanship is exceptional and they're so comfortable to wear all day.</p>
               </div>
-
               <div className="border-b pb-4">
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <h4 className="font-semibold">Michael Chen</h4>
-                    <div className="flex items-center gap-1">
-                      {renderStars(4)}
-                    </div>
+                    <div className="flex items-center gap-1">{renderStars(4)}</div>
                   </div>
                   <span className="text-sm text-gray-500">1 month ago</span>
                 </div>
-                <p>
-                  Beautiful earrings, perfect for my wife's birthday. The gold
-                  quality is excellent.
-                </p>
+                <p>Beautiful earrings, perfect for my wife's birthday. The gold quality is excellent.</p>
               </div>
             </div>
           </div>
@@ -340,6 +400,30 @@ const ProductDetails = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#fff',
+            border: '1px solid #e5e7eb',
+          },
+        }}
+      />
+
+      <style jsx>{`
+        @keyframes slideInRight {
+          from {
+            transform: translateX(50px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      `}</style>
+
       <div className="max-w-[90%] mx-auto py-6">
         <button
           onClick={() => navigate(-1)}
@@ -362,7 +446,7 @@ const ProductDetails = () => {
               {/* Main Product Image */}
               <img
                 ref={imgRef}
-                src={productImages[selectedImageIndex]}
+                src={product.images[selectedImageIndex]}
                 alt={product.title}
                 className="w-full max-w-lg h-auto max-h-[500px] object-contain transition-transform duration-300 hover:scale-105"
               />
@@ -392,7 +476,7 @@ const ProductDetails = () => {
               {isHovering && (
                 <div className="hidden md:block absolute top-1/2 left-[100%] -translate-y-1/2 w-[610px] h-[500px] border border-gray-200 overflow-hidden z-10 bg-white shadow-lg rounded-md">
                   <img
-                    src={productImages[selectedImageIndex]}
+                    src={product.images[selectedImageIndex]}
                     alt="Zoomed"
                     className="absolute object-contain transition-transform duration-100 pt-14"
                     style={{
@@ -437,7 +521,7 @@ const ProductDetails = () => {
                     minHeight: "84px",
                   }}
                 >
-                  {productImages.map((image, index) => (
+                  {product.images.map((image, index) => (
                     <div
                       key={index}
                       className={`flex-shrink-0 cursor-pointer border-2 transition-all duration-300 ${
@@ -496,10 +580,18 @@ const ProductDetails = () => {
               </h1>
 
               <div className="flex items-center gap-4">
-                <p className="text-2xl font-semibold text-gray-700 flex items-center gap-1 transition-all duration-300 hover:scale-105 cursor-default">
-                  <BsCurrencyRupee className="transition-transform duration-300 group-hover:scale-110" />
-                  {product.price}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-2xl font-semibold text-gray-700 flex items-center gap-1 transition-all duration-300 hover:scale-105 cursor-default">
+                    <BsCurrencyRupee className="transition-transform duration-300 group-hover:scale-110" />
+                    {product.price}
+                  </p>
+                  {product.originalPrice && product.originalPrice > product.price && (
+                    <p className="text-lg text-gray-500 line-through flex items-center gap-1">
+                      <BsCurrencyRupee />
+                      {product.originalPrice}
+                    </p>
+                  )}
+                </div>
                 <span className="text-green-600 font-medium transition-all duration-300 hover:scale-105 cursor-default">
                   In Stock
                 </span>
@@ -509,7 +601,7 @@ const ProductDetails = () => {
                 {product.description}
               </p>
 
-              {/* Rating and Reviews */}
+              {/* Rating and Reviews with Wishlist */}
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-default">
                   <div className="flex items-center gap-1">
@@ -520,10 +612,24 @@ const ProductDetails = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110">
-                    <BsHeart className="text-xl text-gray-600 hover:text-red-500 transition-transform duration-300" />
+                  {/* Wishlist Button */}
+                  <button 
+                    className={`p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110 ${
+                      isProductInWishlist ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
+                    }`}
+                    onClick={handleWishlistClick}
+                    title={isProductInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                  >
+                    {isProductInWishlist ? (
+                      <BsHeartFill className="text-xl transition-transform duration-300" />
+                    ) : (
+                      <BsHeart className="text-xl transition-transform duration-300" />
+                    )}
                   </button>
-                  <button className="p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110">
+                  <button 
+                    className="p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110"
+                    title="Share product"
+                  >
                     <BsShare className="text-xl text-gray-600 hover:text-blue-500 transition-transform duration-300" />
                   </button>
                 </div>
@@ -558,7 +664,10 @@ const ProductDetails = () => {
 
               {/* Add to Cart Button */}
               <div className="flex gap-4">
-                <button className="flex-1 bg-black text-white py-3 px-6 hover:bg-gray-800 transition-all duration-300 hover:scale-105 font-semibold">
+                <button 
+                  className="flex-1 bg-black text-white py-3 px-6 hover:bg-gray-800 transition-all duration-300 hover:scale-105 font-semibold"
+                  onClick={handleAddToCart}
+                >
                   Add to Cart
                 </button>
               </div>
@@ -650,8 +759,6 @@ const ProductDetails = () => {
             <div className="lg:w-3/4 py-2">{renderTabContent()}</div>
           </div>
         </div>
-
-        {/* Currently Viewing Section */}
       </div>
 
       <RelatedProducts />

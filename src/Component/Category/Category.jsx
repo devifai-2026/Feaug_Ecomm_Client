@@ -6,6 +6,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaFilter,
+  FaHeart,
 } from "react-icons/fa";
 import topBanner from "../../assets/Categories/topBanner.png";
 import bottomBanner from "../../assets/Categories/bottomBanner.png";
@@ -22,6 +23,10 @@ import { MdOutlineCurrencyRupee } from "react-icons/md";
 import { RxDividerVertical, RxDragHandleHorizontal } from "react-icons/rx";
 import SliderLogo from "./SliderLogo";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
+import toast, { Toaster } from 'react-hot-toast';
+import { BsHeartFill } from 'react-icons/bs';
+import { useWishlist } from '../Context/WishlistContext';
+import { useCart } from '../Context/CartContext';
 
 const Category = () => {
   const [priceRange, setPriceRange] = useState([250, 5000]);
@@ -36,10 +41,111 @@ const Category = () => {
   const [layout, setLayout] = useState("grid"); // 'grid' or 'list'
   const productsPerPage = 12;
 
-  const navigate =useNavigate();
+  const navigate = useNavigate();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { addToCart } = useCart();
 
-   const handleProductClick = (productId) => {
+  const handleProductClick = (productId) => {
     navigate(`/product/${productId}`);
+  };
+
+  // Add to Cart Functionality
+  const handleAddToCart = (product, e) => {
+    e.stopPropagation();
+    
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      material: product.material,
+      brand: product.brand
+    }, 1);
+    
+    toast.success(
+      <div>
+        <p className="font-semibold">Added to cart!</p>
+        <p className="text-sm">{product.name}</p>
+      </div>,
+      {
+        icon: '🛒',
+        duration: 3000,
+        style: {
+          background: '#f0fdf4',
+          border: '1px solid #bbf7d0',
+        },
+      }
+    );
+  };
+
+  // Wishlist Functionality
+  const handleWishlistClick = (product, e) => {
+    e.stopPropagation();
+    
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+      toast.custom((t) => (
+        <div className="animate-slideInRight max-w-md w-full bg-white shadow-lg flex border border-gray-200">
+          <div className="flex-1 w-0 p-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0 pt-0.5">
+                <BsHeartFill className="h-6 w-6 text-red-500" />
+              </div>
+              <div className="ml-3 flex-1">
+                <p className="text-sm font-medium text-gray-900">
+                  Removed from wishlist
+                </p>
+                <p className="mt-1 text-sm text-gray-500">
+                  {product.name} has been removed
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex border-l border-gray-200">
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                navigate('/wishlist');
+              }}
+              className="w-full border border-transparent p-4 flex items-center justify-center text-sm font-medium text-pink-600 hover:text-pink-500 transition-colors"
+            >
+              View Wishlist
+            </button>
+          </div>
+        </div>
+      ), {
+        duration: 4000,
+      });
+    } else {
+      addToWishlist({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        material: product.material,
+        brand: product.brand,
+        inStock: true
+      });
+      
+      toast.success(
+        <div>
+          <p className="font-semibold">Added to wishlist!</p>
+          <p className="text-sm">{product.name}</p>
+        </div>,
+        {
+          icon: '❤️',
+          duration: 3000,
+          style: {
+            background: '#fff5f5',
+            border: '1px solid #fca5a5',
+          },
+          iconTheme: {
+            primary: '#ef4444',
+            secondary: '#fff',
+          },
+        }
+      );
+    }
   };
 
   // Mock products data - same 12 products
@@ -483,6 +589,17 @@ const Category = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#fff',
+            border: '1px solid #e5e7eb',
+          },
+        }}
+      />
+
       {/* Breadcrumb */}
       <div className="bg-[#ebe8e392] py-2">
         <div className="max-w-[90%] mx-auto flex items-center gap-2 text-sm text-gray-600">
@@ -506,42 +623,43 @@ const Category = () => {
 
           {/* Right Side - Products */}
           <div className="col-span-12 lg:col-span-9">
-           {/* Top Banner */}
-<div className="mb-10 relative max-w-[90%] mx-auto">
-  <img
-    className="h-[50vh] w-full object-cover"
-    src={topBanner}
-    alt="Categories Banner"
-  />
-  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-xs sm:max-w-sm md:max-w-md lg:left-[unset] lg:right-6 lg:translate-x-0 p-3 sm:p-4 md:p-6">
-    <div className="flex flex-col justify-between h-full text-center md:text-left p-4 sm:p-6 md:p-6 gap-36 md:gap-52 lg:gap-16">
-      {/* New Arrival text at top */}
-      <div>
-        <p className="uppercase tracking-widest flex items-center gap-2 justify-center md:justify-start text-white text-sm md:text-base lg:text-lg">
-          New Arrival <RxDividerVertical className="text-white" />
-        </p>
-      </div>
-      
-      {/* Rest of the content */}
-      <div className="space-y-4">
-        <h2 className="text-3xl md:text-4xl text-white font-semibold">
-          Flower Power
-        </h2>
-        <div className="text-white">
-          <p className="text-sm md:text-base leading-tight">
-            Introducing our new mesmerizing jewelry collection
-          </p>
-          <p className="text-sm md:text-base leading-tight">
-            Mesmerizing your inner allure with the timeless elegance
-          </p>
-        </div>
-        <button className="border border-white text-white px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap text-xs sm:text-sm w-[40%]">
-          Shop Now
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+            {/* Top Banner */}
+            <div className="mb-10 relative max-w-[90%] mx-auto">
+              <img
+                className="h-[50vh] w-full object-cover"
+                src={topBanner}
+                alt="Categories Banner"
+              />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-xs sm:max-w-sm md:max-w-md lg:left-[unset] lg:right-6 lg:translate-x-0 p-3 sm:p-4 md:p-6">
+                <div className="flex flex-col justify-between h-full text-center md:text-left p-4 sm:p-6 md:p-6 gap-36 md:gap-52 lg:gap-16">
+                  {/* New Arrival text at top */}
+                  <div>
+                    <p className="uppercase tracking-widest flex items-center gap-2 justify-center md:justify-start text-white text-sm md:text-base lg:text-lg">
+                      New Arrival <RxDividerVertical className="text-white" />
+                    </p>
+                  </div>
+                  
+                  {/* Rest of the content */}
+                  <div className="space-y-4">
+                    <h2 className="text-3xl md:text-4xl text-white font-semibold">
+                      Flower Power
+                    </h2>
+                    <div className="text-white">
+                      <p className="text-sm md:text-base leading-tight">
+                        Introducing our new mesmerizing jewelry collection
+                      </p>
+                      <p className="text-sm md:text-base leading-tight">
+                        Mesmerizing your inner allure with the timeless elegance
+                      </p>
+                    </div>
+                    <button className="border border-white text-white px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap text-xs sm:text-sm w-[40%]">
+                      Shop Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Mobile Filter Header */}
             <div className="lg:hidden flex items-center justify-between mb-6 mt-6">
               <h1 className="text-2xl lg:text-4xl font-semibold text-gray-900">
@@ -607,130 +725,182 @@ const Category = () => {
                   : "space-y-4"
               }`}
             >
-            {currentProducts.map((product) => (
-    <div
-      key={`${product.id}-${currentPage}`}
-      className={`group relative bg-white transition-all duration-300 hover:border-2 border-amber-700 ${
-        layout === "grid"
-          ? ""
-          : "flex border border-gray-200 "
-      } ${
-        hoveredProduct === `${product.id}-${currentPage}`
-          ? " "
-          : ""
-      }`}
-      onMouseEnter={() =>
-        setHoveredProduct(`${product.id}-${currentPage}`)
-      }
-      onMouseLeave={() => setHoveredProduct(null)}
-    >
-      {/* Make the image container clickable */}
-      <div 
-        className={`relative bg-gray-100 overflow-hidden transition-all duration-300 cursor-pointer ${
-          layout === "grid"
-            ? "aspect-[3/4] "
-            : "w-48 aspect-[3/4] flex-shrink-0 "
-        }`}
-        onClick={() => handleProductClick(product.id)}
-      >
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+              {currentProducts.map((product) => {
+                const isInWishlistItem = isInWishlist(product.id);
+                
+                return (
+                  <div
+                    key={`${product.id}-${currentPage}`}
+                    className={`group relative bg-white transition-all duration-300 hover:border-2 border-amber-700 ${
+                      layout === "grid"
+                        ? ""
+                        : "flex border border-gray-200 "
+                    } ${
+                      hoveredProduct === `${product.id}-${currentPage}`
+                        ? " "
+                        : ""
+                    }`}
+                    onMouseEnter={() =>
+                      setHoveredProduct(`${product.id}-${currentPage}`)
+                    }
+                    onMouseLeave={() => setHoveredProduct(null)}
+                  >
+                    {/* Make the image container clickable */}
+                    <div 
+                      className={`relative bg-gray-100 overflow-hidden transition-all duration-300 cursor-pointer ${
+                        layout === "grid"
+                          ? "aspect-[3/4] "
+                          : "w-48 aspect-[3/4] flex-shrink-0 "
+                      }`}
+                      onClick={() => handleProductClick(product.id)}
+                    >
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
 
-        {/* Action Icons - Static flex-col top-right for md and sm only */}
-        <div 
-          className="absolute top-2 right-2 flex flex-col space-y-2 opacity-100 md:opacity-100 lg:hidden"
-          onClick={(e) => e.stopPropagation()} // Prevent navigation when clicking icons
-        >
-          <button className="p-2 rounded-full text-[#a67c00] hover:text-red-600 transition-all duration-300 bg-white bg-opacity-80">
-            <FaRegHeart className="text-xs md:text-sm" />
-          </button>
-          <button className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300 bg-white bg-opacity-80">
-            <IoMdShare className="text-xs md:text-sm" />
-          </button>
-          <button className="p-2 rounded-full text-[#a67c00] hover:text-green-600 transition-all duration-300 bg-white bg-opacity-80">
-            <FaShoppingBag className="text-xs md:text-sm" />
-          </button>
-        </div>
+                      {/* Action Icons - Static flex-col top-right for md and sm only */}
+                      <div 
+                        className="absolute top-2 right-2 flex flex-col space-y-2 opacity-100 md:opacity-100 lg:hidden"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {/* Wishlist Button */}
+                        <button 
+                          className={`p-2 rounded-full transition-all duration-300 bg-white bg-opacity-80 ${
+                            isInWishlistItem 
+                              ? 'text-red-500 hover:text-red-600' 
+                              : 'text-[#a67c00] hover:text-red-600'
+                          }`}
+                          onClick={(e) => handleWishlistClick(product, e)}
+                          title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}
+                        >
+                          {isInWishlistItem ? (
+                            <BsHeartFill className="text-xs md:text-sm" />
+                          ) : (
+                            <FaHeart className="text-xs md:text-sm" />
+                          )}
+                        </button>
+                        
+                        {/* Share Button */}
+                        <button 
+                          className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300 bg-white bg-opacity-80"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <IoMdShare className="text-xs md:text-sm" />
+                        </button>
+                        
+                        {/* Cart Button */}
+                        <button 
+                          className="p-2 rounded-full text-[#a67c00] hover:text-green-600 transition-all duration-300 bg-white bg-opacity-80"
+                          onClick={(e) => handleAddToCart(product, e)}
+                          title="Add to cart"
+                        >
+                          <FaShoppingBag className="text-xs md:text-sm" />
+                        </button>
+                      </div>
 
-        {/* Product Info Overlay - For desktop and tablet */}
-        <div
-          className={`hidden md:block absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent `}
-        >
-          {/* Action Icons - Horizontal row above title (for lg devices only) */}
-          <div
-            className={`hidden lg:flex justify-center space-x-2 mb-2 transition-all duration-300 ${
-              layout === "grid"
-                ? "opacity-0 group-hover:opacity-100 "
-                : "opacity-100"
-            }`}
-            onClick={(e) => e.stopPropagation()} // Prevent navigation when clicking icons
-          >
-            <button className="p-2 rounded-full text-[#a67c00] hover:text-red-600 transition-all duration-300">
-              <FaRegHeart className="text-lg" />
-            </button>
-            <button className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300">
-              <IoMdShare className="text-lg" />
-            </button>
-            <button className="p-2 rounded-full text-[#a67c00] hover:text-green-600 transition-all duration-300">
-              <FaShoppingBag className="text-lg" />
-            </button>
-          </div>
+                      {/* Product Info Overlay - For desktop and tablet */}
+                      <div
+                        className={`hidden md:block absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent `}
+                      >
+                        {/* Action Icons - Horizontal row above title (for lg devices only) */}
+                        <div
+                          className={`hidden lg:flex justify-center space-x-2 mb-2 transition-all duration-300 ${
+                            layout === "grid"
+                              ? "opacity-0 group-hover:opacity-100 "
+                              : "opacity-100"
+                          }`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {/* Wishlist Button */}
+                          <button 
+                            className={`p-2 rounded-full transition-all duration-300 ${
+                              isInWishlistItem 
+                                ? 'text-red-500 hover:text-red-600' 
+                                : 'text-[#a67c00] hover:text-red-600'
+                            }`}
+                            onClick={(e) => handleWishlistClick(product, e)}
+                            title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}
+                          >
+                            {isInWishlistItem ? (
+                              <BsHeartFill className="text-lg" />
+                            ) : (
+                              <FaRegHeart className="text-lg" />
+                            )}
+                          </button>
+                          
+                          {/* Share Button */}
+                          <button 
+                            className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <IoMdShare className="text-lg" />
+                          </button>
+                          
+                          {/* Cart Button */}
+                          <button 
+                            className="p-2 rounded-full text-[#a67c00] hover:text-green-600 transition-all duration-300"
+                            onClick={(e) => handleAddToCart(product, e)}
+                            title="Add to cart"
+                          >
+                            <FaShoppingBag className="text-lg" />
+                          </button>
+                        </div>
 
-          {/* Product Title and Price - For desktop and tablet */}
-          <div onClick={() => handleProductClick(product.id)}>
-            <h3
-              className={`font-semibold mb-1 text-sm line-clamp-2 text-white text-center cursor-pointer`}
-            >
-              {product.name}
-            </h3>
+                        {/* Product Title and Price - For desktop and tablet */}
+                        <div onClick={() => handleProductClick(product.id)}>
+                          <h3
+                            className={`font-semibold mb-1 text-sm line-clamp-2 text-white text-center cursor-pointer`}
+                          >
+                            {product.name}
+                          </h3>
 
-            <p
-              className={`text-sm font-medium flex items-center gap-1 justify-center text-white cursor-pointer`}
-            >
-              <MdOutlineCurrencyRupee className="text-base" />
-              {product.price}
-            </p>
-          </div>
-        </div>
-      </div>
+                          <p
+                            className={`text-sm font-medium flex items-center gap-1 justify-center text-white cursor-pointer`}
+                          >
+                            <MdOutlineCurrencyRupee className="text-base" />
+                            {product.price}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
 
-      {/* Product Title and Price - For mobile only (outside below the card) */}
-      <div 
-        className="md:hidden p-3 cursor-pointer"
-        onClick={() => handleProductClick(product.id)}
-      >
-        <h3 className="font-semibold text-sm line-clamp-2 text-gray-900 text-center">
-          {product.name}
-        </h3>
-        <p className="text-sm font-medium flex items-center gap-1 justify-center text-gray-900">
-          <MdOutlineCurrencyRupee className="text-base" />
-          {product.price}
-        </p>
-      </div>
+                    {/* Product Title and Price - For mobile only (outside below the card) */}
+                    <div 
+                      className="md:hidden p-3 cursor-pointer"
+                      onClick={() => handleProductClick(product.id)}
+                    >
+                      <h3 className="font-semibold text-sm line-clamp-2 text-gray-900 text-center">
+                        {product.name}
+                      </h3>
+                      <p className="text-sm font-medium flex items-center gap-1 justify-center text-gray-900">
+                        <MdOutlineCurrencyRupee className="text-base" />
+                        {product.price}
+                      </p>
+                    </div>
 
-      {/* Additional info for list layout */}
-      {layout === "list" && (
-        <div 
-          className="flex-1 p-4 cursor-pointer"
-          onClick={() => handleProductClick(product.id)}
-        >
-          <p className="text-sm text-gray-600 mb-2">
-            Material: {product.material}
-          </p>
-          <p className="text-sm text-gray-600">
-            Brand: {product.brand}
-          </p>
-          <p className="text-sm text-gray-600 mt-2 line-clamp-3">
-            This beautiful {product.name.toLowerCase()} is perfect
-            for any occasion...
-          </p>
-        </div>
-      )}
-    </div>
-  ))}
+                    {/* Additional info for list layout */}
+                    {layout === "list" && (
+                      <div 
+                        className="flex-1 p-4 cursor-pointer"
+                        onClick={() => handleProductClick(product.id)}
+                      >
+                        <p className="text-sm text-gray-600 mb-2">
+                          Material: {product.material}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Brand: {product.brand}
+                        </p>
+                        <p className="text-sm text-gray-600 mt-2 line-clamp-3">
+                          This beautiful {product.name.toLowerCase()} is perfect
+                          for any occasion...
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Pagination */}

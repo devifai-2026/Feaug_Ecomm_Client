@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import one from "../../assets/ExploreProducts/one.webp"
 import two from "../../assets/ExploreProducts/two.webp"
 import three from "../../assets/ExploreProducts/three.webp"
@@ -10,6 +11,7 @@ const ExploreProducts = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const scrollContainerRef = useRef(null);
   const autoScrollRef = useRef(null);
+  const navigate = useNavigate();
 
   const products = [
     { 
@@ -34,6 +36,14 @@ const ExploreProducts = () => {
       image: five
     },
   ];
+
+  // Handle card click navigation
+  const handleCardClick = () => {
+    navigate('/categories');
+    
+    // Optional: If you want to pass specific category data
+    // navigate('/categories', { state: { selectedCategory: productLabel } });
+  };
 
   // Auto scroll functionality
   useEffect(() => {
@@ -142,6 +152,7 @@ const ExploreProducts = () => {
                 data-aos="zoom-in"
                 data-aos-delay={index * 100}
                 data-aos-duration="600"
+                onClick={handleCardClick} // Added click handler
               >
                 <img
                   src={product.image}
@@ -168,8 +179,11 @@ const ExploreProducts = () => {
                   </div>
                   
                   {/* Shop Now Button - ALWAYS VISIBLE NOW */}
-                  <div className='mt-4'>
-                    <button className='w-full py-3 border border-white text-white text-sm font-light tracking-wide bg-white/10 hover:bg-white hover:text-black transition-all duration-300'>
+                  <div className='mt-4' onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      className='w-full py-3 border border-white text-white text-sm font-light tracking-wide bg-white/10 hover:bg-white hover:text-black transition-all duration-300'
+                      onClick={handleCardClick} // Button also navigates
+                    >
                       SHOP NOW
                     </button>
                   </div>
@@ -219,6 +233,7 @@ const ExploreProducts = () => {
             key={index}
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
+            onClick={handleCardClick} // Added click handler
             className={`relative overflow-hidden transition-all duration-500 ease-out cursor-pointer flex-1 ${
               index % 2 === 1 ? 'mt-8 sm:mt-10 md:mt-14' : ''
             }`}
@@ -328,6 +343,10 @@ const ExploreProducts = () => {
                     className='px-4 sm:px-6 py-2 border border-white text-white text-xs font-light tracking-wide hover:bg-white hover:text-black transition-all duration-300 ease-out'
                     style={{
                       animation: 'zoomIn 0.3s ease-out 0.2s both',
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent card click from firing
+                      handleCardClick();
                     }}
                   >
                     SHOP NOW
