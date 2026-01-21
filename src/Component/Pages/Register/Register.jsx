@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LuUserRound, LuLock, LuMail, LuPhone, LuEye, LuEyeOff } from 'react-icons/lu';
 import { toast } from 'react-toastify';
+import userApi from '../../../apis/user/userApi';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -39,7 +40,7 @@ const Register = () => {
     const [isFormValid, setIsFormValid] = useState(false);
     const navigate = useNavigate();
 
-    // Validation functions
+    // Validation functions (keep existing)
     const validateFirstName = (firstName) => {
         if (!firstName.trim()) return 'First name is required';
         if (firstName.trim().length < 2) return 'First name must be at least 2 characters';
@@ -72,13 +73,9 @@ const Register = () => {
     const validatePassword = (password) => {
         if (!password) return 'Password is required';
         if (password.length < 8) return 'Password must be at least 8 characters';
-        // Check for at least one uppercase letter
         if (!/(?=.*[A-Z])/.test(password)) return 'Password must contain at least one uppercase letter';
-        // Check for at least one lowercase letter
         if (!/(?=.*[a-z])/.test(password)) return 'Password must contain at least one lowercase letter';
-        // Check for at least one number
         if (!/(?=.*\d)/.test(password)) return 'Password must contain at least one number';
-        // Check for at least one special character
         if (!/(?=.*[@$!%*?&])/.test(password)) return 'Password must contain at least one special character (@$!%*?&)';
         return '';
     };
@@ -225,28 +222,48 @@ const Register = () => {
 
         setIsLoading(true);
 
-        // Simulate API call
-        setTimeout(() => {
-            // Clean phone number for storage (remove formatting)
+        try {
+            // Clean phone number for API (remove formatting)
             const cleanPhone = formData.phone.replace(/\D/g, '');
             
-            // In a real app, you would send this data to your backend
-            const userData = {
+            // Prepare data for API
+            const registrationData = {
                 firstName: formData.firstName.trim(),
                 lastName: formData.lastName.trim(),
                 email: formData.email.trim(),
-                phone: cleanPhone || null,
-                isLoggedIn: true
+                password: formData.password,
+                phone: cleanPhone || undefined // Send only if provided
             };
             
-            localStorage.setItem('user', JSON.stringify(userData));
+            // Call register API
+            const response = await userApi.register(registrationData);
             
-            toast.success('Registration successful! Welcome to Feauag!');
+            if (response.status === 'success') {
+                toast.success('Registration successful! Please check your email to verify your account.');
+                
+                // Store minimal user info in localStorage
+                const userData = {
+                    email: formData.email.trim(),
+                    firstName: formData.firstName.trim(),
+                    lastName: formData.lastName.trim(),
+                    isLoggedIn: false, // Not logged in yet
+                    isEmailVerified: false
+                };
+                
+                localStorage.setItem('user', JSON.stringify(userData));
+                
+                // Redirect to login page after 3 seconds
+                setTimeout(() => {
+                    navigate('/login');
+                }, 3000);
+            } else {
+                toast.error(response.message || 'Registration failed');
+            }
+        } catch (error) {
+            toast.error(error.message || 'Registration failed. Please try again.');
+        } finally {
             setIsLoading(false);
-            
-            // Redirect to home page
-            navigate('/');
-        }, 1000);
+        }
     };
 
     // Helper to check if field has error
@@ -277,7 +294,7 @@ const Register = () => {
 
                 <div className="bg-white py-8 px-6 shadow rounded-lg sm:px-10 md:px-12">
                     <form className="space-y-2 md:space-y-3" onSubmit={handleSubmit}>
-                        {/* First Name Field */}
+                        {/* First Name Field - keep existing */}
                         <div>
                             <label htmlFor="firstName" className="block text-sm md:text-base font-medium text-gray-700">
                                 First Name *
@@ -317,7 +334,7 @@ const Register = () => {
                             )}
                         </div>
 
-                        {/* Last Name Field */}
+                        {/* Last Name Field - keep existing */}
                         <div>
                             <label htmlFor="lastName" className="block text-sm md:text-base font-medium text-gray-700">
                                 Last Name *
@@ -357,7 +374,7 @@ const Register = () => {
                             )}
                         </div>
 
-                        {/* Email Field */}
+                        {/* Email Field - keep existing */}
                         <div>
                             <label htmlFor="email" className="block text-sm md:text-base font-medium text-gray-700">
                                 Email Address *
@@ -397,7 +414,7 @@ const Register = () => {
                             )}
                         </div>
 
-                        {/* Phone Field */}
+                        {/* Phone Field - keep existing */}
                         <div>
                             <label htmlFor="phone" className="block text-sm md:text-base font-medium text-gray-700">
                                 Phone Number (Optional)
@@ -437,7 +454,7 @@ const Register = () => {
                             )}
                         </div>
 
-                        {/* Password Field */}
+                        {/* Password Field - keep existing */}
                         <div>
                             <label htmlFor="password" className="block text-sm md:text-base font-medium text-gray-700">
                                 Password *
@@ -498,7 +515,7 @@ const Register = () => {
                             )}
                         </div>
 
-                        {/* Confirm Password Field */}
+                        {/* Confirm Password Field - keep existing */}
                         <div>
                             <label htmlFor="confirmPassword" className="block text-sm md:text-base font-medium text-gray-700">
                                 Confirm Password *
@@ -546,7 +563,7 @@ const Register = () => {
                             )}
                         </div>
 
-                        {/* Terms Agreement */}
+                        {/* Terms Agreement - keep existing */}
                         <div className="flex items-start">
                             <input
                                 id="agree-terms"
@@ -569,7 +586,7 @@ const Register = () => {
                             </p>
                         )}
 
-                        {/* Submit Button */}
+                        {/* Submit Button - keep existing */}
                         <div>
                             <button
                                 type="submit"
@@ -593,8 +610,6 @@ const Register = () => {
                         </p>
                     </div>
                 </div>
-
-               
             </div>
         </div>
     );

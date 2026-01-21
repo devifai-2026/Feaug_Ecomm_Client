@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LuUserRound, LuLock, LuMail, LuEye, LuEyeOff } from "react-icons/lu";
 import { toast } from "react-toastify";
+import userApi from "../../../apis/user/userApi";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -28,37 +29,80 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Basic validation
+    if (!formData.email || !formData.password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      // In a real app, you would validate credentials with backend
-      if (formData.email && formData.password) {
+    try {
+      // Call login API
+      const response = await userApi.login({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (response.status === "success") {
         toast.success("Login successful!");
 
-        // Store user info in localStorage
+        // Store user info in localStorage (with remember me option)
         const userData = {
           email: formData.email,
           isLoggedIn: true,
           rememberMe: rememberMe,
+          // Store additional user data from response if available
+          ...(response.data?.user && { user: response.data.user }),
         };
+
         localStorage.setItem("user", JSON.stringify(userData));
 
-        // Redirect to home page
+        // If remember me is checked, store token in localStorage
+        if (rememberMe && response.token) {
+          localStorage.setItem("rememberToken", response.token);
+        } else {
+          localStorage.removeItem("rememberToken");
+        }
+
+        // Redirect to home page or dashboard
         navigate("/");
       } else {
-        toast.error("Please fill in all fields");
+        toast.error(response.message || "Login failed");
       }
+    } catch (error) {
+      // Check for specific error messages
+      if (error.response) {
+        switch (error.response.status) {
+          case 401:
+            toast.error("Invalid email or password");
+            break;
+          case 403:
+            toast.error(
+              "Your account has been deactivated. Please contact support.",
+            );
+            break;
+          case 423:
+            toast.error(
+              "Account is temporarily locked. Please try again later.",
+            );
+            break;
+          default:
+            toast.error(error.message || "Login failed. Please try again.");
+        }
+      } else {
+        toast.error("Network error. Please check your connection.");
+      }
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      {/* Tablet: max-w-lg, Mobile: max-w-md, Desktop: max-w-md */}
       <div className="max-w-md md:max-w-xl mx-auto">
         <div className="text-center mb-8">
-         
           <h2 className="mt-6 text-3xl md:text-4xl font-bold text-gray-900">
             Welcome Back
           </h2>
@@ -168,8 +212,6 @@ const Login = () => {
               </button>
             </div>
           </form>
-
-      
 
           <div className="mt-6 md:mt-8 text-center">
             <p className="text-sm md:text-base text-gray-600">
