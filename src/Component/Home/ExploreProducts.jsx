@@ -14,24 +14,24 @@ const ExploreProducts = () => {
   const navigate = useNavigate();
 
   const products = [
-    { 
+    {
       label: 'BRACELETS',
       image: one
     },
-    { 
+    {
       label: 'EARRINGS',
       image: two
     },
-    { 
-      label: 'RINGS', 
+    {
+      label: 'RINGS',
       subtitle: 'All-time favorite',
       image: three
     },
-    { 
+    {
       label: 'NECKLACES',
       image: four
     },
-    { 
+    {
       label: 'WATCHES',
       image: five
     },
@@ -40,7 +40,7 @@ const ExploreProducts = () => {
   // Handle card click navigation
   const handleCardClick = () => {
     navigate('/categories');
-    
+
     // Optional: If you want to pass specific category data
     // navigate('/categories', { state: { selectedCategory: productLabel } });
   };
@@ -119,7 +119,7 @@ const ExploreProducts = () => {
     const cardWidth = 256; // w-64 = 256px
     const gap = 16; // space-x-4 = 16px
     const newSlide = Math.round(scrollLeft / (cardWidth + gap));
-    
+
     if (newSlide !== currentSlide && newSlide >= 0 && newSlide < products.length) {
       setCurrentSlide(newSlide);
     }
@@ -127,7 +127,7 @@ const ExploreProducts = () => {
 
   return (
     <div className='max-w-[90%] mx-auto mt-8 sm:mt-12 md:mt-16'>
-      <h2 
+      <h2
         className='text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center font-light mb-8 sm:mb-10 md:mb-12'
         data-aos="fade-down"
         data-aos-delay="100"
@@ -139,7 +139,7 @@ const ExploreProducts = () => {
       {/* Mobile Design - Horizontal Scroll with auto-scroll */}
       <div className='block sm:hidden'>
         <div className='relative'>
-          <div 
+          <div
             ref={scrollContainerRef}
             onScroll={handleScroll}
             className='flex overflow-x-auto snap-x snap-mandatory space-x-4 pb-4 scroll-smooth hide-scrollbar'
@@ -159,10 +159,10 @@ const ExploreProducts = () => {
                   alt={product.label}
                   className='w-full h-full object-cover'
                 />
-                
+
                 {/* Gradient Overlay */}
                 <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent'></div>
-                
+
                 {/* Content - ALWAYS VISIBLE NOW */}
                 <div className='absolute bottom-0 left-0 right-0 p-6'>
                   <div className='flex items-center justify-between'>
@@ -177,10 +177,10 @@ const ExploreProducts = () => {
                       )}
                     </div>
                   </div>
-                  
+
                   {/* Shop Now Button - ALWAYS VISIBLE NOW */}
                   <div className='mt-4' onClick={(e) => e.stopPropagation()}>
-                    <button 
+                    <button
                       className='w-full py-3 border border-white text-white text-sm font-light tracking-wide bg-white/10 hover:bg-white hover:text-black transition-all duration-300'
                       onClick={handleCardClick} // Button also navigates
                     >
@@ -210,11 +210,10 @@ const ExploreProducts = () => {
                     setCurrentSlide(index);
                   }
                 }}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === currentSlide 
-                    ? 'bg-black w-4' 
-                    : 'bg-gray-300'
-                }`}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentSlide
+                  ? 'bg-black w-4'
+                  : 'bg-gray-300'
+                  }`}
               />
             ))}
           </div>
@@ -222,7 +221,7 @@ const ExploreProducts = () => {
       </div>
 
       {/* Desktop Design */}
-      <div 
+      <div
         className='hidden sm:flex items-center justify-between gap-3 md:gap-4 lg:gap-6'
         data-aos="fade-up"
         data-aos-delay="200"
@@ -234,9 +233,8 @@ const ExploreProducts = () => {
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
             onClick={handleCardClick} // Added click handler
-            className={`relative overflow-hidden transition-all duration-500 ease-out cursor-pointer flex-1 ${
-              index % 2 === 1 ? 'mt-8 sm:mt-10 md:mt-14' : ''
-            }`}
+            className={`relative overflow-hidden transition-all duration-500 ease-out cursor-pointer flex-1 ${index % 2 === 1 ? 'mt-8 sm:mt-10 md:mt-14' : ''
+              }`}
             style={{
               flex: hoveredIndex === index ? '1.2' : '1',
               height: '70vh',
@@ -314,14 +312,14 @@ const ExploreProducts = () => {
             {/* Text overlay */}
             <div className='absolute inset-0 flex flex-col items-center justify-center'>
               {hoveredIndex === index && (
-                <div 
+                <div
                   className='text-center'
                   style={{
                     transition: 'all 0.3s ease-out',
                     animation: 'fadeIn 0.3s ease-out',
                   }}
                 >
-                  <h3 
+                  <h3
                     className='text-white font-light tracking-wider text-lg sm:text-xl md:text-2xl mb-2 sm:mb-3'
                     style={{
                       animation: 'slideDown 0.3s ease-out 0.1s both',
@@ -330,7 +328,7 @@ const ExploreProducts = () => {
                     {product.label}
                   </h3>
                   {product.subtitle && (
-                    <p 
+                    <p
                       className='text-white text-xs sm:text-sm font-light mb-4 sm:mb-6'
                       style={{
                         animation: 'slideDown 0.3s ease-out 0.15s both',
@@ -339,7 +337,7 @@ const ExploreProducts = () => {
                       {product.subtitle}
                     </p>
                   )}
-                  <button 
+                  <button
                     className='px-4 sm:px-6 py-2 border border-white text-white text-xs font-light tracking-wide hover:bg-white hover:text-black transition-all duration-300 ease-out'
                     style={{
                       animation: 'zoomIn 0.3s ease-out 0.2s both',
@@ -357,15 +355,15 @@ const ExploreProducts = () => {
 
             {/* Vertical text */}
             {hoveredIndex !== index && (
-              <div 
+              <div
                 className='absolute bottom-20 left-1/2 transform -translate-x-1/2 text-white font-light tracking-wider'
                 style={{
                   transition: 'all 0.3s ease-out',
                 }}
               >
                 {product.label.split('').map((char, i) => (
-                  <div 
-                    key={i} 
+                  <div
+                    key={i}
                     className='text-base sm:text-lg md:text-xl lg:text-2xl font-semibold leading-4 sm:leading-5 md:leading-5 lg:leading-6 text-center transition-all duration-200'
                     style={{
                       transition: 'all 0.2s ease-out',
@@ -381,7 +379,7 @@ const ExploreProducts = () => {
       </div>
 
       {/* Custom CSS to hide scrollbar */}
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }

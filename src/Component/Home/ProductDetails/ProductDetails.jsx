@@ -356,9 +356,8 @@ const ProductDetails = () => {
                       <div
                         className="bg-yellow-400 h-2 rounded-full"
                         style={{
-                          width: `${
-                            star === 5 ? "80%" : star === 4 ? "15%" : star === 3 ? "5%" : "0%"
-                          }`,
+                          width: `${star === 5 ? "80%" : star === 4 ? "15%" : star === 3 ? "5%" : "0%"
+                            }`,
                         }}
                       ></div>
                     </div>
@@ -400,7 +399,7 @@ const ProductDetails = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           duration: 3000,
@@ -524,11 +523,10 @@ const ProductDetails = () => {
                   {product.images.map((image, index) => (
                     <div
                       key={index}
-                      className={`flex-shrink-0 cursor-pointer border-2 transition-all duration-300 ${
-                        selectedImageIndex === index
+                      className={`flex-shrink-0 cursor-pointer border-2 transition-all duration-300 ${selectedImageIndex === index
                           ? "border-orange-500 shadow-md"
                           : "border-transparent hover:border-gray-300"
-                      }`}
+                        }`}
                       onClick={() => handleThumbnailClick(index)}
                     >
                       <img
@@ -613,10 +611,9 @@ const ProductDetails = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   {/* Wishlist Button */}
-                  <button 
-                    className={`p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110 ${
-                      isProductInWishlist ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
-                    }`}
+                  <button
+                    className={`p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110 ${isProductInWishlist ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
+                      }`}
                     onClick={handleWishlistClick}
                     title={isProductInWishlist ? "Remove from wishlist" : "Add to wishlist"}
                   >
@@ -626,7 +623,7 @@ const ProductDetails = () => {
                       <BsHeart className="text-xl transition-transform duration-300" />
                     )}
                   </button>
-                  <button 
+                  <button
                     className="p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110"
                     title="Share product"
                   >
@@ -664,7 +661,7 @@ const ProductDetails = () => {
 
               {/* Add to Cart Button */}
               <div className="flex gap-4">
-                <button 
+                <button
                   className="flex-1 bg-black text-white py-3 px-6 hover:bg-gray-800 transition-all duration-300 hover:scale-105 font-semibold"
                   onClick={handleAddToCart}
                 >
@@ -742,11 +739,10 @@ const ProductDetails = () => {
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`w-40 lg:w-full text-center lg:text-left py-3 px-4 font-medium transition-all duration-300 hover:scale-105 ${
-                        activeTab === tab
+                      className={`w-40 lg:w-full text-center lg:text-left py-3 px-4 font-medium transition-all duration-300 hover:scale-105 ${activeTab === tab
                           ? "bg-black text-white"
                           : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                      }`}
+                        }`}
                     >
                       {tab}
                     </button>

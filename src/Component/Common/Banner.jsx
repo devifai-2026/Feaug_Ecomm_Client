@@ -1,0 +1,233 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import bannerApi from '../../apis/bannerApi';
+import { BsChevronLeft, BsChevronRight } from 'react-icons/bs';
+
+/**
+ * Generic Banner Component
+ * Fetches and displays banners with support for multiple images (slider)
+ * 
+ * @param {string} name - Banner name (if fetching by name)
+ * @param {string} page - Page name (if fetching by page)
+ * @param {string} position - Banner position (optional filter)
+ * @param {string} bannerType - Banner type (optional filter)
+ * @param {string} className - Additional CSS classes
+ * @param {boolean} autoPlay - Auto-play slider (default: true)
+ * @param {number} autoPlayInterval - Auto-play interval in ms (default: 5000)
+ */
+const Banner = ({
+    name,
+    page,
+    position,
+    bannerType,
+    className = '',
+    autoPlay = true,
+    autoPlayInterval = 5000,
+}) => {
+    const navigate = useNavigate();
+    const [banner, setBanner] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    useEffect(() => {
+        fetchBanner();
+    }, [name, page, position, bannerType]);
+
+    // Auto-play slider
+    useEffect(() => {
+        if (!banner || !banner.images || banner.images.length <= 1 || !autoPlay) return;
+
+        const interval = setInterval(() => {
+            setCurrentImageIndex((prev) => (prev + 1) % banner.images.length);
+        }, autoPlayInterval);
+
+        return () => clearInterval(interval);
+    }, [banner, autoPlay, autoPlayInterval]);
+
+    const fetchBanner = async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            if (name) {
+                // Fetch by name
+                await bannerApi.getBannerByName({
+                    name,
+                    setLoading,
+                    onSuccess: (data) => {
+                        if (data.status === 'success' && data.data?.banner) {
+                            setBanner(data.data.banner);
+                        } else {
+                            setError('Banner not found');
+                        }
+                    },
+                    onError: (err) => {
+                        console.error('Error fetching banner:', err);
+                        setError('Failed to load banner');
+                    },
+                });
+            } else if (page) {
+                // Fetch by page
+                await bannerApi.getBannersByPage({
+                    page,
+                    position,
+                    bannerType,
+                    setLoading,
+                    onSuccess: (data) => {
+                        if (data.status === 'success' && data.data?.banners?.length > 0) {
+                            setBanner(data.data.banners[0]); // Take first banner
+                        } else {
+                            setError('No banners available');
+                        }
+                    },
+                    onError: (err) => {
+                        console.error('Error fetching banners:', err);
+                        setError('Failed to load banners');
+                    },
+                });
+            }
+        } catch (err) {
+            console.error('Banner fetch error:', err);
+            setError('Failed to load banner');
+            setLoading(false);
+        }
+    };
+
+    const handleBannerClick = () => {
+        if (banner?.redirectUrl) {
+            if (banner.redirectUrl.startsWith('http')) {
+                window.location.href = banner.redirectUrl;
+            } else {
+                navigate(banner.redirectUrl);
+            }
+        }
+    };
+
+    const nextImage = (e) => {
+        e.stopPropagation();
+        setCurrentImageIndex((prev) => (prev + 1) % banner.images.length);
+    };
+
+    const prevImage = (e) => {
+        e.stopPropagation();
+        setCurrentImageIndex((prev) => (prev - 1 + banner.images.length) % banner.images.length);
+    };
+
+    const goToImage = (index) => {
+        setCurrentImageIndex(index);
+    };
+
+    if (loading) {
+        return (
+            <div className={`animate-pulse bg-gray-200 ${className}`}>
+                <div className="h-64 md:h-96 w-full bg-gray-300"></div>
+            </div>
+        );
+    }
+
+    if (error || !banner) {
+        return null; // Don't show anything if banner fails to load
+    }
+
+    const currentImage = banner.images?.[currentImageIndex];
+    const hasMultipleImages = banner.images && banner.images.length > 1;
+
+    return (
+        <div
+            className={`relative overflow-hidden group ${banner.redirectUrl ? 'cursor-pointer' : ''} ${className}`}
+            onClick={handleBannerClick}
+            style={{
+                backgroundColor: banner.backgroundColor || 'transparent',
+                color: banner.textColor || 'inherit',
+            }}
+        >
+            {/* Image */}
+            {currentImage && (
+                <img
+                    src={currentImage.url}
+                    alt={currentImage.alt || banner.title || 'Banner'}
+                    className="w-full h-full object-cover transition-opacity duration-500"
+                />
+            )}
+
+            {/* Content Overlay */}
+            {(banner.title || banner.subheader || banner.body || banner.footer || banner.buttonText) && (
+                <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-6 md:p-12 bg-black/20">
+                    {banner.title && (
+                        <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-2 md:mb-4 drop-shadow-lg">
+                            {banner.title}
+                        </h2>
+                    )}
+                    {banner.subheader && (
+                        <h3 className="text-xl md:text-2xl lg:text-3xl font-medium mb-2 md:mb-4 drop-shadow-lg">
+                            {banner.subheader}
+                        </h3>
+                    )}
+                    {banner.body && (
+                        <p className="text-base md:text-lg lg:text-xl max-w-2xl mb-4 md:mb-6 drop-shadow-lg">
+                            {banner.body}
+                        </p>
+                    )}
+                    {banner.buttonText && (
+                        <button
+                            className="px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold transition-all duration-300 hover:scale-105 shadow-lg"
+                            style={{
+                                backgroundColor: banner.buttonColor || '#000',
+                                color: '#fff',
+                            }}
+                            onClick={handleBannerClick}
+                        >
+                            {banner.buttonText}
+                        </button>
+                    )}
+                    {banner.footer && (
+                        <p className="text-sm md:text-base mt-4 md:mt-6 drop-shadow-lg">
+                            {banner.footer}
+                        </p>
+                    )}
+                </div>
+            )}
+
+            {/* Navigation Arrows (only if multiple images) */}
+            {hasMultipleImages && (
+                <>
+                    <button
+                        onClick={prevImage}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 md:p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-lg"
+                        aria-label="Previous image"
+                    >
+                        <BsChevronLeft className="text-xl md:text-2xl" />
+                    </button>
+                    <button
+                        onClick={nextImage}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 md:p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-lg"
+                        aria-label="Next image"
+                    >
+                        <BsChevronRight className="text-xl md:text-2xl" />
+                    </button>
+
+                    {/* Dots Indicator */}
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                        {banner.images.map((_, index) => (
+                            <button
+                                key={index}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    goToImage(index);
+                                }}
+                                className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${index === currentImageIndex
+                                        ? 'bg-white w-6 md:w-8'
+                                        : 'bg-white/50 hover:bg-white/75'
+                                    }`}
+                                aria-label={`Go to image ${index + 1}`}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
+
+export default Banner;

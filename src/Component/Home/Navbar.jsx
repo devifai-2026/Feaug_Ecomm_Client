@@ -644,7 +644,7 @@ const Navbar = () => {
                       ))}
                     </div>
                   </div>
-                  <style jsx global>{`
+                  <style>{`
                     div[style*="overflow-x: auto"]::-webkit-scrollbar {
                       display: none;
                     }

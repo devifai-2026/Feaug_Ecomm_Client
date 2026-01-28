@@ -1,11 +1,63 @@
 import axiosInstance from "../../axios/axiosInstance";
 import { handleApiError } from "../../error/apiError";
 
+// Helper to store user data in localStorage (aligned with helpers pattern)
+const storeUserData = (data) => {
+  if (data.user && data.tokens) {
+    const userData = {
+      ...data.user,
+      token: data.tokens.accessToken,
+      refreshToken: data.tokens.refreshToken,
+    };
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('isLoggedIn', 'true');
+    window.dispatchEvent(new Event('userLoginStatusChanged'));
+  } else if (data.token) {
+    // Fallback for simple token response
+    const userData = { ...data.user, token: data.token };
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('isLoggedIn', 'true');
+    window.dispatchEvent(new Event('userLoginStatusChanged'));
+  }
+};
+
+// Helper to clear user data from localStorage
+const clearUserData = () => {
+  localStorage.removeItem('user');
+  localStorage.removeItem('isLoggedIn');
+  window.dispatchEvent(new Event('userLoginStatusChanged'));
+};
+
+// Helper to get current user from localStorage
+const getStoredUser = () => {
+  try {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  } catch {
+    return null;
+  }
+};
+
+// Helper to update stored token
+const updateStoredToken = (newToken, newRefreshToken) => {
+  const user = getStoredUser();
+  if (user) {
+    user.token = newToken;
+    if (newRefreshToken) {
+      user.refreshToken = newRefreshToken;
+    }
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+};
+
 const userApi = {
   // User Registration
   register: async (userData) => {
     try {
       const response = await axiosInstance.post("/auth/register", userData);
+      if (response.data.success) {
+        storeUserData(response.data.data);
+      }
       return response.data;
     } catch (error) {
       return handleApiError(error, "Failed to register user");
@@ -17,11 +69,9 @@ const userApi = {
     try {
       const response = await axiosInstance.post("/auth/login", credentials);
 
-      // Store token if present in response
-      if (response.data.token) {
-        localStorage.setItem("accessToken", response.data.token);
-        axiosInstance.defaults.headers.common["Authorization"] =
-          `Bearer ${response.data.token}`;
+      // Store user data using standardized format
+      if (response.data.success) {
+        storeUserData(response.data.data);
       }
 
       return response.data;
@@ -35,12 +85,13 @@ const userApi = {
     try {
       const response = await axiosInstance.post("/auth/logout");
 
-      // Remove token from localStorage
-      localStorage.removeItem("accessToken");
-      delete axiosInstance.defaults.headers.common["Authorization"];
+      // Clear user data using standardized format
+      clearUserData();
 
       return response.data;
     } catch (error) {
+      // Clear data even on error
+      clearUserData();
       return handleApiError(error, "Failed to logout");
     }
   },
@@ -133,13 +184,17 @@ const userApi = {
   // Refresh Token
   refreshToken: async () => {
     try {
-      const response = await axiosInstance.post("/auth/refresh-token");
+      const user = getStoredUser();
+      const response = await axiosInstance.post("/auth/refresh-token", {
+        refreshToken: user?.refreshToken,
+      });
 
       // Store new token if present in response
-      if (response.data.token) {
-        localStorage.setItem("accessToken", response.data.token);
-        axiosInstance.defaults.headers.common["Authorization"] =
-          `Bearer ${response.data.token}`;
+      if (response.data.success && response.data.data?.tokens) {
+        updateStoredToken(
+          response.data.data.tokens.accessToken,
+          response.data.data.tokens.refreshToken
+        );
       }
 
       return response.data;
@@ -209,21 +264,21 @@ const userApi = {
   },
 
   // Utility function to set auth token manually
-  setAuthToken: (token) => {
+  setAuthToken: (token, refreshToken) => {
     if (token) {
-      localStorage.setItem("accessToken", token);
-      axiosInstance.defaults.headers.common["Authorization"] =
-        `Bearer ${token}`;
+      updateStoredToken(token, refreshToken);
     } else {
-      localStorage.removeItem("accessToken");
-      delete axiosInstance.defaults.headers.common["Authorization"];
+      clearUserData();
     }
   },
 
   // Check if user is authenticated
   isAuthenticated: () => {
-    return !!localStorage.getItem("accessToken");
+    return localStorage.getItem('isLoggedIn') === 'true';
   },
+
+  // Get stored user data
+  getStoredUser,
 };
 
 export default userApi;

@@ -45,23 +45,13 @@ const Login = () => {
         password: formData.password,
       });
 
-      if (response.status === "success") {
+      if (response.success) {
         toast.success("Login successful!");
 
-        // Store user info in localStorage (with remember me option)
-        const userData = {
-          email: formData.email,
-          isLoggedIn: true,
-          rememberMe: rememberMe,
-          // Store additional user data from response if available
-          ...(response.data?.user && { user: response.data.user }),
-        };
-
-        localStorage.setItem("user", JSON.stringify(userData));
-
-        // If remember me is checked, store token in localStorage
-        if (rememberMe && response.token) {
-          localStorage.setItem("rememberToken", response.token);
+        // userApi.login already stores user data with tokens in localStorage
+        // Just handle remember me token if needed
+        if (rememberMe && response.data?.tokens?.accessToken) {
+          localStorage.setItem("rememberToken", response.data.tokens.accessToken);
         } else {
           localStorage.removeItem("rememberToken");
         }

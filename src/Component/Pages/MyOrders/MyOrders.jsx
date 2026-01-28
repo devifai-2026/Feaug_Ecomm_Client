@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FaHistory, FaTruck, FaCheckCircle, FaTimesCircle, FaClock, 
-  FaEye, FaDownload, FaRedo, FaStar, FaFilter, FaSearch, 
-  FaCalendarAlt, FaRupeeSign, FaBoxOpen, FaCreditCard, 
+import {
+  FaHistory, FaTruck, FaCheckCircle, FaTimesCircle, FaClock,
+  FaEye, FaDownload, FaRedo, FaStar, FaFilter, FaSearch,
+  FaCalendarAlt, FaRupeeSign, FaBoxOpen, FaCreditCard,
   FaChevronRight, FaChevronDown, FaPhone, FaMapMarkerAlt
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -126,7 +126,7 @@ const MyOrders = () => {
 
   const filteredOrders = orders.filter(order => {
     const matchesFilter = activeFilter === 'all' || order.status === activeFilter;
-    const matchesSearch = searchQuery === '' || 
+    const matchesSearch = searchQuery === '' ||
       order.orderNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.items.some(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesFilter && matchesSearch;
@@ -137,7 +137,7 @@ const MyOrders = () => {
   };
 
   const getStatusIcon = (status) => {
-    switch(status) {
+    switch (status) {
       case 'delivered': return <FaCheckCircle className="text-green-500" />;
       case 'shipped': return <FaTruck className="text-blue-500" />;
       case 'processing': return <FaClock className="text-yellow-500" />;
@@ -147,7 +147,7 @@ const MyOrders = () => {
   };
 
   const getStatusColor = (status) => {
-    switch(status) {
+    switch (status) {
       case 'delivered': return 'bg-green-100 text-green-800';
       case 'shipped': return 'bg-blue-100 text-blue-800';
       case 'processing': return 'bg-yellow-100 text-yellow-800';
@@ -157,7 +157,7 @@ const MyOrders = () => {
   };
 
   const getStatusText = (status) => {
-    switch(status) {
+    switch (status) {
       case 'delivered': return 'Delivered';
       case 'shipped': return 'Shipped';
       case 'processing': return 'Processing';
@@ -217,8 +217,8 @@ const MyOrders = () => {
         <div className="md:hidden overflow-x-auto pb-4 mb-6 -mx-4 px-4">
           <div className="flex gap-3 min-w-max">
             {stats.map((stat, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="bg-white rounded-xl shadow-sm p-4 min-w-[150px] border border-gray-100"
               >
                 <div className="flex items-center gap-3">
@@ -238,8 +238,8 @@ const MyOrders = () => {
         {/* Desktop Stats Grid */}
         <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {stats.map((stat, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-300 border border-gray-100 hover:border-[#C19A6B]/20"
             >
               <div className="flex items-center gap-3">
@@ -301,7 +301,7 @@ const MyOrders = () => {
               </div>
               <FaChevronDown className={`transform transition-transform ${showFilters ? 'rotate-180' : ''}`} />
             </button>
-            
+
             {showFilters && (
               <div className="mt-3 flex flex-wrap gap-2 animate-slideDown">
                 {filters.map((filter) => (
@@ -311,11 +311,10 @@ const MyOrders = () => {
                       setActiveFilter(filter.key);
                       setShowFilters(false);
                     }}
-                    className={`px-3 py-1.5 rounded-lg transition-colors duration-200 text-sm ${
-                      activeFilter === filter.key
+                    className={`px-3 py-1.5 rounded-lg transition-colors duration-200 text-sm ${activeFilter === filter.key
                         ? 'bg-[#C19A6B] text-white'
                         : 'bg-gray-100 text-gray-700'
-                    }`}
+                      }`}
                   >
                     {filter.label} ({filter.count})
                   </button>
@@ -330,11 +329,10 @@ const MyOrders = () => {
               <button
                 key={filter.key}
                 onClick={() => setActiveFilter(filter.key)}
-                className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
-                  activeFilter === filter.key
+                className={`px-4 py-2 rounded-lg transition-colors duration-200 ${activeFilter === filter.key
                     ? 'bg-[#C19A6B] text-white hover:bg-[#B08D5F]'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900'
-                }`}
+                  }`}
               >
                 {filter.label} ({filter.count})
               </button>
@@ -354,7 +352,7 @@ const MyOrders = () => {
             filteredOrders.map((order) => (
               <div key={order.id} className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
                 {/* Order Header */}
-                <div 
+                <div
                   className="p-4 border-b border-gray-100 cursor-pointer"
                   onClick={() => toggleOrderExpand(order.id)}
                 >
@@ -376,12 +374,12 @@ const MyOrders = () => {
                       <div className="text-xs text-gray-600">{order.paymentMethod}</div>
                     </div>
                   </div>
-                  
+
                   {/* First Item Preview */}
                   <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
                     <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                      <img 
-                        src={order.items[0].image} 
+                      <img
+                        src={order.items[0].image}
                         alt={order.items[0].name}
                         className="w-full h-full object-cover"
                       />
@@ -407,8 +405,8 @@ const MyOrders = () => {
                         {order.items.map((item, index) => (
                           <div key={index} className="flex items-center gap-3">
                             <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                              <img 
-                                src={item.image} 
+                              <img
+                                src={item.image}
                                 alt={item.name}
                                 className="w-full h-full object-cover"
                               />
@@ -431,7 +429,7 @@ const MyOrders = () => {
                           <p className="text-sm text-gray-900">{order.shippingAddress}</p>
                         </div>
                       </div>
-                      
+
                       {order.trackingId && (
                         <div className="flex items-center gap-2">
                           <FaTruck className="text-gray-400 text-sm" />
@@ -452,7 +450,7 @@ const MyOrders = () => {
                         <FaEye className="text-xs" />
                         View Details
                       </button>
-                      
+
                       {order.status === 'delivered' && (
                         <>
                           <button
@@ -471,7 +469,7 @@ const MyOrders = () => {
                           </button>
                         </>
                       )}
-                      
+
                       {order.status === 'shipped' && (
                         <button
                           onClick={() => handleTrackOrder(order.id)}
@@ -516,8 +514,8 @@ const MyOrders = () => {
                         <div className="flex items-center gap-3">
                           <div className="flex-shrink-0">
                             <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
-                              <img 
-                                src={order.items[0].image} 
+                              <img
+                                src={order.items[0].image}
                                 alt={order.items[0].name}
                                 className="w-full h-full object-cover"
                               />
@@ -563,7 +561,7 @@ const MyOrders = () => {
                             <FaEye className="text-xs" />
                             View Details
                           </button>
-                          
+
                           {order.status === 'delivered' && (
                             <>
                               <button
@@ -582,7 +580,7 @@ const MyOrders = () => {
                               </button>
                             </>
                           )}
-                          
+
                           {order.status === 'shipped' && (
                             <button
                               onClick={() => handleTrackOrder(order.id)}

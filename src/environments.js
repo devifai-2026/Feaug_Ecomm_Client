@@ -21,11 +21,10 @@ const EMAILJS = {
 /* Environment configs */
 const ENV_CONFIG = {
   local: {
-    // BASE_URL: "http://localhost:5000/api",
-    BASE_URL: "https://chasma-bazar-server.onrender.com/api",
+    BASE_URL: "http://localhost:5001/api/v1",
   },
   prod: {
-    BASE_URL: "https://chasma-bazar-server.onrender.com/api",
+    BASE_URL: "http://localhost:5001/api/v1", // Update to production URL when deploying
   },
 };
 const env_ = isLocalhost ? "local" : "prod";

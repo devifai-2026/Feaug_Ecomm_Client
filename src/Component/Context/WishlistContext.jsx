@@ -1,6 +1,12 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import wishlistApi from '../../apis/wishlistApi';
 
 const WishlistContext = createContext();
+
+// Helper to check if user is logged in
+const isUserLoggedIn = () => {
+    return localStorage.getItem('isLoggedIn') === 'true';
+};
 
 export const useWishlist = () => {
     const context = useContext(WishlistContext);
@@ -13,6 +19,38 @@ export const useWishlist = () => {
 export const WishlistProvider = ({ children }) => {
     const [wishlistItems, setWishlistItems] = useState([]);
     const [isInitialized, setIsInitialized] = useState(false);
+    const [isSyncing, setIsSyncing] = useState(false);
+
+    // Fetch wishlist from API if user is logged in
+    const fetchWishlistFromApi = async () => {
+        if (!isUserLoggedIn()) return;
+
+        setIsSyncing(true);
+        await wishlistApi.getWishlist({
+            setLoading: setIsSyncing,
+            onSuccess: (data) => {
+                if (data.success && data.data?.items) {
+                    const apiWishlistItems = data.data.items.map(item => ({
+                        id: item.product?._id || item.productId,
+                        title: item.product?.name || item.name,
+                        price: item.product?.sellingPrice || item.price,
+                        originalPrice: item.product?.price || item.originalPrice,
+                        image: item.product?.images?.[0]?.url || item.image,
+                        angleImage: item.product?.images?.[1]?.url || item.angleImage,
+                        description: item.product?.description || item.description,
+                        rating: item.product?.rating || item.rating,
+                        inStock: item.product?.stock > 0,
+                        addedAt: item.addedAt || new Date().toISOString(),
+                    }));
+                    setWishlistItems(apiWishlistItems);
+                    localStorage.setItem('wishlist', JSON.stringify(apiWishlistItems));
+                }
+            },
+            onError: (err) => {
+                console.error('Error fetching wishlist from API:', err);
+            },
+        });
+    };
 
     // Load wishlist from localStorage on initial render
     useEffect(() => {
@@ -25,6 +63,23 @@ export const WishlistProvider = ({ children }) => {
             }
         }
         setIsInitialized(true);
+
+        // If user is logged in, sync with API
+        if (isUserLoggedIn()) {
+            fetchWishlistFromApi();
+        }
+    }, []);
+
+    // Listen for login status changes
+    useEffect(() => {
+        const handleLoginChange = () => {
+            if (isUserLoggedIn()) {
+                fetchWishlistFromApi();
+            }
+        };
+
+        window.addEventListener('userLoginStatusChanged', handleLoginChange);
+        return () => window.removeEventListener('userLoginStatusChanged', handleLoginChange);
     }, []);
 
     // Save wishlist to localStorage whenever it changes
@@ -52,25 +107,41 @@ export const WishlistProvider = ({ children }) => {
     }, []);
 
     // Add item to wishlist
-    const addToWishlist = (product) => {
-        setWishlistItems(prev => {
-            const isAlreadyInWishlist = prev.some(item => item.id === product.id);
-            
-            if (isAlreadyInWishlist) {
-                return prev;
-            }
-            
-            const newWishlist = [...prev, product];
-            return newWishlist;
-        });
+    const addToWishlist = async (product) => {
+        const isAlreadyInWishlist = wishlistItems.some(item => item.id === product.id);
+
+        if (isAlreadyInWishlist) {
+            return { success: false, message: 'Already in wishlist' };
+        }
+
+        setWishlistItems(prev => [...prev, product]);
+
+        // Sync with API if user is logged in
+        if (isUserLoggedIn()) {
+            await wishlistApi.addToWishlist({
+                productId: product.id,
+                onError: (err) => {
+                    console.error('Error syncing wishlist with API:', err);
+                },
+            });
+        }
+
+        return { success: true, message: 'Added to wishlist' };
     };
 
     // Remove item from wishlist
-    const removeFromWishlist = (productId) => {
-        setWishlistItems(prev => {
-            const newWishlist = prev.filter(item => item.id !== productId);
-            return newWishlist;
-        });
+    const removeFromWishlist = async (productId) => {
+        setWishlistItems(prev => prev.filter(item => item.id !== productId));
+
+        // Sync with API if user is logged in
+        if (isUserLoggedIn()) {
+            await wishlistApi.removeFromWishlist({
+                productId,
+                onError: (err) => {
+                    console.error('Error removing item from API wishlist:', err);
+                },
+            });
+        }
     };
 
     // Check if item is in wishlist
@@ -79,8 +150,32 @@ export const WishlistProvider = ({ children }) => {
     };
 
     // Clear all wishlist items
-    const clearWishlist = () => {
+    const clearWishlist = async () => {
         setWishlistItems([]);
+
+        // Sync with API if user is logged in
+        if (isUserLoggedIn()) {
+            await wishlistApi.clearWishlist({
+                onError: (err) => {
+                    console.error('Error clearing wishlist in API:', err);
+                },
+            });
+        }
+    };
+
+    // Move item from wishlist to cart
+    const moveToCart = async (productId) => {
+        if (isUserLoggedIn()) {
+            await wishlistApi.moveToCart({
+                productId,
+                onSuccess: () => {
+                    setWishlistItems(prev => prev.filter(item => item.id !== productId));
+                },
+                onError: (err) => {
+                    console.error('Error moving item to cart:', err);
+                },
+            });
+        }
     };
 
     return (
@@ -89,7 +184,10 @@ export const WishlistProvider = ({ children }) => {
             addToWishlist,
             removeFromWishlist,
             isInWishlist,
-            clearWishlist
+            clearWishlist,
+            moveToCart,
+            isSyncing,
+            fetchWishlistFromApi,
         }}>
             {children}
         </WishlistContext.Provider>

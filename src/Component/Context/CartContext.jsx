@@ -1,6 +1,12 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import cartApi from '../../apis/cartApi';
 
 const CartContext = createContext();
+
+// Helper to check if user is logged in
+const isUserLoggedIn = () => {
+    return localStorage.getItem('isLoggedIn') === 'true';
+};
 
 export const useCart = () => {
     const context = useContext(CartContext);
@@ -13,8 +19,38 @@ export const useCart = () => {
 export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
     const [isInitialized, setIsInitialized] = useState(false);
+    const [isSyncing, setIsSyncing] = useState(false);
 
-    // Load cart from localStorage on initial render
+    // Fetch cart from API if user is logged in
+    const fetchCartFromApi = async () => {
+        if (!isUserLoggedIn()) return;
+
+        setIsSyncing(true);
+        await cartApi.getCart({
+            setLoading: setIsSyncing,
+            onSuccess: (data) => {
+                if (data.success && data.data?.items) {
+                    const apiCartItems = data.data.items.map(item => ({
+                        id: item.product?._id || item.productId,
+                        title: item.product?.name || item.name,
+                        price: item.price || item.product?.sellingPrice,
+                        image: item.product?.images?.[0]?.url || item.image,
+                        quantity: item.quantity,
+                        variant: item.variant,
+                        addedAt: item.addedAt || new Date().toISOString(),
+                    }));
+                    setCartItems(apiCartItems);
+                    localStorage.setItem('cart', JSON.stringify(apiCartItems));
+                }
+            },
+            onError: (err) => {
+                console.error('Error fetching cart from API:', err);
+                // Fall back to localStorage
+            },
+        });
+    };
+
+    // Load cart from localStorage on initial render, then try API
     useEffect(() => {
         const savedCart = localStorage.getItem('cart');
         if (savedCart) {
@@ -26,6 +62,23 @@ export const CartProvider = ({ children }) => {
             }
         }
         setIsInitialized(true);
+
+        // If user is logged in, sync with API
+        if (isUserLoggedIn()) {
+            fetchCartFromApi();
+        }
+    }, []);
+
+    // Listen for login status changes
+    useEffect(() => {
+        const handleLoginChange = () => {
+            if (isUserLoggedIn()) {
+                fetchCartFromApi();
+            }
+        };
+
+        window.addEventListener('userLoginStatusChanged', handleLoginChange);
+        return () => window.removeEventListener('userLoginStatusChanged', handleLoginChange);
     }, []);
 
     // Save cart to localStorage whenever it changes
@@ -56,10 +109,10 @@ export const CartProvider = ({ children }) => {
     }, []);
 
     // Add item to cart - Check if already exists
-    const addToCart = (product, quantity = 1) => {
+    const addToCart = async (product, quantity = 1) => {
         // Check if item already exists in cart
         const existingItemIndex = cartItems.findIndex(item => item.id === product.id);
-        
+
         if (existingItemIndex >= 0) {
             // Item already in cart - Don't add again
             return {
@@ -67,43 +120,75 @@ export const CartProvider = ({ children }) => {
                 message: 'Item already in cart',
                 item: cartItems[existingItemIndex]
             };
-        } else {
-            // Add new item to cart
-            setCartItems(prev => {
-                const newItem = {
-                    ...product,
-                    quantity: quantity,
-                    addedAt: new Date().toISOString()
-                };
-                return [...prev, newItem];
-            });
-            
-            return {
-                success: true,
-                message: 'Added to cart successfully'
-            };
         }
+
+        // Add new item to local state
+        const newItem = {
+            ...product,
+            quantity: quantity,
+            addedAt: new Date().toISOString()
+        };
+
+        setCartItems(prev => [...prev, newItem]);
+
+        // Sync with API if user is logged in
+        if (isUserLoggedIn()) {
+            await cartApi.addToCart({
+                productId: product.id,
+                quantity,
+                variant: product.variant,
+                onError: (err) => {
+                    console.error('Error syncing cart with API:', err);
+                },
+            });
+        }
+
+        return {
+            success: true,
+            message: 'Added to cart successfully'
+        };
     };
 
     // Remove item from cart
-    const removeFromCart = (productId) => {
+    const removeFromCart = async (productId) => {
         setCartItems(prev => prev.filter(item => item.id !== productId));
+
+        // Sync with API if user is logged in
+        if (isUserLoggedIn()) {
+            await cartApi.removeCartItem({
+                itemId: productId,
+                onError: (err) => {
+                    console.error('Error removing item from API cart:', err);
+                },
+            });
+        }
     };
 
     // Update item quantity
-    const updateQuantity = (productId, quantity) => {
+    const updateQuantity = async (productId, quantity) => {
         if (quantity < 1) {
             removeFromCart(productId);
             return;
         }
 
-        setCartItems(prev => 
-            prev.map(item => 
-                item.id === productId 
-                    ? { ...item, quantity } 
+        setCartItems(prev =>
+            prev.map(item =>
+                item.id === productId
+                    ? { ...item, quantity }
                     : item
             )
         );
+
+        // Sync with API if user is logged in
+        if (isUserLoggedIn()) {
+            await cartApi.updateCartItem({
+                itemId: productId,
+                quantity,
+                onError: (err) => {
+                    console.error('Error updating cart item in API:', err);
+                },
+            });
+        }
     };
 
     // Increase quantity by 1
@@ -132,8 +217,17 @@ export const CartProvider = ({ children }) => {
     };
 
     // Clear all cart items
-    const clearCart = () => {
+    const clearCart = async () => {
         setCartItems([]);
+
+        // Sync with API if user is logged in
+        if (isUserLoggedIn()) {
+            await cartApi.clearCart({
+                onError: (err) => {
+                    console.error('Error clearing cart in API:', err);
+                },
+            });
+        }
     };
 
     // Calculate total items in cart
@@ -175,7 +269,9 @@ export const CartProvider = ({ children }) => {
             getTotalItems,
             getTotalUniqueItems,
             getSubtotal,
-            getTotal
+            getTotal,
+            isSyncing,
+            fetchCartFromApi,
         }}>
             {children}
         </CartContext.Provider>

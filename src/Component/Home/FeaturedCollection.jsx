@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import one from "../../assets/FeaturedCollection/one.webp"
 import two from "../../assets/FeaturedCollection/two.png"
 import three from "../../assets/FeaturedCollection/three.webp"
@@ -21,97 +21,82 @@ import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { useWishlist } from '../Context/WishlistContext';
 import { useCart } from '../Context/CartContext';
+import productApi from '../../apis/productApi';
+import { transformProducts } from '../../helpers/transformers/productTransformer';
 
 const FeaturedCollection = () => {
     const [hoveredCard, setHoveredCard] = useState(null);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
     const { addToCart } = useCart();
 
-    const products = [
-        { 
-            id: 1, 
-            title: "Diamond Necklace", 
-            price: 299.99, 
-            image: one, 
-            angleImage: oneAngle, 
-            discount: null,
-            description: "Beautiful diamond necklace",
-            rating: 4.5
-        },
-        { 
-            id: 2, 
-            title: "Gold Earrings", 
-            price: 199.99, 
-            image: two, 
-            angleImage: twoAngle, 
-            discount: null,
-            description: "Elegant gold earrings",
-            rating: 4.2
-        },
-        { 
-            id: 3, 
-            title: "Silver Bracelet", 
-            price: 149.99, 
-            image: three, 
-            angleImage: threeAngle, 
-            discount: "-10% off",
-            description: "Stylish silver bracelet",
-            rating: 4.8
-        },
-        { 
-            id: 4, 
-            title: "Pearl Necklace", 
-            price: 399.99, 
-            originalPrice: 499.99,
-            image: four, 
-            angleImage: fourAngle, 
-            discount: "-20% off",
-            description: "Classic pearl necklace",
-            rating: 4.7
-        },
-        { 
-            id: 5, 
-            title: "Ruby Ring", 
-            price: 599.99, 
-            originalPrice: 799.99,
-            image: five, 
-            angleImage: fiveAngle, 
-            discount: "-25% off",
-            description: "Gorgeous ruby ring",
-            rating: 4.9
-        },
-        { 
-            id: 6, 
-            title: "Emerald Pendant", 
-            price: 349.99, 
-            image: six, 
-            angleImage: sixAngle, 
-            discount: null,
-            description: "Stunning emerald pendant",
-            rating: 4.6
-        },
-        { 
-            id: 7, 
-            title: "Sapphire Earrings", 
-            price: 299.99, 
-            image: seven, 
-            angleImage: sevenAngle, 
-            discount: "-15% off",
-            description: "Beautiful sapphire earrings",
-            rating: 4.4
-        },
-        { 
-            id: 8, 
-            title: "Platinum Ring", 
-            price: 899.99, 
-            image: eight, 
-            angleImage: eightAngle, 
-            discount: null,
-            description: "Elegant platinum ring",
-            rating: 4.8
-        }
+    // Fallback images for when backend images are placeholder URLs
+    const fallbackImages = [
+        { image: one, angleImage: oneAngle },
+        { image: two, angleImage: twoAngle },
+        { image: three, angleImage: threeAngle },
+        { image: four, angleImage: fourAngle },
+        { image: five, angleImage: fiveAngle },
+        { image: six, angleImage: sixAngle },
+        { image: seven, angleImage: sevenAngle },
+        { image: eight, angleImage: eightAngle },
     ];
+
+    // Fetch featured products from API
+    useEffect(() => {
+        const fetchFeaturedProducts = async () => {
+            setLoading(true);
+            setError(null);
+
+            await productApi.getFeaturedProducts({
+                params: { limit: 8 },
+                setLoading,
+                onSuccess: (data) => {
+                    console.log('Featured products data:', data.data.products);
+
+                    if (data.status === 'success' && data.data?.products?.length > 0) {
+                        // Transform products using the transformer
+                        const transformedProducts = transformProducts(data.data.products);
+
+                        // Add fallback images for products with placeholder URLs
+                        const productsWithFallbacks = transformedProducts.map((product, index) => {
+                            const fallback = fallbackImages[index % fallbackImages.length];
+
+                            // Check if image URL is a placeholder (example.com) or missing
+                            const isPlaceholderImage = !product.image ||
+                                product.image.includes('example.com') ||
+                                product.image === '';
+
+                            const isPlaceholderAngleImage = !product.angleImage ||
+                                product.angleImage.includes('example.com') ||
+                                product.angleImage === '';
+
+                            return {
+                                ...product,
+                                image: isPlaceholderImage ? fallback.image : product.image,
+                                angleImage: isPlaceholderAngleImage ? fallback.angleImage : product.angleImage,
+                            };
+                        });
+
+                        setProducts(productsWithFallbacks);
+                    } else {
+                        setProducts([]);
+                        setError('No featured products available');
+                    }
+                },
+                onError: (err) => {
+                    console.error('Error fetching featured products:', err);
+                    setError('Failed to load featured products');
+                    setProducts([]);
+                },
+            });
+        };
+
+        fetchFeaturedProducts();
+    }, []);
 
     const handleCardClick = (productId) => {
         navigate(`/product/${productId}`);
@@ -119,7 +104,7 @@ const FeaturedCollection = () => {
 
     const handleAddToCart = (product, e) => {
         e.stopPropagation();
-        
+
         addToCart({
             id: product.id,
             title: product.title,
@@ -129,7 +114,7 @@ const FeaturedCollection = () => {
             discount: product.discount,
             rating: product.rating
         }, 1);
-        
+
         toast.success(
             <div>
                 <p className="font-semibold">Added to cart!</p>
@@ -148,7 +133,7 @@ const FeaturedCollection = () => {
 
     const handleWishlistClick = (product, e) => {
         e.stopPropagation();
-        
+
         if (isInWishlist(product.id)) {
             removeFromWishlist(product.id);
             toast.custom((t) => (
@@ -196,7 +181,7 @@ const FeaturedCollection = () => {
                 rating: product.rating,
                 inStock: true
             });
-            
+
             toast.success(
                 <div>
                     <p className="font-semibold">Added to wishlist!</p>
@@ -228,7 +213,7 @@ const FeaturedCollection = () => {
 
     return (
         <div className='mt-16 max-w-[90%] mx-auto'>
-            <Toaster 
+            <Toaster
                 position="top-right"
                 toastOptions={{
                     duration: 3000,
@@ -239,7 +224,7 @@ const FeaturedCollection = () => {
                 }}
             />
 
-            <style jsx>{`
+            <style>{`
                 @keyframes slideInRight {
                     from {
                         transform: translateX(50px);
@@ -302,76 +287,73 @@ const FeaturedCollection = () => {
             `}</style>
 
             <div className='flex items-center justify-between mb-10'>
-                <h2 
+                <h2
                     className='text-xl md:text-2xl lg:text-3xl font-bold text-gray-500 animate-fadeDown'
                 >
                     Featured Collection
                 </h2>
                 <div className="flex items-center gap-4">
-                   
-                    <button 
+
+                    <button
                         onClick={handleViewMore}
                         className='text-nowrap flex items-center gap-2 cursor-pointer hover:gap-3 transition-all duration-300 animate-fadeDown group text-gray-600 hover:text-gray-900'
                     >
-                        View More 
+                        View More
                         <FaArrowRightLong className="group-hover:translate-x-1 transition-transform" />
                     </button>
                 </div>
             </div>
-            
+
             {/* Products Grid */}
             <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
                 {products.map((product, index) => {
                     const isInWishlistItem = isInWishlist(product.id);
-                    
+
                     return (
-                        <div 
+                        <div
                             key={product.id}
                             className='relative overflow-hidden group cursor-pointer bg-white shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 animate-fadeUp'
                             style={{ animationDelay: `${(index % 4) * 0.1 + 0.2}s` }}
                             onMouseEnter={() => setHoveredCard(index)}
                             onMouseLeave={() => setHoveredCard(null)}
-                            onClick={() => handleCardClick(product.id)} 
+                            onClick={() => handleCardClick(product.id)}
                         >
                             {/* Image Container */}
                             <div className='relative overflow-hidden'>
                                 {/* Main Image */}
-                                <img 
-                                    className={`w-full h-72 object-cover transition-opacity duration-500 ${
-                                        hoveredCard === index ? 'opacity-0' : 'opacity-100'
-                                    }`} 
-                                    src={product.image} 
-                                    alt={product.title} 
+                                <img
+                                    className={`w-full h-72 object-cover transition-opacity duration-500 ${hoveredCard === index ? 'opacity-0' : 'opacity-100'
+                                        }`}
+                                    src={product.image}
+                                    alt={product.title}
                                 />
-                                
+
                                 {/* Angle Image - Shows on hover */}
-                                <img 
-                                    className={`absolute top-0 left-0 w-full h-72 object-cover transition-opacity duration-500 ${
-                                        hoveredCard === index ? 'opacity-100' : 'opacity-0'
-                                    }`} 
-                                    src={product.angleImage} 
-                                    alt={`${product.title} - alternate angle`} 
+                                <img
+                                    className={`absolute top-0 left-0 w-full h-72 object-cover transition-opacity duration-500 ${hoveredCard === index ? 'opacity-100' : 'opacity-0'
+                                        }`}
+                                    src={product.angleImage}
+                                    alt={`${product.title} - alternate angle`}
                                 />
-                                
+
                                 {/* Discount Badge - Top Left */}
                                 {product.discount && (
-                                    <div 
+                                    <div
                                         className='absolute top-3 left-3 bg-gradient-to-r from-red-600 to-pink-600 text-white px-3 py-1 text-sm font-bold z-10 animate-zoomIn'
                                         style={{ animationDelay: '0.5s' }}
                                     >
                                         {product.discount}
                                     </div>
                                 )}
-                                
+
                                 {/* Hover Icons */}
                                 {/* Mobile & Tablet: Always visible */}
                                 <div className='lg:hidden absolute top-3 right-3 flex flex-col gap-2 z-10'>
-                                    <button 
-                                        className={`p-2 shadow-lg transition-all duration-300 hover:scale-110 ${
-                                            isInWishlistItem 
-                                                ? 'bg-red-50 text-red-500' 
+                                    <button
+                                        className={`p-2 shadow-lg transition-all duration-300 hover:scale-110 ${isInWishlistItem
+                                                ? 'bg-red-50 text-red-500'
                                                 : 'bg-white text-gray-700 rounded-full hover:bg-red-50 hover:text-red-500'
-                                        }`}
+                                            }`}
                                         onClick={(e) => handleWishlistClick(product, e)}
                                         title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}
                                     >
@@ -381,13 +363,13 @@ const FeaturedCollection = () => {
                                             <BsHeart className='text-lg' />
                                         )}
                                     </button>
-                                    <button 
+                                    <button
                                         className='bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors hover:scale-110'
                                         onClick={(e) => e.stopPropagation()}
                                     >
                                         <BsShare className='text-gray-700 hover:text-blue-500' />
                                     </button>
-                                    <button 
+                                    <button
                                         className='bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors hover:scale-110'
                                         onClick={(e) => e.stopPropagation()}
                                     >
@@ -396,15 +378,13 @@ const FeaturedCollection = () => {
                                 </div>
 
                                 {/* Desktop: Show on hover */}
-                                <div className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${
-                                    hoveredCard === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
-                                }`}>
-                                    <button 
-                                        className={`p-2 shadow-lg transition-all duration-300 hover:scale-110 ${
-                                            isInWishlistItem 
-                                                ? 'bg-red-50 text-red-500' 
+                                <div className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${hoveredCard === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+                                    }`}>
+                                    <button
+                                        className={`p-2 shadow-lg transition-all duration-300 hover:scale-110 ${isInWishlistItem
+                                                ? 'bg-red-50 text-red-500'
                                                 : 'bg-white text-gray-700 rounded-full hover:bg-red-50 hover:text-red-500'
-                                        }`}
+                                            }`}
                                         onClick={(e) => handleWishlistClick(product, e)}
                                         title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}
                                     >
@@ -414,13 +394,13 @@ const FeaturedCollection = () => {
                                             <BsHeart className='text-lg' />
                                         )}
                                     </button>
-                                    <button 
+                                    <button
                                         className='bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors hover:scale-110'
                                         onClick={(e) => e.stopPropagation()}
                                     >
                                         <BsShare className='text-gray-700 hover:text-blue-500' />
                                     </button>
-                                    <button 
+                                    <button
                                         className='bg-white p-2 shadow-lg rounded-full hover:bg-gray-100 transition-colors hover:scale-110'
                                         onClick={(e) => e.stopPropagation()}
                                     >
@@ -430,18 +410,17 @@ const FeaturedCollection = () => {
 
                                 {/* Add to Cart Button */}
                                 {/* Mobile & Tablet: Always visible */}
-                                <button 
+                                <button
                                     className='lg:hidden absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] hover:scale-105 uppercase tracking-wide text-sm text-nowrap z-10 font-semibold shadow-md hover:bg-gray-50 border border-gray-200'
                                     onClick={(e) => handleAddToCart(product, e)}
                                 >
                                     Add to Cart
                                 </button>
-                                
+
                                 {/* Desktop: Show on hover */}
-                                <button 
-                                    className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] hover:scale-105 uppercase tracking-widest z-10 font-semibold shadow-md hover:bg-gray-50 border border-gray-200 ${
-                                        hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                                    }`}
+                                <button
+                                    className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] hover:scale-105 uppercase tracking-widest z-10 font-semibold shadow-md hover:bg-gray-50 border border-gray-200 ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                                        }`}
                                     onClick={(e) => handleAddToCart(product, e)}
                                 >
                                     Add to Cart
@@ -450,18 +429,18 @@ const FeaturedCollection = () => {
 
                             {/* Product Info */}
                             <div className='mt-3 p-4 border-t border-gray-100'>
-                                <h2 
+                                <h2
                                     className='text-lg font-semibold mb-1 group-hover:text-gray-900 transition-colors animate-fadeUp line-clamp-1'
                                     style={{ animationDelay: '0.3s' }}
                                 >
                                     {product.title}
                                 </h2>
                                 <div className="flex items-center justify-between">
-                                    <p 
+                                    <p
                                         className='flex items-center gap-1 text-gray-500 font-medium text-lg animate-fadeUp'
                                         style={{ animationDelay: '0.4s' }}
                                     >
-                                       <BsCurrencyRupee />
+                                        <BsCurrencyRupee />
                                         {product.price}
                                         {product.originalPrice && product.originalPrice > product.price && (
                                             <span className="text-sm text-gray-400 line-through ml-2">

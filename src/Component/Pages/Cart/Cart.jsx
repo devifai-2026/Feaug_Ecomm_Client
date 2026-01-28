@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { 
-    BsCurrencyRupee, 
-    BsTrash, 
-    BsArrowLeft, 
-    BsPlus, 
+import {
+    BsCurrencyRupee,
+    BsTrash,
+    BsArrowLeft,
+    BsPlus,
     BsDash,
     BsBagCheck,
     BsTruck,
@@ -13,6 +13,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { useCart } from '../../context/CartContext';
+import Banner from '../../Common/Banner';
 
 
 const Cart = () => {
@@ -30,14 +31,14 @@ const Cart = () => {
         clearCart,
         getTotalItems,
         getSubtotal,
-   
+
     } = useCart();
 
 
     const handleRemoveItem = (item, e) => {
         e.stopPropagation();
         removeFromCart(item.id);
-        
+
         toast.success(
             <div>
                 <p className="font-semibold">Removed from cart!</p>
@@ -61,7 +62,7 @@ const Cart = () => {
         }
 
         setIsApplyingPromo(true);
-        
+
         // Simulate API call
         setTimeout(() => {
             setIsApplyingPromo(false);
@@ -79,12 +80,12 @@ const Cart = () => {
             toast.error('Your cart is empty!');
             return;
         }
-        
+
         toast.success('Proceeding to checkout!', {
             icon: '🛒',
             duration: 2000,
         });
-        
+
         // Navigate to checkout page
         setTimeout(() => navigate('/checkout'), 1000);
     };
@@ -111,8 +112,8 @@ const Cart = () => {
     console.log('Cart Items in Cart Page:', cartItems);
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
-            <Toaster 
+        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+            <Toaster
                 position="top-right"
                 toastOptions={{
                     duration: 3000,
@@ -123,7 +124,7 @@ const Cart = () => {
                 }}
             />
 
-            <style jsx>{`
+            <style>{`
                 @keyframes slideInLeft {
                     from {
                         transform: translateX(-50px);
@@ -185,7 +186,14 @@ const Cart = () => {
                 }
             `}</style>
 
-            <div className="max-w-[90%] mx-auto px-4">
+            {/* Top Banner for Cart Page */}
+            <Banner
+                page="cart"
+                position="top"
+                className="h-32 md:h-40"
+            />
+
+            <div className="max-w-[90%] mx-auto px-4 py-12">
                 {/* Header */}
                 <div className="mb-12 animate-fadeInUp">
                     <div className="flex items-center justify-between mb-6">
@@ -196,7 +204,7 @@ const Cart = () => {
                             <BsArrowLeft className="text-xl group-hover:-translate-x-1 transition-transform" />
                             <span className="font-medium">Continue Shopping</span>
                         </button>
-                        
+
                         {cartItems.length > 0 && (
                             <button
                                 onClick={clearCart}
@@ -290,7 +298,7 @@ const Cart = () => {
                                                     >
                                                         <BsDash className="text-gray-600" />
                                                     </button>
-                                                    
+
                                                     <input
                                                         type="number"
                                                         min="1"
@@ -299,7 +307,7 @@ const Cart = () => {
                                                         onChange={(e) => handleQuantityChange(item.id, e.target.value)}
                                                         className="w-16 h-8 border border-gray-300 text-center text-gray-800 font-medium"
                                                     />
-                                                    
+
                                                     <button
                                                         onClick={() => increaseQuantity(item.id)}
                                                         disabled={item.quantity >= 10}
@@ -333,8 +341,8 @@ const Cart = () => {
                                                 {getSubtotal().toFixed(2)}
                                             </span>
                                         </div>
-                                        
-                                       
+
+
                                     </div>
 
                                     {/* Promo Code */}
@@ -362,7 +370,10 @@ const Cart = () => {
                                     <div className="border-t border-gray-200 pt-4 space-y-2">
                                         <div className="flex justify-between text-lg">
                                             <span className="font-bold text-gray-800">Total</span>
-                                            
+                                            <span className="font-bold text-gray-800 flex items-center">
+                                                <BsCurrencyRupee className="text-sm mr-1" />
+                                                {getSubtotal().toFixed(2)}
+                                            </span>
                                         </div>
                                         <p className="text-sm text-gray-500">
                                             Including all taxes and shipping
@@ -370,14 +381,14 @@ const Cart = () => {
                                     </div>
 
                                     {/* Checkout Button */}
-                                   <Link to='/checkout'>
+                                    <Link to='/checkout'>
                                         <button
-                                        onClick={handleProceedToCheckout}
-                                        className="w-full mt-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white font-bold text-lg hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
-                                    >
-                                        Proceed to Checkout
-                                    </button>
-                                   </Link>
+                                            onClick={handleProceedToCheckout}
+                                            className="w-full mt-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white font-bold text-lg hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
+                                        >
+                                            Proceed to Checkout
+                                        </button>
+                                    </Link>
                                 </div>
 
                                 {/* Trust Badges */}
@@ -427,6 +438,13 @@ const Cart = () => {
                     </div>
                 )}
             </div>
+
+            {/* Bottom Banner for Cart Page */}
+            <Banner
+                page="cart"
+                position="bottom"
+                className="h-40 md:h-52 mt-12"
+            />
         </div>
     );
 };
