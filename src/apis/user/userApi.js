@@ -64,6 +64,16 @@ const updateStoredToken = (newToken, newRefreshToken) => {
   }
 };
 
+// Helper to update stored user data without overwriting token
+const updateStoredUser = (updatedUser) => {
+  const currentUser = getStoredUser();
+  if (currentUser) {
+    const freshUser = { ...currentUser, ...updatedUser };
+    localStorage.setItem('user', JSON.stringify(freshUser));
+    window.dispatchEvent(new Event('userLoginStatusChanged'));
+  }
+};
+
 const userApi = {
   // User Registration
   register: async (userData) => {
@@ -124,10 +134,15 @@ const userApi = {
   // Update User Profile
   updateProfile: async (profileData) => {
     try {
-      const response = await axiosInstance.patch(
+      const response = await axiosInstance.post(
         "/auth/update-me",
         profileData,
       );
+      
+      if (response.data.status === 'success' && response.data.data?.user) {
+        updateStoredUser(response.data.data.user);
+      }
+      
       return response.data;
     } catch (error) {
       return handleApiError(error, "Failed to update profile");
@@ -137,7 +152,7 @@ const userApi = {
   // Update Password
   updatePassword: async (passwordData) => {
     try {
-      const response = await axiosInstance.patch("/auth/update-password", {
+      const response = await axiosInstance.post("/auth/update-password", {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });
@@ -234,7 +249,7 @@ const userApi = {
   // Update Address
   updateAddress: async (addressId, addressData) => {
     try {
-      const response = await axiosInstance.patch(
+      const response = await axiosInstance.post(
         `/users/addresses/${addressId}`,
         addressData,
       );
@@ -259,7 +274,7 @@ const userApi = {
   // Set Default Address
   setDefaultAddress: async (addressId) => {
     try {
-      const response = await axiosInstance.patch(
+      const response = await axiosInstance.post(
         `/users/addresses/${addressId}/set-default`,
       );
       return response.data;

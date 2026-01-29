@@ -23,11 +23,13 @@ import { MdOutlineCurrencyRupee } from "react-icons/md";
 import { RxDividerVertical, RxDragHandleHorizontal } from "react-icons/rx";
 import SliderLogo from "./SliderLogo";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
-import toast, { Toaster } from 'react-hot-toast';
-import { BsHeartFill } from 'react-icons/bs';
-import { useWishlist } from '../Context/WishlistContext';
-import { useCart } from '../Context/CartContext';
-import productApi from '../../apis/productApi';
+import toast, { Toaster } from "react-hot-toast";
+import { BsHeartFill } from "react-icons/bs";
+import { useWishlist } from "../Context/WishlistContext";
+import { useCart } from "../Context/CartContext";
+import productApi from "../../apis/productApi";
+
+import categoryApi from "../../apis/categoryApi";
 
 const Category = () => {
   const [priceRange, setPriceRange] = useState([0, 100000]);
@@ -40,20 +42,11 @@ const Category = () => {
   const [activeCategory, setActiveCategory] = useState(0);
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [layout, setLayout] = useState("grid"); // 'grid' or 'list'
-  const [sortBy, setSortBy] = useState('Popularity');
+  const [sortBy, setSortBy] = useState("Popularity");
 
-  // Static Data
-  const categories = [
-    "Earrings",
-    "Necklaces",
-    "Bracelet",
-    "Rings",
-    "Brooch",
-    "Watches",
-    "Men's Jewelry",
-  ];
-
-
+  // API state for categories
+  const [categories, setCategories] = useState(["All Jewelry"]);
+  const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
 
   const sizes = ["XS", "S", "M", "L", "XL", "2XL"];
   const productsPerPage = 12;
@@ -70,14 +63,17 @@ const Category = () => {
   const handleAddToCart = (product, e) => {
     e.stopPropagation();
 
-    addToCart({
-      id: product._id || product.id,
-      name: product.name,
-      price: product.sellingPrice || product.price,
-      image: product.images?.[0]?.url || product.image || one,
-      material: product.material,
-      brand: product.brand
-    }, 1);
+    addToCart(
+      {
+        id: product._id || product.id,
+        name: product.name,
+        price: product.sellingPrice || product.price,
+        image: product.images?.[0]?.url || product.image || one,
+        material: product.material,
+        brand: product.brand,
+      },
+      1,
+    );
 
     toast.success(
       <div>
@@ -85,13 +81,13 @@ const Category = () => {
         <p className="text-sm">{product.name}</p>
       </div>,
       {
-        icon: '🛒',
+        icon: "🛒",
         duration: 3000,
         style: {
-          background: '#f0fdf4',
-          border: '1px solid #bbf7d0',
+          background: "#f0fdf4",
+          border: "1px solid #bbf7d0",
         },
-      }
+      },
     );
   };
 
@@ -101,38 +97,41 @@ const Category = () => {
 
     if (isInWishlist(product._id || product.id)) {
       removeFromWishlist(product._id || product.id);
-      toast.custom((t) => (
-        <div className="animate-slideInRight max-w-md w-full bg-white shadow-lg flex border border-gray-200">
-          <div className="flex-1 w-0 p-4">
-            <div className="flex items-start">
-              <div className="flex-shrink-0 pt-0.5">
-                <BsHeartFill className="h-6 w-6 text-red-500" />
-              </div>
-              <div className="ml-3 flex-1">
-                <p className="text-sm font-medium text-gray-900">
-                  Removed from wishlist
-                </p>
-                <p className="mt-1 text-sm text-gray-500">
-                  {product.name} has been removed
-                </p>
+      toast.custom(
+        (t) => (
+          <div className="animate-slideInRight max-w-md w-full bg-white shadow-lg flex border border-gray-200">
+            <div className="flex-1 w-0 p-4">
+              <div className="flex items-start">
+                <div className="flex-shrink-0 pt-0.5">
+                  <BsHeartFill className="h-6 w-6 text-red-500" />
+                </div>
+                <div className="ml-3 flex-1">
+                  <p className="text-sm font-medium text-gray-900">
+                    Removed from wishlist
+                  </p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {product.name} has been removed
+                  </p>
+                </div>
               </div>
             </div>
+            <div className="flex border-l border-gray-200">
+              <button
+                onClick={() => {
+                  toast.dismiss(t.id);
+                  navigate("/wishlist");
+                }}
+                className="w-full border border-transparent p-4 flex items-center justify-center text-sm font-medium text-pink-600 hover:text-pink-500 transition-colors"
+              >
+                View Wishlist
+              </button>
+            </div>
           </div>
-          <div className="flex border-l border-gray-200">
-            <button
-              onClick={() => {
-                toast.dismiss(t.id);
-                navigate('/wishlist');
-              }}
-              className="w-full border border-transparent p-4 flex items-center justify-center text-sm font-medium text-pink-600 hover:text-pink-500 transition-colors"
-            >
-              View Wishlist
-            </button>
-          </div>
-        </div>
-      ), {
-        duration: 4000,
-      });
+        ),
+        {
+          duration: 4000,
+        },
+      );
     } else {
       addToWishlist({
         id: product._id || product.id,
@@ -141,7 +140,7 @@ const Category = () => {
         image: product.images?.[0]?.url || product.image || one,
         material: product.material,
         brand: product.brand,
-        inStock: true
+        inStock: true,
       });
 
       toast.success(
@@ -150,17 +149,17 @@ const Category = () => {
           <p className="text-sm">{product.name}</p>
         </div>,
         {
-          icon: '❤️',
+          icon: "❤️",
           duration: 3000,
           style: {
-            background: '#fff5f5',
-            border: '1px solid #fca5a5',
+            background: "#fff5f5",
+            border: "1px solid #fca5a5",
           },
           iconTheme: {
-            primary: '#ef4444',
-            secondary: '#fff',
+            primary: "#ef4444",
+            secondary: "#fff",
           },
-        }
+        },
       );
     }
   };
@@ -172,18 +171,25 @@ const Category = () => {
   const [error, setError] = useState(null);
 
   const materials = useMemo(() => {
-    const predefinedMaterials = ["Gold", "Silver", "Platinum", "Diamond", "Pearl", "Gemstone"];
+    const predefinedMaterials = [
+      "Gold",
+      "Silver",
+      "Platinum",
+      "Diamond",
+      "Pearl",
+      "Gemstone",
+    ];
     const counts = {};
 
     // Initialize counts
-    predefinedMaterials.forEach(m => counts[m.toLowerCase()] = 0);
+    predefinedMaterials.forEach((m) => (counts[m.toLowerCase()] = 0));
 
     // Count from products
-    allProducts.forEach(product => {
+    allProducts.forEach((product) => {
       if (product.material) {
         const mat = product.material.toLowerCase();
         // Check if product material matches or contains any of our predefined materials
-        predefinedMaterials.forEach(p => {
+        predefinedMaterials.forEach((p) => {
           if (mat.includes(p.toLowerCase())) {
             counts[p.toLowerCase()] = (counts[p.toLowerCase()] || 0) + 1;
           }
@@ -191,9 +197,9 @@ const Category = () => {
       }
     });
 
-    return predefinedMaterials.map(name => ({
+    return predefinedMaterials.map((name) => ({
       name,
-      count: counts[name.toLowerCase()] || 0
+      count: counts[name.toLowerCase()] || 0,
     }));
   }, [allProducts]);
 
@@ -204,19 +210,19 @@ const Category = () => {
       "ORE Jewelry",
       "Platinum Elite",
       "Silver Dreams",
-      "Gold Heritage"
+      "Gold Heritage",
     ];
     const counts = {};
 
     // Initialize
-    predefinedBrands.forEach(b => counts[b.toLowerCase()] = 0);
+    predefinedBrands.forEach((b) => (counts[b.toLowerCase()] = 0));
 
     // Count
-    allProducts.forEach(product => {
+    allProducts.forEach((product) => {
       if (product.brand) {
         const brandName = product.brand.toLowerCase();
         // Exact match or partial if desired, usually brand checks are exact
-        predefinedBrands.forEach(pb => {
+        predefinedBrands.forEach((pb) => {
           if (brandName === pb.toLowerCase()) {
             counts[pb.toLowerCase()] = (counts[pb.toLowerCase()] || 0) + 1;
           }
@@ -224,14 +230,30 @@ const Category = () => {
       }
     });
 
-    return predefinedBrands.map(name => ({
+    return predefinedBrands.map((name) => ({
       name,
-      count: counts[name.toLowerCase()] || 0
+      count: counts[name.toLowerCase()] || 0,
     }));
   }, [allProducts]);
 
   // Fetch all products on mount
   useEffect(() => {
+    // Fetch Categories
+    categoryApi.getAdminCategories({
+      setLoading: setIsCategoriesLoading,
+      onSuccess: (response) => {
+        if (response.success && response.data?.categories) {
+          const fetchedCategories = response.data.categories.map(
+            (cat) => cat.name,
+          );
+          setCategories(["All Jewelry", ...fetchedCategories]);
+        }
+      },
+      onError: (err) => {
+        console.error("Failed to fetch categories:", err);
+      },
+    });
+
     setLoading(true);
     productApi.getAllProducts({
       params: { limit: 1000 },
@@ -248,7 +270,7 @@ const Category = () => {
         setError("Failed to load products");
         toast.error("Failed to load products");
         setAllProducts([]);
-      }
+      },
     });
   }, []);
 
@@ -259,47 +281,62 @@ const Category = () => {
     // Filter by Category
     const selectedCategoryName = categories[activeCategory];
     if (selectedCategoryName && selectedCategoryName !== "All Jewelry") {
-      result = result.filter(product =>
-        product.category?.name === selectedCategoryName ||
-        product.subCategory?.name === selectedCategoryName // Optional: search in subcategory too
+      result = result.filter(
+        (product) =>
+          product.category?.name === selectedCategoryName ||
+          product.subCategory?.name === selectedCategoryName, // Optional: search in subcategory too
       );
     }
 
     // Filter by Price
-    result = result.filter(product =>
-      product.sellingPrice >= priceRange[0] && product.sellingPrice <= priceRange[1]
+    result = result.filter(
+      (product) =>
+        product.sellingPrice >= priceRange[0] &&
+        product.sellingPrice <= priceRange[1],
     );
 
     // Filter by Material
-    const activeMaterials = Object.keys(selectedMaterials).filter(m => selectedMaterials[m]);
+    const activeMaterials = Object.keys(selectedMaterials).filter(
+      (m) => selectedMaterials[m],
+    );
     if (activeMaterials.length > 0) {
-      result = result.filter(product =>
-        activeMaterials.some(m => product.material?.toLowerCase().includes(m.toLowerCase()))
+      result = result.filter((product) =>
+        activeMaterials.some((m) =>
+          product.material?.toLowerCase().includes(m.toLowerCase()),
+        ),
       );
     }
 
     // Filter by Brand
-    const activeBrands = Object.keys(selectedBrands).filter(b => selectedBrands[b]);
+    const activeBrands = Object.keys(selectedBrands).filter(
+      (b) => selectedBrands[b],
+    );
     if (activeBrands.length > 0) {
-      result = result.filter(product =>
-        product.brand && activeBrands.some(brand => brand.toLowerCase() === product.brand.toLowerCase())
+      result = result.filter(
+        (product) =>
+          product.brand &&
+          activeBrands.some(
+            (brand) => brand.toLowerCase() === product.brand.toLowerCase(),
+          ),
       );
     }
 
     // Filter by Size
-    const activeSizes = Object.keys(selectedSizes).filter(s => selectedSizes[s]);
+    const activeSizes = Object.keys(selectedSizes).filter(
+      (s) => selectedSizes[s],
+    );
     if (activeSizes.length > 0) {
-      result = result.filter(product =>
-        product.size && activeSizes.includes(product.size)
+      result = result.filter(
+        (product) => product.size && activeSizes.includes(product.size),
       );
     }
 
     // Sort
-    if (sortBy === 'Price: Low to High') {
+    if (sortBy === "Price: Low to High") {
       result.sort((a, b) => a.sellingPrice - b.sellingPrice);
-    } else if (sortBy === 'Price: High to Low') {
+    } else if (sortBy === "Price: High to Low") {
       result.sort((a, b) => b.sellingPrice - a.sellingPrice);
-    } else if (sortBy === 'Newest') {
+    } else if (sortBy === "Newest") {
       result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
     // Default or Popularity (could use rating or views)
@@ -307,7 +344,14 @@ const Category = () => {
     setFilteredProducts(result);
     // Reset to page 1 when filters change
     setCurrentPage(1);
-  }, [allProducts, activeCategory, priceRange, selectedMaterials, selectedBrands, sortBy]);
+  }, [
+    allProducts,
+    activeCategory,
+    priceRange,
+    selectedMaterials,
+    selectedBrands,
+    sortBy,
+  ]);
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
@@ -344,7 +388,10 @@ const Category = () => {
   const getShowingText = () => {
     if (filteredProducts.length === 0) return "Showing 0 results";
     const startItem = (currentPage - 1) * productsPerPage + 1;
-    const endItem = Math.min(currentPage * productsPerPage, filteredProducts.length);
+    const endItem = Math.min(
+      currentPage * productsPerPage,
+      filteredProducts.length,
+    );
     return `Showing ${startItem}-${endItem} of ${filteredProducts.length} results.`;
   };
 
@@ -407,37 +454,47 @@ const Category = () => {
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Categories</h3>
         <ul className="space-y-2">
-          {categories.map((category, index) => (
-            <li key={index}>
-              <button
-                className={`w-full text-left py-1 transition-all duration-300 ease-in-out relative group ${index === activeCategory
-                  ? "text-black font-medium ml-3"
-                  : "text-gray-600 hover:text-black hover:ml-3"
+          {isCategoriesLoading ? (
+            <div className="space-y-2 animate-pulse">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="h-6 bg-gray-100 rounded w-full"></div>
+              ))}
+            </div>
+          ) : (
+            categories.map((category, index) => (
+              <li key={index}>
+                <button
+                  className={`w-full text-left py-1 transition-all duration-300 ease-in-out relative group ${
+                    index === activeCategory
+                      ? "text-black font-medium ml-3"
+                      : "text-gray-600 hover:text-black hover:ml-3"
                   }`}
-                onMouseEnter={() => setHoveredCategory(index)}
-                onMouseLeave={() => setHoveredCategory(null)}
-                onClick={() => setActiveCategory(index)}
-              >
-                {(index === activeCategory || index === hoveredCategory) && (
-                  <span className="absolute -left-3 top-1/2 transform -translate-y-1/2 text-[#a67c00] font-bold transition-all duration-300 text-2xl">
-                    |
+                  onMouseEnter={() => setHoveredCategory(index)}
+                  onMouseLeave={() => setHoveredCategory(null)}
+                  onClick={() => setActiveCategory(index)}
+                >
+                  {(index === activeCategory || index === hoveredCategory) && (
+                    <span className="absolute -left-3 top-1/2 transform -translate-y-1/2 text-[#a67c00] font-bold transition-all duration-300 text-2xl">
+                      |
+                    </span>
+                  )}
+                  <span className="transition-all duration-300 group-hover:font-medium">
+                    {category}
                   </span>
-                )}
-                <span className="transition-all duration-300 group-hover:font-medium">
-                  {category}
-                </span>
 
-                <div
-                  className={`absolute inset-0 -z-10 rounded-lg transition-all duration-300 ${index === activeCategory
-                    ? "opacity-100 scale-100"
-                    : index === hoveredCategory
-                      ? "opacity-50 scale-100"
-                      : "opacity-0 scale-95"
+                  <div
+                    className={`absolute inset-0 -z-10 rounded-lg transition-all duration-300 ${
+                      index === activeCategory
+                        ? "opacity-100 scale-100"
+                        : index === hoveredCategory
+                          ? "opacity-50 scale-100"
+                          : "opacity-0 scale-95"
                     }`}
-                />
-              </button>
-            </li>
-          ))}
+                  />
+                </button>
+              </li>
+            ))
+          )}
         </ul>
       </div>
 
@@ -489,8 +546,7 @@ const Category = () => {
           {/* Price Labels */}
           <div className="flex justify-between text-xs text-gray-500 mt-3">
             <span>
-              <MdOutlineCurrencyRupee className="inline" />
-              0
+              <MdOutlineCurrencyRupee className="inline" />0
             </span>
             <span>
               <MdOutlineCurrencyRupee className="inline" />
@@ -550,10 +606,11 @@ const Category = () => {
             <button
               key={index}
               onClick={() => handleSizeToggle(size)}
-              className={`py-2 text-sm border rounded transition-colors ${selectedSizes[size]
-                ? "bg-black text-white border-black"
-                : "bg-white text-gray-600 border-gray-300 hover:border-gray-400"
-                }`}
+              className={`py-2 text-sm border rounded transition-colors ${
+                selectedSizes[size]
+                  ? "bg-black text-white border-black"
+                  : "bg-white text-gray-600 border-gray-300 hover:border-gray-400"
+              }`}
             >
               {size}
             </button>
@@ -580,8 +637,8 @@ const Category = () => {
         toastOptions={{
           duration: 3000,
           style: {
-            background: '#fff',
-            border: '1px solid #e5e7eb',
+            background: "#fff",
+            border: "1px solid #e5e7eb",
           },
         }}
       />
@@ -681,19 +738,21 @@ const Category = () => {
                 <div className="flex items-center">
                   <button
                     onClick={() => setLayout("grid")}
-                    className={`p-2 transition-colors ${layout === "grid"
-                      ? "text-[#a67c00] "
-                      : "text-gray-600 hover:text-[#a67c00]"
-                      }`}
+                    className={`p-2 transition-colors ${
+                      layout === "grid"
+                        ? "text-[#a67c00] "
+                        : "text-gray-600 hover:text-[#a67c00]"
+                    }`}
                   >
                     <HiOutlineSquares2X2 className="text-lg" />
                   </button>
                   <button
                     onClick={() => setLayout("list")}
-                    className={`p-2 transition-colors ${layout === "list"
-                      ? "text-[#a67c00] "
-                      : "text-gray-600 hover:text-[#a67c00]"
-                      }`}
+                    className={`p-2 transition-colors ${
+                      layout === "list"
+                        ? "text-[#a67c00] "
+                        : "text-gray-600 hover:text-[#a67c00]"
+                    }`}
                   >
                     <RxDragHandleHorizontal className="text-lg" />
                   </button>
@@ -703,41 +762,51 @@ const Category = () => {
 
             {/* Products Grid/List */}
             <div
-              className={`mb-12 ${layout === "grid"
-                ? "grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6 "
-                : "space-y-4"
-                }`}
+              className={`mb-12 ${
+                layout === "grid"
+                  ? "grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6 "
+                  : "space-y-4"
+              }`}
             >
               {currentProducts.map((product) => {
-                const isInWishlistItem = isInWishlist(product._id || product.id);
+                const isInWishlistItem = isInWishlist(
+                  product._id || product.id,
+                );
                 // Handle different image structures (API vs Mock)
                 // API might return images array, Mock returned image property
                 // Also handle fallback to placeholder
-                const displayImage = product.images?.[0]?.url || product.image || one;
+                const displayImage =
+                  product.images?.[0]?.url || product.image || one;
                 const displayPrice = product.sellingPrice || product.price;
 
                 return (
                   <div
                     key={`${product._id || product.id}-${currentPage}`}
-                    className={`group relative bg-white transition-all duration-300 hover:border-2 border-amber-700 ${layout === "grid"
-                      ? ""
-                      : "flex border border-gray-200 "
-                      } ${hoveredProduct === `${product._id || product.id}-${currentPage}`
+                    className={`group relative bg-white transition-all duration-300 hover:border-2 border-amber-700 ${
+                      layout === "grid" ? "" : "flex border border-gray-200 "
+                    } ${
+                      hoveredProduct ===
+                      `${product._id || product.id}-${currentPage}`
                         ? " "
                         : ""
-                      }`}
+                    }`}
                     onMouseEnter={() =>
-                      setHoveredProduct(`${product._id || product.id}-${currentPage}`)
+                      setHoveredProduct(
+                        `${product._id || product.id}-${currentPage}`,
+                      )
                     }
                     onMouseLeave={() => setHoveredProduct(null)}
                   >
                     {/* Make the image container clickable */}
                     <div
-                      className={`relative bg-gray-100 overflow-hidden transition-all duration-300 cursor-pointer ${layout === "grid"
-                        ? "aspect-[3/4] "
-                        : "w-48 aspect-[3/4] flex-shrink-0 "
-                        }`}
-                      onClick={() => handleProductClick(product._id || product.id)}
+                      className={`relative bg-gray-100 overflow-hidden transition-all duration-300 cursor-pointer ${
+                        layout === "grid"
+                          ? "aspect-[3/4] "
+                          : "w-48 aspect-[3/4] flex-shrink-0 "
+                      }`}
+                      onClick={() =>
+                        handleProductClick(product._id || product.id)
+                      }
                     >
                       <img
                         src={displayImage}
@@ -752,12 +821,17 @@ const Category = () => {
                       >
                         {/* Wishlist Button */}
                         <button
-                          className={`p-2 rounded-full transition-all duration-300 bg-white bg-opacity-80 ${isInWishlistItem
-                            ? 'text-red-500 hover:text-red-600'
-                            : 'text-[#a67c00] hover:text-red-600'
-                            }`}
+                          className={`p-2 rounded-full transition-all duration-300 bg-white bg-opacity-80 ${
+                            isInWishlistItem
+                              ? "text-red-500 hover:text-red-600"
+                              : "text-[#a67c00] hover:text-red-600"
+                          }`}
                           onClick={(e) => handleWishlistClick(product, e)}
-                          title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}
+                          title={
+                            isInWishlistItem
+                              ? "Remove from wishlist"
+                              : "Add to wishlist"
+                          }
                         >
                           {isInWishlistItem ? (
                             <BsHeartFill className="text-xs md:text-sm" />
@@ -790,20 +864,26 @@ const Category = () => {
                       >
                         {/* Action Icons - Horizontal row above title (for lg devices only) */}
                         <div
-                          className={`hidden lg:flex justify-center space-x-2 mb-2 transition-all duration-300 ${layout === "grid"
-                            ? "opacity-0 group-hover:opacity-100 "
-                            : "opacity-100"
-                            }`}
+                          className={`hidden lg:flex justify-center space-x-2 mb-2 transition-all duration-300 ${
+                            layout === "grid"
+                              ? "opacity-0 group-hover:opacity-100 "
+                              : "opacity-100"
+                          }`}
                           onClick={(e) => e.stopPropagation()}
                         >
                           {/* Wishlist Button */}
                           <button
-                            className={`p-2 rounded-full transition-all duration-300 ${isInWishlistItem
-                              ? 'text-red-500 hover:text-red-600'
-                              : 'text-[#a67c00] hover:text-red-600'
-                              }`}
+                            className={`p-2 rounded-full transition-all duration-300 ${
+                              isInWishlistItem
+                                ? "text-red-500 hover:text-red-600"
+                                : "text-[#a67c00] hover:text-red-600"
+                            }`}
                             onClick={(e) => handleWishlistClick(product, e)}
-                            title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}
+                            title={
+                              isInWishlistItem
+                                ? "Remove from wishlist"
+                                : "Add to wishlist"
+                            }
                           >
                             {isInWishlistItem ? (
                               <BsHeartFill className="text-lg" />
@@ -831,7 +911,11 @@ const Category = () => {
                         </div>
 
                         {/* Product Title and Price - For desktop and tablet */}
-                        <div onClick={() => handleProductClick(product._id || product.id)}>
+                        <div
+                          onClick={() =>
+                            handleProductClick(product._id || product.id)
+                          }
+                        >
                           <h3
                             className={`font-semibold mb-1 text-sm line-clamp-2 text-white text-center cursor-pointer`}
                           >
@@ -851,7 +935,9 @@ const Category = () => {
                     {/* Product Title and Price - For mobile only (outside below the card) */}
                     <div
                       className="md:hidden p-3 cursor-pointer"
-                      onClick={() => handleProductClick(product._id || product.id)}
+                      onClick={() =>
+                        handleProductClick(product._id || product.id)
+                      }
                     >
                       <h3 className="font-semibold text-sm line-clamp-2 text-gray-900 text-center">
                         {product.name}
@@ -866,7 +952,9 @@ const Category = () => {
                     {layout === "list" && (
                       <div
                         className="flex-1 p-4 cursor-pointer"
-                        onClick={() => handleProductClick(product._id || product.id)}
+                        onClick={() =>
+                          handleProductClick(product._id || product.id)
+                        }
                       >
                         <p className="text-sm text-gray-600 mb-2">
                           Material: {product.material}
@@ -875,7 +963,8 @@ const Category = () => {
                           Brand: {product.brand}
                         </p>
                         <p className="text-sm text-gray-600 mt-2 line-clamp-3">
-                          {product.description || `This beautiful ${product.name.toLowerCase()} is perfect for any occasion...`}
+                          {product.description ||
+                            `This beautiful ${product.name.toLowerCase()} is perfect for any occasion...`}
                         </p>
                       </div>
                     )}
@@ -890,10 +979,11 @@ const Category = () => {
               <button
                 onClick={handlePrevPage}
                 disabled={currentPage === 1}
-                className={`p-2 rounded-full border border-gray-300 ${currentPage === 1
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-600 hover:bg-gray-50 hover:border-gray-400"
-                  }`}
+                className={`p-2 rounded-full border border-gray-300 ${
+                  currentPage === 1
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-600 hover:bg-gray-50 hover:border-gray-400"
+                }`}
               >
                 <FaChevronLeft className="text-sm" />
               </button>
@@ -906,10 +996,11 @@ const Category = () => {
                   ) : (
                     <button
                       onClick={() => handlePageChange(page)}
-                      className={`px-3 py-1 text-sm rounded transition-colors ${currentPage === page
-                        ? "bg-orange-700 text-white"
-                        : "text-gray-600 hover:bg-gray-100"
-                        }`}
+                      className={`px-3 py-1 text-sm rounded transition-colors ${
+                        currentPage === page
+                          ? "bg-orange-700 text-white"
+                          : "text-gray-600 hover:bg-gray-100"
+                      }`}
                     >
                       {page}
                     </button>
@@ -921,10 +1012,11 @@ const Category = () => {
               <button
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages}
-                className={`p-2 rounded-full border border-gray-300 ${currentPage === totalPages
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-600 hover:bg-gray-50 hover:border-gray-400"
-                  }`}
+                className={`p-2 rounded-full border border-gray-300 ${
+                  currentPage === totalPages
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-600 hover:bg-gray-50 hover:border-gray-400"
+                }`}
               >
                 <FaChevronRight className="text-sm" />
               </button>

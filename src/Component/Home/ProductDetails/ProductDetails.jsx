@@ -43,7 +43,17 @@ const ProductDetails = () => {
 
   // Use contexts
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-  const { addToCart } = useCart();
+  const { addToCart, isInCart, getItemQuantity, updateQuantity } = useCart();
+
+  const isProductInCart = product ? isInCart(product._id) : false;
+  const cartQuantity = product ? getItemQuantity(product._id) : 0;
+
+  // Sync local quantity with cart if it's there
+  useEffect(() => {
+    if (isProductInCart && cartQuantity > 0) {
+      setQuantity(cartQuantity);
+    }
+  }, [isProductInCart, cartQuantity]);
 
   // Fetch product data
   useEffect(() => {
@@ -76,7 +86,7 @@ const ProductDetails = () => {
 
   const isProductInWishlist = product ? isInWishlist(product._id) : false;
 
-  // View count and eye animation effects (keep existing logic but maybe adjust for product data)
+  // View count and eye animation effects
   useEffect(() => {
     if (!product) return;
 
@@ -101,10 +111,15 @@ const ProductDetails = () => {
   }, [product]);
 
   // Add to Cart Functionality
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product) return;
 
-    addToCart(
+    if (isProductInCart) {
+      navigate("/cart");
+      return;
+    }
+
+    const result = await addToCart(
       {
         id: product._id,
         title: product.name,
@@ -114,27 +129,64 @@ const ProductDetails = () => {
         description: product.description,
         rating: product.ratingAverage,
         category: product.category?.name,
+        sku: product.sku,
       },
       quantity,
     );
 
-    toast.success(
-      <div>
-        <p className="font-semibold">Added to cart!</p>
-        <p className="text-sm">
-          {product.title} (x{quantity})
-        </p>
-      </div>,
-      {
-        icon: "🛒",
-        duration: 3000,
-        style: {
-          background: "#f0fdf4",
-          border: "1px solid #bbf7d0",
+    if (result.success) {
+      toast.success(
+        <div className="flex flex-col">
+          <span className="font-bold text-base">Success!</span>
+          <span className="text-sm">{product.name} added to cart!</span>
+        </div>,
+        {
+          icon: "🛒",
+          style: {
+            borderRadius: "8px",
+            background: "#111",
+            color: "#fff",
+            padding: "12px 16px",
+          },
         },
-      },
-    );
+      );
+    } else {
+      toast.error(result.message || "Failed to add to cart");
+    }
   };
+
+  const handleBuyNow = async () => {
+    if (!product) return;
+
+    if (!isProductInCart) {
+      await addToCart(
+        {
+          id: product._id,
+          title: product.name,
+          price: product.sellingPrice,
+          originalPrice: product.offerPrice,
+          image: product?.images?.[0]?.url || product?.images?.[0],
+          description: product.description,
+          rating: product.ratingAverage,
+          category: product.category?.name,
+          sku: product.sku,
+        },
+        quantity,
+      );
+    }
+    navigate("/checkout");
+  };
+
+  const updateProductQuantity = (newQty) => {
+    setQuantity(newQty);
+    if (isProductInCart) {
+      updateQuantity(product._id, newQty);
+    }
+  };
+
+  const increaseQuantity = () => updateProductQuantity(quantity + 1);
+  const decreaseQuantity = () =>
+    updateProductQuantity(quantity > 1 ? quantity - 1 : 1);
 
   // Wishlist Functionality
   const handleWishlistClick = () => {
@@ -231,10 +283,6 @@ const ProductDetails = () => {
     }
     return stars;
   };
-
-  const increaseQuantity = () => setQuantity((prev) => prev + 1);
-  const decreaseQuantity = () =>
-    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
   const nextImage = () => {
     setSelectedImageIndex((prev) => (prev + 1) % product?.images.length);
@@ -699,11 +747,22 @@ const ProductDetails = () => {
 
               <div className="flex gap-4">
                 <button
-                  className="flex-1 bg-black text-white py-3 px-6 hover:bg-gray-800 transition-all duration-300 font-semibold disabled:bg-gray-400"
+                  className="flex-1 bg-black text-white py-4 px-6 hover:bg-gray-800 transition-all duration-300 font-bold uppercase tracking-wide disabled:bg-gray-400 disabled:cursor-not-allowed transform active:scale-95"
                   onClick={handleAddToCart}
                   disabled={product.stockQuantity <= 0}
                 >
-                  {product.stockQuantity > 0 ? "Add to Cart" : "Out of Stock"}
+                  {product.stockQuantity > 0
+                    ? isProductInCart
+                      ? "Go to Cart"
+                      : "Add to Cart"
+                    : "Out of Stock"}
+                </button>
+                <button
+                  className="flex-1 bg-white text-black border-2 border-black py-4 px-6 hover:bg-gray-50 transition-all duration-300 font-bold uppercase tracking-wide disabled:border-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed transform active:scale-95"
+                  onClick={handleBuyNow}
+                  disabled={product.stockQuantity <= 0}
+                >
+                  Buy Now
                 </button>
               </div>
 

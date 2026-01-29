@@ -25,7 +25,12 @@ import orderApi from "../../../apis/orderApi";
 import cartApi from "../../../apis/cartApi";
 import userApi from "../../../apis/user/userApi";
 import { env } from "../../../environments";
-import { INDIAN_STATES, validateShippingField, validateBillingField, validatePaymentField } from "../../utils/Validation";
+import {
+  INDIAN_STATES,
+  validateShippingField,
+  validateBillingField,
+  validatePaymentField,
+} from "../../utils/Validation";
 
 const SHIPPING_OPTIONS = [
   {
@@ -53,9 +58,9 @@ const Checkout = () => {
   const { cartItems, getCartTotal, clearCart } = useCart();
 
   // Custom color definitions
-  const primaryColor = '#C19A6B';
-  const primaryLight = '#E8D4B9';
-  const primaryDark = '#A07A4B';
+  const primaryColor = "#C19A6B";
+  const primaryLight = "#E8D4B9";
+  const primaryDark = "#A07A4B";
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -86,7 +91,7 @@ const Checkout = () => {
     state: "",
     zipCode: "",
     country: "India",
-    _id: ""
+    _id: "",
   });
 
   const [paymentInfo, setPaymentInfo] = useState({
@@ -108,68 +113,73 @@ const Checkout = () => {
   useEffect(() => {
     const initCheckout = async () => {
       if (!userApi.isAuthenticated()) {
-        toast.error('Please login to checkout');
-        navigate('/login', { state: { from: '/checkout' } });
+        toast.error("Please login to checkout");
+        navigate("/login", { state: { from: "/checkout" } });
         return;
       }
 
       setLoading(true);
       try {
         const response = await userApi.getCurrentUser();
-        if (response.status === 'success' && response.data) {
+        if (response.status === "success" && response.data) {
           const user = response.data.user || response.data;
 
           // Store all user addresses
           if (user.addresses && Array.isArray(user.addresses)) {
             // Map API addresses to the format expected by ShippingComponent
-            const formattedAddresses = user.addresses.map(addr => ({
+            const formattedAddresses = user.addresses.map((addr) => ({
               id: addr._id,
               firstName: user.firstName,
               lastName: user.lastName,
               email: user.email,
               phone: user.phone,
-              address: addr.addressLine1 + (addr.addressLine2 ? ', ' + addr.addressLine2 : ''),
+              address:
+                addr.addressLine1 +
+                (addr.addressLine2 ? ", " + addr.addressLine2 : ""),
               city: addr.city,
               state: addr.state,
               zipCode: addr.pincode,
               country: addr.country,
               isDefault: addr.isDefault,
               type: addr.type,
-              label: addr.type
+              label: addr.type,
             }));
             setUserAddresses(formattedAddresses);
           }
 
           // Find default or first address
-          const defaultAddr = user.addresses?.find(a => a.isDefault) || user.addresses?.[0];
-          setShippingInfo(prev => ({
+          const defaultAddr =
+            user.addresses?.find((a) => a.isDefault) || user.addresses?.[0];
+          setShippingInfo((prev) => ({
             ...prev,
-            _id: defaultAddr._id || '',
-            firstName: user.firstName || '',
-            lastName: user.lastName || '',
-            email: user.email || '',
-            phone: user.phone || '',
-            address: defaultAddr ? `${defaultAddr.addressLine1}${defaultAddr.addressLine2 ? ', ' + defaultAddr.addressLine2 : ''}` : '',
-            city: defaultAddr?.city || '',
-            state: defaultAddr?.state || '',
-            zipCode: defaultAddr?.pincode || '',
-            country: defaultAddr?.country || 'India',
+            _id: defaultAddr._id || "",
+            firstName: user.firstName || "",
+            lastName: user.lastName || "",
+            email: user.email || "",
+            phone: user.phone || "",
+            address: defaultAddr
+              ? `${defaultAddr.addressLine1}${defaultAddr.addressLine2 ? ", " + defaultAddr.addressLine2 : ""}`
+              : "",
+            city: defaultAddr?.city || "",
+            state: defaultAddr?.state || "",
+            zipCode: defaultAddr?.pincode || "",
+            country: defaultAddr?.country || "India",
           }));
         } else {
           // Fallback to stored user
           const user = userApi.getStoredUser();
           if (user) {
-            setShippingInfo(prev => ({
+            setShippingInfo((prev) => ({
               ...prev,
-              firstName: user.firstName || '',
-              lastName: user.lastName || '',
-              email: user.email || '',
-              phone: user.phone || '',
+              firstName: user.firstName || "",
+              lastName: user.lastName || "",
+              email: user.email || "",
+              phone: user.phone || "",
             }));
           }
         }
       } catch (error) {
-        console.error('Error fetching user data for checkout:', error);
+        console.error("Error fetching user data for checkout:", error);
       } finally {
         setLoading(false);
       }
@@ -177,6 +187,42 @@ const Checkout = () => {
 
     initCheckout();
   }, [navigate]);
+
+  const refreshAddresses = async () => {
+    try {
+      const response = await userApi.getCurrentUser();
+      if (response.status === "success" && response.data) {
+        const user = response.data.user || response.data;
+        if (user.addresses && Array.isArray(user.addresses)) {
+          const formattedAddresses = user.addresses.map((addr) => ({
+            id: addr._id,
+            _id: addr._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            phone: user.phone,
+            address:
+              addr.addressLine1 +
+              (addr.addressLine2 ? ", " + addr.addressLine2 : ""),
+            addressLine1: addr.addressLine1,
+            addressLine2: addr.addressLine2,
+            city: addr.city,
+            state: addr.state,
+            zipCode: addr.pincode,
+            country: addr.country,
+            isDefault: addr.isDefault,
+            type: addr.type,
+            label: addr.type,
+          }));
+          setUserAddresses(formattedAddresses);
+          return formattedAddresses;
+        }
+      }
+    } catch (error) {
+      console.error("Error refreshing addresses:", error);
+    }
+    return null;
+  };
 
   // Check stock availability
   useEffect(() => {
@@ -186,12 +232,14 @@ const Checkout = () => {
         setLoading: setStockChecking,
         onSuccess: (data) => {
           if (!data.success || data.data?.outOfStock?.length > 0) {
-            toast.error('Some items in your cart are out of stock. Please update your cart.');
+            toast.error(
+              "Some items in your cart are out of stock. Please update your cart.",
+            );
           }
         },
         onError: () => {
           // Silently fail stock check
-        }
+        },
       });
     }
   }, [cartItems]);
@@ -200,13 +248,13 @@ const Checkout = () => {
   const getSubtotal = () => {
     return cartItems.reduce((sum, item) => {
       const price = item.price || item.sellingPrice || 0;
-      return sum + (price * (item.quantity || 1));
+      return sum + price * (item.quantity || 1);
     }, 0);
   };
 
   const subtotal = getSubtotal();
   const selectedShippingOption = SHIPPING_OPTIONS.find(
-    (opt) => opt.id === selectedShipping
+    (opt) => opt.id === selectedShipping,
   );
   const shippingCost = selectedShippingOption?.cost || 0;
   const tax = Math.round(subtotal * 0.03); // 3% GST
@@ -215,6 +263,7 @@ const Checkout = () => {
   useEffect(() => {
     if (sameAsShipping) {
       setBillingInfo({
+        _id: shippingInfo._id,
         firstName: shippingInfo.firstName,
         lastName: shippingInfo.lastName,
         address: shippingInfo.address,
@@ -232,10 +281,23 @@ const Checkout = () => {
     const newTouched = {};
 
     if (currentStep === 1) {
-      const fields = ["firstName", "lastName", "email", "phone", "address", "city", "state", "zipCode"];
-      fields.forEach(field => {
+      const fields = [
+        "firstName",
+        "lastName",
+        "email",
+        "phone",
+        "address",
+        "city",
+        "state",
+        "zipCode",
+      ];
+      fields.forEach((field) => {
         newTouched[field] = true;
-        const error = validateShippingField(field, shippingInfo[field], shippingInfo);
+        const error = validateShippingField(
+          field,
+          shippingInfo[field],
+          shippingInfo,
+        );
         if (error) {
           newErrors[field] = error;
           isValid = false;
@@ -244,10 +306,21 @@ const Checkout = () => {
     } else if (currentStep === 2) {
       // Validate Billing
       if (!sameAsShipping) {
-        const billingFields = ["firstName", "lastName", "address", "city", "state", "zipCode"];
-        billingFields.forEach(field => {
+        const billingFields = [
+          "firstName",
+          "lastName",
+          "address",
+          "city",
+          "state",
+          "zipCode",
+        ];
+        billingFields.forEach((field) => {
           newTouched[field] = true;
-          const error = validateBillingField(field, billingInfo[field], billingInfo);
+          const error = validateBillingField(
+            field,
+            billingInfo[field],
+            billingInfo,
+          );
           if (error) {
             newErrors[field] = error;
             isValid = false;
@@ -257,19 +330,23 @@ const Checkout = () => {
 
       // Validate Payment
       const paymentFields = ["method"]; // Basic check
-      if (paymentInfo.method === 'online') {
-        if (paymentInfo.onlineType === 'card') {
-          ["cardNumber", "cardName", "expiryDate", "cvv"].forEach(field => {
+      if (paymentInfo.method === "online") {
+        if (paymentInfo.onlineType === "card") {
+          ["cardNumber", "cardName", "expiryDate", "cvv"].forEach((field) => {
             newTouched[field] = true;
-            const error = validatePaymentField(field, paymentInfo[field], 'card');
+            const error = validatePaymentField(
+              field,
+              paymentInfo[field],
+              "card",
+            );
             if (error) {
               newErrors[field] = error;
               isValid = false;
             }
           });
-        } else if (paymentInfo.onlineType === 'upi') {
+        } else if (paymentInfo.onlineType === "upi") {
           newTouched["upiId"] = true;
-          const error = validatePaymentField("upiId", paymentInfo.upiId, 'upi');
+          const error = validatePaymentField("upiId", paymentInfo.upiId, "upi");
           if (error) {
             newErrors["upiId"] = error;
             isValid = false;
@@ -279,7 +356,7 @@ const Checkout = () => {
     }
 
     setErrors(newErrors);
-    setTouched(prev => ({ ...prev, ...newTouched }));
+    setTouched((prev) => ({ ...prev, ...newTouched }));
     return isValid;
   };
 
@@ -288,6 +365,7 @@ const Checkout = () => {
     if (isValid) {
       if (step === 1) {
         setBillingInfo({
+          _id: shippingInfo._id,
           firstName: shippingInfo.firstName,
           lastName: shippingInfo.lastName,
           address: shippingInfo.address,
@@ -318,8 +396,8 @@ const Checkout = () => {
         resolve(true);
         return;
       }
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
       script.onload = () => resolve(true);
       script.onerror = () => resolve(false);
       document.body.appendChild(script);
@@ -331,16 +409,16 @@ const Checkout = () => {
     const scriptLoaded = await loadRazorpayScript();
 
     if (!scriptLoaded) {
-      toast.error('Failed to load payment gateway. Please try again.');
+      toast.error("Failed to load payment gateway. Please try again.");
       return null;
     }
 
     return new Promise((resolve, reject) => {
       const options = {
-        key: env.RAZORPAY_KEY_ID || 'rzp_test_1234567890',
+        key: env.RAZORPAY_KEY_ID || "rzp_test_1234567890",
         amount: orderData.amount,
-        currency: orderData.currency || 'INR',
-        name: 'Feauage Jewelry',
+        currency: orderData.currency || "INR",
+        name: "Feauage Jewelry",
         description: `Order #${orderData.orderId}`,
         order_id: orderData.razorpayOrderId,
         handler: function (response) {
@@ -360,14 +438,14 @@ const Checkout = () => {
         },
         modal: {
           ondismiss: function () {
-            reject(new Error('Payment cancelled by user'));
+            reject(new Error("Payment cancelled by user"));
           },
         },
       };
 
       const razorpay = new window.Razorpay(options);
-      razorpay.on('payment.failed', function (response) {
-        reject(new Error(response.error.description || 'Payment failed'));
+      razorpay.on("payment.failed", function (response) {
+        reject(new Error(response.error.description || "Payment failed"));
       });
       razorpay.open();
     });
@@ -377,14 +455,15 @@ const Checkout = () => {
     toast.custom(
       (t) => (
         <div
-          className={`transform transition-all duration-300 ${t.visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
-            }`}
+          className={`transform transition-all duration-300 ${
+            t.visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
+          }`}
         >
           <div className="relative bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-2xl shadow-2xl overflow-hidden border border-green-200 w-96">
             <div
               className="h-1 animate-pulse"
               style={{
-                background: `linear-gradient(to right, ${primaryColor}, ${primaryDark})`
+                background: `linear-gradient(to right, ${primaryColor}, ${primaryDark})`,
               }}
             ></div>
 
@@ -400,7 +479,7 @@ const Checkout = () => {
                 <div
                   className="relative w-20 h-20 rounded-full flex items-center justify-center shadow-lg animate-bounce"
                   style={{
-                    background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryDark})`
+                    background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryDark})`,
                   }}
                 >
                   <BsCheckCircle className="text-5xl text-white" />
@@ -411,8 +490,8 @@ const Checkout = () => {
                 className="font-bold text-2xl mb-2"
                 style={{
                   background: `linear-gradient(to right, ${primaryColor}, ${primaryDark})`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
                 }}
               >
                 Order Placed Successfully!
@@ -429,11 +508,14 @@ const Checkout = () => {
                   <div
                     className="border rounded-lg p-3"
                     style={{
-                      backgroundColor: primaryLight + '20',
-                      borderColor: primaryColor
+                      backgroundColor: primaryLight + "20",
+                      borderColor: primaryColor,
                     }}
                   >
-                    <p className="text-sm font-semibold" style={{ color: primaryDark }}>
+                    <p
+                      className="text-sm font-semibold"
+                      style={{ color: primaryDark }}
+                    >
                       Keep cash ready for delivery
                     </p>
                   </div>
@@ -443,11 +525,14 @@ const Checkout = () => {
                   <div
                     className="border rounded-lg p-3"
                     style={{
-                      backgroundColor: primaryLight + '20',
-                      borderColor: primaryColor
+                      backgroundColor: primaryLight + "20",
+                      borderColor: primaryColor,
                     }}
                   >
-                    <p className="text-sm font-semibold" style={{ color: primaryDark }}>
+                    <p
+                      className="text-sm font-semibold"
+                      style={{ color: primaryDark }}
+                    >
                       Payment confirmed successfully!
                     </p>
                   </div>
@@ -458,7 +543,7 @@ const Checkout = () => {
                 <button
                   onClick={() => {
                     toast.dismiss(t.id);
-                    navigate('/myOrders');
+                    navigate("/myOrders");
                   }}
                   className="px-6 py-2 rounded-lg text-white font-medium"
                   style={{ backgroundColor: primaryColor }}
@@ -473,48 +558,74 @@ const Checkout = () => {
       {
         duration: 8000,
         position: "top-center",
-      }
+      },
     );
   };
 
   const handlePlaceOrder = async () => {
     if (!userApi.isAuthenticated()) {
-      toast.error('Please login to place order');
-      navigate('/login');
+      toast.error("Please login to place order");
+      navigate("/login");
       return;
     }
 
     setLoading(true);
 
     try {
-      // Save address if requested and it's a new address
-      if (saveInfo && !shippingInfo._id) {
+      // 1) Ensure we have valid addresses with IDs
+      let finalShippingId = shippingInfo._id;
+      let finalBillingId = billingInfo._id || shippingInfo._id;
+
+      // If no shipping ID (i.e., user entered new address but didn't click "Save")
+      if (!finalShippingId) {
         try {
-          await userApi.addAddress({
-            type: 'home',
-            firstName: shippingInfo.firstName,
-            lastName: shippingInfo.lastName,
-            email: shippingInfo.email,
+          const addressPayload = {
+            name: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
             phone: shippingInfo.phone,
             addressLine1: shippingInfo.address,
             city: shippingInfo.city,
             state: shippingInfo.state,
             pincode: shippingInfo.zipCode,
             country: shippingInfo.country,
-            isDefault: false
-          });
+            addressType: "home",
+          };
+          const saveResponse = await userApi.addAddress(addressPayload);
+          if (saveResponse.status === "success" && saveResponse.data) {
+            // Backend might return the user with addresses or just the new address
+            const user = saveResponse.data.user || saveResponse.data;
+            const newAddr = user.addresses
+              ? user.addresses[user.addresses.length - 1]
+              : user;
+            finalShippingId = newAddr._id || newAddr.id;
+            if (!finalBillingId) finalBillingId = finalShippingId;
+
+            // Update local state so UI reflects it was saved
+            setShippingInfo((prev) => ({ ...prev, _id: finalShippingId }));
+            await refreshAddresses();
+          } else {
+            throw new Error(saveResponse.message || "Failed to save address");
+          }
         } catch (err) {
-          console.error('Failed to save auto-address:', err);
+          console.error("Failed to auto-save address during checkout:", err);
+          toast.error("Please provide a valid saved address");
+          setLoading(false);
+          return;
         }
       }
 
-      console.log(billingInfo, shippingInfo)
+      // Final check
+      if (!finalShippingId) {
+        toast.error("Shipping address is required");
+        setLoading(false);
+        return;
+      }
+
       // Prepare order data
       const orderData = {
-        shippingAddressId: shippingInfo._id,
-        billingAddress: billingInfo._id,
+        shippingAddressId: finalShippingId,
+        billingAddressId: finalBillingId,
         shippingMethod: selectedShipping,
-        paymentMethod: paymentInfo.method === 'cod' ? 'cod' : 'razorpay',
+        paymentMethod: paymentInfo.method === "cod" ? "cod" : "razorpay",
       };
 
       // Create order via API
@@ -525,7 +636,10 @@ const Checkout = () => {
           if (data.success && data.data) {
             const order = data.data.order || data.data;
 
-            if (paymentInfo.method === 'online' && order.paymentStatus !== 'paid') {
+            if (
+              paymentInfo.method === "online" &&
+              order.paymentStatus !== "paid"
+            ) {
               // Create Razorpay payment order
               orderApi.createPaymentOrder({
                 orderId: order._id || order.id,
@@ -544,41 +658,46 @@ const Checkout = () => {
                         clearCart();
                         showSuccessToast(order.orderId || order._id);
                         setTimeout(() => {
-                          navigate('/myOrders');
+                          navigate("/myOrders");
                         }, 3000);
                       }
                     } catch (paymentError) {
-                      toast.error(paymentError.message || 'Payment failed. Please try again.');
+                      toast.error(
+                        paymentError.message ||
+                          "Payment failed. Please try again.",
+                      );
                       // Order is created but payment failed - user can retry from orders page
                     }
                   } else {
-                    toast.error('Failed to create payment. Please try again.');
+                    toast.error("Failed to create payment. Please try again.");
                   }
                 },
                 onError: (err) => {
-                  toast.error(err.message || 'Failed to create payment order');
-                }
+                  toast.error(err.message || "Failed to create payment order");
+                },
               });
             } else {
               // COD order - no payment needed
               clearCart();
               showSuccessToast(order.orderId || order._id);
               setTimeout(() => {
-                navigate('/myOrders');
+                navigate("/myOrders");
               }, 3000);
             }
           } else {
-            toast.error(data.message || 'Failed to create order');
+            toast.error(data.message || "Failed to create order");
           }
         },
         onError: (err) => {
-          console.error('Order creation error:', err);
-          toast.error(err.message || 'Failed to create order. Please try again.');
+          console.error("Order creation error:", err);
+          toast.error(
+            err.message || "Failed to create order. Please try again.",
+          );
         },
       });
     } catch (error) {
-      console.error('Checkout error:', error);
-      toast.error('An error occurred. Please try again.');
+      console.error("Checkout error:", error);
+      toast.error("An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -601,7 +720,7 @@ const Checkout = () => {
             Add items to your cart before checking out.
           </p>
           <button
-            onClick={() => navigate('/categories')}
+            onClick={() => navigate("/categories")}
             className="px-8 py-3 text-white font-bold rounded-lg"
             style={{ backgroundColor: primaryColor }}
           >
@@ -633,6 +752,7 @@ const Checkout = () => {
                 saveInfo={saveInfo}
                 setSaveInfo={setSaveInfo}
                 savedAddresses={userAddresses}
+                refreshAddresses={refreshAddresses}
               />
             )}
 
@@ -691,7 +811,7 @@ const Checkout = () => {
                     className="px-8 py-3 font-bold hover:opacity-90 transition-all"
                     style={{
                       backgroundColor: primaryColor,
-                      color: 'white'
+                      color: "white",
                     }}
                   >
                     Continue to {step === 1 ? "Payment" : "Review"}
@@ -703,7 +823,7 @@ const Checkout = () => {
                     className="px-8 py-3 font-bold hover:opacity-90 disabled:opacity-50 transition-all flex items-center gap-2"
                     style={{
                       backgroundColor: primaryColor,
-                      color: 'white'
+                      color: "white",
                     }}
                   >
                     {loading ? (
@@ -743,7 +863,7 @@ const Checkout = () => {
 
 // Helper function to format price
 const formatPrice = (price) => {
-  return `₹${price.toLocaleString('en-IN')}`;
+  return `₹${price.toLocaleString("en-IN")}`;
 };
 
 export default Checkout;

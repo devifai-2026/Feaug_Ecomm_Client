@@ -10,6 +10,15 @@ const categoryApi = {
             onError,
         }),
 
+    // Get admin categories (the one the user just made public)
+    getAdminCategories: ({ setLoading, onSuccess, onError }) =>
+        apiCall.get({
+            route: '/admin/categories',
+            setLoading,
+            onSuccess,
+            onError,
+        }),
+
     // Get category by slug
     getCategoryBySlug: ({ slug, setLoading, onSuccess, onError }) =>
         apiCall.get({

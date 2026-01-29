@@ -6,11 +6,13 @@ export default {
   ],
   theme: {
     extend: {
-       fontFamily: {
+      fontFamily: {
         'playfair': ['"Playfair Display"', 'serif'],
-         'passenger': ['Passenger Display', 'sans-serif'],
-          'poppins': ['Poppins', 'sans-serif'],
-    },
+        'kalnia': ['"Kalnia"', 'serif'],
+        'inter': ['"Inter"', 'sans-serif'],
+        'passenger': ['"Passenger Display"', 'sans-serif'],
+        'poppins': ['"Poppins"', 'sans-serif'],
+      },
   },
   },
   plugins: [],

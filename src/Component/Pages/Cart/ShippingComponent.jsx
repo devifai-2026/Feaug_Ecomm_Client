@@ -22,7 +22,7 @@ const InputField = ({
   error,
   maxLength,
 }) => {
-  const primaryColor = '#C19A6B';
+  const primaryColor = "#C19A6B";
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -36,11 +36,12 @@ const InputField = ({
         onBlur={onBlur}
         placeholder={placeholder}
         maxLength={maxLength}
-        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${error
-          ? "border-red-500 focus:ring-red-500 bg-red-50"
-          : "border-gray-300"
-          }`}
-        style={!error ? { '--tw-ring-color': primaryColor } : {}}
+        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+          error
+            ? "border-red-500 focus:ring-red-500 bg-red-50"
+            : "border-gray-300"
+        }`}
+        style={!error ? { "--tw-ring-color": primaryColor } : {}}
       />
       {error && (
         <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
@@ -53,7 +54,7 @@ const InputField = ({
 };
 
 const StateSelect = ({ label, name, value, onChange, onBlur, error }) => {
-  const primaryColor = '#C19A6B';
+  const primaryColor = "#C19A6B";
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -64,11 +65,12 @@ const StateSelect = ({ label, name, value, onChange, onBlur, error }) => {
         value={value}
         onChange={onChange}
         onBlur={onBlur}
-        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${error
-          ? "border-red-500 focus:ring-red-500 bg-red-50"
-          : "border-gray-300"
-          }`}
-        style={!error ? { '--tw-ring-color': primaryColor } : {}}
+        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+          error
+            ? "border-red-500 focus:ring-red-500 bg-red-50"
+            : "border-gray-300"
+        }`}
+        style={!error ? { "--tw-ring-color": primaryColor } : {}}
       >
         <option value="">Select a state</option>
         {INDIAN_STATES.map((state) => (
@@ -96,17 +98,19 @@ const ShippingComponent = ({
   setTouched,
   saveInfo,
   setSaveInfo,
-  savedAddresses: fetchedAddresses, // Rename prop to avoid conflict with state
+  savedAddresses: fetchedAddresses,
+  refreshAddresses,
 }) => {
   // Custom color definitions
-  const primaryColor = '#C19A6B';
-  const primaryLight = '#E8D4B9';
-  const primaryDark = '#A07A4B';
+  const primaryColor = "#C19A6B";
+  const primaryLight = "#E8D4B9";
+  const primaryDark = "#A07A4B";
 
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Sync with fetched addresses
   useEffect(() => {
@@ -114,29 +118,37 @@ const ShippingComponent = ({
       setSavedAddresses(fetchedAddresses);
 
       // Auto-select (prefer default, otherwise first)
-      const defaultAddr = fetchedAddresses.find(addr => addr.isDefault) || fetchedAddresses[0];
-      if (defaultAddr && !selectedAddressId) {
-        setSelectedAddressId(defaultAddr._id);
-        setData(defaultAddr);
+      if (!selectedAddressId) {
+        const defaultAddr =
+          fetchedAddresses.find((addr) => addr.isDefault) ||
+          fetchedAddresses[0];
+        if (defaultAddr) {
+          setSelectedAddressId(defaultAddr._id);
+          setData(defaultAddr);
+        }
+      } else {
+        // If we have a selection, find it in the new list to keep data fresh
+        const currentAddr = fetchedAddresses.find(
+          (addr) => addr._id === selectedAddressId,
+        );
+        if (currentAddr) {
+          setData(currentAddr);
+        }
       }
     }
-  }, [fetchedAddresses, setData]); // Careful with dependencies
+  }, [fetchedAddresses, setData, selectedAddressId]);
 
   // Handle saved address selection
   const handleSelectAddress = (address) => {
-    console.log(address)
     setSelectedAddressId(address._id);
     setData(address);
     setIsAddingNewAddress(false);
     setIsEditing(false);
-    // Clear errors when selecting saved address
     setErrors({});
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Format phone and zipcode
     if (name === "phone") {
       const formatted = value.replace(/\D/g, "").slice(0, 10);
       setData({ ...data, [name]: formatted });
@@ -147,7 +159,6 @@ const ShippingComponent = ({
       setData({ ...data, [name]: value });
     }
 
-    // Validate if field was touched
     if (touched[name]) {
       const error = validateShippingField(name, value, data);
       setErrors({ ...errors, [name]: error });
@@ -161,12 +172,10 @@ const ShippingComponent = ({
     setErrors({ ...errors, [name]: error });
   };
 
-  // Add new address
   const handleAddNewAddress = () => {
     setIsAddingNewAddress(true);
     setIsEditing(false);
     setSelectedAddressId(null);
-    // Reset form for new address
     setData({
       firstName: "",
       lastName: "",
@@ -179,14 +188,13 @@ const ShippingComponent = ({
       country: "India",
       label: "",
       type: "home",
+      _id: "",
     });
     setErrors({});
     setTouched({});
   };
 
-  // Save address (new or edit)
-  const handleSaveAddress = () => {
-    // Validate all fields
+  const handleSaveAddress = async () => {
     const validationErrors = {};
     const requiredFields = [
       "firstName",
@@ -209,78 +217,136 @@ const ShippingComponent = ({
       return;
     }
 
-    const newAddress = {
-      ...data,
-      id: isEditing ? data.id : `addr_${Date.now()}`,
-      isDefault: savedAddresses.length === 0 ? true : false,
-    };
+    setLoading(true);
+    try {
+      const addressPayload = {
+        name: `${data.firstName} ${data.lastName}`,
+        phone: data.phone,
+        address: data.address, // mapped to addressLine1 in backend model but here we use unified prop
+        addressLine1: data.address,
+        city: data.city,
+        state: data.state,
+        pincode: data.zipCode, // mapped to zipCode
+        country: data.country,
+        addressType: data.type,
+        isDefault: data.isDefault || false,
+      };
 
-    if (isEditing) {
-      // Update existing address
-      const updatedAddresses = savedAddresses.map((addr) =>
-        addr.id === data.id ? newAddress : addr
-      );
-      setSavedAddresses(updatedAddresses);
-    } else {
-      // Add new address
-      setSavedAddresses([...savedAddresses, newAddress]);
-    }
-
-    // Select the newly saved address
-    setSelectedAddressId(newAddress._id);
-    setIsAddingNewAddress(false);
-    setIsEditing(false);
-  };
-
-  // Delete address
-  const handleDeleteAddress = (id) => {
-    if (savedAddresses.length <= 1) {
-      alert("You must have at least one saved address");
-      return;
-    }
-
-    const updatedAddresses = savedAddresses.filter((addr) => addr.id !== id);
-    setSavedAddresses(updatedAddresses);
-
-    if (selectedAddressId === id) {
-      const defaultAddress = updatedAddresses.find((addr) => addr.isDefault);
-      if (defaultAddress) {
-        setSelectedAddressId(defaultAddress._id);
-        setData(defaultAddress);
-      } else if (updatedAddresses.length > 0) {
-        setSelectedAddressId(updatedAddresses[0]._id);
-        setData(updatedAddresses[0]);
+      let response;
+      if (isEditing && data._id) {
+        response = await userApi.updateAddress(data._id, addressPayload);
       } else {
-        handleAddNewAddress();
+        response = await userApi.addAddress(addressPayload);
       }
+
+      if (response.status === "success") {
+        toast.success(isEditing ? "Address updated" : "Address added");
+        const updatedAddresses = await refreshAddresses();
+
+        // Find the new/updated address in the fresh list
+        if (updatedAddresses) {
+          // If it was an edit, use the existing ID
+          // If it was new, we might need to find it by some unique properties or just pick the first if it was set to default
+          const match = isEditing
+            ? updatedAddresses.find((a) => a._id === data._id)
+            : updatedAddresses.find((a) => a.isDefault && !isEditing) ||
+              updatedAddresses[updatedAddresses.length - 1];
+
+          if (match) {
+            setSelectedAddressId(match._id);
+            setData(match);
+          }
+        }
+
+        setIsAddingNewAddress(false);
+        setIsEditing(false);
+      } else {
+        toast.error(response.message || "Failed to save address");
+      }
+    } catch (error) {
+      console.error("Error saving address:", error);
+      toast.error("Failed to save address");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Set as default address
-  const handleSetDefaultAddress = (id) => {
-    const updatedAddresses = savedAddresses.map((addr) => ({
-      ...addr,
-      isDefault: addr._id === id,
-    }));
-    setSavedAddresses(updatedAddresses);
-    setSelectedAddressId(id);
+  const handleDeleteAddress = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this address?"))
+      return;
+
+    setLoading(true);
+    try {
+      const response = await userApi.deleteAddress(id);
+      if (response.status === "success" || response.success) {
+        toast.success("Address deleted");
+        await refreshAddresses();
+
+        if (selectedAddressId === id) {
+          setSelectedAddressId(null);
+          setData({
+            firstName: "",
+            lastName: "",
+            email: "",
+            phone: "",
+            address: "",
+            city: "",
+            state: "",
+            zipCode: "",
+            country: "India",
+          });
+        }
+      } else {
+        toast.error(response.message || "Failed to delete address");
+      }
+    } catch (error) {
+      console.error("Error deleting address:", error);
+      toast.error("Failed to delete address");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Edit address
+  const handleSetDefaultAddress = async (id) => {
+    setLoading(true);
+    try {
+      const response = await userApi.setDefaultAddress(id);
+      if (response.status === "success") {
+        toast.success("Default address updated");
+        await refreshAddresses();
+        setSelectedAddressId(id);
+      } else {
+        toast.error(response.message || "Failed to set default address");
+      }
+    } catch (error) {
+      console.error("Error setting default address:", error);
+      toast.error("Failed to set default address");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleEditAddress = (address) => {
-    setData(address);
+    // Fill form with address data
+    setData({
+      ...address,
+      // Ensure zipCode is populated from pincode if necessary
+      zipCode: address.zipCode || address.pincode,
+    });
     setIsAddingNewAddress(true);
     setIsEditing(true);
     setSelectedAddressId(null);
   };
 
-  // Cancel add/edit
   const handleCancel = () => {
     if (savedAddresses.length > 0) {
-      const defaultAddress = savedAddresses.find((addr) => addr.isDefault);
-      if (defaultAddress) {
-        setSelectedAddressId(defaultAddress._id);
-        setData(defaultAddress);
+      const currentSelection =
+        savedAddresses.find((addr) => addr._id === selectedAddressId) ||
+        savedAddresses.find((addr) => addr.isDefault) ||
+        savedAddresses[0];
+      if (currentSelection) {
+        setSelectedAddressId(currentSelection._id);
+        setData(currentSelection);
       }
     }
     setIsAddingNewAddress(false);
@@ -316,7 +382,7 @@ const ShippingComponent = ({
             className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1 md:py-2 font-medium hover:opacity-90 transition-colors text-nowrap"
             style={{
               backgroundColor: primaryColor,
-              color: 'white'
+              color: "white",
             }}
           >
             <BsPlus className="text-lg" />
@@ -335,14 +401,19 @@ const ShippingComponent = ({
             {savedAddresses.map((address, index) => (
               <div
                 key={address.id || index}
-                className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedAddressId === address.id
-                  ? "border-2"
-                  : "border-gray-200 hover:border-gray-300"
-                  }`}
-                style={selectedAddressId === address.id ? {
-                  borderColor: primaryColor,
-                  backgroundColor: primaryLight + '20'
-                } : {}}
+                className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                  selectedAddressId === address.id
+                    ? "border-2"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+                style={
+                  selectedAddressId === address.id
+                    ? {
+                        borderColor: primaryColor,
+                        backgroundColor: primaryLight + "20",
+                      }
+                    : {}
+                }
                 onClick={() => handleSelectAddress(address)}
               >
                 <div className="flex justify-between items-start mb-2">
@@ -351,7 +422,7 @@ const ShippingComponent = ({
                       className="px-2 py-1 text-xs font-medium rounded"
                       style={{
                         backgroundColor: primaryLight,
-                        color: primaryDark
+                        color: primaryDark,
                       }}
                     >
                       {address.label || address.type}
@@ -394,8 +465,12 @@ const ShippingComponent = ({
                   </p>
                   <p className="text-sm text-gray-600">{address.country}</p>
                   <div className="flex items-center gap-1">
-                    <p className="text-sm text-gray-600">Phone: {address.phone}</p>
-                    <p className="text-sm text-gray-600">Email: {address.email}</p>
+                    <p className="text-sm text-gray-600">
+                      Phone: {address.phone}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Email: {address.email}
+                    </p>
                   </div>
                 </div>
                 <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
@@ -404,10 +479,11 @@ const ShippingComponent = ({
                       e.stopPropagation();
                       handleSetDefaultAddress(address.id);
                     }}
-                    className={`text-xs flex items-center gap-1 ${address.isDefault
-                      ? "text-amber-600"
-                      : "text-gray-500 hover:text-amber-600"
-                      }`}
+                    className={`text-xs flex items-center gap-1 ${
+                      address.isDefault
+                        ? "text-amber-600"
+                        : "text-gray-500 hover:text-amber-600"
+                    }`}
                     style={address.isDefault ? { color: primaryColor } : {}}
                   >
                     {address.isDefault ? (
@@ -489,10 +565,11 @@ const ShippingComponent = ({
                 onChange={handleChange}
                 onBlur={handleBlur}
                 placeholder="you@example.com"
-                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${errors.email
-                  ? "border-red-500 focus:ring-red-500 bg-red-50"
-                  : "border-gray-300"
-                  } custom-focus`}
+                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors.email
+                    ? "border-red-500 focus:ring-red-500 bg-red-50"
+                    : "border-gray-300"
+                } custom-focus`}
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
@@ -518,17 +595,19 @@ const ShippingComponent = ({
                   onBlur={handleBlur}
                   placeholder="9876543210"
                   maxLength="10"
-                  className={`w-full pl-14 pr-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${errors.phone
-                    ? "border-red-500 focus:ring-red-500 bg-red-50"
-                    : "border-gray-300"
-                    } custom-focus`}
+                  className={`w-full pl-14 pr-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+                    errors.phone
+                      ? "border-red-500 focus:ring-red-500 bg-red-50"
+                      : "border-gray-300"
+                  } custom-focus`}
                 />
                 {data.phone && (
                   <span
-                    className={`absolute right-3 top-2.5 text-sm ${data.phone.length === 10
-                      ? "text-green-600"
-                      : "text-yellow-600"
-                      }`}
+                    className={`absolute right-3 top-2.5 text-sm ${
+                      data.phone.length === 10
+                        ? "text-green-600"
+                        : "text-yellow-600"
+                    }`}
                   >
                     {data.phone.length}/10
                   </span>
@@ -550,10 +629,11 @@ const ShippingComponent = ({
                 onBlur={handleBlur}
                 placeholder="House/Flat No., Building, Street, Area"
                 rows="3"
-                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${errors.address
-                  ? "border-red-500 focus:ring-red-500 bg-red-50"
-                  : "border-gray-300"
-                  } custom-focus`}
+                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors.address
+                    ? "border-red-500 focus:ring-red-500 bg-red-50"
+                    : "border-gray-300"
+                } custom-focus`}
               />
               {errors.address && (
                 <p className="mt-1 text-sm text-red-600">{errors.address}</p>
@@ -616,13 +696,18 @@ const ShippingComponent = ({
             </button>
             <button
               onClick={handleSaveAddress}
-              className="px-6 py-2 font-medium hover:opacity-90 transition-colors flex items-center gap-2"
+              disabled={loading}
+              className="px-6 py-2 font-medium hover:opacity-90 transition-colors flex items-center gap-2 disabled:opacity-50"
               style={{
                 backgroundColor: primaryColor,
-                color: 'white'
+                color: "white",
               }}
             >
-              <BsCheck />
+              {loading ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <BsCheck />
+              )}
               {isEditing ? "Update Address" : "Save Address"}
             </button>
           </div>
