@@ -6,126 +6,116 @@ import {
   FaChevronRight, FaChevronDown, FaPhone, FaMapMarkerAlt
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import orderApi from '../../../apis/orderApi';
+import userApi from '../../../apis/user/userApi';
 
 const MyOrders = () => {
+  const navigate = useNavigate();
+
+  // State
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [expandedOrder, setExpandedOrder] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [totalSpent, setTotalSpent] = useState(0);
+
   // Scroll to top on component mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const navigate = useNavigate();
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [expandedOrder, setExpandedOrder] = useState(null);
-  const [showFilters, setShowFilters] = useState(false);
+  // Fetch orders from API
+  useEffect(() => {
+    const fetchOrders = async () => {
+      // Check if user is logged in
+      if (!userApi.isAuthenticated()) {
+        toast.error('Please login to view your orders');
+        navigate('/login');
+        return;
+      }
 
-  const orders = [
-    {
-      id: 1,
-      orderNo: 'ORD-2023-001',
-      date: '2023-12-15',
-      amount: '₹25,499',
-      status: 'delivered',
-      items: [
-        { name: 'Diamond Pendant Set', quantity: 1, price: '₹18,999', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w-150' },
-        { name: 'Gold Earrings', quantity: 1, price: '₹6,500', image: 'https://images.unsplash.com/photo-1605100940032-c0c1c4fdf445?w=150' }
-      ],
-      shippingAddress: '123, MG Road, Bangalore, Karnataka - 560001',
-      paymentMethod: 'Credit Card',
-      trackingId: 'TRK-789456123',
-      estimatedDelivery: '2023-12-18'
-    },
-    {
-      id: 2,
-      orderNo: 'ORD-2023-002',
-      date: '2023-12-10',
-      amount: '₹18,999',
-      status: 'shipped',
-      items: [
-        { name: 'Gold Bangle', quantity: 1, price: '₹18,999', image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w-150' }
-      ],
-      shippingAddress: '456, Park Street, Kolkata, West Bengal - 700016',
-      paymentMethod: 'UPI',
-      trackingId: 'TRK-456123789',
-      estimatedDelivery: '2023-12-13'
-    },
-    {
-      id: 3,
-      orderNo: 'ORD-2023-003',
-      date: '2023-12-05',
-      amount: '₹42,999',
-      status: 'processing',
-      items: [
-        { name: 'Platinum Ring', quantity: 1, price: '₹32,999', image: 'https://images.unsplash.com/photo-1603561596112-0a1325447283?w=150' },
-        { name: 'Pearl Necklace', quantity: 1, price: '₹10,000', image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=150' }
-      ],
-      shippingAddress: '789, Connaught Place, Delhi - 110001',
-      paymentMethod: 'Credit Card',
-      trackingId: 'TRK-123456789',
-      estimatedDelivery: '2023-12-10'
-    },
-    {
-      id: 4,
-      orderNo: 'ORD-2023-004',
-      date: '2023-11-28',
-      amount: '₹15,750',
-      status: 'cancelled',
-      items: [
-        { name: 'Silver Bracelet', quantity: 1, price: '₹15,750', image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=150' }
-      ],
-      shippingAddress: '321, Marine Drive, Mumbai, Maharashtra - 400020',
-      paymentMethod: 'Debit Card',
-      trackingId: null,
-      estimatedDelivery: null
-    },
-    {
-      id: 5,
-      orderNo: 'ORD-2023-005',
-      date: '2023-11-20',
-      amount: '₹38,500',
-      status: 'delivered',
-      items: [
-        { name: 'Diamond Earrings', quantity: 1, price: '₹28,500', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=150' },
-        { name: 'Gold Chain', quantity: 1, price: '₹10,000', image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=150' }
-      ],
-      shippingAddress: '123, MG Road, Bangalore, Karnataka - 560001',
-      paymentMethod: 'EMI',
-      trackingId: 'TRK-987654321',
-      estimatedDelivery: '2023-11-25'
-    },
-    {
-      id: 6,
-      orderNo: 'ORD-2023-006',
-      date: '2023-11-15',
-      amount: '₹22,499',
-      status: 'delivered',
-      items: [
-        { name: 'Ruby Pendant', quantity: 1, price: '₹22,499', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=150' }
-      ],
-      shippingAddress: '123, MG Road, Bangalore, Karnataka - 560001',
-      paymentMethod: 'Net Banking',
-      trackingId: 'TRK-654987321',
-      estimatedDelivery: '2023-11-20'
-    }
-  ];
+      setLoading(true);
+
+      orderApi.getUserOrders({
+        params: { limit: 50, sort: '-createdAt' },
+        setLoading,
+        onSuccess: (data) => {
+          if (data.success && data.data) {
+            const ordersData = data.data.orders || data.data || [];
+            const transformedOrders = ordersData.map(order => ({
+              id: order._id || order.id,
+              orderNo: order.orderId || `ORD-${(order._id || order.id).slice(-8).toUpperCase()}`,
+              date: order.createdAt,
+              amount: order.grandTotal || order.total || 0,
+              status: order.status || 'pending',
+              shippingStatus: order.shippingStatus,
+              paymentStatus: order.paymentStatus,
+              items: (order.items || []).map(item => ({
+                id: item.product?._id || item.productId,
+                name: item.product?.name || item.name || 'Product',
+                quantity: item.quantity || 1,
+                price: item.price || 0,
+                image: item.product?.images?.[0]?.url || 'https://via.placeholder.com/150'
+              })),
+              shippingAddress: order.shippingAddress
+                ? `${order.shippingAddress.street || ''}, ${order.shippingAddress.city || ''}, ${order.shippingAddress.state || ''} - ${order.shippingAddress.postalCode || ''}`
+                : 'Address not available',
+              paymentMethod: order.paymentMethod || 'Online',
+              trackingId: order.trackingNumber || null,
+              estimatedDelivery: order.estimatedDelivery || null,
+              deliveredAt: order.deliveredAt || null
+            }));
+
+            setOrders(transformedOrders);
+
+            // Calculate total spent from delivered orders
+            const total = transformedOrders
+              .filter(o => o.status === 'delivered')
+              .reduce((sum, o) => sum + (o.amount || 0), 0);
+            setTotalSpent(total);
+          } else {
+            setOrders([]);
+          }
+        },
+        onError: (err) => {
+          console.error('Error fetching orders:', err);
+          toast.error('Failed to load orders');
+          setOrders([]);
+        },
+      });
+    };
+
+    fetchOrders();
+  }, [navigate]);
 
   const stats = [
     { label: 'Total Orders', value: orders.length, icon: <FaHistory className="text-[#C19A6B]" /> },
-    { label: 'Total Spent', value: '1,63,646', icon: <FaRupeeSign className="text-[#C19A6B]" /> },
-    { label: 'Pending', value: orders.filter(o => o.status === 'processing').length, icon: <FaClock className="text-[#C19A6B]" /> },
+    { label: 'Total Spent', value: `₹${totalSpent.toLocaleString('en-IN')}`, icon: <FaRupeeSign className="text-[#C19A6B]" /> },
+    { label: 'Pending', value: orders.filter(o => ['pending', 'confirmed', 'processing'].includes(o.status)).length, icon: <FaClock className="text-[#C19A6B]" /> },
     { label: 'Delivered', value: orders.filter(o => o.status === 'delivered').length, icon: <FaCheckCircle className="text-[#C19A6B]" /> }
   ];
 
   const filters = [
     { key: 'all', label: 'All', count: orders.length },
-    { key: 'processing', label: 'Processing', count: orders.filter(o => o.status === 'processing').length },
+    { key: 'processing', label: 'Processing', count: orders.filter(o => ['pending', 'confirmed', 'processing'].includes(o.status)).length },
     { key: 'shipped', label: 'Shipped', count: orders.filter(o => o.status === 'shipped').length },
     { key: 'delivered', label: 'Delivered', count: orders.filter(o => o.status === 'delivered').length },
-    { key: 'cancelled', label: 'Cancelled', count: orders.filter(o => o.status === 'cancelled').length }
+    { key: 'cancelled', label: 'Cancelled', count: orders.filter(o => ['cancelled', 'returned', 'refunded'].includes(o.status)).length }
   ];
 
   const filteredOrders = orders.filter(order => {
-    const matchesFilter = activeFilter === 'all' || order.status === activeFilter;
+    let matchesFilter = activeFilter === 'all';
+    if (activeFilter === 'processing') {
+      matchesFilter = ['pending', 'confirmed', 'processing'].includes(order.status);
+    } else if (activeFilter === 'cancelled') {
+      matchesFilter = ['cancelled', 'returned', 'refunded'].includes(order.status);
+    } else if (activeFilter !== 'all') {
+      matchesFilter = order.status === activeFilter;
+    }
+
     const matchesSearch = searchQuery === '' ||
       order.orderNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.items.some(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -133,15 +123,19 @@ const MyOrders = () => {
   });
 
   const handleViewDetails = (order) => {
-    navigate(`/orderDetails/${order.id}`, { state: { order } });
+    navigate(`/orderDetails/${order.id}`);
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
       case 'delivered': return <FaCheckCircle className="text-green-500" />;
       case 'shipped': return <FaTruck className="text-blue-500" />;
+      case 'pending':
+      case 'confirmed':
       case 'processing': return <FaClock className="text-yellow-500" />;
-      case 'cancelled': return <FaTimesCircle className="text-red-500" />;
+      case 'cancelled':
+      case 'returned':
+      case 'refunded': return <FaTimesCircle className="text-red-500" />;
       default: return <FaClock className="text-gray-500" />;
     }
   };
@@ -150,8 +144,12 @@ const MyOrders = () => {
     switch (status) {
       case 'delivered': return 'bg-green-100 text-green-800';
       case 'shipped': return 'bg-blue-100 text-blue-800';
+      case 'pending':
+      case 'confirmed':
       case 'processing': return 'bg-yellow-100 text-yellow-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
+      case 'cancelled':
+      case 'returned':
+      case 'refunded': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -160,36 +158,115 @@ const MyOrders = () => {
     switch (status) {
       case 'delivered': return 'Delivered';
       case 'shipped': return 'Shipped';
+      case 'pending': return 'Pending';
+      case 'confirmed': return 'Confirmed';
       case 'processing': return 'Processing';
       case 'cancelled': return 'Cancelled';
+      case 'returned': return 'Returned';
+      case 'refunded': return 'Refunded';
       default: return 'Pending';
     }
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     const options = { day: 'numeric', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-IN', options);
+  };
+
+  const formatPrice = (price) => {
+    if (typeof price === 'number') {
+      return `₹${price.toLocaleString('en-IN')}`;
+    }
+    return price || '₹0';
   };
 
   const toggleOrderExpand = (orderId) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
 
-  const handleReorder = (orderId) => {
-    alert(`Reordering order #${orderId}`);
+  const handleReorder = (order) => {
+    // Add items to cart (this would need cart context integration)
+    toast.info('Reorder feature coming soon!');
   };
 
   const handleTrackOrder = (orderId) => {
-    alert(`Tracking order #${orderId}`);
+    orderApi.trackOrder({
+      orderId,
+      onSuccess: (data) => {
+        if (data.success) {
+          toast.success('Order tracking details loaded');
+          // Could show a modal with tracking info
+        }
+      },
+      onError: () => {
+        toast.error('Failed to load tracking details');
+      }
+    });
+  };
+
+  const handleCancelOrder = (orderId) => {
+    if (!window.confirm('Are you sure you want to cancel this order?')) return;
+
+    orderApi.cancelOrder({
+      orderId,
+      reason: 'Customer requested cancellation',
+      onSuccess: (data) => {
+        if (data.success) {
+          toast.success('Order cancelled successfully');
+          // Update the order in state
+          setOrders(prev => prev.map(o =>
+            o.id === orderId ? { ...o, status: 'cancelled' } : o
+          ));
+        }
+      },
+      onError: (err) => {
+        toast.error(err.message || 'Failed to cancel order');
+      }
+    });
   };
 
   const handleWriteReview = (orderId) => {
-    alert(`Writing review for order #${orderId}`);
+    toast.info('Review feature coming soon!');
   };
 
   const handleCallSupport = () => {
-    alert('Calling customer support...');
+    window.location.href = 'tel:+919876543210';
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+        <div className="bg-gradient-to-r from-[#C19A6B] to-[#D4B896] text-white py-8 md:py-12">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="animate-pulse">
+              <div className="h-8 bg-white/20 w-48 mb-2 rounded"></div>
+              <div className="h-4 bg-white/20 w-64 rounded"></div>
+            </div>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="bg-white rounded-xl p-4 animate-pulse">
+                <div className="h-8 bg-gray-200 w-16 mb-2 rounded"></div>
+                <div className="h-4 bg-gray-200 w-24 rounded"></div>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="bg-white rounded-xl p-6 animate-pulse">
+                <div className="h-6 bg-gray-200 w-32 mb-4 rounded"></div>
+                <div className="h-16 bg-gray-100 rounded"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -312,8 +389,8 @@ const MyOrders = () => {
                       setShowFilters(false);
                     }}
                     className={`px-3 py-1.5 rounded-lg transition-colors duration-200 text-sm ${activeFilter === filter.key
-                        ? 'bg-[#C19A6B] text-white'
-                        : 'bg-gray-100 text-gray-700'
+                      ? 'bg-[#C19A6B] text-white'
+                      : 'bg-gray-100 text-gray-700'
                       }`}
                   >
                     {filter.label} ({filter.count})
@@ -330,8 +407,8 @@ const MyOrders = () => {
                 key={filter.key}
                 onClick={() => setActiveFilter(filter.key)}
                 className={`px-4 py-2 rounded-lg transition-colors duration-200 ${activeFilter === filter.key
-                    ? 'bg-[#C19A6B] text-white hover:bg-[#B08D5F]'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900'
+                  ? 'bg-[#C19A6B] text-white hover:bg-[#B08D5F]'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900'
                   }`}
               >
                 {filter.label} ({filter.count})
@@ -346,7 +423,19 @@ const MyOrders = () => {
             <div className="bg-white rounded-xl p-8 text-center">
               <FaBoxOpen className="text-4xl text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No orders found</h3>
-              <p className="text-gray-600 text-sm">No orders match your current filters or search.</p>
+              <p className="text-gray-600 text-sm">
+                {orders.length === 0
+                  ? "You haven't placed any orders yet."
+                  : "No orders match your current filters or search."}
+              </p>
+              {orders.length === 0 && (
+                <button
+                  onClick={() => navigate('/categories')}
+                  className="mt-4 px-6 py-2 bg-[#C19A6B] text-white rounded-lg"
+                >
+                  Start Shopping
+                </button>
+              )}
             </div>
           ) : (
             filteredOrders.map((order) => (
@@ -370,29 +459,32 @@ const MyOrders = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-gray-900">{order.amount}</div>
+                      <div className="font-bold text-gray-900">{formatPrice(order.amount)}</div>
                       <div className="text-xs text-gray-600">{order.paymentMethod}</div>
                     </div>
                   </div>
 
                   {/* First Item Preview */}
-                  <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                      <img
-                        src={order.items[0].image}
-                        alt={order.items[0].name}
-                        className="w-full h-full object-cover"
-                      />
+                  {order.items.length > 0 && (
+                    <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                        <img
+                          src={order.items[0].image}
+                          alt={order.items[0].name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{order.items[0].name}</p>
+                        <p className="text-xs text-gray-600">Qty: {order.items[0].quantity}</p>
+                        {order.items.length > 1 && (
+                          <p className="text-xs text-gray-500 mt-1">+ {order.items.length - 1} more item(s)</p>
+                        )}
+                      </div>
+                      <FaChevronRight className={`transform transition-transform ${expandedOrder === order.id ? 'rotate-90' : ''}`} />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{order.items[0].name}</p>
-                      <p className="text-xs text-gray-600">Qty: {order.items[0].quantity}</p>
-                      {order.items.length > 1 && (
-                        <p className="text-xs text-gray-500 mt-1">+ {order.items.length - 1} more item(s)</p>
-                      )}
-                    </div>
-                    <FaChevronRight className={`transform transition-transform ${expandedOrder === order.id ? 'rotate-90' : ''}`} />
-                  </div>
+                  )}
                 </div>
 
                 {/* Expanded Details */}
@@ -409,11 +501,12 @@ const MyOrders = () => {
                                 src={item.image}
                                 alt={item.name}
                                 className="w-full h-full object-cover"
+                                onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }}
                               />
                             </div>
                             <div className="flex-1">
                               <p className="text-sm text-gray-900">{item.name}</p>
-                              <p className="text-xs text-gray-600">Qty: {item.quantity} • {item.price}</p>
+                              <p className="text-xs text-gray-600">Qty: {item.quantity} • {formatPrice(item.price)}</p>
                             </div>
                           </div>
                         ))}
@@ -454,7 +547,7 @@ const MyOrders = () => {
                       {order.status === 'delivered' && (
                         <>
                           <button
-                            onClick={() => handleReorder(order.id)}
+                            onClick={() => handleReorder(order)}
                             className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm bg-blue-50 text-blue-600 rounded-lg font-medium border border-blue-100"
                           >
                             <FaRedo className="text-xs" />
@@ -479,6 +572,16 @@ const MyOrders = () => {
                           Track Order
                         </button>
                       )}
+
+                      {['pending', 'confirmed', 'processing'].includes(order.status) && (
+                        <button
+                          onClick={() => handleCancelOrder(order.id)}
+                          className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm bg-red-50 text-red-600 rounded-lg font-medium border border-red-100"
+                        >
+                          <FaTimesCircle className="text-xs" />
+                          Cancel
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
@@ -493,7 +596,19 @@ const MyOrders = () => {
             <div className="p-12 text-center">
               <FaBoxOpen className="text-4xl text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No orders found</h3>
-              <p className="text-gray-600">No orders match your current filters or search.</p>
+              <p className="text-gray-600">
+                {orders.length === 0
+                  ? "You haven't placed any orders yet."
+                  : "No orders match your current filters or search."}
+              </p>
+              {orders.length === 0 && (
+                <button
+                  onClick={() => navigate('/categories')}
+                  className="mt-4 px-6 py-2 bg-[#C19A6B] text-white rounded-lg"
+                >
+                  Start Shopping
+                </button>
+              )}
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -514,17 +629,22 @@ const MyOrders = () => {
                         <div className="flex items-center gap-3">
                           <div className="flex-shrink-0">
                             <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
-                              <img
-                                src={order.items[0].image}
-                                alt={order.items[0].name}
-                                className="w-full h-full object-cover"
-                              />
+                              {order.items.length > 0 && (
+                                <img
+                                  src={order.items[0].image}
+                                  alt={order.items[0].name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }}
+                                />
+                              )}
                             </div>
                           </div>
                           <div>
                             <div className="font-medium text-gray-900">{order.orderNo}</div>
                             <div className="text-sm text-gray-600">{order.items.length} item{order.items.length > 1 ? 's' : ''}</div>
-                            <div className="text-xs text-gray-500 mt-1">{order.items[0].name}</div>
+                            {order.items.length > 0 && (
+                              <div className="text-xs text-gray-500 mt-1">{order.items[0].name}</div>
+                            )}
                           </div>
                         </div>
                       </td>
@@ -535,7 +655,7 @@ const MyOrders = () => {
                         </div>
                       </td>
                       <td className="p-4">
-                        <div className="font-bold text-gray-900">{order.amount}</div>
+                        <div className="font-bold text-gray-900">{formatPrice(order.amount)}</div>
                         <div className="text-sm text-gray-600 flex items-center gap-1">
                           <FaCreditCard className="text-gray-400" />
                           {order.paymentMethod}
@@ -565,7 +685,7 @@ const MyOrders = () => {
                           {order.status === 'delivered' && (
                             <>
                               <button
-                                onClick={() => handleReorder(order.id)}
+                                onClick={() => handleReorder(order)}
                                 className="flex items-center gap-2 px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors duration-200"
                               >
                                 <FaRedo className="text-xs" />
@@ -588,6 +708,16 @@ const MyOrders = () => {
                             >
                               <FaTruck className="text-xs" />
                               Track Order
+                            </button>
+                          )}
+
+                          {['pending', 'confirmed', 'processing'].includes(order.status) && (
+                            <button
+                              onClick={() => handleCancelOrder(order.id)}
+                              className="flex items-center gap-2 px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors duration-200"
+                            >
+                              <FaTimesCircle className="text-xs" />
+                              Cancel Order
                             </button>
                           )}
                         </div>

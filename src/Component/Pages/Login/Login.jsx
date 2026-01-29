@@ -45,18 +45,13 @@ const Login = () => {
         password: formData.password,
       });
 
-      if (response.success) {
+      if (response.status === 'success') {
         toast.success("Login successful!");
-
-        // userApi.login already stores user data with tokens in localStorage
-        // Just handle remember me token if needed
-        if (rememberMe && response.data?.tokens?.accessToken) {
-          localStorage.setItem("rememberToken", response.data.tokens.accessToken);
+        if (rememberMe || response?.token) {
+          localStorage.setItem("rememberToken", response.token);
         } else {
           localStorage.removeItem("rememberToken");
         }
-
-        // Redirect to home page or dashboard
         navigate("/");
       } else {
         toast.error(response.message || "Login failed");

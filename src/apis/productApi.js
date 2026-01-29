@@ -108,6 +108,16 @@ const productApi = {
       onSuccess,
       onError,
     }),
+
+  // Alias for getProductsOnSale (for backward compatibility)
+  getOnSaleProducts: ({ params, setLoading, onSuccess, onError }) =>
+    apiCall.get({
+      route: '/products/on-sale',
+      params,
+      setLoading,
+      onSuccess,
+      onError,
+    }),
 };
 
 export default productApi;

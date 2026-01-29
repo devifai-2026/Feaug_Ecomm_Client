@@ -1,32 +1,137 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BsCurrencyRupee } from 'react-icons/bs';
+import productApi from '../../../apis/productApi';
 import one from "../../../assets/RelatedProduct/one.jpg"
 import two from "../../../assets/RelatedProduct/two.jpg"
 import three from "../../../assets/RelatedProduct/three.jpg"
 
-const RelatedProducts = () => {
-    const products = [
+const RelatedProducts = ({ productId }) => {
+    const navigate = useNavigate();
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    // Fallback products when API doesn't return data
+    const fallbackProducts = [
         {
-            id: 1,
+            id: 'fallback-1',
             name: "Platinum Square Ring",
-            originalPrice: 129.99,
-            discountedPrice: 89.99,
+            originalPrice: 12999,
+            discountedPrice: 8999,
             image: one
         },
         {
-            id: 2,
+            id: 'fallback-2',
             name: "Platinum Rectangular Ring",
-            originalPrice: 149.99,
-            discountedPrice: 99.99,
+            originalPrice: 14999,
+            discountedPrice: 9999,
             image: two
         },
         {
-            id: 3,
+            id: 'fallback-3',
             name: "Platinum Oval Ring",
-            originalPrice: 109.99,
-            discountedPrice: 79.99,
+            originalPrice: 10999,
+            discountedPrice: 7999,
             image: three
         }
     ];
+
+    useEffect(() => {
+        if (!productId) {
+            setProducts(fallbackProducts);
+            setLoading(false);
+            return;
+        }
+
+        setLoading(true);
+
+        productApi.getSimilarProducts({
+            productId,
+            params: { limit: 6 },
+            setLoading,
+            onSuccess: (data) => {
+                if (data.success && data.data && data.data.length > 0) {
+                    const transformedProducts = data.data.map(product => ({
+                        id: product._id || product.id,
+                        name: product.name,
+                        originalPrice: product.basePrice,
+                        discountedPrice: product.sellingPrice || product.basePrice,
+                        image: product.images?.[0]?.url || one,
+                        rating: product.rating || 0,
+                        stock: product.stock || 0
+                    }));
+                    setProducts(transformedProducts);
+                } else {
+                    // Fallback to featured products if no similar products
+                    productApi.getFeaturedProducts({
+                        params: { limit: 6 },
+                        onSuccess: (featuredData) => {
+                            if (featuredData.success && featuredData.data?.products) {
+                                const transformedProducts = featuredData.data.products
+                                    .filter(p => p._id !== productId && p.id !== productId)
+                                    .slice(0, 3)
+                                    .map(product => ({
+                                        id: product._id || product.id,
+                                        name: product.name,
+                                        originalPrice: product.basePrice,
+                                        discountedPrice: product.sellingPrice || product.basePrice,
+                                        image: product.images?.[0]?.url || one,
+                                        rating: product.rating || 0,
+                                        stock: product.stock || 0
+                                    }));
+                                setProducts(transformedProducts.length > 0 ? transformedProducts : fallbackProducts);
+                            } else {
+                                setProducts(fallbackProducts);
+                            }
+                        },
+                        onError: () => {
+                            setProducts(fallbackProducts);
+                        }
+                    });
+                }
+            },
+            onError: (err) => {
+                console.error('Error fetching similar products:', err);
+                setProducts(fallbackProducts);
+            },
+        });
+    }, [productId]);
+
+    const handleProductClick = (id) => {
+        if (id.startsWith('fallback-')) {
+            // For fallback products, just scroll to top
+            window.scrollTo(0, 0);
+            return;
+        }
+        navigate(`/product/${id}`);
+        window.scrollTo(0, 0);
+    };
+
+    if (loading) {
+        return (
+            <div className='max-w-[90%] mx-auto'>
+                <div className='mt-10 mb-10'>
+                    <hr />
+                </div>
+                <div>
+                    <h2 className='text-2xl md:text-3xl font-bold mb-8 md:mb-10 text-center md:text-left'>Related Products</h2>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8'>
+                        {[1, 2, 3].map((index) => (
+                            <div key={index} className='animate-pulse'>
+                                <div className='bg-gray-200 w-full h-64 sm:h-80 md:h-[400px]'></div>
+                                <div className='bg-gray-200 h-6 w-3/4 mt-4 mb-2'></div>
+                                <div className='bg-gray-200 h-5 w-1/2'></div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (products.length === 0) {
+        return null;
+    }
 
     return (
         <div className='max-w-[90%] mx-auto'>
@@ -34,25 +139,38 @@ const RelatedProducts = () => {
                 <hr />
             </div>
             {/* Related Products Section */}
-            <div>
+            <div className='mb-10'>
                 <h2 className='text-2xl md:text-3xl font-bold mb-8 md:mb-10 text-center md:text-left'>Related Products</h2>
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8'>
                     {products.map((product) => (
-                        <div key={product.id} className='group cursor-pointer'>
+                        <div
+                            key={product.id}
+                            className='group cursor-pointer'
+                            onClick={() => handleProductClick(product.id)}
+                        >
                             <div className='relative overflow-hidden'>
-                                <img 
-                                    className='w-full h-64 sm:h-80 md:h-[400px] object-cover transition-all duration-300 group-hover:scale-105' 
-                                    src={product.image} 
-                                    alt={product.name} 
+                                <img
+                                    className='w-full h-64 sm:h-80 md:h-[400px] object-cover transition-all duration-300 group-hover:scale-105'
+                                    src={product.image}
+                                    alt={product.name}
                                 />
+                                {product.stock === 0 && (
+                                    <div className='absolute inset-0 bg-black/50 flex items-center justify-center'>
+                                        <span className='text-white font-semibold text-lg'>Out of Stock</span>
+                                    </div>
+                                )}
                             </div>
-                            <h2 className='text-lg md:text-xl font-semibold mt-4 mb-2 transition-all duration-300 group-hover:scale-105'>{product.name}</h2>
+                            <h2 className='text-lg md:text-xl font-semibold mt-4 mb-2 transition-all duration-300 group-hover:scale-105'>
+                                {product.name}
+                            </h2>
                             <div className='flex items-center gap-2'>
-                                <p className='text-gray-500 line-through text-sm md:text-base transition-all duration-300 group-hover:scale-105 flex items-center gap-1'>
-                                    <BsCurrencyRupee />{product.originalPrice}
-                                </p>
+                                {product.originalPrice > product.discountedPrice && (
+                                    <p className='text-gray-500 line-through text-sm md:text-base transition-all duration-300 group-hover:scale-105 flex items-center gap-1'>
+                                        <BsCurrencyRupee />{product.originalPrice?.toLocaleString('en-IN')}
+                                    </p>
+                                )}
                                 <p className='text-lg md:text-xl font-bold text-gray-800 transition-all duration-300 group-hover:scale-105 flex items-center gap-1'>
-                                    <BsCurrencyRupee />{product.discountedPrice}
+                                    <BsCurrencyRupee />{product.discountedPrice?.toLocaleString('en-IN')}
                                 </p>
                             </div>
                         </div>

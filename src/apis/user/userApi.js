@@ -2,20 +2,33 @@ import axiosInstance from "../../axios/axiosInstance";
 import { handleApiError } from "../../error/apiError";
 
 // Helper to store user data in localStorage (aligned with helpers pattern)
-const storeUserData = (data) => {
-  if (data.user && data.tokens) {
+const storeUserData = (responseData) => {
+  // Backend response after normalization: { status, success, token, data: { user } }
+  if (responseData.token && responseData.data?.user) {
     const userData = {
-      ...data.user,
-      token: data.tokens.accessToken,
-      refreshToken: data.tokens.refreshToken,
+      ...responseData.data.user,
+      token: responseData.token,
     };
     localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('token', responseData.token);
     localStorage.setItem('isLoggedIn', 'true');
     window.dispatchEvent(new Event('userLoginStatusChanged'));
-  } else if (data.token) {
-    // Fallback for simple token response
-    const userData = { ...data.user, token: data.token };
+  } else if (responseData.user && responseData.tokens) {
+    // Alternative format with tokens object
+    const userData = {
+      ...responseData.user,
+      token: responseData.tokens.accessToken,
+      refreshToken: responseData.tokens.refreshToken,
+    };
     localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('token', responseData.tokens.accessToken);
+    localStorage.setItem('isLoggedIn', 'true');
+    window.dispatchEvent(new Event('userLoginStatusChanged'));
+  } else if (responseData.token && responseData.user) {
+    // Simple format with user and token at same level
+    const userData = { ...responseData.user, token: responseData.token };
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('token', responseData.token);
     localStorage.setItem('isLoggedIn', 'true');
     window.dispatchEvent(new Event('userLoginStatusChanged'));
   }
@@ -24,6 +37,7 @@ const storeUserData = (data) => {
 // Helper to clear user data from localStorage
 const clearUserData = () => {
   localStorage.removeItem('user');
+  localStorage.removeItem('token');
   localStorage.removeItem('isLoggedIn');
   window.dispatchEvent(new Event('userLoginStatusChanged'));
 };
@@ -56,7 +70,7 @@ const userApi = {
     try {
       const response = await axiosInstance.post("/auth/register", userData);
       if (response.data.success) {
-        storeUserData(response.data.data);
+        storeUserData(response.data);
       }
       return response.data;
     } catch (error) {
@@ -70,8 +84,9 @@ const userApi = {
       const response = await axiosInstance.post("/auth/login", credentials);
 
       // Store user data using standardized format
-      if (response.data.success) {
-        storeUserData(response.data.data);
+      // Pass entire response.data which contains { status, success, token, data: { user } }
+      if (response.data.status === 'success') {
+        storeUserData(response.data);
       }
 
       return response.data;

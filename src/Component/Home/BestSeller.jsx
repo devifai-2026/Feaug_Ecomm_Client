@@ -187,7 +187,7 @@ const BestSeller = () => {
 
   // Handle view more
   const handleViewMore = () => {
-    navigate('/products');
+    navigate('/categories');
   };
 
   // Refresh AOS when slide changes
@@ -336,8 +336,8 @@ const BestSeller = () => {
                     <div className='lg:hidden absolute top-3 right-3 flex flex-col gap-2 z-10'>
                       <button
                         className={`p-2 rounded-full shadow-lg transition-all duration-300 ${isInWishlistItem
-                            ? 'bg-red-50 text-red-500'
-                            : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-500'
+                          ? 'bg-red-50 text-red-500'
+                          : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-500'
                           }`}
                         onClick={(e) => handleWishlistClick(product, e)}
                         title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}
@@ -364,8 +364,8 @@ const BestSeller = () => {
                       }`}>
                       <button
                         className={`p-2 rounded-full shadow-lg transition-all duration-300 ${isInWishlistItem
-                            ? 'bg-red-50 text-red-500'
-                            : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-500'
+                          ? 'bg-red-50 text-red-500'
+                          : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-500'
                           }`}
                         onClick={(e) => handleWishlistClick(product, e)}
                         title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}

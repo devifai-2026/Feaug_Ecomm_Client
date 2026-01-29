@@ -45,6 +45,7 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       // Clear user data and redirect to login
       localStorage.removeItem("user");
+      localStorage.removeItem("token");
       localStorage.removeItem("isLoggedIn");
       window.dispatchEvent(new Event('userLoginStatusChanged'));
       window.location.href = "/login";

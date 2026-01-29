@@ -54,8 +54,15 @@ export const request = async (
 
     const response = await axios(options);
 
-    if (onSuccess) onSuccess(response.data);
-    return response.data;
+    // Normalize response to add 'success' field for backward compatibility
+    // Backend returns { status: 'success', ... } but frontend expects { success: true, ... }
+    const normalizedData = {
+      ...response.data,
+      success: response.data.status === 'success'
+    };
+
+    if (onSuccess) onSuccess(normalizedData);
+    return normalizedData;
 
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -70,8 +77,14 @@ export const request = async (
           originalRequest.headers["authorization"] = `Bearer ${newToken}`;
           const retryResponse = await axios(originalRequest);
 
-          if (onSuccess) onSuccess(retryResponse.data);
-          return retryResponse.data;
+          // Normalize retry response as well
+          const normalizedRetryData = {
+            ...retryResponse.data,
+            success: retryResponse.data.status === 'success'
+          };
+
+          if (onSuccess) onSuccess(normalizedRetryData);
+          return normalizedRetryData;
 
         } catch (refreshError) {
           const sessionExpiredError = new Error("Session expired. Please login again.");

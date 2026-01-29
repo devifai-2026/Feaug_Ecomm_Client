@@ -12,7 +12,7 @@ import {
 } from 'react-icons/bs';
 import { Link, useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../Context/CartContext';
 import Banner from '../../Common/Banner';
 
 
@@ -78,6 +78,18 @@ const Cart = () => {
     const handleProceedToCheckout = () => {
         if (cartItems.length === 0) {
             toast.error('Your cart is empty!');
+            return;
+        }
+
+        // Check if user is logged in
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        if (!isLoggedIn) {
+            toast.error('Please login to proceed to checkout', {
+                icon: '🔒',
+                duration: 3000,
+            });
+            // Navigate to login page after a short delay
+            setTimeout(() => navigate('/login'), 1000);
             return;
         }
 

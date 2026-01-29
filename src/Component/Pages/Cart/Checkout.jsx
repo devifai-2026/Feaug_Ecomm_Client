@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   BsCurrencyRupee,
   BsArrowLeft,
@@ -19,12 +20,18 @@ import BillingComponent from "./BillingComponent";
 import PaymentComponent from "./PaymentComponent";
 import { ReviewComponent } from "./ReviewComponent";
 import { OrderSummary } from "./OrderSummary";
+import { useCart } from "../../Context/CartContext";
+import orderApi from "../../../apis/orderApi";
+import cartApi from "../../../apis/cartApi";
+import userApi from "../../../apis/user/userApi";
+import { env } from "../../../environments";
+import { INDIAN_STATES, validateShippingField, validateBillingField, validatePaymentField } from "../../utils/Validation";
 
 const SHIPPING_OPTIONS = [
   {
     id: "standard",
     name: "Standard Shipping",
-    cost: 50,
+    cost: 0,
     days: "5-7 business days",
   },
   {
@@ -42,16 +49,21 @@ const SHIPPING_OPTIONS = [
 ];
 
 const Checkout = () => {
+  const navigate = useNavigate();
+  const { cartItems, getCartTotal, clearCart } = useCart();
+
   // Custom color definitions
   const primaryColor = '#C19A6B';
   const primaryLight = '#E8D4B9';
   const primaryDark = '#A07A4B';
-  
+
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [stockChecking, setStockChecking] = useState(false);
   const [sameAsShipping, setSameAsShipping] = useState(true);
   const [saveInfo, setSaveInfo] = useState(false);
   const [selectedShipping, setSelectedShipping] = useState("standard");
+  const [userAddresses, setUserAddresses] = useState([]);
 
   const [shippingInfo, setShippingInfo] = useState({
     firstName: "",
@@ -63,6 +75,7 @@ const Checkout = () => {
     state: "",
     zipCode: "",
     country: "India",
+    _id: "",
   });
 
   const [billingInfo, setBillingInfo] = useState({
@@ -73,10 +86,12 @@ const Checkout = () => {
     state: "",
     zipCode: "",
     country: "India",
+    _id: ""
   });
 
   const [paymentInfo, setPaymentInfo] = useState({
-    method: "upi",
+    method: "online",
+    onlineType: "card",
     cardNumber: "",
     cardName: "",
     expiryDate: "",
@@ -89,20 +104,112 @@ const Checkout = () => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  // Mock cart data
-  const cartItems = [
-    { id: 1, title: "Product 1", price: 999, quantity: 1, image: "" },
-  ];
+  // Check authentication and fetch latest user data
+  useEffect(() => {
+    const initCheckout = async () => {
+      if (!userApi.isAuthenticated()) {
+        toast.error('Please login to checkout');
+        navigate('/login', { state: { from: '/checkout' } });
+        return;
+      }
 
-  const getSubtotal = () =>
-    cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      setLoading(true);
+      try {
+        const response = await userApi.getCurrentUser();
+        if (response.status === 'success' && response.data) {
+          const user = response.data.user || response.data;
+
+          // Store all user addresses
+          if (user.addresses && Array.isArray(user.addresses)) {
+            // Map API addresses to the format expected by ShippingComponent
+            const formattedAddresses = user.addresses.map(addr => ({
+              id: addr._id,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              email: user.email,
+              phone: user.phone,
+              address: addr.addressLine1 + (addr.addressLine2 ? ', ' + addr.addressLine2 : ''),
+              city: addr.city,
+              state: addr.state,
+              zipCode: addr.pincode,
+              country: addr.country,
+              isDefault: addr.isDefault,
+              type: addr.type,
+              label: addr.type
+            }));
+            setUserAddresses(formattedAddresses);
+          }
+
+          // Find default or first address
+          const defaultAddr = user.addresses?.find(a => a.isDefault) || user.addresses?.[0];
+          setShippingInfo(prev => ({
+            ...prev,
+            _id: defaultAddr._id || '',
+            firstName: user.firstName || '',
+            lastName: user.lastName || '',
+            email: user.email || '',
+            phone: user.phone || '',
+            address: defaultAddr ? `${defaultAddr.addressLine1}${defaultAddr.addressLine2 ? ', ' + defaultAddr.addressLine2 : ''}` : '',
+            city: defaultAddr?.city || '',
+            state: defaultAddr?.state || '',
+            zipCode: defaultAddr?.pincode || '',
+            country: defaultAddr?.country || 'India',
+          }));
+        } else {
+          // Fallback to stored user
+          const user = userApi.getStoredUser();
+          if (user) {
+            setShippingInfo(prev => ({
+              ...prev,
+              firstName: user.firstName || '',
+              lastName: user.lastName || '',
+              email: user.email || '',
+              phone: user.phone || '',
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user data for checkout:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initCheckout();
+  }, [navigate]);
+
+  // Check stock availability
+  useEffect(() => {
+    if (cartItems.length > 0 && userApi.isAuthenticated()) {
+      setStockChecking(true);
+      cartApi.checkCartStock({
+        setLoading: setStockChecking,
+        onSuccess: (data) => {
+          if (!data.success || data.data?.outOfStock?.length > 0) {
+            toast.error('Some items in your cart are out of stock. Please update your cart.');
+          }
+        },
+        onError: () => {
+          // Silently fail stock check
+        }
+      });
+    }
+  }, [cartItems]);
+
+  // Calculate totals
+  const getSubtotal = () => {
+    return cartItems.reduce((sum, item) => {
+      const price = item.price || item.sellingPrice || 0;
+      return sum + (price * (item.quantity || 1));
+    }, 0);
+  };
 
   const subtotal = getSubtotal();
   const selectedShippingOption = SHIPPING_OPTIONS.find(
     (opt) => opt.id === selectedShipping
   );
   const shippingCost = selectedShippingOption?.cost || 0;
-  const tax = subtotal * 0.18;
+  const tax = Math.round(subtotal * 0.03); // 3% GST
   const total = subtotal + shippingCost + tax;
 
   useEffect(() => {
@@ -120,18 +227,59 @@ const Checkout = () => {
   }, [sameAsShipping, shippingInfo]);
 
   const handleStepValidation = async (currentStep) => {
-    let isValid = false;
+    let isValid = true;
+    const newErrors = {};
+    const newTouched = {};
 
     if (currentStep === 1) {
-      isValid = await ShippingComponent.validate(shippingInfo);
+      const fields = ["firstName", "lastName", "email", "phone", "address", "city", "state", "zipCode"];
+      fields.forEach(field => {
+        newTouched[field] = true;
+        const error = validateShippingField(field, shippingInfo[field], shippingInfo);
+        if (error) {
+          newErrors[field] = error;
+          isValid = false;
+        }
+      });
     } else if (currentStep === 2) {
-      const billingValid = sameAsShipping
-        ? true
-        : await BillingComponent.validate(billingInfo);
-      const paymentValid = await PaymentComponent.validate(paymentInfo);
-      isValid = billingValid && paymentValid;
+      // Validate Billing
+      if (!sameAsShipping) {
+        const billingFields = ["firstName", "lastName", "address", "city", "state", "zipCode"];
+        billingFields.forEach(field => {
+          newTouched[field] = true;
+          const error = validateBillingField(field, billingInfo[field], billingInfo);
+          if (error) {
+            newErrors[field] = error;
+            isValid = false;
+          }
+        });
+      }
+
+      // Validate Payment
+      const paymentFields = ["method"]; // Basic check
+      if (paymentInfo.method === 'online') {
+        if (paymentInfo.onlineType === 'card') {
+          ["cardNumber", "cardName", "expiryDate", "cvv"].forEach(field => {
+            newTouched[field] = true;
+            const error = validatePaymentField(field, paymentInfo[field], 'card');
+            if (error) {
+              newErrors[field] = error;
+              isValid = false;
+            }
+          });
+        } else if (paymentInfo.onlineType === 'upi') {
+          newTouched["upiId"] = true;
+          const error = validatePaymentField("upiId", paymentInfo.upiId, 'upi');
+          if (error) {
+            newErrors["upiId"] = error;
+            isValid = false;
+          }
+        }
+      }
     }
 
+    setErrors(newErrors);
+    setTouched(prev => ({ ...prev, ...newTouched }));
     return isValid;
   };
 
@@ -163,24 +311,83 @@ const Checkout = () => {
     }
   };
 
-  const showSuccessToast = () => {
+  // Load Razorpay script
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  // Handle Razorpay payment
+  const handleRazorpayPayment = async (orderData) => {
+    const scriptLoaded = await loadRazorpayScript();
+
+    if (!scriptLoaded) {
+      toast.error('Failed to load payment gateway. Please try again.');
+      return null;
+    }
+
+    return new Promise((resolve, reject) => {
+      const options = {
+        key: env.RAZORPAY_KEY_ID || 'rzp_test_1234567890',
+        amount: orderData.amount,
+        currency: orderData.currency || 'INR',
+        name: 'Feauage Jewelry',
+        description: `Order #${orderData.orderId}`,
+        order_id: orderData.razorpayOrderId,
+        handler: function (response) {
+          resolve({
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpayOrderId: response.razorpay_order_id,
+            razorpaySignature: response.razorpay_signature,
+          });
+        },
+        prefill: {
+          name: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+          email: shippingInfo.email,
+          contact: shippingInfo.phone,
+        },
+        theme: {
+          color: primaryColor,
+        },
+        modal: {
+          ondismiss: function () {
+            reject(new Error('Payment cancelled by user'));
+          },
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.on('payment.failed', function (response) {
+        reject(new Error(response.error.description || 'Payment failed'));
+      });
+      razorpay.open();
+    });
+  };
+
+  const showSuccessToast = (orderId) => {
     toast.custom(
       (t) => (
         <div
-          className={`transform transition-all duration-300 ${
-            t.visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
-          }`}
+          className={`transform transition-all duration-300 ${t.visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
+            }`}
         >
           <div className="relative bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-2xl shadow-2xl overflow-hidden border border-green-200 w-96">
-            {/* Animated top border */}
-            <div 
+            <div
               className="h-1 animate-pulse"
-              style={{ 
+              style={{
                 background: `linear-gradient(to right, ${primaryColor}, ${primaryDark})`
               }}
             ></div>
 
-            {/* Close Button */}
             <button
               onClick={() => toast.dismiss(t.id)}
               className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm hover:bg-white hover:scale-110 transition-all duration-200 shadow-md border border-green-200 hover:border-green-300"
@@ -188,265 +395,204 @@ const Checkout = () => {
               <BsX className="text-gray-600 hover:text-red-500 text-xl" />
             </button>
 
-            {/* Content */}
             <div className="p-6 text-center pt-8">
-              {/* Animated checkmark circle */}
               <div className="mb-4 flex justify-center">
-                <div 
+                <div
                   className="relative w-20 h-20 rounded-full flex items-center justify-center shadow-lg animate-bounce"
-                  style={{ 
+                  style={{
                     background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryDark})`
                   }}
                 >
                   <BsCheckCircle className="text-5xl text-white" />
-                  {/* Floating particles */}
-                  <div className="absolute inset-0 rounded-full">
-                    <div 
-                      className="absolute top-1 right-2 w-2 h-2 rounded-full animate-ping"
-                      style={{ backgroundColor: primaryLight }}
-                    ></div>
-                    <div
-                      className="absolute bottom-2 left-3 w-1.5 h-1.5 rounded-full animate-ping"
-                      style={{ 
-                        backgroundColor: primaryLight,
-                        animationDelay: "0.2s"
-                      }}
-                    ></div>
-                    <div
-                      className="absolute top-4 left-1 w-1 h-1 rounded-full animate-ping"
-                      style={{ 
-                        backgroundColor: primaryLight + '80',
-                        animationDelay: "0.4s"
-                      }}
-                    ></div>
-                  </div>
                 </div>
               </div>
 
-              {/* Main heading */}
-              <h3 
-                className="font-bold text-2xl bg-clip-text text-transparent mb-2"
-                style={{ 
+              <h3
+                className="font-bold text-2xl mb-2"
+                style={{
                   background: `linear-gradient(to right, ${primaryColor}, ${primaryDark})`,
-                  WebkitBackgroundClip: 'text'
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
                 }}
               >
-                Order Placed Successfully! 🎉
+                Order Placed Successfully!
               </h3>
 
-              {/* Divider */}
+              {orderId && (
+                <p className="text-gray-600 mb-2">Order ID: {orderId}</p>
+              )}
+
               <div className="h-px bg-gradient-to-r from-transparent via-green-300 to-transparent mb-4"></div>
 
-              {/* Payment method specific messages */}
               <div className="space-y-2">
                 {paymentInfo.method === "cod" && (
-                  <div 
-                    className="border rounded-lg p-3 animate-slideInUp"
-                    style={{ 
+                  <div
+                    className="border rounded-lg p-3"
+                    style={{
                       backgroundColor: primaryLight + '20',
                       borderColor: primaryColor
                     }}
                   >
-                    <div className="flex items-center justify-center gap-2">
-                      <div 
-                        className="w-5 h-5 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: primaryColor }}
-                      >
-                        <span className="text-white text-xs font-bold">!</span>
-                      </div>
-                      <p 
-                        className="text-sm font-semibold"
-                        style={{ color: primaryDark }}
-                      >
-                        Keep cash ready for delivery
-                      </p>
-                    </div>
-                    <p className="text-xs mt-2" style={{ color: primaryDark }}>
-                      Our delivery partner will contact you soon
+                    <p className="text-sm font-semibold" style={{ color: primaryDark }}>
+                      Keep cash ready for delivery
                     </p>
                   </div>
                 )}
 
-                {paymentInfo.method === "upi" && (
-                  <div 
-                    className="border rounded-lg p-3 animate-slideInUp"
-                    style={{ 
+                {paymentInfo.method === "online" && (
+                  <div
+                    className="border rounded-lg p-3"
+                    style={{
                       backgroundColor: primaryLight + '20',
                       borderColor: primaryColor
                     }}
                   >
-                    <div className="flex items-center justify-center gap-2">
-                      <div 
-                        className="w-5 h-5 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: primaryColor }}
-                      >
-                        <span className="text-white text-xs">✓</span>
-                      </div>
-                      <p 
-                        className="text-sm font-semibold"
-                        style={{ color: primaryDark }}
-                      >
-                        Complete payment in your UPI app
-                      </p>
-                    </div>
-                    <p className="text-xs mt-2" style={{ color: primaryDark }}>
-                      You'll receive a payment link shortly
-                    </p>
-                  </div>
-                )}
-
-                {paymentInfo.method === "card" && (
-                  <div 
-                    className="border rounded-lg p-3 animate-slideInUp"
-                    style={{ 
-                      backgroundColor: primaryLight + '20',
-                      borderColor: primaryColor
-                    }}
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      <div 
-                        className="w-5 h-5 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: primaryColor }}
-                      >
-                        <span className="text-white text-xs">💳</span>
-                      </div>
-                      <p 
-                        className="text-sm font-semibold"
-                        style={{ color: primaryDark }}
-                      >
-                        Payment processing in progress
-                      </p>
-                    </div>
-                    <p className="text-xs mt-2" style={{ color: primaryDark }}>
-                      Check your email for confirmation
+                    <p className="text-sm font-semibold" style={{ color: primaryDark }}>
+                      Payment confirmed successfully!
                     </p>
                   </div>
                 )}
               </div>
 
-              {/* Footer message */}
               <div className="mt-4 pt-4 border-t border-green-200">
-                <p className="text-xs text-gray-600">
-                  📧 Confirmation sent to your email • 🚚 Track your order anytime
-                </p>
+                <button
+                  onClick={() => {
+                    toast.dismiss(t.id);
+                    navigate('/myOrders');
+                  }}
+                  className="px-6 py-2 rounded-lg text-white font-medium"
+                  style={{ backgroundColor: primaryColor }}
+                >
+                  View My Orders
+                </button>
               </div>
             </div>
-
-            {/* Decorative elements */}
-            <div 
-              className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 -mr-16 -mt-16"
-              style={{ backgroundColor: primaryColor }}
-            ></div>
-            <div 
-              className="absolute bottom-0 left-0 w-24 h-24 rounded-full opacity-10 -ml-12 -mb-12"
-              style={{ backgroundColor: primaryDark }}
-            ></div>
-
-            <style>{`
-              @keyframes slideInUp {
-                from {
-                  opacity: 0;
-                  transform: translateY(10px);
-                }
-                to {
-                  opacity: 1;
-                  transform: translateY(0);
-                }
-              }
-              .animate-slideInUp {
-                animation: slideInUp 0.6s ease-out;
-              }
-            `}</style>
           </div>
         </div>
       ),
       {
-        duration: 5000,
+        duration: 8000,
         position: "top-center",
       }
     );
   };
 
   const handlePlaceOrder = async () => {
+    if (!userApi.isAuthenticated()) {
+      toast.error('Please login to place order');
+      navigate('/login');
+      return;
+    }
+
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      // Save address if requested and it's a new address
+      if (saveInfo && !shippingInfo._id) {
+        try {
+          await userApi.addAddress({
+            type: 'home',
+            firstName: shippingInfo.firstName,
+            lastName: shippingInfo.lastName,
+            email: shippingInfo.email,
+            phone: shippingInfo.phone,
+            addressLine1: shippingInfo.address,
+            city: shippingInfo.city,
+            state: shippingInfo.state,
+            pincode: shippingInfo.zipCode,
+            country: shippingInfo.country,
+            isDefault: false
+          });
+        } catch (err) {
+          console.error('Failed to save auto-address:', err);
+        }
+      }
 
-      // Save order to localStorage
-      const order = {
-        orderId: "ORD" + Date.now(),
-        date: new Date().toISOString(),
-        shippingInfo,
-        billingInfo,
-        paymentMethod: paymentInfo.method,
-        paymentDetails:
-          paymentInfo.method === "upi" ? { upiId: paymentInfo.upiId } : {},
-        items: cartItems,
-        subtotal,
-        shippingCost,
-        tax,
-        total,
-        status: paymentInfo.method === "cod" ? "pending" : "processing",
+      console.log(billingInfo, shippingInfo)
+      // Prepare order data
+      const orderData = {
+        shippingAddressId: shippingInfo._id,
+        billingAddress: billingInfo._id,
+        shippingMethod: selectedShipping,
+        paymentMethod: paymentInfo.method === 'cod' ? 'cod' : 'razorpay',
       };
 
-      // Save order history
-      const orderHistory = JSON.parse(
-        localStorage.getItem("orderHistory") || "[]"
-      );
-      orderHistory.push(order);
-      localStorage.setItem("orderHistory", JSON.stringify(orderHistory));
+      // Create order via API
+      orderApi.createOrder({
+        orderData,
+        setLoading,
+        onSuccess: async (data) => {
+          if (data.success && data.data) {
+            const order = data.data.order || data.data;
 
-      // Show success toast
-      showSuccessToast();
+            if (paymentInfo.method === 'online' && order.paymentStatus !== 'paid') {
+              // Create Razorpay payment order
+              orderApi.createPaymentOrder({
+                orderId: order._id || order.id,
+                onSuccess: async (paymentData) => {
+                  if (paymentData.success && paymentData.data) {
+                    try {
+                      const paymentResult = await handleRazorpayPayment({
+                        orderId: order.orderId || order._id,
+                        razorpayOrderId: paymentData.data.razorpayOrderId,
+                        amount: paymentData.data.amount,
+                        currency: paymentData.data.currency,
+                      });
 
-      // Reset form after 3 seconds
-      setTimeout(() => {
-        setStep(1);
-        setShippingInfo({
-          firstName: "",
-          lastName: "",
-          email: "",
-          phone: "",
-          address: "",
-          city: "",
-          state: "",
-          zipCode: "",
-          country: "India",
-        });
-        setBillingInfo({
-          firstName: "",
-          lastName: "",
-          address: "",
-          city: "",
-          state: "",
-          zipCode: "",
-          country: "India",
-        });
-        setPaymentInfo({
-          method: "upi",
-          cardNumber: "",
-          cardName: "",
-          expiryDate: "",
-          cvv: "",
-          upiId: "",
-          saveCard: false,
-          saveUpi: false,
-        });
-        setErrors({});
-        setTouched({});
-      }, 3000);
-    }, 2000);
+                      if (paymentResult) {
+                        // Payment successful
+                        clearCart();
+                        showSuccessToast(order.orderId || order._id);
+                        setTimeout(() => {
+                          navigate('/myOrders');
+                        }, 3000);
+                      }
+                    } catch (paymentError) {
+                      toast.error(paymentError.message || 'Payment failed. Please try again.');
+                      // Order is created but payment failed - user can retry from orders page
+                    }
+                  } else {
+                    toast.error('Failed to create payment. Please try again.');
+                  }
+                },
+                onError: (err) => {
+                  toast.error(err.message || 'Failed to create payment order');
+                }
+              });
+            } else {
+              // COD order - no payment needed
+              clearCart();
+              showSuccessToast(order.orderId || order._id);
+              setTimeout(() => {
+                navigate('/myOrders');
+              }, 3000);
+            }
+          } else {
+            toast.error(data.message || 'Failed to create order');
+          }
+        },
+        onError: (err) => {
+          console.error('Order creation error:', err);
+          toast.error(err.message || 'Failed to create order. Please try again.');
+        },
+      });
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast.error('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Redirect if cart is empty
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 py-12 px-4">
         <Toaster position="top-center" />
         <div className="max-w-6xl mx-auto text-center">
-          <BsCreditCard 
-            className="text-6xl mx-auto mb-6" 
-            style={{ color: primaryColor }} 
+          <BsCreditCard
+            className="text-6xl mx-auto mb-6"
+            style={{ color: primaryColor }}
           />
           <h3 className="text-2xl font-bold text-gray-700 mb-3">
             Your cart is empty
@@ -454,6 +600,13 @@ const Checkout = () => {
           <p className="text-gray-600 mb-8">
             Add items to your cart before checking out.
           </p>
+          <button
+            onClick={() => navigate('/categories')}
+            className="px-8 py-3 text-white font-bold rounded-lg"
+            style={{ backgroundColor: primaryColor }}
+          >
+            Continue Shopping
+          </button>
         </div>
       </div>
     );
@@ -479,6 +632,7 @@ const Checkout = () => {
                 setTouched={setTouched}
                 saveInfo={saveInfo}
                 setSaveInfo={setSaveInfo}
+                savedAddresses={userAddresses}
               />
             )}
 
@@ -535,7 +689,7 @@ const Checkout = () => {
                   <button
                     onClick={handleNextStep}
                     className="px-8 py-3 font-bold hover:opacity-90 transition-all"
-                    style={{ 
+                    style={{
                       backgroundColor: primaryColor,
                       color: 'white'
                     }}
@@ -545,14 +699,24 @@ const Checkout = () => {
                 ) : (
                   <button
                     onClick={handlePlaceOrder}
-                    disabled={loading}
-                    className="px-8 py-3 font-bold hover:opacity-90 disabled:opacity-50 transition-all"
-                    style={{ 
+                    disabled={loading || stockChecking}
+                    className="px-8 py-3 font-bold hover:opacity-90 disabled:opacity-50 transition-all flex items-center gap-2"
+                    style={{
                       backgroundColor: primaryColor,
                       color: 'white'
                     }}
                   >
-                    {loading ? "Processing..." : "Place Order"}
+                    {loading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <BsLock />
+                        Place Order - {formatPrice(total)}
+                      </>
+                    )}
                   </button>
                 )}
               </div>
@@ -561,16 +725,25 @@ const Checkout = () => {
 
           <div className="lg:col-span-1">
             <OrderSummary
+              cartItems={cartItems}
               subtotal={subtotal}
               shippingCost={shippingCost}
               tax={tax}
               total={total}
+              selectedShipping={selectedShipping}
+              setSelectedShipping={setSelectedShipping}
+              shippingOptions={SHIPPING_OPTIONS}
             />
           </div>
         </div>
       </div>
     </div>
   );
+};
+
+// Helper function to format price
+const formatPrice = (price) => {
+  return `₹${price.toLocaleString('en-IN')}`;
 };
 
 export default Checkout;

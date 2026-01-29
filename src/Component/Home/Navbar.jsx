@@ -23,7 +23,7 @@ import {
   MdClose,
 } from "react-icons/md";
 import { FaArrowRightLong, FaRegHeart } from "react-icons/fa6";
-import { useCart } from "../context/CartContext";
+import { useCart } from "../Context/CartContext";
 import one from "../../assets/Navbar/eightAngle.webp";
 import two from "../../assets/Navbar/fiveAngle.jpg";
 import three from "../../assets/Navbar/oneAngle.webp";
@@ -579,20 +579,18 @@ const Navbar = () => {
                 className="flex items-center gap-1 group"
               >
                 <p
-                  className={`transition-colors duration-300 ${
-                    isActiveLink("/categories")
+                  className={`transition-colors duration-300 ${isActiveLink("/categories")
                       ? "text-[#C19A6B]"
                       : getTextColor()
-                  } hover:text-[#C19A6B]`}
+                    } hover:text-[#C19A6B]`}
                 >
                   Categories
                 </p>
                 <LuChevronDown
-                  className={`text-sm transition-all duration-200 ${
-                    isActiveLink("/categories")
+                  className={`text-sm transition-all duration-200 ${isActiveLink("/categories")
                       ? "text-[#C19A6B]"
                       : "group-hover:text-[#C19A6B]"
-                  } ${isCategoriesOpen ? "rotate-180" : ""}`}
+                    } ${isCategoriesOpen ? "rotate-180" : ""}`}
                 />
               </button>
 
@@ -661,9 +659,8 @@ const Navbar = () => {
 
             <Link to="/about">
               <p
-                className={`cursor-pointer transition-colors duration-300 ${
-                  isActiveLink("/about") ? "text-[#C19A6B]" : getTextColor()
-                } hover:text-[#C19A6B]`}
+                className={`cursor-pointer transition-colors duration-300 ${isActiveLink("/about") ? "text-[#C19A6B]" : getTextColor()
+                  } hover:text-[#C19A6B]`}
               >
                 About
               </p>
@@ -671,9 +668,8 @@ const Navbar = () => {
 
             <Link to="/contact">
               <p
-                className={`cursor-pointer transition-colors duration-300 ${
-                  isActiveLink("/contact") ? "text-[#C19A6B]" : getTextColor()
-                } hover:text-[#C19A6B]`}
+                className={`cursor-pointer transition-colors duration-300 ${isActiveLink("/contact") ? "text-[#C19A6B]" : getTextColor()
+                  } hover:text-[#C19A6B]`}
               >
                 Contact
               </p>
@@ -827,23 +823,20 @@ const Navbar = () => {
 
         {/* Mobile Menu - Smooth Slide In */}
         <div
-          className={`lg:hidden fixed inset-0 z-40 transition-all duration-300 ease-in-out ${
-            isMobileMenuOpen ? "visible" : "invisible"
-          }`}
+          className={`lg:hidden fixed inset-0 z-40 transition-all duration-300 ease-in-out ${isMobileMenuOpen ? "visible" : "invisible"
+            }`}
         >
           {/* Overlay */}
           <div
-            className={`absolute inset-0 bg-black transition-opacity duration-300 ${
-              isMobileMenuOpen ? "opacity-50" : "opacity-0"
-            }`}
+            className={`absolute inset-0 bg-black transition-opacity duration-300 ${isMobileMenuOpen ? "opacity-50" : "opacity-0"
+              }`}
             onClick={() => setIsMobileMenuOpen(false)}
           />
 
           {/* Sidebar */}
           <div
-            className={`absolute top-0 right-0 h-full w-64 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out ${
-              isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-            }`}
+            className={`absolute top-0 right-0 h-full w-64 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+              }`}
           >
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold">Menu</h3>
@@ -951,9 +944,8 @@ const Navbar = () => {
                             Categories
                           </span>
                           <LuChevronDown
-                            className={`transition-transform duration-300 ${
-                              isMobileCategoriesOpen ? "rotate-180" : ""
-                            }`}
+                            className={`transition-transform duration-300 ${isMobileCategoriesOpen ? "rotate-180" : ""
+                              }`}
                           />
                         </button>
 
@@ -983,16 +975,14 @@ const Navbar = () => {
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <div
-                          className={`cursor-pointer py-2 hover:bg-gray-50 px-3 rounded-lg transition-colors ${
-                            isActiveLink("/about") ? "bg-gray-50" : ""
-                          }`}
+                          className={`cursor-pointer py-2 hover:bg-gray-50 px-3 rounded-lg transition-colors ${isActiveLink("/about") ? "bg-gray-50" : ""
+                            }`}
                         >
                           <span
-                            className={`font-medium transition-colors duration-300 ${
-                              isActiveLink("/about")
+                            className={`font-medium transition-colors duration-300 ${isActiveLink("/about")
                                 ? "text-[#C19A6B]"
                                 : "text-gray-800 hover:text-[#C19A6B]"
-                            }`}
+                              }`}
                           >
                             About
                           </span>
@@ -1004,16 +994,14 @@ const Navbar = () => {
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <div
-                          className={`cursor-pointer py-2 hover:bg-gray-50 px-3 rounded-lg transition-colors ${
-                            isActiveLink("/contact") ? "bg-gray-50" : ""
-                          }`}
+                          className={`cursor-pointer py-2 hover:bg-gray-50 px-3 rounded-lg transition-colors ${isActiveLink("/contact") ? "bg-gray-50" : ""
+                            }`}
                         >
                           <span
-                            className={`font-medium transition-colors duration-300 ${
-                              isActiveLink("/contact")
+                            className={`font-medium transition-colors duration-300 ${isActiveLink("/contact")
                                 ? "text-[#C19A6B]"
                                 : "text-gray-800 hover:text-[#C19A6B]"
-                            }`}
+                              }`}
                           >
                             Contact
                           </span>
@@ -1035,9 +1023,8 @@ const Navbar = () => {
           {carouselSlides.map((slide, index) => (
             <div
               key={index}
-              className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-in-out ${
-                index === currentSlide ? "opacity-100" : "opacity-0"
-              }`}
+              className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-in-out ${index === currentSlide ? "opacity-100" : "opacity-0"
+                }`}
               style={{ backgroundImage: `url(${slide.background})` }}
             >
               {/* Overlay */}
@@ -1045,9 +1032,8 @@ const Navbar = () => {
 
               {/* Carousel Content */}
               <div
-                className={`relative z-10 flex flex-col items-center justify-center text-center text-white min-h-[calc(100vh-4rem)] md:min-h-screen px-4 mx-auto ${
-                  index === currentSlide ? "translate-y-0" : "translate-y-10"
-                }`}
+                className={`relative z-10 flex flex-col items-center justify-center text-center text-white min-h-[calc(100vh-4rem)] md:min-h-screen px-4 mx-auto ${index === currentSlide ? "translate-y-0" : "translate-y-10"
+                  }`}
               >
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-bold mb-2 md:mb-3 drop-shadow-lg uppercase leading-tight">
                   {slide.title}
@@ -1072,11 +1058,10 @@ const Navbar = () => {
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === currentSlide
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentSlide
                     ? "bg-white scale-125"
                     : "bg-white bg-opacity-50 hover:bg-opacity-75 hover:scale-110"
-                }`}
+                  }`}
               />
             ))}
           </div>

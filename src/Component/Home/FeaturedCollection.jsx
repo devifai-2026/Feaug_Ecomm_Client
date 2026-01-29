@@ -208,7 +208,7 @@ const FeaturedCollection = () => {
     };
 
     const handleViewMore = () => {
-        navigate('/products');
+        navigate('/categories');
     };
 
     return (
@@ -351,8 +351,8 @@ const FeaturedCollection = () => {
                                 <div className='lg:hidden absolute top-3 right-3 flex flex-col gap-2 z-10'>
                                     <button
                                         className={`p-2 shadow-lg transition-all duration-300 hover:scale-110 ${isInWishlistItem
-                                                ? 'bg-red-50 text-red-500'
-                                                : 'bg-white text-gray-700 rounded-full hover:bg-red-50 hover:text-red-500'
+                                            ? 'bg-red-50 text-red-500'
+                                            : 'bg-white text-gray-700 rounded-full hover:bg-red-50 hover:text-red-500'
                                             }`}
                                         onClick={(e) => handleWishlistClick(product, e)}
                                         title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}
@@ -382,8 +382,8 @@ const FeaturedCollection = () => {
                                     }`}>
                                     <button
                                         className={`p-2 shadow-lg transition-all duration-300 hover:scale-110 ${isInWishlistItem
-                                                ? 'bg-red-50 text-red-500'
-                                                : 'bg-white text-gray-700 rounded-full hover:bg-red-50 hover:text-red-500'
+                                            ? 'bg-red-50 text-red-500'
+                                            : 'bg-white text-gray-700 rounded-full hover:bg-red-50 hover:text-red-500'
                                             }`}
                                         onClick={(e) => handleWishlistClick(product, e)}
                                         title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}

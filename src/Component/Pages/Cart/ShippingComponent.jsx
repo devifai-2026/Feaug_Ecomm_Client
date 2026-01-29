@@ -11,40 +11,6 @@ import {
 } from "react-icons/bs";
 import { INDIAN_STATES, validateShippingField } from "../../utils/Validation";
 
-// Mock saved addresses (in real app, fetch from backend/API)
-const DEFAULT_SAVED_ADDRESSES = [
-  {
-    id: "addr_1",
-    firstName: "Rahul",
-    lastName: "Sharma",
-    phone: "9876543210",
-    email: "rahul@example.com",
-    address: "123, MG Road, Brigade Road",
-    city: "Bangalore",
-    state: "Karnataka",
-    zipCode: "560001",
-    country: "India",
-    isDefault: true,
-    type: "home",
-    label: "Home",
-  },
-  {
-    id: "addr_2",
-    firstName: "Rahul",
-    lastName: "Sharma",
-    phone: "9876543211",
-    email: "rahul.work@example.com",
-    address: "456, Tech Park, Whitefield",
-    city: "Bangalore",
-    state: "Karnataka",
-    zipCode: "560066",
-    country: "India",
-    isDefault: false,
-    type: "work",
-    label: "Work",
-  },
-];
-
 const InputField = ({
   label,
   name,
@@ -70,11 +36,10 @@ const InputField = ({
         onBlur={onBlur}
         placeholder={placeholder}
         maxLength={maxLength}
-        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
-          error
-            ? "border-red-500 focus:ring-red-500 bg-red-50"
-            : "border-gray-300"
-        }`}
+        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${error
+          ? "border-red-500 focus:ring-red-500 bg-red-50"
+          : "border-gray-300"
+          }`}
         style={!error ? { '--tw-ring-color': primaryColor } : {}}
       />
       {error && (
@@ -99,11 +64,10 @@ const StateSelect = ({ label, name, value, onChange, onBlur, error }) => {
         value={value}
         onChange={onChange}
         onBlur={onBlur}
-        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
-          error
-            ? "border-red-500 focus:ring-red-500 bg-red-50"
-            : "border-gray-300"
-        }`}
+        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${error
+          ? "border-red-500 focus:ring-red-500 bg-red-50"
+          : "border-gray-300"
+          }`}
         style={!error ? { '--tw-ring-color': primaryColor } : {}}
       >
         <option value="">Select a state</option>
@@ -132,41 +96,36 @@ const ShippingComponent = ({
   setTouched,
   saveInfo,
   setSaveInfo,
+  savedAddresses: fetchedAddresses, // Rename prop to avoid conflict with state
 }) => {
   // Custom color definitions
   const primaryColor = '#C19A6B';
   const primaryLight = '#E8D4B9';
   const primaryDark = '#A07A4B';
-  
+
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
-  const [savedAddresses, setSavedAddresses] = useState(DEFAULT_SAVED_ADDRESSES);
-  const [selectedAddressId, setSelectedAddressId] = useState(
-    DEFAULT_SAVED_ADDRESSES.find((addr) => addr.isDefault)?.id || null
-  );
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Load saved addresses from localStorage on component mount
+  // Sync with fetched addresses
   useEffect(() => {
-    const saved = localStorage.getItem("userAddresses");
-    if (saved) {
-      const parsedAddresses = JSON.parse(saved);
-      setSavedAddresses(parsedAddresses);
-      const defaultAddress = parsedAddresses.find((addr) => addr.isDefault);
-      if (defaultAddress && !isAddingNewAddress) {
-        setSelectedAddressId(defaultAddress.id);
-        setData(defaultAddress);
+    if (fetchedAddresses && fetchedAddresses.length > 0) {
+      setSavedAddresses(fetchedAddresses);
+
+      // Auto-select (prefer default, otherwise first)
+      const defaultAddr = fetchedAddresses.find(addr => addr.isDefault) || fetchedAddresses[0];
+      if (defaultAddr && !selectedAddressId) {
+        setSelectedAddressId(defaultAddr._id);
+        setData(defaultAddr);
       }
     }
-  }, []);
-
-  // Save addresses to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem("userAddresses", JSON.stringify(savedAddresses));
-  }, [savedAddresses]);
+  }, [fetchedAddresses, setData]); // Careful with dependencies
 
   // Handle saved address selection
   const handleSelectAddress = (address) => {
-    setSelectedAddressId(address.id);
+    console.log(address)
+    setSelectedAddressId(address._id);
     setData(address);
     setIsAddingNewAddress(false);
     setIsEditing(false);
@@ -268,7 +227,7 @@ const ShippingComponent = ({
     }
 
     // Select the newly saved address
-    setSelectedAddressId(newAddress.id);
+    setSelectedAddressId(newAddress._id);
     setIsAddingNewAddress(false);
     setIsEditing(false);
   };
@@ -286,10 +245,10 @@ const ShippingComponent = ({
     if (selectedAddressId === id) {
       const defaultAddress = updatedAddresses.find((addr) => addr.isDefault);
       if (defaultAddress) {
-        setSelectedAddressId(defaultAddress.id);
+        setSelectedAddressId(defaultAddress._id);
         setData(defaultAddress);
       } else if (updatedAddresses.length > 0) {
-        setSelectedAddressId(updatedAddresses[0].id);
+        setSelectedAddressId(updatedAddresses[0]._id);
         setData(updatedAddresses[0]);
       } else {
         handleAddNewAddress();
@@ -301,7 +260,7 @@ const ShippingComponent = ({
   const handleSetDefaultAddress = (id) => {
     const updatedAddresses = savedAddresses.map((addr) => ({
       ...addr,
-      isDefault: addr.id === id,
+      isDefault: addr._id === id,
     }));
     setSavedAddresses(updatedAddresses);
     setSelectedAddressId(id);
@@ -320,7 +279,7 @@ const ShippingComponent = ({
     if (savedAddresses.length > 0) {
       const defaultAddress = savedAddresses.find((addr) => addr.isDefault);
       if (defaultAddress) {
-        setSelectedAddressId(defaultAddress.id);
+        setSelectedAddressId(defaultAddress._id);
         setData(defaultAddress);
       }
     }
@@ -343,7 +302,7 @@ const ShippingComponent = ({
           --tw-ring-color: ${primaryColor};
         }
       `}</style>
-      
+
       <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-2">
         <div className="flex items-center gap-3">
           <BsTruck className="text-2xl" style={{ color: primaryColor }} />
@@ -355,7 +314,7 @@ const ShippingComponent = ({
           <button
             onClick={handleAddNewAddress}
             className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1 md:py-2 font-medium hover:opacity-90 transition-colors text-nowrap"
-            style={{ 
+            style={{
               backgroundColor: primaryColor,
               color: 'white'
             }}
@@ -373,15 +332,14 @@ const ShippingComponent = ({
             Select Delivery Address
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {savedAddresses.map((address) => (
+            {savedAddresses.map((address, index) => (
               <div
-                key={address.id}
-                className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                  selectedAddressId === address.id
-                    ? "border-2"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
-                style={selectedAddressId === address.id ? { 
+                key={address.id || index}
+                className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedAddressId === address.id
+                  ? "border-2"
+                  : "border-gray-200 hover:border-gray-300"
+                  }`}
+                style={selectedAddressId === address.id ? {
                   borderColor: primaryColor,
                   backgroundColor: primaryLight + '20'
                 } : {}}
@@ -389,9 +347,9 @@ const ShippingComponent = ({
               >
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
-                    <span 
+                    <span
                       className="px-2 py-1 text-xs font-medium rounded"
-                      style={{ 
+                      style={{
                         backgroundColor: primaryLight,
                         color: primaryDark
                       }}
@@ -435,10 +393,10 @@ const ShippingComponent = ({
                     {address.city}, {address.state} - {address.zipCode}
                   </p>
                   <p className="text-sm text-gray-600">{address.country}</p>
-                 <div className="flex items-center gap-1">
-                   <p className="text-sm text-gray-600">Phone: {address.phone}</p>
-                  <p className="text-sm text-gray-600">Email: {address.email}</p>
-                 </div>
+                  <div className="flex items-center gap-1">
+                    <p className="text-sm text-gray-600">Phone: {address.phone}</p>
+                    <p className="text-sm text-gray-600">Email: {address.email}</p>
+                  </div>
                 </div>
                 <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
                   <button
@@ -446,11 +404,10 @@ const ShippingComponent = ({
                       e.stopPropagation();
                       handleSetDefaultAddress(address.id);
                     }}
-                    className={`text-xs flex items-center gap-1 ${
-                      address.isDefault
-                        ? "text-amber-600"
-                        : "text-gray-500 hover:text-amber-600"
-                    }`}
+                    className={`text-xs flex items-center gap-1 ${address.isDefault
+                      ? "text-amber-600"
+                      : "text-gray-500 hover:text-amber-600"
+                      }`}
                     style={address.isDefault ? { color: primaryColor } : {}}
                   >
                     {address.isDefault ? (
@@ -532,11 +489,10 @@ const ShippingComponent = ({
                 onChange={handleChange}
                 onBlur={handleBlur}
                 placeholder="you@example.com"
-                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
-                  errors.email
-                    ? "border-red-500 focus:ring-red-500 bg-red-50"
-                    : "border-gray-300"
-                } custom-focus`}
+                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${errors.email
+                  ? "border-red-500 focus:ring-red-500 bg-red-50"
+                  : "border-gray-300"
+                  } custom-focus`}
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
@@ -562,19 +518,17 @@ const ShippingComponent = ({
                   onBlur={handleBlur}
                   placeholder="9876543210"
                   maxLength="10"
-                  className={`w-full pl-14 pr-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
-                    errors.phone
-                      ? "border-red-500 focus:ring-red-500 bg-red-50"
-                      : "border-gray-300"
-                  } custom-focus`}
+                  className={`w-full pl-14 pr-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${errors.phone
+                    ? "border-red-500 focus:ring-red-500 bg-red-50"
+                    : "border-gray-300"
+                    } custom-focus`}
                 />
                 {data.phone && (
                   <span
-                    className={`absolute right-3 top-2.5 text-sm ${
-                      data.phone.length === 10
-                        ? "text-green-600"
-                        : "text-yellow-600"
-                    }`}
+                    className={`absolute right-3 top-2.5 text-sm ${data.phone.length === 10
+                      ? "text-green-600"
+                      : "text-yellow-600"
+                      }`}
                   >
                     {data.phone.length}/10
                   </span>
@@ -596,11 +550,10 @@ const ShippingComponent = ({
                 onBlur={handleBlur}
                 placeholder="House/Flat No., Building, Street, Area"
                 rows="3"
-                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
-                  errors.address
-                    ? "border-red-500 focus:ring-red-500 bg-red-50"
-                    : "border-gray-300"
-                } custom-focus`}
+                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${errors.address
+                  ? "border-red-500 focus:ring-red-500 bg-red-50"
+                  : "border-gray-300"
+                  } custom-focus`}
               />
               {errors.address && (
                 <p className="mt-1 text-sm text-red-600">{errors.address}</p>
@@ -664,7 +617,7 @@ const ShippingComponent = ({
             <button
               onClick={handleSaveAddress}
               className="px-6 py-2 font-medium hover:opacity-90 transition-colors flex items-center gap-2"
-              style={{ 
+              style={{
                 backgroundColor: primaryColor,
                 color: 'white'
               }}

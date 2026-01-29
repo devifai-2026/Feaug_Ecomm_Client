@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { 
-    BsCurrencyRupee, 
-    BsTrash, 
-    BsBag, 
-    BsArrowLeft, 
-    BsHeart 
+import {
+    BsCurrencyRupee,
+    BsTrash,
+    BsBag,
+    BsArrowLeft,
+    BsHeart
 } from 'react-icons/bs';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { useWishlist } from '../../Context/WishlistContext';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../Context/CartContext';
 
 
 const Wishlist = () => {
@@ -17,9 +17,9 @@ const Wishlist = () => {
     const [hoveredCard, setHoveredCard] = useState(null);
 
     useEffect(() => {
-       window.scrollTo(0, 0)
-    },[]);
-    
+        window.scrollTo(0, 0)
+    }, []);
+
     const {
         wishlistItems,
         removeFromWishlist,
@@ -39,7 +39,7 @@ const Wishlist = () => {
         e.stopPropagation();
         const itemToRemove = wishlistItems.find(item => item.id === id);
         removeFromWishlist(id);
-        
+
         toast.custom((t) => (
             <div className={`animate-slideInRight max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}>
                 <div className="flex-1 w-0 p-4">
@@ -72,7 +72,7 @@ const Wishlist = () => {
     // Handle move to cart with toast
     const handleMoveToCart = (item, e) => {
         e.stopPropagation();
-        
+
         // Add item to cart
         addToCart({
             id: item.id,
@@ -85,10 +85,10 @@ const Wishlist = () => {
             rating: item.rating,
             inStock: item.inStock
         }, 1);
-        
+
         // Remove from wishlist
         removeFromWishlist(item.id);
-        
+
         toast.success(
             <div>
                 <p className="font-semibold">Moved to cart!</p>
@@ -107,7 +107,7 @@ const Wishlist = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8 md:py-12">
-            <Toaster 
+            <Toaster
                 position="top-right"
                 toastOptions={{
                     duration: 3000,
@@ -182,7 +182,7 @@ const Wishlist = () => {
 
             <div className="max-w-[95%] md:max-w-[90%] mx-auto px-2 md:px-4">
                 {/* Header */}
-                <div 
+                <div
                     className="mb-8 md:mb-12 animate-fadeInUp"
                 >
                     <div className="flex items-center justify-between mb-4 md:mb-6">
@@ -193,7 +193,7 @@ const Wishlist = () => {
                             <BsArrowLeft className="text-lg md:text-xl group-hover:-translate-x-1 transition-transform" />
                             <span className="font-medium">Back</span>
                         </button>
-                        
+
                         {wishlistItems.length > 0 && (
                             <button
                                 onClick={clearWishlist}
@@ -207,7 +207,7 @@ const Wishlist = () => {
                     </div>
 
                     <div className="text-center mb-3 md:mb-4">
-                       
+
                         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-1 md:mb-2 animate-slideInLeft">
                             My Wishlist
                         </h1>
@@ -239,7 +239,7 @@ const Wishlist = () => {
                                             e.target.src = 'https://via.placeholder.com/400x400?text=No+Image';
                                         }}
                                     />
-                                    
+
                                     {/* Discount Badge */}
                                     {item.discount && (
                                         <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-gradient-to-r from-red-600 to-pink-600 text-white px-2 py-1 text-xs md:text-sm font-bold z-10">
@@ -272,9 +272,8 @@ const Wishlist = () => {
                                     </div>
 
                                     {/* Desktop Action Buttons - Show on hover */}
-                                    <div className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${
-                                        hoveredCard === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
-                                    }`}>
+                                    <div className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${hoveredCard === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+                                        }`}>
                                         <button
                                             onClick={(e) => handleRemoveItem(item.id, e)}
                                             className="bg-white p-2 shadow-lg hover:bg-red-50 hover:text-red-600 transition-all duration-300 hover:scale-110"
@@ -282,16 +281,14 @@ const Wishlist = () => {
                                         >
                                             <BsTrash className="text-gray-700" />
                                         </button>
-                                      
+
                                     </div>
 
                                     {/* Move to Cart Button - Desktop only (show on hover) */}
                                     <button
-                                        className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] hover:scale-105 uppercase tracking-wide text-sm z-10 font-semibold shadow-md ${
-                                            !item.inStock ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
-                                        } ${
-                                            hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                                        }`}
+                                        className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] hover:scale-105 uppercase tracking-wide text-sm z-10 font-semibold shadow-md ${!item.inStock ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
+                                            } ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                                            }`}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             if (item.inStock) handleMoveToCart(item, e);
@@ -307,16 +304,15 @@ const Wishlist = () => {
                                     <h3 className="font-semibold text-gray-800 mb-1 md:mb-2 line-clamp-2 text-sm md:text-base group-hover:text-gray-900 transition-colors">
                                         {item.title}
                                     </h3>
-                                    
+
                                     {/* Rating */}
                                     <div className="flex items-center gap-1 mb-1 md:mb-2">
                                         <div className="flex">
                                             {[...Array(5)].map((_, i) => (
                                                 <svg
                                                     key={i}
-                                                    className={`w-3 h-3 md:w-4 md:h-4 ${
-                                                        i < Math.floor(item.rating || 0) ? 'text-yellow-400' : 'text-gray-300'
-                                                    }`}
+                                                    className={`w-3 h-3 md:w-4 md:h-4 ${i < Math.floor(item.rating || 0) ? 'text-yellow-400' : 'text-gray-300'
+                                                        }`}
                                                     fill="currentColor"
                                                     viewBox="0 0 20 20"
                                                 >
