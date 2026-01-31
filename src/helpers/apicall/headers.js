@@ -1,5 +1,10 @@
+import { getGuestId } from "../guest/guestId";
+
 export const getHeaders = () => {
-  const headers = { "Content-Type": "application/json" };
+  const headers = { 
+    "Content-Type": "application/json",
+    "x-guest-id": getGuestId()
+  };
 
   try {
     const userStr = localStorage.getItem("user");

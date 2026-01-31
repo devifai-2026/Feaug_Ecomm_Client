@@ -140,8 +140,9 @@ const ShippingComponent = ({
 
   // Handle saved address selection
   const handleSelectAddress = (address) => {
-    setSelectedAddressId(address._id);
-    setData(address);
+    const addrId = address._id || address.id;
+    setSelectedAddressId(addrId);
+    setData({ ...address, _id: addrId });
     setIsAddingNewAddress(false);
     setIsEditing(false);
     setErrors({});

@@ -128,7 +128,8 @@ const Checkout = () => {
           if (user.addresses && Array.isArray(user.addresses)) {
             // Map API addresses to the format expected by ShippingComponent
             const formattedAddresses = user.addresses.map((addr) => ({
-              id: addr._id,
+              id: addr._id || addr.id,
+              _id: addr._id || addr.id,
               firstName: user.firstName,
               lastName: user.lastName,
               email: user.email,
@@ -573,8 +574,8 @@ const Checkout = () => {
 
     try {
       // 1) Ensure we have valid addresses with IDs
-      let finalShippingId = shippingInfo._id;
-      let finalBillingId = billingInfo._id || shippingInfo._id;
+      let finalShippingId = shippingInfo._id || shippingInfo.id;
+      let finalBillingId = billingInfo._id || billingInfo.id || finalShippingId;
 
       // If no shipping ID (i.e., user entered new address but didn't click "Save")
       if (!finalShippingId) {
