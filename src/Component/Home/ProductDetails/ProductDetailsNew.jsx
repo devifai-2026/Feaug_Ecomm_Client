@@ -12,6 +12,7 @@ import {
   BsCurrencyRupee,
   BsHeartFill,
 } from "react-icons/bs";
+import { MdOutlineCurrencyRupee } from "react-icons/md";
 import toast, { Toaster } from "react-hot-toast";
 import RelatedProducts from "./RelatedProduct";
 import BigImg from "../../../assets/ProductDetails/DetailsMainImg.webp";
@@ -762,20 +763,29 @@ const ProductDetails = () => {
         }
       `}</style>
 
-      <div className="max-w-[90%] mx-auto py-6">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-all duration-300 hover:scale-105 mb-6"
-        >
-          <BsArrowLeft className="text-lg transition-transform duration-300 group-hover:scale-110" />
-          Back to Products
-        </button>
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8 overflow-x-auto whitespace-nowrap pb-2 scrollbar-hide">
+          <Link to="/" className="hover:text-[#C19A6B] transition-colors">
+            Home
+          </Link>
+          <span className="text-gray-300">/</span>
+          <Link
+            to="/categories"
+            className="hover:text-[#C19A6B] transition-colors"
+          >
+            Categories
+          </Link>
+          <span className="text-gray-300">/</span>
+          <span className="text-gray-900 font-medium truncate">
+            {product.name}
+          </span>
+        </nav>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {/* Product Images Section */}
-          <div className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+          {/* Left Column - Image Gallery */}
+          <div className="lg:col-span-7 space-y-6">
             <div
-              className="flex justify-center mx-auto mb-6 relative group cursor-crosshair"
+              className="relative aspect-square bg-[#FBFBFB] rounded-2xl overflow-hidden group border border-gray-100 shadow-sm"
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
               onMouseMove={handleMouseMove}
@@ -784,309 +794,262 @@ const ProductDetails = () => {
                 ref={imgRef}
                 src={productImages[selectedImageIndex]}
                 alt={product.name}
-                className="w-full max-w-lg h-auto max-h-[500px] object-contain transition-transform duration-300 hover:scale-105"
+                className="w-full h-full object-contain p-8 md:p-12 transition-transform duration-700 ease-out group-hover:scale-110"
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+                onMouseMove={handleMouseMove}
               />
 
               {isHovering && (
-                <div
-                  className="hidden md:block absolute pointer-events-none border border-blue-500 rounded-sm"
-                  style={{
-                    width: "150px",
-                    height: "150px",
-                    left: `calc(${zoomPos.x}% - 50px)`,
-                    top: `calc(${zoomPos.y}% - 50px)`,
-                    backgroundImage: `
-                      linear-gradient(to right, rgba(59,130,246,0.3) 1px, transparent 1px),
-                      linear-gradient(to bottom, rgba(59,130,246,0.3) 1px, transparent 1px)
-                    `,
-                    backgroundSize: "8px 8px",
-                    backgroundColor: "rgba(59,130,246,0.1)",
-                    boxShadow: "0 0 8px rgba(59,130,246,0.4)",
-                    zIndex: 10,
-                  }}
-                ></div>
-              )}
-
-              {isHovering && (
-                <div className="hidden md:block absolute top-1/2 left-[100%] -translate-y-1/2 w-[610px] h-[500px] border border-gray-200 overflow-hidden z-10 bg-white shadow-lg rounded-md">
-                  <img
-                    src={productImages[selectedImageIndex]}
-                    alt="Zoomed"
-                    className="absolute object-contain transition-transform duration-100 pt-14"
+                <div className="hidden lg:block absolute inset-0 pointer-events-none z-20">
+                  <div
+                    className="absolute border-2 border-[#C19A6B]/30 bg-white/10 backdrop-blur-[2px] shadow-2xl"
                     style={{
-                      transform: `translate(-${zoomPos.x}%, -${zoomPos.y}%) scale(1.7)`,
-                      transformOrigin: "top left",
+                      width: "150px",
+                      height: "150px",
+                      left: `calc(${zoomPos.x}% - 75px)`,
+                      top: `calc(${zoomPos.y}% - 75px)`,
                     }}
                   />
                 </div>
               )}
 
-              <button
-                onClick={prevImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
-              >
-                <BsChevronLeft className="text-gray-700" />
-              </button>
-              <button
-                onClick={nextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
-              >
-                <BsChevronRight className="text-gray-700" />
-              </button>
-            </div>
-
-            <div className="flex justify-center">
-              <div className="flex items-center gap-2 w-full max-w-2xl">
-                <button
-                  onClick={() => scrollThumbnails("left")}
-                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
-                >
-                  <BsChevronLeft className="text-gray-600" />
-                </button>
-
-                <div
-                  ref={thumbnailContainerRef}
-                  className="flex gap-2 overflow-x-auto flex-1 justify-start px-2 scrollbar-hide"
-                  style={{
-                    scrollbarWidth: "none",
-                    msOverflowStyle: "none",
-                    minHeight: "84px",
-                  }}
-                >
-                  {productImages.map((image, index) => (
-                    <div
-                      key={index}
-                      className={`flex-shrink-0 cursor-pointer border-2 transition-all duration-300 ${
-                        selectedImageIndex === index
-                          ? "border-orange-500 shadow-md"
-                          : "border-transparent hover:border-gray-300"
-                      }`}
-                      onClick={() => handleThumbnailClick(index)}
-                    >
-                      <img
-                        src={image}
-                        alt={`${product.name} ${index + 1}`}
-                        className="w-16 h-16 md:w-20 md:h-20 object-cover transition-all duration-300 hover:scale-110"
-                      />
-                    </div>
-                  ))}
+              {isHovering && (
+                <div className="hidden xl:block absolute top-0 left-full ml-8 w-[600px] h-[600px] border border-gray-100 rounded-2xl overflow-hidden z-[100] bg-white shadow-2xl">
+                  <img
+                    src={productImages[selectedImageIndex]}
+                    alt="Zoomed"
+                    className="absolute max-w-none transition-transform duration-100"
+                    style={{
+                      width: "200%",
+                      height: "200%",
+                      transform: `translate(-${zoomPos.x / 2}%, -${zoomPos.y / 2}%) scale(1.5)`,
+                      transformOrigin: "0 0",
+                    }}
+                  />
                 </div>
+              )}
 
+              <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                 <button
-                  onClick={() => scrollThumbnails("right")}
-                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
+                  onClick={prevImage}
+                  className="pointer-events-auto w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-[#C19A6B] hover:text-white text-gray-800 rounded-full shadow-lg transition-all"
                 >
-                  <BsChevronRight className="text-gray-600" />
+                  <BsChevronLeft />
+                </button>
+                <button
+                  onClick={nextImage}
+                  className="pointer-events-auto w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-[#C19A6B] hover:text-white text-gray-800 rounded-full shadow-lg transition-all"
+                >
+                  <BsChevronRight />
                 </button>
               </div>
+            </div>
+
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide px-1">
+              {productImages.map((image, index) => (
+                <button
+                  key={index}
+                  className={`relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all duration-300 ${
+                    selectedImageIndex === index
+                      ? "border-[#C19A6B] scale-105 shadow-md"
+                      : "border-transparent opacity-60 hover:opacity-100"
+                  }`}
+                  onClick={() => handleThumbnailClick(index)}
+                >
+                  <img
+                    src={image}
+                    className="w-full h-full object-cover"
+                    alt=""
+                  />
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Product Info */}
-          <div className="space-y-6 flex flex-col justify-between">
-            <div className="space-y-6">
-              <div className="flex items-center space-x-2 text-sm text-gray-500">
-                <Link to="/" className="cursor-pointer hover:text-gray-700">
-                  Home
-                </Link>
-                <span className="text-gray-400">|</span>
-                <Link
-                  to="/products"
-                  className="cursor-pointer hover:text-gray-700"
-                >
-                  Products
-                </Link>
-                <span className="text-gray-400">|</span>
-                <span className="text-gray-800 font-medium">Details</span>
-              </div>
-
-              <p className="text-yellow-700 uppercase tracking-wider">
-                {product.category?.name || "Premium Collection"}
-              </p>
-              <h1 className="text-3xl font-bold text-gray-800">
-                {product.name}
-              </h1>
-
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <p className="text-2xl font-semibold text-gray-700 flex items-center gap-1">
-                    <BsCurrencyRupee />
-                    {product.sellingPrice}
-                  </p>
-                  {product.isOnOffer &&
-                    product.sellingPrice < product.offerPrice && (
-                      <p className="text-lg text-gray-500 line-through flex items-center gap-1">
-                        <BsCurrencyRupee />
-                        {product.offerPrice}
-                      </p>
-                    )}
-                </div>
-                {product.stockQuantity > 0 ? (
-                  <span className="text-green-600 font-medium">In Stock</span>
-                ) : (
-                  <span className="text-red-600 font-medium">Out of Stock</span>
+          {/* Right Column - Product Info */}
+          <div className="lg:col-span-5 space-y-8">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <span className="px-3 py-1 bg-[#C19A6B]/10 text-[#C19A6B] text-[10px] font-bold uppercase tracking-widest rounded-full">
+                  {product.category?.name || "Premium Collection"}
+                </span>
+                {product.isNewArrival && (
+                  <span className="px-3 py-1 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-full">
+                    New Arrival
+                  </span>
                 )}
               </div>
 
-              <p className="text-gray-600 leading-relaxed line-clamp-3">
-                {product.description}
-              </p>
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+                {product.name}
+              </h1>
 
-              <div className="flex items-center gap-4">
-                <div
-                  className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100"
-                  onClick={scrollToReviews}
-                >
-                  <div className="flex items-center gap-1">
-                    <span className="text-sm font-bold text-gray-900 mr-1">
-                      {product.ratingAverage > 0
-                        ? parseFloat(product.ratingAverage).toFixed(1)
-                        : "0.0"}
-                    </span>
-                    <div className="flex items-center gap-0.5">
-                      {renderStars(product.ratingAverage || 0)}
-                    </div>
-                  </div>
-                  <span className="text-gray-500 text-xs font-medium border-l pl-2">
-                    {product.ratingCount || 0} Reviews
+              <div className="flex items-center gap-6">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold text-[#C19A6B] flex items-center">
+                    <MdOutlineCurrencyRupee className="text-2xl" />
+                    {product.sellingPrice}
                   </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    className="text-xs font-bold text-black underline uppercase tracking-widest hover:text-orange-500 transition-colors"
-                    onClick={handleRatingClick}
-                  >
-                    Rate this product
-                  </button>
-                  <span className="text-gray-300">|</span>
-                  <button
-                    className={`p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110 ${
-                      isProductInWishlist
-                        ? "text-red-500"
-                        : "text-gray-600 hover:text-red-500"
-                    }`}
-                    onClick={handleWishlistClick}
-                  >
-                    {isProductInWishlist ? (
-                      <BsHeartFill className="text-xl" />
-                    ) : (
-                      <BsHeart className="text-xl" />
+                  {product.isOnOffer &&
+                    product.sellingPrice < product.offerPrice && (
+                      <span className="text-xl text-gray-400 line-through flex items-center decoration-red-500/30">
+                        <MdOutlineCurrencyRupee className="text-lg" />
+                        {product.offerPrice}
+                      </span>
                     )}
-                  </button>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-full border border-gray-100">
+                  <div className="flex items-center gap-0.5">
+                    {renderStars(product.ratingAverage || 0)}
+                  </div>
                   <button
-                    onClick={handleShare}
-                    className="p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110"
-                    title="Share product"
+                    onClick={scrollToReviews}
+                    className="text-xs font-semibold text-gray-500 hover:text-black"
                   >
-                    <BsShare className="text-xl text-gray-600 hover:text-blue-500" />
+                    ({product.ratingCount || 0} Reviews)
                   </button>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="prose prose-sm text-gray-600 max-w-none border-l-4 border-gray-100 pl-6 py-2">
+              <p className="line-clamp-4 leading-relaxed italic text-lg opacity-80">
+                "{product.description}"
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-6 pt-4">
+              <div className="flex items-center justify-between group/action">
+                <div className="flex items-center gap-6">
+                  <button
+                    className={`flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 ${
+                      isProductInWishlist
+                        ? "bg-red-50 border-red-100 text-red-500"
+                        : "border-gray-200 text-gray-600 hover:border-[#C19A6B] hover:text-[#C19A6B]"
+                    }`}
+                    onClick={handleWishlistClick}
+                  >
+                    {isProductInWishlist ? <BsHeartFill /> : <BsHeart />}
+                    <span className="text-xs font-bold uppercase tracking-widest">
+                      Wishlist
+                    </span>
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-gray-200 text-gray-600 hover:border-blue-100 hover:bg-blue-50 hover:text-blue-500 transition-all duration-300"
+                  >
+                    <BsShare />
+                    <span className="text-xs font-bold uppercase tracking-widest">
+                      Share
+                    </span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-3 h-3 rounded-full ${product.stockQuantity > 0 ? "bg-green-500 animate-pulse" : "bg-red-500"}`}
+                  />
+                  <span
+                    className={`text-xs font-bold uppercase tracking-widest ${product.stockQuantity > 0 ? "text-green-600" : "text-red-600"}`}
+                  >
+                    {product.stockQuantity > 0
+                      ? "Perfectly In Stock"
+                      : "Out of Stock"}
+                  </span>
+                </div>
+              </div>
+
               {isProductInCart && (
-                <div className="flex items-center justify-between animate-fadeIn">
-                  <span className="text-gray-700 font-medium">Quantity:</span>
-                  <div className="flex items-center border border-gray-200">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 animate-in fade-in slide-in-from-bottom-6">
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                    Quantity
+                  </span>
+                  <div className="flex items-center gap-6">
                     <button
                       onClick={decreaseQuantity}
-                      className="px-4 py-2 text-gray-600 hover:bg-gray-100 font-bold"
+                      className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-900 shadow-sm hover:border-[#C19A6B] hover:text-[#C19A6B] transition-colors"
                     >
-                      -
+                      <span className="text-xl">-</span>
                     </button>
-                    <span className="px-6 py-2 font-bold min-w-[50px] text-center">
+                    <span className="text-xl font-bold w-12 text-center text-gray-900">
                       {quantity}
                     </span>
                     <button
                       onClick={increaseQuantity}
-                      className="px-4 py-2 text-gray-600 hover:bg-gray-100 font-bold"
+                      className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-900 shadow-sm hover:border-[#C19A6B] hover:text-[#C19A6B] transition-colors"
                     >
-                      +
+                      <span className="text-xl">+</span>
                     </button>
                   </div>
                 </div>
               )}
 
-              <div className="flex gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button
-                  className="flex-1 bg-black text-white py-4 px-6 hover:bg-gray-800 transition-all duration-300 font-bold uppercase tracking-wide disabled:bg-gray-400 disabled:cursor-not-allowed transform active:scale-95"
+                  className="group relative overflow-hidden bg-[#C19A6B] text-white px-8 py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs transition-all duration-500 hover:bg-gray-900 hover:shadow-2xl hover:shadow-[#C19A6B]/20 disabled:bg-gray-300 transform active:scale-95"
                   onClick={handleAddToCart}
                   disabled={product.stockQuantity <= 0}
                 >
-                  {product.stockQuantity > 0
-                    ? isProductInCart
-                      ? "Go to Cart"
-                      : "Add to Cart"
-                    : "Out of Stock"}
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    {isProductInCart ? "View In Cart" : "Enchanting Add"}
+                  </span>
                 </button>
                 <button
-                  className="flex-1 bg-white text-black border-2 border-black py-4 px-6 hover:bg-gray-50 transition-all duration-300 font-bold uppercase tracking-wide disabled:border-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed transform active:scale-95"
+                  className="group bg-white text-[#C19A6B] border-2 border-[#C19A6B] px-8 py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs transition-all duration-500 hover:bg-[#C19A6B] hover:text-white disabled:opacity-50 transform active:scale-95"
                   onClick={handleBuyNow}
                   disabled={product.stockQuantity <= 0}
                 >
-                  Buy Now
+                  Bespoke Purchase
                 </button>
               </div>
 
-              <div className="border-t pt-4 space-y-1 text-sm">
-                <div className="flex justify-between py-1">
-                  <span className="text-gray-600">SKU:</span>
-                  <span className="font-medium">{product.sku}</span>
-                </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-gray-600">Category:</span>
-                  <span className="font-medium">{product.category?.name}</span>
-                </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-gray-600">Material:</span>
-                  <span className="font-medium capitalize">
-                    {product.material || "N/A"}
+              <div className="bg-[#C19A6B]/5 p-4 rounded-xl border border-[#C19A6B]/10 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <BsEyeFill className="text-xl text-[#C19A6B] animate-pulse" />
+                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-[#C19A6B] rounded-full border border-white" />
+                  </div>
+                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.15em]">
+                    Presence:{" "}
+                    <span className="text-gray-900 ml-1">
+                      {viewCount} enthusiasts
+                    </span>
                   </span>
                 </div>
-              </div>
-
-              <div className="mt-8">
-                <div className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg p-6 text-center">
-                  <div className="flex items-center justify-center gap-3">
-                    {isEyeOpen ? (
-                      <BsEyeFill className="text-2xl text-blue-600 animate-pulse" />
-                    ) : (
-                      <BsEye className="text-2xl text-blue-600" />
-                    )}
-                    <span className="text-lg font-semibold text-gray-700">
-                      Currently Viewing:{" "}
-                      <span className="text-blue-600 font-bold text-xl">
-                        {viewCount}
-                      </span>
-                    </span>
-                  </div>
+                <div className="text-[10px] font-bold text-[#C19A6B] uppercase tracking-[0.15em] border-l border-[#C19A6B]/20 pl-4">
+                  Handcrafted Elegance
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-12" ref={reviewsSectionRef}>
-          <div className="flex flex-col lg:flex-row gap-8">
-            <div className="lg:w-1/4">
-              <div className="flex lg:flex-col overflow-x-auto lg:overflow-x-visible border-b lg:border-b-0 lg:border-r border-gray-200">
-                {["DESCRIPTION", "DETAILS", "REVIEWS"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`whitespace-nowrap py-3 px-6 font-medium transition-all duration-300 ${
-                      activeTab === tab
-                        ? "bg-black text-white"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
+        {/* Tab Selection */}
+        <div className="mt-24">
+          <div className="flex justify-center border-b border-gray-200">
+            <div className="flex gap-12">
+              {["DESCRIPTION", "DETAILS", "REVIEWS"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`pb-4 text-xs font-bold uppercase tracking-[0.3em] transition-all relative ${
+                    activeTab === tab
+                      ? "text-black"
+                      : "text-gray-400 hover:text-gray-900"
+                  }`}
+                >
+                  {tab}
+                  {activeTab === tab && (
+                    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#C19A6B] animate-in slide-in-from-bottom-6" />
+                  )}
+                </button>
+              ))}
             </div>
-            <div className="lg:w-3/4 py-4">{renderTabContent()}</div>
+          </div>
+
+          <div className="max-w-4xl mx-auto py-12 px-4 min-h-[400px]">
+            {renderTabContent()}
           </div>
         </div>
       </div>

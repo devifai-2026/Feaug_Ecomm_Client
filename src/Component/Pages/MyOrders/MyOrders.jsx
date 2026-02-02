@@ -1,14 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-  FaHistory, FaTruck, FaCheckCircle, FaTimesCircle, FaClock,
-  FaEye, FaDownload, FaRedo, FaStar, FaFilter, FaSearch,
-  FaCalendarAlt, FaRupeeSign, FaBoxOpen, FaCreditCard,
-  FaChevronRight, FaChevronDown, FaPhone, FaMapMarkerAlt
-} from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import orderApi from '../../../apis/orderApi';
-import userApi from '../../../apis/user/userApi';
+  FaHistory,
+  FaTruck,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaClock,
+  FaEye,
+  FaDownload,
+  FaRedo,
+  FaStar,
+  FaFilter,
+  FaSearch,
+  FaCalendarAlt,
+  FaRupeeSign,
+  FaBoxOpen,
+  FaCreditCard,
+  FaChevronRight,
+  FaChevronDown,
+  FaPhone,
+  FaMapMarkerAlt,
+} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import orderApi from "../../../apis/orderApi";
+import userApi from "../../../apis/user/userApi";
 
 const MyOrders = () => {
   const navigate = useNavigate();
@@ -16,8 +31,8 @@ const MyOrders = () => {
   // State
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [totalSpent, setTotalSpent] = useState(0);
@@ -32,48 +47,53 @@ const MyOrders = () => {
     const fetchOrders = async () => {
       // Check if user is logged in
       if (!userApi.isAuthenticated()) {
-        toast.error('Please login to view your orders');
-        navigate('/login');
+        toast.error("Please login to view your orders");
+        navigate("/login");
         return;
       }
 
       setLoading(true);
 
       orderApi.getUserOrders({
-        params: { limit: 50, sort: '-createdAt' },
+        params: { limit: 50, sort: "-createdAt" },
         setLoading,
         onSuccess: (data) => {
           if (data.success && data.data) {
             const ordersData = data.data.orders || data.data || [];
-            const transformedOrders = ordersData.map(order => ({
+            const transformedOrders = ordersData.map((order) => ({
               id: order._id || order.id,
-              orderNo: order.orderId || `ORD-${(order._id || order.id).slice(-8).toUpperCase()}`,
+              orderNo:
+                order.orderId ||
+                `ORD-${(order._id || order.id).slice(-8).toUpperCase()}`,
               date: order.createdAt,
               amount: order.grandTotal || order.total || 0,
-              status: order.status || 'pending',
+              status: order.status || "pending",
               shippingStatus: order.shippingStatus,
               paymentStatus: order.paymentStatus,
-              items: (order.items || []).map(item => ({
+              items: (order.items || []).map((item) => ({
                 id: item.product?._id || item.productId,
-                name: item.product?.name || item.name || 'Product',
+                name: item.product?.name || item.name || "Product",
                 quantity: item.quantity || 1,
                 price: item.price || 0,
-                image: item.product?.images?.[0]?.url || 'https://via.placeholder.com/150'
+                image:
+                  item.productImage ||
+                  item.product?.images?.[0]?.url ||
+                  "https://via.placeholder.com/150",
               })),
               shippingAddress: order.shippingAddress
-                ? `${order.shippingAddress.street || ''}, ${order.shippingAddress.city || ''}, ${order.shippingAddress.state || ''} - ${order.shippingAddress.postalCode || ''}`
-                : 'Address not available',
-              paymentMethod: order.paymentMethod || 'Online',
+                ? `${order.shippingAddress.street || ""}, ${order.shippingAddress.city || ""}, ${order.shippingAddress.state || ""} - ${order.shippingAddress.postalCode || ""}`
+                : "Address not available",
+              paymentMethod: order.paymentMethod || "Online",
               trackingId: order.trackingNumber || null,
               estimatedDelivery: order.estimatedDelivery || null,
-              deliveredAt: order.deliveredAt || null
+              deliveredAt: order.deliveredAt || null,
             }));
 
             setOrders(transformedOrders);
 
             // Calculate total spent from delivered orders
             const total = transformedOrders
-              .filter(o => o.status === 'delivered')
+              .filter((o) => o.status === "delivered")
               .reduce((sum, o) => sum + (o.amount || 0), 0);
             setTotalSpent(total);
           } else {
@@ -81,8 +101,8 @@ const MyOrders = () => {
           }
         },
         onError: (err) => {
-          console.error('Error fetching orders:', err);
-          toast.error('Failed to load orders');
+          console.error("Error fetching orders:", err);
+          toast.error("Failed to load orders");
           setOrders([]);
         },
       });
@@ -92,33 +112,78 @@ const MyOrders = () => {
   }, [navigate]);
 
   const stats = [
-    { label: 'Total Orders', value: orders.length, icon: <FaHistory className="text-[#C19A6B]" /> },
-    { label: 'Total Spent', value: `₹${totalSpent.toLocaleString('en-IN')}`, icon: <FaRupeeSign className="text-[#C19A6B]" /> },
-    { label: 'Pending', value: orders.filter(o => ['pending', 'confirmed', 'processing'].includes(o.status)).length, icon: <FaClock className="text-[#C19A6B]" /> },
-    { label: 'Delivered', value: orders.filter(o => o.status === 'delivered').length, icon: <FaCheckCircle className="text-[#C19A6B]" /> }
+    {
+      label: "Total Orders",
+      value: orders.length,
+      icon: <FaHistory className="text-[#C19A6B]" />,
+    },
+    {
+      label: "Total Spent",
+      value: `₹${totalSpent.toLocaleString("en-IN")}`,
+      icon: <FaRupeeSign className="text-[#C19A6B]" />,
+    },
+    {
+      label: "Pending",
+      value: orders.filter((o) =>
+        ["pending", "confirmed", "processing"].includes(o.status),
+      ).length,
+      icon: <FaClock className="text-[#C19A6B]" />,
+    },
+    {
+      label: "Delivered",
+      value: orders.filter((o) => o.status === "delivered").length,
+      icon: <FaCheckCircle className="text-[#C19A6B]" />,
+    },
   ];
 
   const filters = [
-    { key: 'all', label: 'All', count: orders.length },
-    { key: 'processing', label: 'Processing', count: orders.filter(o => ['pending', 'confirmed', 'processing'].includes(o.status)).length },
-    { key: 'shipped', label: 'Shipped', count: orders.filter(o => o.status === 'shipped').length },
-    { key: 'delivered', label: 'Delivered', count: orders.filter(o => o.status === 'delivered').length },
-    { key: 'cancelled', label: 'Cancelled', count: orders.filter(o => ['cancelled', 'returned', 'refunded'].includes(o.status)).length }
+    { key: "all", label: "All", count: orders.length },
+    {
+      key: "processing",
+      label: "Processing",
+      count: orders.filter((o) =>
+        ["pending", "confirmed", "processing"].includes(o.status),
+      ).length,
+    },
+    {
+      key: "shipped",
+      label: "Shipped",
+      count: orders.filter((o) => o.status === "shipped").length,
+    },
+    {
+      key: "delivered",
+      label: "Delivered",
+      count: orders.filter((o) => o.status === "delivered").length,
+    },
+    {
+      key: "cancelled",
+      label: "Cancelled",
+      count: orders.filter((o) =>
+        ["cancelled", "returned", "refunded"].includes(o.status),
+      ).length,
+    },
   ];
 
-  const filteredOrders = orders.filter(order => {
-    let matchesFilter = activeFilter === 'all';
-    if (activeFilter === 'processing') {
-      matchesFilter = ['pending', 'confirmed', 'processing'].includes(order.status);
-    } else if (activeFilter === 'cancelled') {
-      matchesFilter = ['cancelled', 'returned', 'refunded'].includes(order.status);
-    } else if (activeFilter !== 'all') {
+  const filteredOrders = orders.filter((order) => {
+    let matchesFilter = activeFilter === "all";
+    if (activeFilter === "processing") {
+      matchesFilter = ["pending", "confirmed", "processing"].includes(
+        order.status,
+      );
+    } else if (activeFilter === "cancelled") {
+      matchesFilter = ["cancelled", "returned", "refunded"].includes(
+        order.status,
+      );
+    } else if (activeFilter !== "all") {
       matchesFilter = order.status === activeFilter;
     }
 
-    const matchesSearch = searchQuery === '' ||
+    const matchesSearch =
+      searchQuery === "" ||
       order.orderNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.items.some(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
+      order.items.some((item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()),
+      );
     return matchesFilter && matchesSearch;
   });
 
@@ -128,57 +193,76 @@ const MyOrders = () => {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'delivered': return <FaCheckCircle className="text-green-500" />;
-      case 'shipped': return <FaTruck className="text-blue-500" />;
-      case 'pending':
-      case 'confirmed':
-      case 'processing': return <FaClock className="text-yellow-500" />;
-      case 'cancelled':
-      case 'returned':
-      case 'refunded': return <FaTimesCircle className="text-red-500" />;
-      default: return <FaClock className="text-gray-500" />;
+      case "delivered":
+        return <FaCheckCircle className="text-green-500" />;
+      case "shipped":
+        return <FaTruck className="text-blue-500" />;
+      case "pending":
+      case "confirmed":
+      case "processing":
+        return <FaClock className="text-yellow-500" />;
+      case "cancelled":
+      case "returned":
+      case "refunded":
+        return <FaTimesCircle className="text-red-500" />;
+      default:
+        return <FaClock className="text-gray-500" />;
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'delivered': return 'bg-green-100 text-green-800';
-      case 'shipped': return 'bg-blue-100 text-blue-800';
-      case 'pending':
-      case 'confirmed':
-      case 'processing': return 'bg-yellow-100 text-yellow-800';
-      case 'cancelled':
-      case 'returned':
-      case 'refunded': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "delivered":
+        return "bg-green-100 text-green-800";
+      case "shipped":
+        return "bg-blue-100 text-blue-800";
+      case "pending":
+      case "confirmed":
+      case "processing":
+        return "bg-yellow-100 text-yellow-800";
+      case "cancelled":
+      case "returned":
+      case "refunded":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusText = (status) => {
     switch (status) {
-      case 'delivered': return 'Delivered';
-      case 'shipped': return 'Shipped';
-      case 'pending': return 'Pending';
-      case 'confirmed': return 'Confirmed';
-      case 'processing': return 'Processing';
-      case 'cancelled': return 'Cancelled';
-      case 'returned': return 'Returned';
-      case 'refunded': return 'Refunded';
-      default: return 'Pending';
+      case "delivered":
+        return "Delivered";
+      case "shipped":
+        return "Shipped";
+      case "pending":
+        return "Pending";
+      case "confirmed":
+        return "Confirmed";
+      case "processing":
+        return "Processing";
+      case "cancelled":
+        return "Cancelled";
+      case "returned":
+        return "Returned";
+      case "refunded":
+        return "Refunded";
+      default:
+        return "Pending";
     }
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    const options = { day: 'numeric', month: 'short', year: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-IN', options);
+    if (!dateString) return "N/A";
+    const options = { day: "numeric", month: "short", year: "numeric" };
+    return new Date(dateString).toLocaleDateString("en-IN", options);
   };
 
   const formatPrice = (price) => {
-    if (typeof price === 'number') {
-      return `₹${price.toLocaleString('en-IN')}`;
+    if (typeof price === "number") {
+      return `₹${price.toLocaleString("en-IN")}`;
     }
-    return price || '₹0';
+    return price || "₹0";
   };
 
   const toggleOrderExpand = (orderId) => {
@@ -187,7 +271,7 @@ const MyOrders = () => {
 
   const handleReorder = (order) => {
     // Add items to cart (this would need cart context integration)
-    toast.info('Reorder feature coming soon!');
+    toast.info("Reorder feature coming soon!");
   };
 
   const handleTrackOrder = (orderId) => {
@@ -195,43 +279,45 @@ const MyOrders = () => {
       orderId,
       onSuccess: (data) => {
         if (data.success) {
-          toast.success('Order tracking details loaded');
+          toast.success("Order tracking details loaded");
           // Could show a modal with tracking info
         }
       },
       onError: () => {
-        toast.error('Failed to load tracking details');
-      }
+        toast.error("Failed to load tracking details");
+      },
     });
   };
 
   const handleCancelOrder = (orderId) => {
-    if (!window.confirm('Are you sure you want to cancel this order?')) return;
+    if (!window.confirm("Are you sure you want to cancel this order?")) return;
 
     orderApi.cancelOrder({
       orderId,
-      reason: 'Customer requested cancellation',
+      reason: "Customer requested cancellation",
       onSuccess: (data) => {
         if (data.success) {
-          toast.success('Order cancelled successfully');
+          toast.success("Order cancelled successfully");
           // Update the order in state
-          setOrders(prev => prev.map(o =>
-            o.id === orderId ? { ...o, status: 'cancelled' } : o
-          ));
+          setOrders((prev) =>
+            prev.map((o) =>
+              o.id === orderId ? { ...o, status: "cancelled" } : o,
+            ),
+          );
         }
       },
       onError: (err) => {
-        toast.error(err.message || 'Failed to cancel order');
-      }
+        toast.error(err.message || "Failed to cancel order");
+      },
     });
   };
 
   const handleWriteReview = (orderId) => {
-    toast.info('Review feature coming soon!');
+    toast.info("Review feature coming soon!");
   };
 
   const handleCallSupport = () => {
-    window.location.href = 'tel:+919876543210';
+    window.location.href = "tel:+919876543210";
   };
 
   // Loading state
@@ -248,7 +334,7 @@ const MyOrders = () => {
         </div>
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="bg-white rounded-xl p-4 animate-pulse">
                 <div className="h-8 bg-gray-200 w-16 mb-2 rounded"></div>
                 <div className="h-4 bg-gray-200 w-24 rounded"></div>
@@ -256,7 +342,7 @@ const MyOrders = () => {
             ))}
           </div>
           <div className="space-y-4">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="bg-white rounded-xl p-6 animate-pulse">
                 <div className="h-6 bg-gray-200 w-32 mb-4 rounded"></div>
                 <div className="h-16 bg-gray-100 rounded"></div>
@@ -276,13 +362,19 @@ const MyOrders = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold mb-2">My Orders</h1>
-              <p className="text-amber-50/90 text-sm md:text-base">Track and manage all your jewelry purchases</p>
+              <p className="text-amber-50/90 text-sm md:text-base">
+                Track and manage all your jewelry purchases
+              </p>
             </div>
             <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-xl p-3 md:p-4">
               <FaBoxOpen className="text-xl md:text-2xl text-white" />
               <div>
-                <p className="font-semibold text-sm md:text-base">{orders.length} Orders</p>
-                <p className="text-xs md:text-sm text-amber-50/90">Lifetime purchases</p>
+                <p className="font-semibold text-sm md:text-base">
+                  {orders.length} Orders
+                </p>
+                <p className="text-xs md:text-sm text-amber-50/90">
+                  Lifetime purchases
+                </p>
               </div>
             </div>
           </div>
@@ -299,11 +391,11 @@ const MyOrders = () => {
                 className="bg-white rounded-xl shadow-sm p-4 min-w-[150px] border border-gray-100"
               >
                 <div className="flex items-center gap-3">
-                  <div className="text-xl">
-                    {stat.icon}
-                  </div>
+                  <div className="text-xl">{stat.icon}</div>
                   <div>
-                    <div className="text-xl font-bold text-gray-900">{stat.value}</div>
+                    <div className="text-xl font-bold text-gray-900">
+                      {stat.value}
+                    </div>
                     <div className="text-xs text-gray-600">{stat.label}</div>
                   </div>
                 </div>
@@ -320,11 +412,11 @@ const MyOrders = () => {
               className="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-300 border border-gray-100 hover:border-[#C19A6B]/20"
             >
               <div className="flex items-center gap-3">
-                <div className="text-2xl">
-                  {stat.icon}
-                </div>
+                <div className="text-2xl">{stat.icon}</div>
                 <div>
-                  <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {stat.value}
+                  </div>
                   <div className="text-sm text-gray-600">{stat.label}</div>
                 </div>
               </div>
@@ -376,7 +468,9 @@ const MyOrders = () => {
                 <FaFilter className="text-[#C19A6B]" />
                 <span className="font-medium text-gray-700">Filters</span>
               </div>
-              <FaChevronDown className={`transform transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+              <FaChevronDown
+                className={`transform transition-transform ${showFilters ? "rotate-180" : ""}`}
+              />
             </button>
 
             {showFilters && (
@@ -388,10 +482,11 @@ const MyOrders = () => {
                       setActiveFilter(filter.key);
                       setShowFilters(false);
                     }}
-                    className={`px-3 py-1.5 rounded-lg transition-colors duration-200 text-sm ${activeFilter === filter.key
-                      ? 'bg-[#C19A6B] text-white'
-                      : 'bg-gray-100 text-gray-700'
-                      }`}
+                    className={`px-3 py-1.5 rounded-lg transition-colors duration-200 text-sm ${
+                      activeFilter === filter.key
+                        ? "bg-[#C19A6B] text-white"
+                        : "bg-gray-100 text-gray-700"
+                    }`}
                   >
                     {filter.label} ({filter.count})
                   </button>
@@ -406,10 +501,11 @@ const MyOrders = () => {
               <button
                 key={filter.key}
                 onClick={() => setActiveFilter(filter.key)}
-                className={`px-4 py-2 rounded-lg transition-colors duration-200 ${activeFilter === filter.key
-                  ? 'bg-[#C19A6B] text-white hover:bg-[#B08D5F]'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900'
-                  }`}
+                className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
+                  activeFilter === filter.key
+                    ? "bg-[#C19A6B] text-white hover:bg-[#B08D5F]"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900"
+                }`}
               >
                 {filter.label} ({filter.count})
               </button>
@@ -422,7 +518,9 @@ const MyOrders = () => {
           {filteredOrders.length === 0 ? (
             <div className="bg-white rounded-xl p-8 text-center">
               <FaBoxOpen className="text-4xl text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No orders found</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                No orders found
+              </h3>
               <p className="text-gray-600 text-sm">
                 {orders.length === 0
                   ? "You haven't placed any orders yet."
@@ -430,7 +528,7 @@ const MyOrders = () => {
               </p>
               {orders.length === 0 && (
                 <button
-                  onClick={() => navigate('/categories')}
+                  onClick={() => navigate("/categories")}
                   className="mt-4 px-6 py-2 bg-[#C19A6B] text-white rounded-lg"
                 >
                   Start Shopping
@@ -439,7 +537,10 @@ const MyOrders = () => {
             </div>
           ) : (
             filteredOrders.map((order) => (
-              <div key={order.id} className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+              <div
+                key={order.id}
+                className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100"
+              >
                 {/* Order Header */}
                 <div
                   className="p-4 border-b border-gray-100 cursor-pointer"
@@ -448,8 +549,12 @@ const MyOrders = () => {
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="font-bold text-gray-900 text-sm">{order.orderNo}</span>
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                        <span className="font-bold text-gray-900 text-sm">
+                          {order.orderNo}
+                        </span>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}
+                        >
                           {getStatusText(order.status)}
                         </span>
                       </div>
@@ -459,8 +564,12 @@ const MyOrders = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-gray-900">{formatPrice(order.amount)}</div>
-                      <div className="text-xs text-gray-600">{order.paymentMethod}</div>
+                      <div className="font-bold text-gray-900">
+                        {formatPrice(order.amount)}
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        {order.paymentMethod}
+                      </div>
                     </div>
                   </div>
 
@@ -472,17 +581,27 @@ const MyOrders = () => {
                           src={order.items[0].image}
                           alt={order.items[0].name}
                           className="w-full h-full object-cover"
-                          onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }}
+                          onError={(e) => {
+                            e.target.src = "https://via.placeholder.com/150";
+                          }}
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{order.items[0].name}</p>
-                        <p className="text-xs text-gray-600">Qty: {order.items[0].quantity}</p>
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {order.items[0].name}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          Qty: {order.items[0].quantity}
+                        </p>
                         {order.items.length > 1 && (
-                          <p className="text-xs text-gray-500 mt-1">+ {order.items.length - 1} more item(s)</p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            + {order.items.length - 1} more item(s)
+                          </p>
                         )}
                       </div>
-                      <FaChevronRight className={`transform transition-transform ${expandedOrder === order.id ? 'rotate-90' : ''}`} />
+                      <FaChevronRight
+                        className={`transform transition-transform ${expandedOrder === order.id ? "rotate-90" : ""}`}
+                      />
                     </div>
                   )}
                 </div>
@@ -492,7 +611,9 @@ const MyOrders = () => {
                   <div className="p-4 border-t border-gray-100 animate-slideDown">
                     {/* Order Items */}
                     <div className="mb-4">
-                      <h4 className="font-medium text-gray-900 mb-2 text-sm">Order Items</h4>
+                      <h4 className="font-medium text-gray-900 mb-2 text-sm">
+                        Order Items
+                      </h4>
                       <div className="space-y-3">
                         {order.items.map((item, index) => (
                           <div key={index} className="flex items-center gap-3">
@@ -501,12 +622,19 @@ const MyOrders = () => {
                                 src={item.image}
                                 alt={item.name}
                                 className="w-full h-full object-cover"
-                                onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }}
+                                onError={(e) => {
+                                  e.target.src =
+                                    "https://via.placeholder.com/150";
+                                }}
                               />
                             </div>
                             <div className="flex-1">
-                              <p className="text-sm text-gray-900">{item.name}</p>
-                              <p className="text-xs text-gray-600">Qty: {item.quantity} • {formatPrice(item.price)}</p>
+                              <p className="text-sm text-gray-900">
+                                {item.name}
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                Qty: {item.quantity} • {formatPrice(item.price)}
+                              </p>
                             </div>
                           </div>
                         ))}
@@ -518,8 +646,12 @@ const MyOrders = () => {
                       <div className="flex items-start gap-2">
                         <FaMapMarkerAlt className="text-gray-400 text-sm mt-0.5" />
                         <div className="flex-1">
-                          <p className="text-xs text-gray-600">Shipping Address</p>
-                          <p className="text-sm text-gray-900">{order.shippingAddress}</p>
+                          <p className="text-xs text-gray-600">
+                            Shipping Address
+                          </p>
+                          <p className="text-sm text-gray-900">
+                            {order.shippingAddress}
+                          </p>
                         </div>
                       </div>
 
@@ -528,7 +660,9 @@ const MyOrders = () => {
                           <FaTruck className="text-gray-400 text-sm" />
                           <div>
                             <p className="text-xs text-gray-600">Tracking ID</p>
-                            <p className="text-sm text-gray-900">{order.trackingId}</p>
+                            <p className="text-sm text-gray-900">
+                              {order.trackingId}
+                            </p>
                           </div>
                         </div>
                       )}
@@ -544,7 +678,7 @@ const MyOrders = () => {
                         View Details
                       </button>
 
-                      {order.status === 'delivered' && (
+                      {order.status === "delivered" && (
                         <>
                           <button
                             onClick={() => handleReorder(order)}
@@ -563,7 +697,7 @@ const MyOrders = () => {
                         </>
                       )}
 
-                      {order.status === 'shipped' && (
+                      {order.status === "shipped" && (
                         <button
                           onClick={() => handleTrackOrder(order.id)}
                           className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm bg-green-50 text-green-600 rounded-lg font-medium border border-green-100 col-span-2"
@@ -573,7 +707,9 @@ const MyOrders = () => {
                         </button>
                       )}
 
-                      {['pending', 'confirmed', 'processing'].includes(order.status) && (
+                      {["pending", "confirmed", "processing"].includes(
+                        order.status,
+                      ) && (
                         <button
                           onClick={() => handleCancelOrder(order.id)}
                           className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm bg-red-50 text-red-600 rounded-lg font-medium border border-red-100"
@@ -595,7 +731,9 @@ const MyOrders = () => {
           {filteredOrders.length === 0 ? (
             <div className="p-12 text-center">
               <FaBoxOpen className="text-4xl text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No orders found</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                No orders found
+              </h3>
               <p className="text-gray-600">
                 {orders.length === 0
                   ? "You haven't placed any orders yet."
@@ -603,7 +741,7 @@ const MyOrders = () => {
               </p>
               {orders.length === 0 && (
                 <button
-                  onClick={() => navigate('/categories')}
+                  onClick={() => navigate("/categories")}
                   className="mt-4 px-6 py-2 bg-[#C19A6B] text-white rounded-lg"
                 >
                   Start Shopping
@@ -615,16 +753,29 @@ const MyOrders = () => {
               <table className="w-full">
                 <thead>
                   <tr className="bg-gray-50">
-                    <th className="text-left p-4 font-semibold text-gray-900">Order Details</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Date</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Amount</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Status</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Actions</th>
+                    <th className="text-left p-4 font-semibold text-gray-900">
+                      Order Details
+                    </th>
+                    <th className="text-left p-4 font-semibold text-gray-900">
+                      Date
+                    </th>
+                    <th className="text-left p-4 font-semibold text-gray-900">
+                      Amount
+                    </th>
+                    <th className="text-left p-4 font-semibold text-gray-900">
+                      Status
+                    </th>
+                    <th className="text-left p-4 font-semibold text-gray-900">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredOrders.map((order) => (
-                    <tr key={order.id} className="border-t border-gray-100 hover:bg-gray-50 transition-colors duration-150">
+                    <tr
+                      key={order.id}
+                      className="border-t border-gray-100 hover:bg-gray-50 transition-colors duration-150"
+                    >
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           <div className="flex-shrink-0">
@@ -634,16 +785,26 @@ const MyOrders = () => {
                                   src={order.items[0].image}
                                   alt={order.items[0].name}
                                   className="w-full h-full object-cover"
-                                  onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }}
+                                  onError={(e) => {
+                                    e.target.src =
+                                      "https://via.placeholder.com/150";
+                                  }}
                                 />
                               )}
                             </div>
                           </div>
                           <div>
-                            <div className="font-medium text-gray-900">{order.orderNo}</div>
-                            <div className="text-sm text-gray-600">{order.items.length} item{order.items.length > 1 ? 's' : ''}</div>
+                            <div className="font-medium text-gray-900">
+                              {order.orderNo}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {order.items.length} item
+                              {order.items.length > 1 ? "s" : ""}
+                            </div>
                             {order.items.length > 0 && (
-                              <div className="text-xs text-gray-500 mt-1">{order.items[0].name}</div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {order.items[0].name}
+                              </div>
                             )}
                           </div>
                         </div>
@@ -655,7 +816,9 @@ const MyOrders = () => {
                         </div>
                       </td>
                       <td className="p-4">
-                        <div className="font-bold text-gray-900">{formatPrice(order.amount)}</div>
+                        <div className="font-bold text-gray-900">
+                          {formatPrice(order.amount)}
+                        </div>
                         <div className="text-sm text-gray-600 flex items-center gap-1">
                           <FaCreditCard className="text-gray-400" />
                           {order.paymentMethod}
@@ -664,12 +827,16 @@ const MyOrders = () => {
                       <td className="p-4">
                         <div className="flex items-center gap-2">
                           {getStatusIcon(order.status)}
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}
+                          >
                             {getStatusText(order.status)}
                           </span>
                         </div>
                         {order.trackingId && (
-                          <div className="text-xs text-gray-500 mt-1">Track ID: {order.trackingId}</div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Track ID: {order.trackingId}
+                          </div>
                         )}
                       </td>
                       <td className="p-4">
@@ -682,7 +849,7 @@ const MyOrders = () => {
                             View Details
                           </button>
 
-                          {order.status === 'delivered' && (
+                          {order.status === "delivered" && (
                             <>
                               <button
                                 onClick={() => handleReorder(order)}
@@ -701,7 +868,7 @@ const MyOrders = () => {
                             </>
                           )}
 
-                          {order.status === 'shipped' && (
+                          {order.status === "shipped" && (
                             <button
                               onClick={() => handleTrackOrder(order.id)}
                               className="flex items-center gap-2 px-3 py-1 text-sm text-green-600 hover:text-green-700 hover:bg-green-50 rounded transition-colors duration-200"
@@ -711,7 +878,9 @@ const MyOrders = () => {
                             </button>
                           )}
 
-                          {['pending', 'confirmed', 'processing'].includes(order.status) && (
+                          {["pending", "confirmed", "processing"].includes(
+                            order.status,
+                          ) && (
                             <button
                               onClick={() => handleCancelOrder(order.id)}
                               className="flex items-center gap-2 px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors duration-200"
@@ -734,7 +903,9 @@ const MyOrders = () => {
         <div className="md:hidden mt-8">
           <div className="bg-gradient-to-r from-[#C19A6B] to-[#D4B896] text-white rounded-xl p-4">
             <h3 className="font-bold mb-2">Need Help?</h3>
-            <p className="text-sm text-white/90 mb-3">Having issues with your order? We're here to help!</p>
+            <p className="text-sm text-white/90 mb-3">
+              Having issues with your order? We're here to help!
+            </p>
             <button
               onClick={handleCallSupport}
               className="flex items-center justify-center gap-2 w-full bg-white text-[#C19A6B] py-2.5 rounded-lg font-medium"
