@@ -30,6 +30,7 @@ import three from "../../assets/Navbar/oneAngle.webp";
 import four from "../../assets/Navbar/sixAngle.avif";
 import five from "../../assets/Navbar/threeAngle.webp";
 import six from "../../assets/Navbar/twoAngle.webp";
+import bannerApi from "../../apis/bannerApi";
 
 const Navbar = () => {
   const location = useLocation();
@@ -56,6 +57,36 @@ const Navbar = () => {
 
   // Get cart from context
   const { getTotalUniqueItems } = useCart();
+
+  // Carousel content state
+  const [carouselSlides, setCarouselSlides] = useState([
+    {
+      title: "Discover Sparkle",
+      subtitle: "With Style",
+      description:
+        "Whether casual or formal, find the perfect jewelry for every occasion.",
+      background: banner,
+    },
+    {
+      title: "Elegant Collection",
+      subtitle: "Timeless Beauty",
+      description: "Explore our exclusive range of handcrafted jewelry pieces.",
+      background: banneTwo,
+    },
+    {
+      title: "Luxury Redefined",
+      subtitle: "Premium Quality",
+      description:
+        "Experience the finest craftsmanship in every piece we create.",
+      background: bannerThree,
+    },
+    {
+      title: "Special Offers",
+      subtitle: "Limited Edition",
+      description: "Don't miss out on our exclusive seasonal collections.",
+      background: bannerFour,
+    },
+  ]);
 
   // Refs for dropdowns
   const dropdownRef = useRef(null);
@@ -300,35 +331,33 @@ const Navbar = () => {
     { name: "All Jewelry", image: one, path: "/categories" },
   ];
 
-  // Carousel content
-  const carouselSlides = [
-    {
-      title: "Discover Sparkle",
-      subtitle: "With Style",
-      description:
-        "Whether casual or formal, find the perfect jewelry for every occasion.",
-      background: banner,
-    },
-    {
-      title: "Elegant Collection",
-      subtitle: "Timeless Beauty",
-      description: "Explore our exclusive range of handcrafted jewelry pieces.",
-      background: banneTwo,
-    },
-    {
-      title: "Luxury Redefined",
-      subtitle: "Premium Quality",
-      description:
-        "Experience the finest craftsmanship in every piece we create.",
-      background: bannerThree,
-    },
-    {
-      title: "Special Offers",
-      subtitle: "Limited Edition",
-      description: "Don't miss out on our exclusive seasonal collections.",
-      background: bannerFour,
-    },
-  ];
+  // Fetch carousel slides from API
+  useEffect(() => {
+    if (!isHomePage) return;
+
+    bannerApi.getBannersByPage({
+      page: "home",
+      position: "top",
+      onSuccess: (response) => {
+        if (
+          response.status === "success" &&
+          response.data?.banners?.length > 0
+        ) {
+          const mappedSlides = response.data.banners.map((b) => ({
+            title: b.title || "",
+            subtitle: b.subheader || "",
+            description: b.body || "",
+            background: b.images?.[0]?.url || b.images?.[0] || "",
+            redirectUrl: b.redirectUrl,
+          }));
+          setCarouselSlides(mappedSlides);
+        }
+      },
+      onError: (err) => {
+        console.error("Failed to fetch carousel slides:", err);
+      },
+    });
+  }, [isHomePage]);
 
   // Auto carousel effect
   useEffect(() => {
@@ -344,6 +373,18 @@ const Navbar = () => {
   // Manual slide navigation
   const goToSlide = (index) => {
     setCurrentSlide(index);
+  };
+
+  const handleSlideClick = (slide) => {
+    if (slide.redirectUrl) {
+      if (slide.redirectUrl.startsWith("http")) {
+        window.location.href = slide.redirectUrl;
+      } else {
+        navigate(slide.redirectUrl);
+      }
+    } else {
+      navigate("/categories");
+    }
   };
 
   const nextSlide = () => {
@@ -1065,7 +1106,10 @@ const Navbar = () => {
                   {slide.description}
                 </p>
                 {/* UPDATED SHOP NOW BUTTON - Original styling */}
-                <button className="bg-transparent text-white font-semibold py-2 px-6 sm:py-3 sm:px-8 transition duration-300 transform hover:scale-110 text-sm sm:text-base border-t-2 border-b-2 border-r border-l hover:border-[#C19A6B] ">
+                <button
+                  onClick={() => handleSlideClick(slide)}
+                  className="bg-transparent text-white font-semibold py-2 px-6 sm:py-3 sm:px-8 transition duration-300 transform hover:scale-110 text-sm sm:text-base border-t-2 border-b-2 border-r border-l hover:border-[#C19A6B] "
+                >
                   Shop Now
                 </button>
               </div>
