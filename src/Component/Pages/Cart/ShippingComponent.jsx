@@ -11,7 +11,7 @@ import {
 } from "react-icons/bs";
 import { INDIAN_STATES, validateShippingField } from "../../utils/Validation";
 import { useNavigate } from "react-router-dom";
-  
+
 const InputField = ({
   label,
   name,
@@ -101,6 +101,10 @@ const ShippingComponent = ({
   setSaveInfo,
   savedAddresses: fetchedAddresses,
   refreshAddresses,
+  page,
+  totalPages,
+  totalAddresses,
+  onPageChange,
 }) => {
   // Custom color definitions
   const primaryColor = "#C19A6B";
@@ -454,7 +458,9 @@ const ShippingComponent = ({
                         handleDeleteAddress(address.id);
                       }}
                       className="p-1 text-gray-500 hover:text-red-600"
-                      disabled={savedAddresses.length <= 1}
+                      disabled={
+                        savedAddresses.length <= 1 && totalAddresses <= 1
+                      }
                     >
                       <BsTrash />
                     </button>
@@ -505,6 +511,37 @@ const ShippingComponent = ({
               </div>
             ))}
           </div>
+
+          {/* Pagination Controls */}
+          {totalAddresses > 4 && (
+            <div className="flex items-center justify-center gap-4 mt-8 pb-4">
+              <button
+                disabled={page === 1}
+                onClick={() => onPageChange(page - 1)}
+                className={`flex items-center gap-2 px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
+                  page === 1
+                    ? "text-gray-300 border-gray-100 cursor-not-allowed"
+                    : "text-gray-700 border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                Previous
+              </button>
+              <div className="text-sm font-medium text-gray-600">
+                Page {page} of {totalPages}
+              </div>
+              <button
+                disabled={page === totalPages}
+                onClick={() => onPageChange(page + 1)}
+                className={`flex items-center gap-2 px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
+                  page === totalPages
+                    ? "text-gray-300 border-gray-100 cursor-not-allowed"
+                    : "text-gray-700 border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         /* Add/Edit Address Form */

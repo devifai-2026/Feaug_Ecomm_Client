@@ -63,6 +63,9 @@ const MyProfile = () => {
   });
   const [passwordErrors, setPasswordErrors] = useState({});
   const [addressPage, setAddressPage] = useState(1);
+  const [totalAddresses, setTotalAddresses] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [paginatedAddresses, setPaginatedAddresses] = useState([]);
   const ADDRESSES_PER_PAGE = 4;
 
   // Helper to get initials
@@ -70,18 +73,30 @@ const MyProfile = () => {
     return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "U";
   };
 
-  // Reset pagination if items are deleted and current page is out of bounds
-  useEffect(() => {
-    if (userData?.addresses) {
-      const maxPage = Math.max(
-        1,
-        Math.ceil(userData.addresses.length / ADDRESSES_PER_PAGE),
-      );
-      if (addressPage > maxPage) {
-        setAddressPage(maxPage);
+  // Fetch paginated addresses
+  const fetchPaginatedAddresses = async (page) => {
+    try {
+      const response = await userApi.getAddresses(page, ADDRESSES_PER_PAGE);
+      if (response.status === "success") {
+        setPaginatedAddresses(response.data.addresses);
+        setTotalAddresses(response.total);
+        setTotalPages(response.totalPages);
+
+        // If current page is empty and we're not on page 1, go to previous page
+        if (response.data.addresses.length === 0 && page > 1) {
+          setAddressPage(page - 1);
+        }
       }
+    } catch (error) {
+      console.error("Error fetching paginated addresses:", error);
     }
-  }, [userData?.addresses, addressPage]);
+  };
+
+  useEffect(() => {
+    if (activeSection === "addresses") {
+      fetchPaginatedAddresses(addressPage);
+    }
+  }, [activeSection, addressPage]);
 
   // Fetch user data from API
   useEffect(() => {
@@ -342,6 +357,9 @@ const MyProfile = () => {
             ? `${defaultAddress.addressLine1 || ""}, ${defaultAddress.city || ""}`
             : "No address saved",
         }));
+
+        // Also refresh paginated addresses
+        fetchPaginatedAddresses(addressPage);
       }
     } catch (error) {
       console.error("Failed to refresh user data", error);
@@ -691,70 +709,65 @@ const MyProfile = () => {
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
-                    {userData.addresses && userData.addresses.length > 0 ? (
-                      userData.addresses
-                        .slice(
-                          (addressPage - 1) * ADDRESSES_PER_PAGE,
-                          addressPage * ADDRESSES_PER_PAGE,
-                        )
-                        .map((addr, index) => (
-                          <div
-                            key={addr._id || index}
-                            className={`relative p-6 rounded-3xl border transition-all duration-300 ${
-                              addr.isDefault
-                                ? "bg-white border-[#C19A6B]/30 shadow-md"
-                                : "bg-neutral-50 border-neutral-50 hover:bg-white hover:border-neutral-200"
-                            }`}
-                          >
-                            <div className="flex items-center justify-between mb-6">
-                              <span className="px-4 py-1.5 bg-neutral-900 text-white rounded-full text-[10px] font-bold uppercase transition-all">
-                                {addr.type}
-                              </span>
-                              {addr.isDefault && (
-                                <div className="text-[10px] font-bold text-emerald-600 uppercase">
-                                  Default
-                                </div>
-                              )}
-                            </div>
-
-                            <h3 className="text-xl  font-bold text-neutral-900 mb-1">
-                              {addr.name || userData.name}
-                            </h3>
-                            <p className="text-neutral-500 text-xs leading-relaxed mb-6 font-inter">
-                              {addr.addressLine1}
-                              <span className="block mt-1 font-bold">
-                                {addr.city}, {addr.state} - {addr.pincode}
-                              </span>
-                            </p>
-
-                            <div className="flex items-center justify-between pt-6 border-t border-neutral-100">
-                              <div className="flex gap-4">
-                                <button
-                                  onClick={() => handleEditAddressClick(addr)}
-                                  className="text-neutral-300 hover:text-[#C19A6B] transition-colors"
-                                >
-                                  <FaEdit size={16} />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteAddress(addr._id)}
-                                  className="text-neutral-300 hover:text-red-400 transition-colors"
-                                >
-                                  <FaTrash size={14} />
-                                </button>
+                    {paginatedAddresses && paginatedAddresses.length > 0 ? (
+                      paginatedAddresses.map((addr, index) => (
+                        <div
+                          key={addr._id || index}
+                          className={`relative p-6 rounded-3xl border transition-all duration-300 ${
+                            addr.isDefault
+                              ? "bg-white border-[#C19A6B]/30 shadow-md"
+                              : "bg-neutral-50 border-neutral-50 hover:bg-white hover:border-neutral-200"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-6">
+                            <span className="px-4 py-1.5 bg-neutral-900 text-white rounded-full text-[10px] font-bold uppercase transition-all">
+                              {addr.type}
+                            </span>
+                            {addr.isDefault && (
+                              <div className="text-[10px] font-bold text-emerald-600 uppercase">
+                                Default
                               </div>
-                              {!addr.isDefault && (
-                                <button
-                                  onClick={() =>
-                                    handleSetDefaultAddress(addr._id)
-                                  }
-                                  className="text-xs font-semibold text-neutral-400 hover:text-[#C19A6B] transition-colors"
-                                >
-                                  Set as Default
-                                </button>
-                              )}
-                            </div>
+                            )}
                           </div>
-                        ))
+
+                          <h3 className="text-xl  font-bold text-neutral-900 mb-1">
+                            {addr.name || userData.name}
+                          </h3>
+                          <p className="text-neutral-500 text-xs leading-relaxed mb-6 font-inter">
+                            {addr.addressLine1}
+                            <span className="block mt-1 font-bold">
+                              {addr.city}, {addr.state} - {addr.pincode}
+                            </span>
+                          </p>
+
+                          <div className="flex items-center justify-between pt-6 border-t border-neutral-100">
+                            <div className="flex gap-4">
+                              <button
+                                onClick={() => handleEditAddressClick(addr)}
+                                className="text-neutral-300 hover:text-[#C19A6B] transition-colors"
+                              >
+                                <FaEdit size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteAddress(addr._id)}
+                                className="text-neutral-300 hover:text-red-400 transition-colors"
+                              >
+                                <FaTrash size={14} />
+                              </button>
+                            </div>
+                            {!addr.isDefault && (
+                              <button
+                                onClick={() =>
+                                  handleSetDefaultAddress(addr._id)
+                                }
+                                className="text-xs font-semibold text-neutral-400 hover:text-[#C19A6B] transition-colors"
+                              >
+                                Set as Default
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))
                     ) : (
                       <div className="md:col-span-2 py-12 bg-neutral-50 rounded-3xl border border-dashed border-neutral-100 flex flex-col items-center justify-center text-center px-10">
                         <h3 className="text-lg  font-bold text-neutral-800 mb-2">
@@ -770,47 +783,38 @@ const MyProfile = () => {
                     )}
                   </div>
 
-                  {userData.addresses &&
-                    userData.addresses.length > ADDRESSES_PER_PAGE && (
-                      <div className="flex items-center justify-center gap-4 pt-4">
-                        <button
-                          disabled={addressPage === 1}
-                          onClick={() => setAddressPage((prev) => prev - 1)}
-                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
-                            addressPage === 1
-                              ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
-                              : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
-                          }`}
-                        >
-                          Previous
-                        </button>
-                        <span className="text-xs font-bold text-neutral-500">
-                          Page {addressPage} of{" "}
-                          {Math.ceil(
+                  {totalAddresses > ADDRESSES_PER_PAGE && (
+                    <div className="flex items-center justify-center gap-4 pt-4">
+                      <button
+                        disabled={addressPage === 1}
+                        onClick={() => setAddressPage((prev) => prev - 1)}
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
+                          addressPage === 1
+                            ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
+                            : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
+                        }`}
+                      >
+                        Previous
+                      </button>
+                      <span className="text-xs font-bold text-neutral-500">
+                        Page {addressPage} of {totalPages}
+                      </span>
+                      <button
+                        disabled={addressPage === totalPages}
+                        onClick={() => setAddressPage((prev) => prev + 1)}
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
+                          addressPage ===
+                          Math.ceil(
                             userData.addresses.length / ADDRESSES_PER_PAGE,
-                          )}
-                        </span>
-                        <button
-                          disabled={
-                            addressPage ===
-                            Math.ceil(
-                              userData.addresses.length / ADDRESSES_PER_PAGE,
-                            )
-                          }
-                          onClick={() => setAddressPage((prev) => prev + 1)}
-                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
-                            addressPage ===
-                            Math.ceil(
-                              userData.addresses.length / ADDRESSES_PER_PAGE,
-                            )
-                              ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
-                              : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
-                          }`}
-                        >
-                          Next
-                        </button>
-                      </div>
-                    )}
+                          )
+                            ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
+                            : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
+                        }`}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
