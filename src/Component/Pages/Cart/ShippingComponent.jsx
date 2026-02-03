@@ -10,7 +10,8 @@ import {
   BsStarFill,
 } from "react-icons/bs";
 import { INDIAN_STATES, validateShippingField } from "../../utils/Validation";
-
+import { useNavigate } from "react-router-dom";
+  
 const InputField = ({
   label,
   name,
@@ -106,6 +107,7 @@ const ShippingComponent = ({
   const primaryLight = "#E8D4B9";
   const primaryDark = "#A07A4B";
 
+  const navigate = useNavigate();
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -379,7 +381,9 @@ const ShippingComponent = ({
         </div>
         {!isAddingNewAddress && (
           <button
-            onClick={handleAddNewAddress}
+            onClick={() => {
+              navigate("/myProfile?tab=addresses");
+            }}
             className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1 md:py-2 font-medium hover:opacity-90 transition-colors text-nowrap"
             style={{
               backgroundColor: primaryColor,

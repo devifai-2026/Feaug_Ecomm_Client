@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   FaUser,
   FaEnvelope,
@@ -26,6 +26,12 @@ import { INDIAN_STATES } from "../../utils/Validation";
 
 const MyProfile = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeSection = searchParams.get("tab") || "overview";
+
+  const setActiveSection = (sectionId) => {
+    setSearchParams({ tab: sectionId });
+  };
 
   // Scroll to top on component mount
   useEffect(() => {
@@ -36,7 +42,6 @@ const MyProfile = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [tempData, setTempData] = useState({});
-  const [activeSection, setActiveSection] = useState("overview");
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
@@ -57,11 +62,26 @@ const MyProfile = () => {
     confirmPassword: "",
   });
   const [passwordErrors, setPasswordErrors] = useState({});
+  const [addressPage, setAddressPage] = useState(1);
+  const ADDRESSES_PER_PAGE = 4;
 
   // Helper to get initials
   const getInitials = (firstName, lastName) => {
     return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "U";
   };
+
+  // Reset pagination if items are deleted and current page is out of bounds
+  useEffect(() => {
+    if (userData?.addresses) {
+      const maxPage = Math.max(
+        1,
+        Math.ceil(userData.addresses.length / ADDRESSES_PER_PAGE),
+      );
+      if (addressPage > maxPage) {
+        setAddressPage(maxPage);
+      }
+    }
+  }, [userData?.addresses, addressPage]);
 
   // Fetch user data from API
   useEffect(() => {
@@ -419,9 +439,7 @@ const MyProfile = () => {
           <div className="w-16 h-16 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <FaUserCircle className="text-4xl text-neutral-300" />
           </div>
-          <h2 className="text-xl font-kalnia text-neutral-800 mb-2">
-            Access Required
-          </h2>
+          <h2 className="text-xl  text-neutral-800 mb-2">Access Required</h2>
           <p className="text-neutral-500 mb-6 font-inter text-sm leading-relaxed">
             Please sign in to access your profile settings.
           </p>
@@ -437,21 +455,21 @@ const MyProfile = () => {
   }
 
   const sections = [
-    { id: "overview", label: "Dashboard", icon: <FaUserCircle /> },
-    { id: "personal", label: "Registry", icon: <FaUser /> },
-    { id: "addresses", label: "Points", icon: <FaMapMarkedAlt /> },
-    { id: "security", label: "Vault", icon: <FaShieldAlt /> },
+    { id: "overview", label: "Overview", icon: <FaUserCircle /> },
+    { id: "personal", label: "Profile", icon: <FaUser /> },
+    { id: "addresses", label: "Addresses", icon: <FaMapMarkedAlt /> },
+    { id: "security", label: "Password", icon: <FaShieldAlt /> },
   ];
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] text-neutral-800 selection:bg-[#C19A6B]/20 pt-20 pb-12">
       {/* Premium Compact Header */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-        <div className="relative overflow-hidden rounded-[2rem] bg-white border border-neutral-100 shadow-[0_10px_30px_rgba(193,154,107,0.06)] p-6 sm:p-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 mb-6">
+        <div className="relative overflow-hidden rounded-3xl bg-white border border-neutral-100 shadow-sm p-5 sm:p-6">
           <div className="relative flex flex-col md:flex-row items-center gap-8">
             <div className="group relative">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-neutral-50 border border-neutral-100 flex items-center justify-center shadow-inner overflow-hidden">
-                <span className="text-2xl sm:text-3xl font-kalnia font-bold text-[#C19A6B]">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-neutral-50 border border-neutral-100 flex items-center justify-center shadow-inner overflow-hidden">
+                <span className="text-xl sm:text-2xl  font-bold text-[#C19A6B]">
                   {getInitials(userData.firstName, userData.lastName)}
                 </span>
               </div>
@@ -464,46 +482,26 @@ const MyProfile = () => {
             </div>
 
             <div className="flex-1 text-center md:text-left">
-              <div className="inline-block px-3 py-1 bg-[#C19A6B]/10 rounded-full text-[9px] font-bold text-[#C19A6B] uppercase tracking-[0.2em] mb-2">
+              <div className="inline-block px-3 py-1 bg-[#C19A6B]/10 rounded-full text-xs font-bold text-[#C19A6B] mb-2">
                 Member
               </div>
-              <h1 className="text-2xl sm:text-3xl font-kalnia font-bold text-neutral-900 mb-1 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl  font-bold text-neutral-900 mb-1 tracking-tight">
                 {userData.name}
               </h1>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-neutral-500 font-inter text-xs">
                 <span>Since {formatDate(userData.joinDate)}</span>
                 {userData.isEmailVerified && (
-                  <span className="text-emerald-600 flex items-center gap-1 font-bold uppercase tracking-tighter">
-                    <FaCheckCircle size={8} /> Verified
+                  <span className="text-emerald-600 flex items-center gap-1 font-bold">
+                    <FaCheckCircle size={10} /> Verified
                   </span>
                 )}
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="text-center">
-                <p className="text-2xl font-kalnia font-bold text-neutral-900">
-                  {userData.addresses.length}
-                </p>
-                <p className="text-[9px] text-neutral-400 uppercase tracking-widest font-bold">
-                  Points
-                </p>
-              </div>
-              <div className="w-px h-8 bg-neutral-100 self-center"></div>
-              <div className="text-center">
-                <p className="text-2xl font-kalnia font-bold text-neutral-900">
-                  Elite
-                </p>
-                <p className="text-[9px] text-neutral-400 uppercase tracking-widest font-bold">
-                  Status
-                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Compact Sidebar */}
           <div className="lg:col-span-3 space-y-2 sticky top-28">
@@ -511,15 +509,15 @@ const MyProfile = () => {
               <button
                 key={section.id}
                 onClick={() => setActiveSection(section.id)}
-                className={`w-full flex items-center justify-between px-5 py-4 rounded-[1.25rem] transition-all duration-300 border ${
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 border ${
                   activeSection === section.id
-                    ? "bg-[#C19A6B] text-white shadow-lg border-transparent translate-x-1"
+                    ? "bg-[#C19A6B] text-white shadow-md border-transparent translate-x-1"
                     : "bg-white text-neutral-400 border-neutral-100 hover:border-[#C19A6B]/40 hover:text-neutral-700"
                 }`}
               >
                 <div className="flex items-center gap-4">
                   <span className="text-lg">{section.icon}</span>
-                  <span className="font-bold tracking-wide font-inter text-xs uppercase">
+                  <span className="font-semibold font-inter text-sm">
                     {section.label}
                   </span>
                 </div>
@@ -536,7 +534,7 @@ const MyProfile = () => {
             >
               <div className="flex items-center gap-4">
                 <FaTimes size={14} />
-                <span className="font-bold font-inter text-xs uppercase">
+                <span className="font-bold font-inter text-[11px] uppercase">
                   Sign Out
                 </span>
               </div>
@@ -545,36 +543,36 @@ const MyProfile = () => {
 
           {/* Compact Canvas */}
           <div className="lg:col-span-9">
-            <div className="bg-white border border-neutral-100 rounded-[2.5rem] p-8 sm:p-10 shadow-sm">
+            <div className="bg-white border border-neutral-100 rounded-3xl p-6 sm:p-8 shadow-sm">
               {/* Dashboard Section */}
               {activeSection === "overview" && (
-                <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
+                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div>
-                    <h2 className="text-2xl font-kalnia font-bold text-neutral-900 mb-1">
-                      Perspective
+                    <h2 className="text-2xl  font-bold text-neutral-900 mb-1">
+                      My Profile
                     </h2>
-                    <p className="text-neutral-400 font-inter text-xs">
-                      Brief view of your registry components.
+                    <p className="text-neutral-500 font-inter text-sm">
+                      View and manage your account details.
                     </p>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-6">
                       <div className="group">
-                        <label className="text-[9px] uppercase tracking-[0.2em] text-[#C19A6B] font-black mb-2 block">
-                          Name
+                        <label className="text-xs font-semibold text-[#C19A6B] mb-1 block">
+                          Full Name
                         </label>
-                        <div className="p-5 bg-neutral-50 rounded-[1.5rem] border border-neutral-50">
-                          <p className="text-base text-neutral-900 font-kalnia font-bold">
+                        <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-50">
+                          <p className="text-base text-neutral-900  font-bold">
                             {userData.name}
                           </p>
                         </div>
                       </div>
                       <div className="group">
-                        <label className="text-[9px] uppercase tracking-[0.2em] text-[#C19A6B] font-black mb-2 block">
-                          Identity
+                        <label className="text-xs font-semibold text-[#C19A6B] mb-1 block">
+                          Email Address
                         </label>
-                        <div className="p-5 bg-neutral-50 rounded-[1.5rem] border border-neutral-50">
+                        <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-50">
                           <p className="text-sm text-neutral-900 font-inter">
                             {userData.email}
                           </p>
@@ -583,91 +581,77 @@ const MyProfile = () => {
                     </div>
                     <div className="space-y-6">
                       <div className="group">
-                        <label className="text-[9px] uppercase tracking-[0.2em] text-[#C19A6B] font-black mb-2 block">
-                          Secure Tel
+                        <label className="text-xs font-semibold text-[#C19A6B] mb-1 block">
+                          Phone Number
                         </label>
-                        <div className="p-5 bg-neutral-50 rounded-[1.5rem] border border-neutral-50">
+                        <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-50">
                           <p className="text-base text-neutral-900 font-inter">
-                            {userData.phone || "Private"}
+                            {userData.phone || "Not provided"}
                           </p>
                         </div>
                       </div>
                       <div className="group">
-                        <label className="text-[9px] uppercase tracking-[0.2em] text-[#C19A6B] font-black mb-2 block">
-                          Root Coord
+                        <label className="text-xs font-semibold text-[#C19A6B] mb-1 block">
+                          Default Address
                         </label>
-                        <div className="p-5 bg-neutral-50 rounded-[1.5rem] border border-neutral-50">
-                          <p className="text-neutral-500 text-xs italic font-inter line-clamp-1">
+                        <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-50">
+                          <p className="text-neutral-500 text-xs font-inter line-clamp-1">
                             {userData.address}
                           </p>
                         </div>
                       </div>
                     </div>
                   </div>
-
-                  <div className="p-8 bg-neutral-900 rounded-[2rem] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
-                    <div className="text-center sm:text-left">
-                      <h3 className="text-xl font-kalnia font-bold mb-1 italic">
-                        Exclusive Alerts
-                      </h3>
-                      <p className="text-neutral-400 text-[10px] font-inter uppercase">
-                        Tailored releases directed to you.
-                      </p>
-                    </div>
-                    <button className="px-6 py-3 bg-[#C19A6B] text-white rounded-xl font-bold text-xs">
-                      Configure
-                    </button>
-                  </div>
                 </div>
               )}
 
               {/* Registry Section */}
               {activeSection === "personal" && (
-                <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
-                  <div className="flex items-center justify-between border-b border-neutral-100 pb-8">
-                    <h2 className="text-2xl font-kalnia font-bold text-neutral-900">
-                      Registry
+                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="flex items-center justify-between border-b border-neutral-100 pb-6">
+                    <h2 className="text-2xl  font-bold text-neutral-900">
+                      Profile Information
                     </h2>
                     <button
                       onClick={handleEditClick}
-                      className="flex items-center gap-2 px-6 py-3 bg-[#C19A6B] text-white rounded-xl font-bold text-xs shadow-lg shadow-[#C19A6B]/20"
+                      className="flex items-center gap-2 px-6 py-3 bg-[#C19A6B] text-white rounded-xl font-bold text-xs"
                     >
-                      <FaEdit size={12} /> Refine
+                      <FaEdit size={12} /> Edit Profile
                     </button>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-x-12 gap-y-10">
                     {[
                       {
-                        label: "Given Name",
+                        label: "First Name",
                         value: userData.firstName,
                         icon: <FaUser />,
                       },
                       {
-                        label: "Surname",
+                        label: "Last Name",
                         value: userData.lastName,
                         icon: <FaUser />,
                       },
                       {
-                        label: "Digital Mail",
+                        label: "Email",
                         value: userData.email,
                         icon: <FaEnvelope />,
                       },
                       {
-                        label: "Secure Link",
-                        value: userData.phone || "Private",
+                        label: "Phone Number",
+                        value: userData.phone || "Not provided",
                         icon: <FaPhone />,
                       },
                       {
-                        label: "Day of Inception",
+                        label: "Date of Birth",
                         value: formatDate(userData.dob),
                         icon: <FaBirthdayCake />,
                       },
                       {
-                        label: "Spectrum",
+                        label: "Gender",
                         value:
                           userData.gender === "prefer_not_to_say"
-                            ? "Restricted"
+                            ? "Prefer not to say"
                             : userData.gender.charAt(0).toUpperCase() +
                               userData.gender.slice(1),
                         icon: <FaCalendarAlt />,
@@ -678,10 +662,10 @@ const MyProfile = () => {
                           {item.icon}
                         </div>
                         <div>
-                          <p className="text-[9px] uppercase tracking-[0.2em] text-neutral-400 font-black mb-1">
+                          <p className="text-xs font-semibold text-neutral-400 mb-1">
                             {item.label}
                           </p>
-                          <p className="text-neutral-900 font-kalnia font-bold text-lg">
+                          <p className="text-neutral-900  font-bold text-lg">
                             {item.value}
                           </p>
                         </div>
@@ -693,93 +677,140 @@ const MyProfile = () => {
 
               {/* Coordinates Section */}
               {activeSection === "addresses" && (
-                <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
-                  <div className="flex items-center justify-between flex-wrap gap-4 border-b border-neutral-100 pb-8">
-                    <h2 className="text-2xl font-kalnia font-bold text-neutral-900">
-                      Coordinates
+                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="flex items-center justify-between flex-wrap gap-4 border-b border-neutral-100 pb-6">
+                    <h2 className="text-2xl  font-bold text-neutral-900">
+                      Saved Addresses
                     </h2>
                     <button
                       onClick={handleAddAddressClick}
-                      className="flex items-center gap-2 px-6 py-3 bg-white text-neutral-900 border border-neutral-200 rounded-xl font-bold text-xs hover:border-[#C19A6B] transition-all"
+                      className="flex items-center gap-2 px-6 py-3 bg-[#C19A6B] text-white rounded-xl font-bold text-xs"
                     >
-                      <FaPlus size={12} /> Map Point
+                      <FaPlus size={12} /> Add Address
                     </button>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
                     {userData.addresses && userData.addresses.length > 0 ? (
-                      userData.addresses.map((addr, index) => (
-                        <div
-                          key={addr._id || index}
-                          className={`relative p-8 rounded-[2rem] border transition-all duration-300 ${
-                            addr.isDefault
-                              ? "bg-white border-[#C19A6B]/30 shadow-md"
-                              : "bg-neutral-50 border-neutral-50 hover:bg-white hover:border-neutral-200"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-6">
-                            <span className="px-4 py-1.5 bg-neutral-900 text-white rounded-full text-[8px] font-black uppercase tracking-widest">
-                              {addr.type}
-                            </span>
-                            {addr.isDefault && (
-                              <div className="text-[8px] font-black text-emerald-600 uppercase tracking-widest">
-                                Primary
-                              </div>
-                            )}
-                          </div>
-
-                          <h3 className="text-xl font-kalnia font-bold text-neutral-900 mb-1">
-                            {addr.name || userData.name}
-                          </h3>
-                          <p className="text-neutral-500 text-xs leading-relaxed mb-6 font-inter">
-                            {addr.addressLine1}
-                            <span className="block mt-1 font-bold">
-                              {addr.city}, {addr.state} - {addr.pincode}
-                            </span>
-                          </p>
-
-                          <div className="flex items-center justify-between pt-6 border-t border-neutral-100">
-                            <div className="flex gap-4">
-                              <button
-                                onClick={() => handleEditAddressClick(addr)}
-                                className="text-neutral-300 hover:text-[#C19A6B] transition-colors"
-                              >
-                                <FaEdit size={16} />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteAddress(addr._id)}
-                                className="text-neutral-300 hover:text-red-400 transition-colors"
-                              >
-                                <FaTrash size={14} />
-                              </button>
+                      userData.addresses
+                        .slice(
+                          (addressPage - 1) * ADDRESSES_PER_PAGE,
+                          addressPage * ADDRESSES_PER_PAGE,
+                        )
+                        .map((addr, index) => (
+                          <div
+                            key={addr._id || index}
+                            className={`relative p-6 rounded-3xl border transition-all duration-300 ${
+                              addr.isDefault
+                                ? "bg-white border-[#C19A6B]/30 shadow-md"
+                                : "bg-neutral-50 border-neutral-50 hover:bg-white hover:border-neutral-200"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-6">
+                              <span className="px-4 py-1.5 bg-neutral-900 text-white rounded-full text-[10px] font-bold uppercase transition-all">
+                                {addr.type}
+                              </span>
+                              {addr.isDefault && (
+                                <div className="text-[10px] font-bold text-emerald-600 uppercase">
+                                  Default
+                                </div>
+                              )}
                             </div>
-                            {!addr.isDefault && (
-                              <button
-                                onClick={() =>
-                                  handleSetDefaultAddress(addr._id)
-                                }
-                                className="text-[9px] font-black text-neutral-300 hover:text-[#C19A6B] uppercase tracking-widest transition-colors"
-                              >
-                                Set Primary
-                              </button>
-                            )}
+
+                            <h3 className="text-xl  font-bold text-neutral-900 mb-1">
+                              {addr.name || userData.name}
+                            </h3>
+                            <p className="text-neutral-500 text-xs leading-relaxed mb-6 font-inter">
+                              {addr.addressLine1}
+                              <span className="block mt-1 font-bold">
+                                {addr.city}, {addr.state} - {addr.pincode}
+                              </span>
+                            </p>
+
+                            <div className="flex items-center justify-between pt-6 border-t border-neutral-100">
+                              <div className="flex gap-4">
+                                <button
+                                  onClick={() => handleEditAddressClick(addr)}
+                                  className="text-neutral-300 hover:text-[#C19A6B] transition-colors"
+                                >
+                                  <FaEdit size={16} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteAddress(addr._id)}
+                                  className="text-neutral-300 hover:text-red-400 transition-colors"
+                                >
+                                  <FaTrash size={14} />
+                                </button>
+                              </div>
+                              {!addr.isDefault && (
+                                <button
+                                  onClick={() =>
+                                    handleSetDefaultAddress(addr._id)
+                                  }
+                                  className="text-xs font-semibold text-neutral-400 hover:text-[#C19A6B] transition-colors"
+                                >
+                                  Set as Default
+                                </button>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))
+                        ))
                     ) : (
-                      <div className="md:col-span-2 py-16 bg-neutral-50 rounded-[2rem] border border-dashed border-neutral-100 flex flex-col items-center justify-center text-center px-10">
-                        <h3 className="text-lg font-kalnia font-bold text-neutral-800 mb-2">
-                          No points mapped
+                      <div className="md:col-span-2 py-12 bg-neutral-50 rounded-3xl border border-dashed border-neutral-100 flex flex-col items-center justify-center text-center px-10">
+                        <h3 className="text-lg  font-bold text-neutral-800 mb-2">
+                          No addresses saved
                         </h3>
                         <button
                           onClick={handleAddAddressClick}
                           className="px-8 py-4 bg-[#C19A6B] text-white font-bold rounded-xl shadow-lg text-xs"
                         >
-                          Establish Point
+                          Add New Address
                         </button>
                       </div>
                     )}
                   </div>
+
+                  {userData.addresses &&
+                    userData.addresses.length > ADDRESSES_PER_PAGE && (
+                      <div className="flex items-center justify-center gap-4 pt-4">
+                        <button
+                          disabled={addressPage === 1}
+                          onClick={() => setAddressPage((prev) => prev - 1)}
+                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
+                            addressPage === 1
+                              ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
+                              : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
+                          }`}
+                        >
+                          Previous
+                        </button>
+                        <span className="text-xs font-bold text-neutral-500">
+                          Page {addressPage} of{" "}
+                          {Math.ceil(
+                            userData.addresses.length / ADDRESSES_PER_PAGE,
+                          )}
+                        </span>
+                        <button
+                          disabled={
+                            addressPage ===
+                            Math.ceil(
+                              userData.addresses.length / ADDRESSES_PER_PAGE,
+                            )
+                          }
+                          onClick={() => setAddressPage((prev) => prev + 1)}
+                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
+                            addressPage ===
+                            Math.ceil(
+                              userData.addresses.length / ADDRESSES_PER_PAGE,
+                            )
+                              ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
+                              : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
+                          }`}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
                 </div>
               )}
 
@@ -791,43 +822,43 @@ const MyProfile = () => {
                       <FaShieldAlt size={24} />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-kalnia font-bold text-neutral-900">
-                        Vault
+                      <h2 className="text-2xl  font-bold text-neutral-900">
+                        Password & Security
                       </h2>
-                      <p className="text-neutral-400 font-inter text-xs">
-                        Protection status management.
+                      <p className="text-neutral-500 font-inter text-sm">
+                        Manage your account security settings.
                       </p>
                     </div>
                   </div>
 
-                  <div className="bg-neutral-50 rounded-[2rem] p-8 border border-neutral-50 space-y-6">
+                  <div className="bg-neutral-50 rounded-3xl p-6 border border-neutral-50 space-y-5">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                       <div>
-                        <h3 className="text-[9px] uppercase tracking-[0.2em] font-black text-[#C19A6B] mb-1">
-                          Secret Key
+                        <h3 className="text-xs font-semibold text-[#C19A6B] mb-1">
+                          Account Password
                         </h3>
-                        <p className="text-neutral-500 text-[10px]">
-                          Rotation recommended monthly.
+                        <p className="text-neutral-500 text-xs">
+                          Update your password to keep your account secure.
                         </p>
                       </div>
                       <button
                         onClick={() => setShowPasswordModal(true)}
                         className="px-6 py-2.5 bg-white border border-neutral-200 text-neutral-700 rounded-xl transition-all font-bold text-xs"
                       >
-                        Refine Secret
+                        Change Password
                       </button>
                     </div>
 
                     <div className="flex items-center justify-between border-t border-neutral-100 pt-6">
                       <div>
-                        <h3 className="text-[9px] uppercase tracking-[0.2em] font-black text-[#C19A6B] mb-1">
-                          Status
+                        <h3 className="text-xs font-semibold text-[#C19A6B] mb-1">
+                          Account Status
                         </h3>
-                        <p className="text-neutral-500 text-[10px]">
-                          Active authenticated session.
+                        <p className="text-neutral-500 text-xs">
+                          Your account is securely logged in.
                         </p>
                       </div>
-                      <span className="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-[9px] font-black uppercase tracking-widest">
+                      <span className="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-xs font-bold">
                         Active
                       </span>
                     </div>
@@ -844,11 +875,11 @@ const MyProfile = () => {
       {/* Refine Persona Modal */}
       {showEditModal && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-md bg-white/40 animate-in fade-in duration-500">
-          <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg border border-neutral-100 overflow-hidden transform animate-in zoom-in-95 duration-500">
-            <div className="p-10 sm:p-12">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-kalnia font-bold text-neutral-900 tracking-tight italic">
-                  Refine Persona
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg border border-neutral-100 overflow-hidden transform animate-in zoom-in-95 duration-500">
+            <div className="p-6 sm:p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl  font-bold text-neutral-900 tracking-tight">
+                  Edit Profile
                 </h2>
                 <button
                   onClick={handleCancelClick}
@@ -858,39 +889,39 @@ const MyProfile = () => {
                 </button>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6 mb-8">
+              <div className="grid md:grid-cols-2 gap-4 mb-6">
                 {[
                   {
-                    label: "Nom",
+                    label: "First Name",
                     name: "firstName",
                     value: tempData.firstName,
                   },
                   {
-                    label: "Prénom",
+                    label: "Last Name",
                     name: "lastName",
                     value: tempData.lastName,
                   },
                   {
-                    label: "Signature",
+                    label: "Email Address",
                     name: "email",
                     value: tempData.email,
                     disabled: true,
                   },
                   {
-                    label: "Link",
+                    label: "Phone Number",
                     name: "phone",
                     value: tempData.phone,
                     type: "tel",
                   },
                   {
-                    label: "Inception",
+                    label: "Date of Birth",
                     name: "dob",
                     value: tempData.dob ? tempData.dob.split("T")[0] : "",
                     type: "date",
                   },
                 ].map((field) => (
                   <div key={field.name}>
-                    <label className="text-[8px] font-black text-[#C19A6B] uppercase tracking-[0.2em] block mb-2 ml-1">
+                    <label className="text-xs font-semibold text-[#C19A6B] block mb-2 ml-1">
                       {field.label}
                     </label>
                     <input
@@ -899,7 +930,7 @@ const MyProfile = () => {
                       value={field.value}
                       onChange={handleInputChange}
                       disabled={field.disabled}
-                      className={`w-full bg-neutral-50 rounded-2xl px-6 py-4 outline-none transition-all font-inter text-xs ${
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none transition-all font-inter text-xs ${
                         field.disabled
                           ? "text-neutral-300 cursor-not-allowed opacity-60"
                           : "text-neutral-800 border-2 border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
@@ -908,19 +939,19 @@ const MyProfile = () => {
                   </div>
                 ))}
                 <div>
-                  <label className="text-[8px] font-black text-[#C19A6B] uppercase tracking-[0.2em] block mb-2 ml-1">
-                    Spectrum
+                  <label className="text-xs font-semibold text-[#C19A6B] block mb-2 ml-1">
+                    Gender
                   </label>
                   <select
                     name="gender"
                     value={tempData.gender}
                     onChange={handleInputChange}
-                    className="w-full bg-neutral-50 rounded-2xl px-6 py-4 outline-none transition-all font-inter text-xs text-neutral-800 border-2 border-transparent focus:border-[#C19A6B]/20 focus:bg-white appearance-none cursor-pointer"
+                    className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none transition-all font-inter text-xs text-neutral-800 border-2 border-transparent focus:border-[#C19A6B]/20 focus:bg-white appearance-none cursor-pointer"
                   >
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                     <option value="other">Other</option>
-                    <option value="prefer_not_to_say">Restricted</option>
+                    <option value="prefer_not_to_say">Prefer not to say</option>
                   </select>
                 </div>
               </div>
@@ -928,16 +959,16 @@ const MyProfile = () => {
               <div className="flex gap-4">
                 <button
                   onClick={handleCancelClick}
-                  className="flex-1 py-4 bg-neutral-50 text-neutral-500 rounded-2xl font-bold text-xs"
+                  className="flex-1 py-3 bg-neutral-50 text-neutral-500 rounded-xl font-bold text-xs"
                 >
-                  Discard
+                  Cancel
                 </button>
                 <button
                   onClick={handleSaveClick}
                   disabled={saving}
-                  className="flex-[2] py-4 bg-neutral-900 text-white rounded-2xl font-bold text-xs hover:bg-[#C19A6B] transition-all disabled:opacity-50"
+                  className="flex-[2] py-3 bg-neutral-900 text-white rounded-xl font-bold text-xs hover:bg-[#C19A6B] transition-all disabled:opacity-50"
                 >
-                  {saving ? "..." : "Commit Changes"}
+                  {saving ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             </div>
@@ -948,17 +979,21 @@ const MyProfile = () => {
       {/* Secret Modal */}
       {showPasswordModal && (
         <div className="fixed inset-0 z-[210] flex items-center justify-center p-4 backdrop-blur-md bg-white/40 animate-in fade-in duration-500">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-sm border border-neutral-100 animate-in zoom-in-95 duration-500">
-            <div className="p-10">
-              <h2 className="text-2xl font-kalnia font-bold text-neutral-900 mb-8 italic">
-                Alter Secret
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm border border-neutral-100 animate-in zoom-in-95 duration-500">
+            <div className="p-8">
+              <h2 className="text-2xl  font-bold text-neutral-900 mb-8">
+                Change Password
               </h2>
               <div className="space-y-6 mb-8">
                 {["currentPassword", "newPassword", "confirmPassword"].map(
                   (pwField) => (
                     <div key={pwField}>
-                      <label className="text-[8px] font-black text-[#C19A6B] uppercase tracking-[0.2em] block mb-2">
-                        {pwField}
+                      <label className="text-xs font-semibold text-[#C19A6B] block mb-2">
+                        {pwField === "currentPassword"
+                          ? "Current Password"
+                          : pwField === "newPassword"
+                            ? "New Password"
+                            : "Confirm Password"}
                       </label>
                       <input
                         type="password"
@@ -966,7 +1001,7 @@ const MyProfile = () => {
                         value={passwordData[pwField]}
                         onChange={handlePasswordChange}
                         placeholder="••••••••"
-                        className={`w-full bg-neutral-50 border-2 rounded-2xl px-6 py-4 outline-none text-xs ${
+                        className={`w-full bg-neutral-50 border-2 rounded-xl px-5 py-3 outline-none text-xs ${
                           passwordErrors[pwField]
                             ? "border-red-200"
                             : "border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
@@ -984,9 +1019,9 @@ const MyProfile = () => {
               <button
                 onClick={handlePasswordSubmit}
                 disabled={saving}
-                className="w-full py-5 bg-neutral-900 text-white rounded-2xl font-bold text-xs hover:bg-[#C19A6B] transition-all"
+                className="w-full py-4 bg-neutral-900 text-white rounded-xl font-bold text-xs hover:bg-[#C19A6B] transition-all"
               >
-                Commit Secret
+                Update Password
               </button>
             </div>
           </div>
@@ -995,12 +1030,12 @@ const MyProfile = () => {
 
       {/* Coordinate Modal */}
       {showAddressModal && (
-        <div className="fixed inset-0 z-[220] flex items-center justify-center p-4 backdrop-blur-md bg-white/40 animate-in fade-in duration-500">
-          <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-2xl border border-neutral-100 transform animate-in zoom-in-95 duration-500">
-            <div className="p-10 sm:p-12 overflow-y-auto max-h-[90vh]">
-              <div className="flex items-center justify-between mb-10">
-                <h2 className="text-2xl font-kalnia font-bold text-neutral-900 italic">
-                  Manage Point
+        <div className="fixed inset-0 z-[220] flex items-center justify-center p-4 backdrop-blur-sm bg-white/40 animate-in fade-in duration-500">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl border border-neutral-100 transform animate-in zoom-in-95 duration-500">
+            <div className="p-6 sm:p-8 overflow-y-auto max-h-[90vh]">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl  font-bold text-neutral-900">
+                  Address Details
                 </h2>
                 <button
                   onClick={() => setShowAddressModal(false)}
@@ -1010,86 +1045,86 @@ const MyProfile = () => {
                 </button>
               </div>
 
-              <form onSubmit={(e) => e.preventDefault()} className="space-y-8">
-                <div className="grid md:grid-cols-2 gap-6">
+              <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[8px] font-black text-[#C19A6B] uppercase tracking-[0.2em] mb-2 block">
-                      Environment
+                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                      Address Type
                     </label>
                     <select
                       name="type"
                       value={addressData.type}
                       onChange={handleAddressChange}
-                      className="w-full bg-neutral-50 rounded-2xl px-6 py-4 outline-none text-xs appearance-none cursor-pointer"
+                      className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs appearance-none cursor-pointer"
                     >
-                      <option value="home">Sanctum (Home)</option>
-                      <option value="work">Business (Work)</option>
-                      <option value="other">Nomad (Other)</option>
+                      <option value="home">Home</option>
+                      <option value="work">Work</option>
+                      <option value="other">Other</option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-[8px] font-black text-[#C19A6B] uppercase tracking-[0.2em] mb-2 block">
-                      Postal Unit *
+                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                      Pincode *
                     </label>
                     <input
                       type="text"
                       name="pincode"
                       value={addressData.pincode}
                       onChange={handleAddressChange}
-                      className="w-full bg-neutral-50 rounded-2xl px-6 py-4 outline-none text-xs font-inter"
+                      className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter"
                       required
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="text-[8px] font-black text-[#C19A6B] uppercase tracking-[0.2em] mb-2 block">
-                      Principal Axis *
+                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                      Address Line 1 *
                     </label>
                     <input
                       type="text"
                       name="addressLine1"
                       value={addressData.addressLine1}
                       onChange={handleAddressChange}
-                      className="w-full bg-neutral-50 rounded-2xl px-6 py-4 outline-none text-xs font-inter"
+                      className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter"
                       required
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="text-[8px] font-black text-[#C19A6B] uppercase tracking-[0.2em] mb-2 block">
-                      Supplemental Axis
+                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                      Address Line 2 (Optional)
                     </label>
                     <input
                       type="text"
                       name="addressLine2"
                       value={addressData.addressLine2}
                       onChange={handleAddressChange}
-                      className="w-full bg-neutral-50 rounded-2xl px-6 py-4 outline-none text-xs font-inter italic"
+                      className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter"
                     />
                   </div>
                   <div>
-                    <label className="text-[8px] font-black text-[#C19A6B] uppercase tracking-[0.2em] mb-2 block">
-                      Metro / Sector *
+                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                      City *
                     </label>
                     <input
                       type="text"
                       name="city"
                       value={addressData.city}
                       onChange={handleAddressChange}
-                      className="w-full bg-neutral-50 rounded-2xl px-6 py-4 outline-none text-xs font-inter"
+                      className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter"
                       required
                     />
                   </div>
                   <div>
-                    <label className="text-[8px] font-black text-[#C19A6B] uppercase tracking-[0.2em] mb-2 block">
-                      Domain / Territory *
+                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                      State *
                     </label>
                     <select
                       name="state"
                       value={addressData.state}
                       onChange={handleAddressChange}
-                      className="w-full bg-neutral-50 rounded-2xl px-6 py-4 outline-none text-xs appearance-none cursor-pointer"
+                      className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs appearance-none cursor-pointer"
                       required
                     >
-                      <option value="">Select Domain</option>
+                      <option value="">Select State</option>
                       {INDIAN_STATES.map((state) => (
                         <option key={state} value={state}>
                           {state}
@@ -1110,9 +1145,9 @@ const MyProfile = () => {
                   />
                   <label
                     htmlFor="isDefault"
-                    className="text-[9px] font-black text-neutral-500 uppercase tracking-widest cursor-pointer flex-1"
+                    className="text-xs font-semibold text-neutral-500 cursor-pointer flex-1"
                   >
-                    Designate Primary Node
+                    Set as Default Address
                   </label>
                 </div>
 
@@ -1120,16 +1155,16 @@ const MyProfile = () => {
                   <button
                     type="button"
                     onClick={() => setShowAddressModal(false)}
-                    className="flex-1 py-4 bg-neutral-50 text-neutral-400 rounded-2xl font-bold text-xs"
+                    className="flex-1 py-3 bg-neutral-50 text-neutral-400 rounded-xl font-bold text-xs"
                   >
-                    Discard
+                    Cancel
                   </button>
                   <button
                     onClick={handleAddressSubmit}
                     disabled={saving}
-                    className="flex-[2] py-4 bg-neutral-900 text-white rounded-2xl font-bold text-xs hover:bg-[#C19A6B] transition-all"
+                    className="flex-[2] py-3 bg-neutral-900 text-white rounded-xl font-bold text-xs hover:bg-[#C19A6B] transition-all"
                   >
-                    Secure Coordinate
+                    Save Address
                   </button>
                 </div>
               </form>

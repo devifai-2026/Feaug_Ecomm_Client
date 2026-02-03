@@ -31,40 +31,40 @@ import MyOrders from "./Component/Pages/MyOrders/MyOrders";
 import OrderDetails from "./Component/Pages/MyOrders/OrderDetails";
 
 function App() {
-  // useEffect(() => {
-  //   // Initialize AOS with better settings to prevent layout shift
-  //   AOS.init({
-  //     duration: 800,
-  //     once: true,
-  //     offset: 120,
-  //     easing: "ease-out",
-  //     disable: window.innerWidth < 768, // Disable on mobile
-  //   });
+  useEffect(() => {
+    // Initialize AOS with better settings to prevent layout shift
+    AOS.init({
+      duration: 800,
+      once: true,
+      offset: 120,
+      easing: "ease-out",
+      disable: window.innerWidth < 768, // Disable on mobile
+    });
 
-  //   // Refresh AOS after page load to ensure proper initialization
-  //   setTimeout(() => {
-  //     AOS.refresh();
-  //   }, 100);
+    // Refresh AOS after page load to ensure proper initialization
+    setTimeout(() => {
+      AOS.refresh();
+    }, 100);
 
-  //   const showToast = () => {
-  //     toast.success("Subhojit Dutta purchased necklace!", {
-  //       position: "top-right",
-  //       autoClose: 5000,
-  //       hideProgressBar: false,
-  //       closeOnClick: true,
-  //       pauseOnHover: true,
-  //       draggable: true,
-  //       progress: undefined,
-  //       theme: "light",
-  //     });
+    // const showToast = () => {
+    //   toast.success("Subhojit Dutta purchased necklace!", {
+    //     position: "top-right",
+    //     autoClose: 5000,
+    //     hideProgressBar: false,
+    //     closeOnClick: true,
+    //     pauseOnHover: true,
+    //     draggable: true,
+    //     progress: undefined,
+    //     theme: "light",
+    //   });
 
-  //     setTimeout(showToast, 4 * 60 * 1000);
-  //   };
+    //   setTimeout(showToast, 4 * 60 * 1000);
+    // };
 
-  //   const timeoutId = setTimeout(showToast, 4 * 60 * 1000);
+    // const timeoutId = setTimeout(showToast, 4 * 60 * 1000);
 
-  //   return () => clearTimeout(timeoutId);
-  // }, []);
+    // return () => clearTimeout(timeoutId);
+  }, []);
 
   return (
     <>

@@ -92,9 +92,10 @@ const MyOrders = () => {
             setOrders(transformedOrders);
 
             // Calculate total spent from delivered orders
-            const total = transformedOrders
-              .filter((o) => o.status === "delivered")
-              .reduce((sum, o) => sum + (o.amount || 0), 0);
+            const total = transformedOrders.reduce(
+              (sum, o) => sum + (o.amount || 0),
+              0,
+            );
             setTotalSpent(total);
           } else {
             setOrders([]);
@@ -452,10 +453,6 @@ const MyOrders = () => {
                 className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C19A6B] focus:border-transparent"
               />
             </div>
-            <div className="flex items-center gap-2">
-              <FaFilter className="text-[#C19A6B]" />
-              <span className="text-gray-700 font-medium">Filter by:</span>
-            </div>
           </div>
 
           {/* Mobile Filter Toggle */}
@@ -680,13 +677,13 @@ const MyOrders = () => {
 
                       {order.status === "delivered" && (
                         <>
-                          <button
-                            onClick={() => handleReorder(order)}
+                          {/* <button
+                            onClick={() => handle(order)}
                             className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm bg-blue-50 text-blue-600 rounded-lg font-medium border border-blue-100"
                           >
                             <FaRedo className="text-xs" />
                             Reorder
-                          </button>
+                          </button> */}
                           <button
                             onClick={() => handleWriteReview(order.id)}
                             className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm bg-purple-50 text-purple-600 rounded-lg font-medium border border-purple-100"

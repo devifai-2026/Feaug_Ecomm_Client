@@ -62,9 +62,15 @@ export const transformProduct = (backendProduct, options = {}) => {
 
         // Stock
         stock: backendProduct.stock,
-        inStock: backendProduct.stock > 0,
+        stockStatus: backendProduct.stockStatus,
+        stockQuantity: backendProduct.stockQuantity,
+        inStock: backendProduct.stockStatus === 'out_of_stock' || 
+                backendProduct.stock === 0 || 
+                backendProduct.stockQuantity === 0 ? false : true,
         lowStockThreshold: backendProduct.lowStockThreshold,
-        isLowStock: backendProduct.stock <= backendProduct.lowStockThreshold,
+        isLowStock: (backendProduct.stockStatus === 'in_stock') && 
+                   ((backendProduct.stock <= backendProduct.lowStockThreshold) || 
+                    (backendProduct.stockQuantity <= backendProduct.lowStockThreshold)),
 
         // Categories
         category: backendProduct.category,

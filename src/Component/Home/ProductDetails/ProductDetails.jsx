@@ -171,6 +171,7 @@ const ProductDetails = () => {
   const handleBuyNow = async () => {
     if (!product) return;
 
+    // Add to cart first so it's preserved after redirect/login
     if (!isProductInCart) {
       await addToCart(
         {
@@ -187,6 +188,18 @@ const ProductDetails = () => {
         quantity,
       );
     }
+
+    // Check if user is logged in
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    if (!isLoggedIn) {
+      toast.error("Please login to proceed to checkout", {
+        icon: "🔒",
+        duration: 3000,
+      });
+      setTimeout(() => navigate(`/login?redirect=/checkout`), 1000);
+      return;
+    }
+
     navigate("/checkout");
   };
 
@@ -363,7 +376,7 @@ const ProductDetails = () => {
 
     if (!token) {
       toast.error("Please login to write a review");
-      navigate("/login");
+      navigate(`/login?redirect=/product/${id}`);
       return;
     }
 

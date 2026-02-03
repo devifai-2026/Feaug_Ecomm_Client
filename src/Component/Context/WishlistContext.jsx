@@ -32,12 +32,21 @@ export const WishlistProvider = ({ children }) => {
             id: item.product?._id || item.productId,
             title: item.product?.name || item.name,
             price: item.product?.sellingPrice || item.price,
-            originalPrice: item.product?.price || item.originalPrice,
+            originalPrice:
+              item.product?.offerPrice ||
+              item.product?.price ||
+              item.originalPrice,
             image: item.product?.images?.[0]?.url || item.image,
             angleImage: item.product?.images?.[1]?.url || item.angleImage,
             description: item.product?.description || item.description,
-            rating: item.product?.rating || item.rating,
-            inStock: item.product?.stock > 0,
+            rating:
+              item.product?.ratingAverage ||
+              item.product?.rating ||
+              item.rating,
+            inStock:
+              item.product?.stockStatus === "in_stock" ||
+              item.product?.stockQuantity > 0 ||
+              item.product?.stock > 0,
             addedAt: item.addedAt || new Date().toISOString(),
           }));
           setWishlistItems(apiWishlistItems);
