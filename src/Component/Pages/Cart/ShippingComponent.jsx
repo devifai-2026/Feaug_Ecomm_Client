@@ -10,6 +10,8 @@ import {
   BsStarFill,
 } from "react-icons/bs";
 import { INDIAN_STATES, validateShippingField } from "../../utils/Validation";
+import userApi from "../../../apis/user/userApi";
+import { toast } from "react-toastify";
 
 const InputField = ({
   label,
@@ -36,11 +38,10 @@ const InputField = ({
         onBlur={onBlur}
         placeholder={placeholder}
         maxLength={maxLength}
-        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
-          error
+        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${error
             ? "border-red-500 focus:ring-red-500 bg-red-50"
             : "border-gray-300"
-        }`}
+          }`}
         style={!error ? { "--tw-ring-color": primaryColor } : {}}
       />
       {error && (
@@ -65,11 +66,10 @@ const StateSelect = ({ label, name, value, onChange, onBlur, error }) => {
         value={value}
         onChange={onChange}
         onBlur={onBlur}
-        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
-          error
+        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${error
             ? "border-red-500 focus:ring-red-500 bg-red-50"
             : "border-gray-300"
-        }`}
+          }`}
         style={!error ? { "--tw-ring-color": primaryColor } : {}}
       >
         <option value="">Select a state</option>
@@ -140,8 +140,9 @@ const ShippingComponent = ({
 
   // Handle saved address selection
   const handleSelectAddress = (address) => {
-    setSelectedAddressId(address._id);
-    setData(address);
+    const addressId = address._id || address.id;
+    setSelectedAddressId(addressId);
+    setData({ ...address, _id: addressId });
     setIsAddingNewAddress(false);
     setIsEditing(false);
     setErrors({});
@@ -219,16 +220,24 @@ const ShippingComponent = ({
 
     setLoading(true);
     try {
+      // Build the name, ensuring it's not empty
+      const fullName = `${data.firstName || ""} ${data.lastName || ""}`.trim();
+      if (!fullName) {
+        toast.error("Name is required");
+        setLoading(false);
+        return;
+      }
+
       const addressPayload = {
-        name: `${data.firstName} ${data.lastName}`,
+        name: fullName,
         phone: data.phone,
-        address: data.address, // mapped to addressLine1 in backend model but here we use unified prop
+        address: data.address,
         addressLine1: data.address,
         city: data.city,
         state: data.state,
-        pincode: data.zipCode, // mapped to zipCode
-        country: data.country,
-        addressType: data.type,
+        pincode: data.zipCode,
+        country: data.country || "India",
+        addressType: data.type || "home",
         isDefault: data.isDefault || false,
       };
 
@@ -250,7 +259,7 @@ const ShippingComponent = ({
           const match = isEditing
             ? updatedAddresses.find((a) => a._id === data._id)
             : updatedAddresses.find((a) => a.isDefault && !isEditing) ||
-              updatedAddresses[updatedAddresses.length - 1];
+            updatedAddresses[updatedAddresses.length - 1];
 
           if (match) {
             setSelectedAddressId(match._id);
@@ -327,11 +336,30 @@ const ShippingComponent = ({
   };
 
   const handleEditAddress = (address) => {
-    // Fill form with address data
+    // Parse name into firstName and lastName if not already separated
+    let firstName = address.firstName || "";
+    let lastName = address.lastName || "";
+
+    // If firstName is empty but name exists, try to split it
+    if (!firstName && address.name) {
+      const nameParts = address.name.trim().split(" ");
+      firstName = nameParts[0] || "";
+      lastName = nameParts.slice(1).join(" ") || "";
+    }
+
+    // Fill form with address data, ensuring all fields are properly mapped
     setData({
       ...address,
-      // Ensure zipCode is populated from pincode if necessary
-      zipCode: address.zipCode || address.pincode,
+      firstName,
+      lastName,
+      phone: address.phone || "",
+      address: address.address || address.addressLine1 || "",
+      city: address.city || "",
+      state: address.state || "",
+      zipCode: address.zipCode || address.pincode || "",
+      country: address.country || "India",
+      type: address.type || address.addressType || "home",
+      _id: address._id || address.id,
     });
     setIsAddingNewAddress(true);
     setIsEditing(true);
@@ -401,17 +429,16 @@ const ShippingComponent = ({
             {savedAddresses.map((address, index) => (
               <div
                 key={address.id || index}
-                className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                  selectedAddressId === address.id
+                className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedAddressId === (address._id || address.id)
                     ? "border-2"
                     : "border-gray-200 hover:border-gray-300"
-                }`}
+                  }`}
                 style={
-                  selectedAddressId === address.id
+                  selectedAddressId === (address._id || address.id)
                     ? {
-                        borderColor: primaryColor,
-                        backgroundColor: primaryLight + "20",
-                      }
+                      borderColor: primaryColor,
+                      backgroundColor: primaryLight + "20",
+                    }
                     : {}
                 }
                 onClick={() => handleSelectAddress(address)}
@@ -479,11 +506,10 @@ const ShippingComponent = ({
                       e.stopPropagation();
                       handleSetDefaultAddress(address.id);
                     }}
-                    className={`text-xs flex items-center gap-1 ${
-                      address.isDefault
+                    className={`text-xs flex items-center gap-1 ${address.isDefault
                         ? "text-amber-600"
                         : "text-gray-500 hover:text-amber-600"
-                    }`}
+                      }`}
                     style={address.isDefault ? { color: primaryColor } : {}}
                   >
                     {address.isDefault ? (
@@ -493,7 +519,7 @@ const ShippingComponent = ({
                     )}
                     {address.isDefault ? "Default" : "Set as default"}
                   </button>
-                  {selectedAddressId === address.id && (
+                  {selectedAddressId === (address._id || address.id) && (
                     <BsCheck className="text-green-600" />
                   )}
                 </div>
@@ -565,11 +591,10 @@ const ShippingComponent = ({
                 onChange={handleChange}
                 onBlur={handleBlur}
                 placeholder="you@example.com"
-                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
-                  errors.email
+                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${errors.email
                     ? "border-red-500 focus:ring-red-500 bg-red-50"
                     : "border-gray-300"
-                } custom-focus`}
+                  } custom-focus`}
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
@@ -595,19 +620,17 @@ const ShippingComponent = ({
                   onBlur={handleBlur}
                   placeholder="9876543210"
                   maxLength="10"
-                  className={`w-full pl-14 pr-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
-                    errors.phone
+                  className={`w-full pl-14 pr-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${errors.phone
                       ? "border-red-500 focus:ring-red-500 bg-red-50"
                       : "border-gray-300"
-                  } custom-focus`}
+                    } custom-focus`}
                 />
                 {data.phone && (
                   <span
-                    className={`absolute right-3 top-2.5 text-sm ${
-                      data.phone.length === 10
+                    className={`absolute right-3 top-2.5 text-sm ${data.phone.length === 10
                         ? "text-green-600"
                         : "text-yellow-600"
-                    }`}
+                      }`}
                   >
                     {data.phone.length}/10
                   </span>
@@ -629,11 +652,10 @@ const ShippingComponent = ({
                 onBlur={handleBlur}
                 placeholder="House/Flat No., Building, Street, Area"
                 rows="3"
-                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
-                  errors.address
+                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${errors.address
                     ? "border-red-500 focus:ring-red-500 bg-red-50"
                     : "border-gray-300"
-                } custom-focus`}
+                  } custom-focus`}
               />
               {errors.address && (
                 <p className="mt-1 text-sm text-red-600">{errors.address}</p>

@@ -96,14 +96,6 @@ const Checkout = () => {
 
   const [paymentInfo, setPaymentInfo] = useState({
     method: "online",
-    onlineType: "card",
-    cardNumber: "",
-    cardName: "",
-    expiryDate: "",
-    cvv: "",
-    upiId: "",
-    saveCard: false,
-    saveUpi: false,
   });
 
   const [errors, setErrors] = useState({});
@@ -129,20 +121,22 @@ const Checkout = () => {
             // Map API addresses to the format expected by ShippingComponent
             const formattedAddresses = user.addresses.map((addr) => ({
               id: addr._id,
+              _id: addr._id,
               firstName: user.firstName,
               lastName: user.lastName,
               email: user.email,
-              phone: user.phone,
-              address:
-                addr.addressLine1 +
-                (addr.addressLine2 ? ", " + addr.addressLine2 : ""),
+              phone: addr.phone || user.phone,
+              address: addr.address || addr.addressLine1 || "",
+              addressLine1: addr.address || addr.addressLine1 || "",
+              addressLine2: addr.landmark || addr.addressLine2 || "",
               city: addr.city,
               state: addr.state,
               zipCode: addr.pincode,
+              pincode: addr.pincode,
               country: addr.country,
               isDefault: addr.isDefault,
-              type: addr.type,
-              label: addr.type,
+              type: addr.addressType || addr.type,
+              label: addr.addressType || addr.type,
             }));
             setUserAddresses(formattedAddresses);
           }
@@ -200,19 +194,18 @@ const Checkout = () => {
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
-            phone: user.phone,
-            address:
-              addr.addressLine1 +
-              (addr.addressLine2 ? ", " + addr.addressLine2 : ""),
-            addressLine1: addr.addressLine1,
-            addressLine2: addr.addressLine2,
+            phone: addr.phone || user.phone,
+            address: addr.address || addr.addressLine1 || "",
+            addressLine1: addr.address || addr.addressLine1 || "",
+            addressLine2: addr.landmark || addr.addressLine2 || "",
             city: addr.city,
             state: addr.state,
             zipCode: addr.pincode,
+            pincode: addr.pincode,
             country: addr.country,
             isDefault: addr.isDefault,
-            type: addr.type,
-            label: addr.type,
+            type: addr.addressType || addr.type,
+            label: addr.addressType || addr.type,
           }));
           setUserAddresses(formattedAddresses);
           return formattedAddresses;
@@ -455,9 +448,8 @@ const Checkout = () => {
     toast.custom(
       (t) => (
         <div
-          className={`transform transition-all duration-300 ${
-            t.visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
-          }`}
+          className={`transform transition-all duration-300 ${t.visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
+            }`}
         >
           <div className="relative bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-2xl shadow-2xl overflow-hidden border border-green-200 w-96">
             <div
@@ -578,15 +570,36 @@ const Checkout = () => {
 
       // If no shipping ID (i.e., user entered new address but didn't click "Save")
       if (!finalShippingId) {
+        // Validate shipping info before attempting to save
+        const requiredFields = ["firstName", "lastName", "phone", "address", "city", "state", "zipCode"];
+        const validationErrors = {};
+
+        requiredFields.forEach((field) => {
+          const error = validateShippingField(field, shippingInfo[field], shippingInfo);
+          if (error) {
+            validationErrors[field] = error;
+          }
+        });
+
+        if (Object.keys(validationErrors).length > 0) {
+          // Show first error message
+          const firstError = Object.values(validationErrors)[0];
+          toast.error(firstError || "Please fill in all required address fields correctly");
+          setLoading(false);
+          setStep(1); // Go back to shipping step
+          return;
+        }
+
         try {
           const addressPayload = {
-            name: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+            name: `${shippingInfo.firstName} ${shippingInfo.lastName}`.trim(),
             phone: shippingInfo.phone,
+            address: shippingInfo.address,
             addressLine1: shippingInfo.address,
             city: shippingInfo.city,
             state: shippingInfo.state,
             pincode: shippingInfo.zipCode,
-            country: shippingInfo.country,
+            country: shippingInfo.country || "India",
             addressType: "home",
           };
           const saveResponse = await userApi.addAddress(addressPayload);
@@ -607,7 +620,8 @@ const Checkout = () => {
           }
         } catch (err) {
           console.error("Failed to auto-save address during checkout:", err);
-          toast.error("Please provide a valid saved address");
+          const errorMessage = err.response?.data?.message || err.message || "Please provide a valid address";
+          toast.error(errorMessage);
           setLoading(false);
           return;
         }
@@ -636,6 +650,10 @@ const Checkout = () => {
           if (data.success && data.data) {
             const order = data.data.order || data.data;
 
+            // IMPORTANT: Clear cart immediately as order is created in DB
+            // This prevents duplicate order creation if payment fails and user clicks "Place Order" again
+            clearCart();
+
             if (
               paymentInfo.method === "online" &&
               order.paymentStatus !== "paid"
@@ -655,30 +673,39 @@ const Checkout = () => {
 
                       if (paymentResult) {
                         // Payment successful
-                        clearCart();
                         showSuccessToast(order.orderId || order._id);
                         setTimeout(() => {
                           navigate("/myOrders");
                         }, 3000);
                       }
                     } catch (paymentError) {
+                      console.error("Payment failed:", paymentError);
                       toast.error(
-                        paymentError.message ||
-                          "Payment failed. Please try again.",
+                        "Order created but payment failed. Please retry payment from My Orders.",
+                        { duration: 5000 }
                       );
-                      // Order is created but payment failed - user can retry from orders page
+                      // Redirect to order details so user can't duplicate order creation
+                      // They should retry payment from the order page
+                      setTimeout(() => {
+                        navigate(`/myOrders/${order._id || order.id}`);
+                      }, 2000);
                     }
                   } else {
-                    toast.error("Failed to create payment. Please try again.");
+                    toast.error("Failed to initiate payment. Please check My Orders.");
+                    setTimeout(() => {
+                      navigate("/myOrders");
+                    }, 2000);
                   }
                 },
                 onError: (err) => {
                   toast.error(err.message || "Failed to create payment order");
+                  setTimeout(() => {
+                    navigate("/myOrders");
+                  }, 2000);
                 },
               });
             } else {
               // COD order - no payment needed
-              clearCart();
               showSuccessToast(order.orderId || order._id);
               setTimeout(() => {
                 navigate("/myOrders");
@@ -690,9 +717,20 @@ const Checkout = () => {
         },
         onError: (err) => {
           console.error("Order creation error:", err);
-          toast.error(
-            err.message || "Failed to create order. Please try again.",
-          );
+          const errorMessage = err.message || "Failed to create order.";
+
+          if (errorMessage.toLowerCase().includes("insufficient stock")) {
+            toast.error(
+              <div>
+                <p className="font-bold">Stock Issue</p>
+                <p className="text-sm">{errorMessage}</p>
+                <p className="text-xs mt-1">Please check if you already have a pending order or update your cart.</p>
+              </div>,
+              { duration: 6000 }
+            );
+          } else {
+            toast.error(errorMessage);
+          }
         },
       });
     } catch (error) {
@@ -768,15 +806,14 @@ const Checkout = () => {
                   touched={touched}
                   setTouched={setTouched}
                 />
-                <PaymentComponent
-                  data={paymentInfo}
-                  setData={setPaymentInfo}
-                  errors={errors}
-                  setErrors={setErrors}
-                  touched={touched}
-                  setTouched={setTouched}
-                  total={total}
-                />
+
+                <div className="mt-8">
+                  <PaymentComponent
+                    data={paymentInfo}
+                    setData={setPaymentInfo}
+                    total={total}
+                  />
+                </div>
               </>
             )}
 

@@ -66,6 +66,14 @@ const orderApi = {
       onSuccess,
       onError,
     }),
+
+  // Get recent activity (public)
+  getRecentActivity: ({ onSuccess, onError }) =>
+    apiCall.get({
+      route: '/orders/recent-activity',
+      onSuccess,
+      onError,
+    }),
 };
 
 export default orderApi;

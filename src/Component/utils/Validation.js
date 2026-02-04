@@ -36,36 +36,94 @@ export const INDIAN_STATES = [
   "Puducherry",
 ];
 
+// Field labels for better error messages
+const FIELD_LABELS = {
+  firstName: "First name",
+  lastName: "Last name",
+  email: "Email",
+  phone: "Phone number",
+  address: "Address",
+  city: "City",
+  state: "State",
+  zipCode: "PIN code",
+  cardNumber: "Card number",
+  cardName: "Cardholder name",
+  expiryDate: "Expiry date",
+  cvv: "CVV",
+  upiId: "UPI ID",
+};
+
 export const validateShippingField = (name, value, data) => {
-  if (!value || !value.toString().trim()) {
-    return "This field is required";
+  const trimmedValue = value?.toString().trim() || "";
+
+  // Required field check
+  if (!trimmedValue) {
+    return `${FIELD_LABELS[name] || "This field"} is required`;
   }
 
   switch (name) {
     case "firstName":
     case "lastName":
-      return !/^[A-Za-z\s]{2,50}$/.test(value)
-        ? "Must be 2-50 letters only"
-        : "";
+      if (trimmedValue.length < 2) {
+        return "Must be at least 2 characters";
+      }
+      if (trimmedValue.length > 50) {
+        return "Must be less than 50 characters";
+      }
+      if (!/^[A-Za-z\s'.-]+$/.test(trimmedValue)) {
+        return "Only letters, spaces, and common punctuation allowed";
+      }
+      return "";
 
     case "email":
-      return !/^\S+@\S+\.\S+$/.test(value) ? "Invalid email address" : "";
+      if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmedValue)) {
+        return "Please enter a valid email address";
+      }
+      return "";
 
     case "phone":
-      const phoneDigits = value.replace(/\D/g, "");
-      return !/^\d{10}$/.test(phoneDigits) ? "Phone must be 10 digits" : "";
+      const phoneDigits = trimmedValue.replace(/\D/g, "");
+      if (phoneDigits.length !== 10) {
+        return "Phone number must be exactly 10 digits";
+      }
+      if (!/^[6-9]\d{9}$/.test(phoneDigits)) {
+        return "Please enter a valid Indian mobile number";
+      }
+      return "";
 
     case "address":
-      return value.length < 10 ? "Address must be at least 10 characters" : "";
+      if (trimmedValue.length < 10) {
+        return "Please enter a complete address (at least 10 characters)";
+      }
+      if (trimmedValue.length > 200) {
+        return "Address is too long (max 200 characters)";
+      }
+      return "";
 
     case "city":
-      return value.trim().length < 2 ? "City must be at least 2 characters" : "";
+      if (trimmedValue.length < 2) {
+        return "City name must be at least 2 characters";
+      }
+      if (!/^[A-Za-z\s-]+$/.test(trimmedValue)) {
+        return "City name should only contain letters";
+      }
+      return "";
 
     case "state":
-      return !INDIAN_STATES.includes(value) ? "Please select a valid state" : "";
+      if (!INDIAN_STATES.includes(trimmedValue)) {
+        return "Please select a valid Indian state";
+      }
+      return "";
 
     case "zipCode":
-      return !/^\d{6}$/.test(value) ? "ZIP must be 6 digits" : "";
+      if (!/^\d{6}$/.test(trimmedValue)) {
+        return "PIN code must be exactly 6 digits";
+      }
+      // Indian PIN codes start with 1-9, not 0
+      if (!/^[1-9]\d{5}$/.test(trimmedValue)) {
+        return "Please enter a valid Indian PIN code";
+      }
+      return "";
 
     default:
       return "";
@@ -73,28 +131,59 @@ export const validateShippingField = (name, value, data) => {
 };
 
 export const validateBillingField = (name, value, data) => {
-  if (!value || !value.toString().trim()) {
-    return "This field is required";
+  const trimmedValue = value?.toString().trim() || "";
+
+  // Required field check
+  if (!trimmedValue) {
+    return `${FIELD_LABELS[name] || "This field"} is required`;
   }
 
   switch (name) {
     case "firstName":
     case "lastName":
-      return !/^[A-Za-z\s]{2,50}$/.test(value)
-        ? "Must be 2-50 letters only"
-        : "";
+      if (trimmedValue.length < 2) {
+        return "Must be at least 2 characters";
+      }
+      if (trimmedValue.length > 50) {
+        return "Must be less than 50 characters";
+      }
+      if (!/^[A-Za-z\s'.-]+$/.test(trimmedValue)) {
+        return "Only letters, spaces, and common punctuation allowed";
+      }
+      return "";
 
     case "address":
-      return value.length < 10 ? "Address must be at least 10 characters" : "";
+      if (trimmedValue.length < 10) {
+        return "Please enter a complete address (at least 10 characters)";
+      }
+      if (trimmedValue.length > 200) {
+        return "Address is too long (max 200 characters)";
+      }
+      return "";
 
     case "city":
-      return value.trim().length < 2 ? "City must be at least 2 characters" : "";
+      if (trimmedValue.length < 2) {
+        return "City name must be at least 2 characters";
+      }
+      if (!/^[A-Za-z\s-]+$/.test(trimmedValue)) {
+        return "City name should only contain letters";
+      }
+      return "";
 
     case "state":
-      return !INDIAN_STATES.includes(value) ? "Please select a valid state" : "";
+      if (!INDIAN_STATES.includes(trimmedValue)) {
+        return "Please select a valid Indian state";
+      }
+      return "";
 
     case "zipCode":
-      return !/^\d{6}$/.test(value) ? "ZIP must be 6 digits" : "";
+      if (!/^\d{6}$/.test(trimmedValue)) {
+        return "PIN code must be exactly 6 digits";
+      }
+      if (!/^[1-9]\d{5}$/.test(trimmedValue)) {
+        return "Please enter a valid Indian PIN code";
+      }
+      return "";
 
     default:
       return "";
@@ -121,23 +210,40 @@ const validateLuhn = (cardNumber) => {
 };
 
 export const validatePaymentField = (name, value, paymentMethod) => {
+  const trimmedValue = value?.toString().trim() || "";
+
   if (paymentMethod === "card") {
+    // Required check for card fields
+    if (!trimmedValue && ["cardNumber", "cardName", "expiryDate", "cvv"].includes(name)) {
+      return `${FIELD_LABELS[name] || "This field"} is required`;
+    }
+
     switch (name) {
       case "cardNumber":
-        const cardDigits = value.replace(/\s/g, "");
-        if (!/^\d{16}$/.test(cardDigits)) return "Card must be 16 digits";
-        return !validateLuhn(cardDigits) ? "Invalid card number" : "";
+        const cardDigits = trimmedValue.replace(/\s/g, "");
+        if (!/^\d{16}$/.test(cardDigits)) {
+          return "Card number must be 16 digits";
+        }
+        if (!validateLuhn(cardDigits)) {
+          return "Please enter a valid card number";
+        }
+        return "";
 
       case "cardName":
-        return !/^[A-Za-z\s]{2,50}$/.test(value)
-          ? "Must be 2-50 letters only"
-          : "";
+        if (trimmedValue.length < 2) {
+          return "Name must be at least 2 characters";
+        }
+        if (!/^[A-Za-z\s]+$/.test(trimmedValue)) {
+          return "Name should only contain letters";
+        }
+        return "";
 
       case "expiryDate":
-        if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(value))
-          return "Format must be MM/YY";
+        if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(trimmedValue)) {
+          return "Please use MM/YY format";
+        }
 
-        const [month, year] = value.split("/");
+        const [month, year] = trimmedValue.split("/");
         const currentYear = new Date().getFullYear() % 100;
         const currentMonth = new Date().getMonth() + 1;
 
@@ -145,12 +251,15 @@ export const validatePaymentField = (name, value, paymentMethod) => {
           parseInt(year) < currentYear ||
           (parseInt(year) === currentYear && parseInt(month) < currentMonth)
         ) {
-          return "Card has expired";
+          return "This card has expired";
         }
         return "";
 
       case "cvv":
-        return !/^\d{3,4}$/.test(value) ? "CVV must be 3 or 4 digits" : "";
+        if (!/^\d{3,4}$/.test(trimmedValue)) {
+          return "CVV must be 3 or 4 digits";
+        }
+        return "";
 
       default:
         return "";
@@ -159,11 +268,38 @@ export const validatePaymentField = (name, value, paymentMethod) => {
 
   if (paymentMethod === "upi") {
     if (name === "upiId") {
-      return !/^[\w\.\-_]+@[\w]+$/.test(value)
-        ? "Enter valid UPI ID (e.g., username@upi)"
-        : "";
+      if (!trimmedValue) {
+        return "UPI ID is required";
+      }
+      if (!/^[\w.\-_]+@[\w]+$/.test(trimmedValue)) {
+        return "Please enter a valid UPI ID (e.g., name@upi)";
+      }
     }
   }
 
   return "";
+};
+
+// Helper function to validate all fields at once
+export const validateAllFields = (fields, data, validationFn) => {
+  const errors = {};
+  let isValid = true;
+
+  fields.forEach((field) => {
+    const error = validationFn(field, data[field], data);
+    if (error) {
+      errors[field] = error;
+      isValid = false;
+    }
+  });
+
+  return { errors, isValid };
+};
+
+// Helper function to check if form is complete (all required fields filled)
+export const isFormComplete = (fields, data) => {
+  return fields.every((field) => {
+    const value = data[field];
+    return value && value.toString().trim() !== "";
+  });
 };

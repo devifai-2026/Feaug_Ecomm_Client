@@ -108,8 +108,14 @@ const Cart = () => {
 
     const handleQuantityChange = (itemId, value) => {
         const quantity = parseInt(value) || 1;
-        if (quantity >= 1 && quantity <= 10) {
+        const item = cartItems.find(i => i.id === itemId);
+        const maxLimit = item?.stockQuantity || 10;
+
+        if (quantity >= 1 && quantity <= maxLimit) {
             updateQuantity(itemId, quantity);
+        } else if (quantity > maxLimit) {
+            toast.error(`Only ${maxLimit} units available`);
+            updateQuantity(itemId, maxLimit);
         }
     };
 
@@ -321,8 +327,14 @@ const Cart = () => {
                                                     />
 
                                                     <button
-                                                        onClick={() => increaseQuantity(item.id)}
-                                                        disabled={item.quantity >= 10}
+                                                        onClick={() => {
+                                                            if (item.stockQuantity && item.quantity >= item.stockQuantity) {
+                                                                toast.error(`Only ${item.stockQuantity} units available`);
+                                                                return;
+                                                            }
+                                                            increaseQuantity(item.id);
+                                                        }}
+                                                        disabled={item.quantity >= 10 || (item.stockQuantity && item.quantity >= item.stockQuantity)}
                                                         className="w-8 h-8 flex items-center justify-center border border-gray-300 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                                     >
                                                         <BsPlus className="text-gray-600" />

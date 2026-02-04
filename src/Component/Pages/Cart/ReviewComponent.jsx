@@ -50,21 +50,27 @@ export const ReviewComponent = ({
       <div>
         <h3 className="text-lg font-semibold text-gray-800 mb-3">Payment</h3>
         <div className="bg-gray-50 p-4 rounded-md text-sm">
-          {paymentInfo.method === "card" && (
-            <>
-              <p className="font-medium">Credit/Debit Card</p>
-              <p className="text-gray-600">
-                Card ending in {paymentInfo.cardNumber.slice(-4)}
-              </p>
-            </>
-          )}
-          {paymentInfo.method === "upi" && (
-            <>
-              <p className="font-medium">UPI ID: {paymentInfo.upiId}</p>
-            </>
+          {paymentInfo.method === "online" && (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                💳
+              </div>
+              <div>
+                <p className="font-medium text-blue-700">Online Payment</p>
+                <p className="text-gray-600 text-xs">Pay securely via Razorpay</p>
+              </div>
+            </div>
           )}
           {paymentInfo.method === "cod" && (
-            <p className="font-medium text-amber-600">Cash on Delivery</p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                💵
+              </div>
+              <div>
+                <p className="font-medium text-amber-600">Cash on Delivery</p>
+                <p className="text-gray-600 text-xs">Pay when you receive your order (+₹50 COD charges)</p>
+              </div>
+            </div>
           )}
         </div>
       </div>

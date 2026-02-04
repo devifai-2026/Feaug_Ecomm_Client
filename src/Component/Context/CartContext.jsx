@@ -37,6 +37,7 @@ export const CartProvider = ({ children }) => {
                         image: item.product?.images?.[0]?.url || item.image,
                         quantity: item.quantity,
                         variant: item.variant,
+                        stockQuantity: item.product?.stockQuantity || 0,
                         addedAt: item.addedAt || new Date().toISOString(),
                     }));
                     setCartItems(apiCartItems);
@@ -85,7 +86,7 @@ export const CartProvider = ({ children }) => {
     useEffect(() => {
         if (isInitialized) {
             localStorage.setItem('cart', JSON.stringify(cartItems));
-            
+
             // Dispatch custom event to notify other components
             window.dispatchEvent(new Event('cartUpdated'));
         }
@@ -193,7 +194,7 @@ export const CartProvider = ({ children }) => {
 
     // Increase quantity by 1
     const increaseQuantity = (productId) => {
-        updateQuantity(productId, 
+        updateQuantity(productId,
             (cartItems.find(item => item.id === productId)?.quantity || 0) + 1
         );
     };

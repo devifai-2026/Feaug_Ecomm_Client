@@ -50,6 +50,15 @@ const OrderDetails = () => {
         if (data.success && data.data) {
           const orderData = data.data.order || data.data;
 
+          // Helper to get full image URL
+          const getImageUrl = (imageUrl) => {
+            if (!imageUrl) return 'https://via.placeholder.com/150';
+            if (imageUrl.startsWith('http')) return imageUrl;
+            // Prepend backend URL for relative paths
+            const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+            return `${backendUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+          };
+
           const transformedOrder = {
             id: orderData._id || orderData.id,
             orderNo: orderData.orderId || `ORD-${(orderData._id || orderData.id).slice(-8).toUpperCase()}`,
@@ -66,15 +75,18 @@ const OrderDetails = () => {
             razorpayOrderId: orderData.razorpayOrderId,
             razorpayPaymentId: orderData.razorpayPaymentId,
             items: (orderData.items || []).map(item => ({
-              id: item.product?._id || item.productId,
-              name: item.product?.name || item.name || 'Product',
+              id: item.product?._id || item.product || item.productId,
+              name: item.productName || item.product?.name || item.name || 'Product',
               quantity: item.quantity || 1,
               price: item.price || 0,
-              image: item.product?.images?.[0]?.url || 'https://via.placeholder.com/150'
+              image: getImageUrl(item.productImage || item.product?.images?.[0]?.url)
             })),
             shippingAddress: orderData.shippingAddress || {},
             billingAddress: orderData.billingAddress || {},
-            trackingId: orderData.trackingNumber || null,
+            trackingId: orderData.trackingNumber || orderData.shiprocketAWB || null,
+            shiprocketAWB: orderData.shiprocketAWB || null,
+            trackingUrl: orderData.trackingUrl || (orderData.shiprocketAWB ? `https://shiprocket.co/tracking/${orderData.shiprocketAWB}` : null),
+            courierName: orderData.courierName || null,
             estimatedDelivery: orderData.estimatedDelivery || null,
             deliveredAt: orderData.deliveredAt || null
           };
@@ -302,8 +314,99 @@ const OrderDetails = () => {
                 </div>
                 {order.trackingId && (
                   <div className="bg-white px-4 py-2 rounded-lg border border-[#C19A6B]/20">
-                    <p className="text-sm text-gray-600">Tracking ID</p>
+                    <p className="text-sm text-gray-600">AWB / Tracking ID</p>
                     <p className="font-medium text-gray-900">{order.trackingId}</p>
+                    {order.courierName && (
+                      <p className="text-xs text-gray-500 mt-1">via {order.courierName}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Enhanced Tracking Timeline */}
+              <div className="mt-6 border-t pt-6">
+                <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <FaTruck className="text-blue-500" />
+                  Shipment Tracking
+                </h3>
+
+                {/* Timeline Visualization */}
+                <div className="relative pl-6 border-l-2 border-gray-200 space-y-8 my-6">
+                  {/* Order Placed */}
+                  <div className="relative">
+                    <div className="absolute -left-[31px] bg-green-500 h-6 w-6 rounded-full flex items-center justify-center border-4 border-white shadow-sm">
+                      <FaCheckCircle className="text-white text-xs" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-800 text-sm">Order Placed</p>
+                      <p className="text-xs text-gray-500">{formatDate(order.date)}</p>
+                      <p className="text-xs text-green-600 mt-1">Your order has been placed successfully.</p>
+                    </div>
+                  </div>
+
+                  {/* Processing / Confirmed */}
+                  {['confirmed', 'processing', 'shipped', 'delivered'].includes(order.status) && (
+                    <div className="relative">
+                      <div className={`absolute -left-[31px] ${['cancelled'].includes(order.status) ? 'bg-red-500' : 'bg-blue-500'} h-6 w-6 rounded-full flex items-center justify-center border-4 border-white shadow-sm`}>
+                        <FaClock className="text-white text-xs" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-800 text-sm">Order Confirmed</p>
+                        <p className="text-xs text-gray-500">We are processing your order.</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Shipped */}
+                  {['shipped', 'delivered'].includes(order.status) && (
+                    <div className="relative">
+                      <div className="absolute -left-[31px] bg-purple-500 h-6 w-6 rounded-full flex items-center justify-center border-4 border-white shadow-sm">
+                        <FaTruck className="text-white text-xs" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-800 text-sm">Shipped</p>
+                        {order.courierName && <p className="text-xs text-gray-500">Courier: {order.courierName}</p>}
+                        {order.shiprocketAWB && <p className="text-xs text-gray-500">AWB: {order.shiprocketAWB}</p>}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Out for Delivery (Simulated for visualization) */}
+                  {['delivered'].includes(order.status) && (
+                    <div className="relative">
+                      <div className="absolute -left-[31px] bg-orange-500 h-6 w-6 rounded-full flex items-center justify-center border-4 border-white shadow-sm">
+                        <FaHome className="text-white text-xs" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-800 text-sm">Out for Delivery</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Delivered */}
+                  {['delivered'].includes(order.status) && (
+                    <div className="relative">
+                      <div className="absolute -left-[31px] bg-green-600 h-6 w-6 rounded-full flex items-center justify-center border-4 border-white shadow-sm">
+                        <FaCheckCircle className="text-white text-xs" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-800 text-sm">Delivered</p>
+                        <p className="text-xs text-gray-500">{formatDate(order.deliveredAt)}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {order.trackingUrl && (
+                  <div className="mt-4">
+                    <a
+                      href={order.trackingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full text-center px-4 py-2 bg-blue-50 border border-blue-200 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-100 transition-colors"
+                    >
+                      View Live Tracking on Courier Website
+                    </a>
                   </div>
                 )}
               </div>
@@ -313,8 +416,8 @@ const OrderDetails = () => {
                 <div className="mt-4 flex items-center gap-2">
                   <span className="text-gray-600">Payment Status:</span>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${order.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
-                      order.paymentStatus === 'failed' ? 'bg-red-100 text-red-800' :
-                        'bg-yellow-100 text-yellow-800'
+                    order.paymentStatus === 'failed' ? 'bg-red-100 text-red-800' :
+                      'bg-yellow-100 text-yellow-800'
                     }`}>
                     {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
                   </span>
@@ -449,11 +552,17 @@ const OrderDetails = () => {
 
                 {order.status === 'shipped' && (
                   <button
-                    onClick={handleTrackOrder}
+                    onClick={() => {
+                      if (order.trackingUrl) {
+                        window.open(order.trackingUrl, '_blank');
+                      } else {
+                        handleTrackOrder(); // Fallback to existing toast logic
+                      }
+                    }}
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors duration-300 font-medium"
                   >
                     <FaTruck />
-                    Track Order
+                    {order.trackingUrl ? 'Track Package' : 'Track Order'}
                   </button>
                 )}
 

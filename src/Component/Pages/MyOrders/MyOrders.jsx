@@ -45,6 +45,16 @@ const MyOrders = () => {
         onSuccess: (data) => {
           if (data.success && data.data) {
             const ordersData = data.data.orders || data.data || [];
+
+            // Helper to get full image URL
+            const getImageUrl = (imageUrl) => {
+              if (!imageUrl) return 'https://via.placeholder.com/150';
+              if (imageUrl.startsWith('http')) return imageUrl;
+              // Prepend backend URL for relative paths
+              const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+              return `${backendUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+            };
+
             const transformedOrders = ordersData.map(order => ({
               id: order._id || order.id,
               orderNo: order.orderId || `ORD-${(order._id || order.id).slice(-8).toUpperCase()}`,
@@ -54,11 +64,11 @@ const MyOrders = () => {
               shippingStatus: order.shippingStatus,
               paymentStatus: order.paymentStatus,
               items: (order.items || []).map(item => ({
-                id: item.product?._id || item.productId,
-                name: item.product?.name || item.name || 'Product',
+                id: item.product?._id || item.product || item.productId,
+                name: item.productName || item.product?.name || item.name || 'Product',
                 quantity: item.quantity || 1,
                 price: item.price || 0,
-                image: item.product?.images?.[0]?.url || 'https://via.placeholder.com/150'
+                image: getImageUrl(item.productImage || item.product?.images?.[0]?.url)
               })),
               shippingAddress: order.shippingAddress
                 ? `${order.shippingAddress.street || ''}, ${order.shippingAddress.city || ''}, ${order.shippingAddress.state || ''} - ${order.shippingAddress.postalCode || ''}`
