@@ -1,5 +1,6 @@
 import axiosInstance from "../../axios/axiosInstance";
 import { handleApiError } from "../../error/apiError";
+import { getGuestId } from "../../helpers/guest/guestId";
 
 // Helper to store user data in localStorage (aligned with helpers pattern)
 const storeUserData = (responseData) => {
@@ -78,7 +79,9 @@ const userApi = {
   // User Registration
   register: async (userData) => {
     try {
-      const response = await axiosInstance.post("/auth/register", userData);
+      const guestId = getGuestId();
+      const payload = { ...userData, guestId };
+      const response = await axiosInstance.post("/auth/register", payload);
       if (response.data.status === 'success') {
         storeUserData(response.data);
       }
@@ -91,7 +94,9 @@ const userApi = {
   // User Login
   login: async (credentials) => {
     try {
-      const response = await axiosInstance.post("/auth/login", credentials);
+      const guestId = getGuestId();
+      const payload = { ...credentials, guestId };
+      const response = await axiosInstance.post("/auth/login", payload);
 
       // Store user data using standardized format
       // Pass entire response.data which contains { status, success, token, data: { user } }
