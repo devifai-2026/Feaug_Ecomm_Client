@@ -25,29 +25,36 @@ export const CartProvider = ({ children }) => {
   // Fetch cart from API if user is logged in
   const fetchCartFromApi = async () => {
     setIsSyncing(true);
-    await cartApi.getCart({
-      setLoading: setIsSyncing,
-      onSuccess: (data) => {
-        if (data.success && data.data?.cart?.items) {
-          const apiCartItems = data.data.cart.items.map((item) => ({
-            id: item.product?._id || item.productId,
-            cartItemId: item._id, // Store the actual database ID of the cart item
-            title: item.product?.name || item.name,
-            price: item.price || item.product?.sellingPrice,
-            image: item.product?.images?.[0]?.url || item.image,
-            quantity: item.quantity,
-            variant: item.variant,
-            stockQuantity: item.product?.stockQuantity || 0,
-            addedAt: item.addedAt || new Date().toISOString(),
-          }));
-          setCartItems(apiCartItems);
-        }
-      },
-      onError: (err) => {
-        console.error("Error fetching cart from API:", err);
-        // Fall back to localStorage
-      },
-    });
+
+    // Add 100ms delay as requested
+    setTimeout(async () => {
+      await cartApi.getCart({
+        setLoading: setIsSyncing,
+        onSuccess: (data) => {
+          if (data.success && data.data?.cart?.items) {
+            const apiCartItems = data.data.cart.items.map((item) => ({
+              id: item.product?._id || item.productId,
+              cartItemId: item._id, // Store the actual database ID of the cart item
+              title: item.product?.name || item.name,
+              price: item.price || item.product?.sellingPrice,
+              image: item.product?.images?.[0]?.url || item.image,
+              quantity: item.quantity,
+              variant: item.variant,
+              stockQuantity: item.product?.stockQuantity || 0,
+              addedAt: item.addedAt || new Date().toISOString(),
+            }));
+            setCartItems(apiCartItems);
+          }
+          // Ensure loading state is reset
+          setIsSyncing(false);
+        },
+        onError: (err) => {
+          console.error("Error fetching cart from API:", err);
+          // Fall back to localStorage
+          setIsSyncing(false);
+        },
+      });
+    }, 100);
   };
 
   // Load cart from localStorage on initial render, then try API

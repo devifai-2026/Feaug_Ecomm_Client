@@ -246,6 +246,13 @@ const Wishlist = () => {
                     </div>
                   )}
 
+                  {/* Low Stock Badge */}
+                  {item.inStock && item.stockStatus === "low_stock" && (
+                    <div className="absolute top-2 right-2 md:top-3 md:right-3 bg-amber-500 text-white px-2 py-1 text-xs font-bold z-10 shadow-sm">
+                      Low Stock
+                    </div>
+                  )}
+
                   {/* Out of Stock Badge */}
                   {!item.inStock && (
                     <div className="absolute top-2 right-2 md:top-3 md:right-3 bg-gray-800 text-white px-2 py-1 text-xs font-semibold z-10">
