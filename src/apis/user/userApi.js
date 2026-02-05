@@ -79,7 +79,7 @@ const userApi = {
   register: async (userData) => {
     try {
       const response = await axiosInstance.post("/auth/register", userData);
-      if (response.data.success) {
+      if (response.data.status === 'success') {
         storeUserData(response.data);
       }
       return response.data;

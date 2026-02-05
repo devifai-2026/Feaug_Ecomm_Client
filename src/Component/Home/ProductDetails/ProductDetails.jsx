@@ -769,7 +769,7 @@ const ProductDetails = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <style jsx>{`
+      <style>{`
         @keyframes slideInRight {
           from {
             transform: translateX(50px);

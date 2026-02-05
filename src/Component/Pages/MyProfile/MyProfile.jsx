@@ -62,6 +62,7 @@ const MyProfile = () => {
     confirmPassword: "",
   });
   const [passwordErrors, setPasswordErrors] = useState({});
+  const [addressErrors, setAddressErrors] = useState({});
   const [addressPage, setAddressPage] = useState(1);
   const [totalAddresses, setTotalAddresses] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -310,6 +311,10 @@ const MyProfile = () => {
       ...addressData,
       [name]: type === "checkbox" ? checked : value,
     });
+    // Clear error for this field when user types
+    if (addressErrors[name]) {
+      setAddressErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleAddAddressClick = () => {
@@ -324,6 +329,7 @@ const MyProfile = () => {
       country: "India",
       isDefault: false,
     });
+    setAddressErrors({});
     setShowAddressModal(true);
   };
 
@@ -339,6 +345,7 @@ const MyProfile = () => {
       country: address.country || "India",
       isDefault: address.isDefault || false,
     });
+    setAddressErrors({});
     setShowAddressModal(true);
   };
 
@@ -366,14 +373,52 @@ const MyProfile = () => {
     }
   };
 
+  // Helper to parse error message and map to field
+  const parseAddressError = (errorMessage) => {
+    const errors = {};
+    const msg = errorMessage.toLowerCase();
+
+    if (msg.includes("pincode")) {
+      errors.pincode = errorMessage;
+    } else if (msg.includes("address") && (msg.includes("line 1") || msg.includes("addressline1"))) {
+      errors.addressLine1 = errorMessage;
+    } else if (msg.includes("city")) {
+      errors.city = errorMessage;
+    } else if (msg.includes("state")) {
+      errors.state = errorMessage;
+    } else if (msg.includes("phone")) {
+      errors.phone = errorMessage;
+    } else {
+      // Generic error - show as toast
+      return null;
+    }
+    return errors;
+  };
+
   const handleAddressSubmit = async () => {
-    if (
-      !addressData.addressLine1 ||
-      !addressData.city ||
-      !addressData.state ||
-      !addressData.pincode
-    ) {
-      toast.error("Please fill all required fields");
+    // Clear previous errors
+    setAddressErrors({});
+
+    // Client-side validation
+    const newErrors = {};
+    if (!addressData.addressLine1) {
+      newErrors.addressLine1 = "Address Line 1 is required";
+    }
+    if (!addressData.city) {
+      newErrors.city = "City is required";
+    }
+    if (!addressData.state) {
+      newErrors.state = "State is required";
+    }
+    if (!addressData.pincode) {
+      newErrors.pincode = "Pincode is required";
+    } else if (!/^[1-9][0-9]{5}$/.test(addressData.pincode)) {
+      newErrors.pincode = "Please provide a valid 6-digit Indian pincode";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setAddressErrors(newErrors);
+      toast.error("Please fix the errors in the form");
       return;
     }
 
@@ -395,11 +440,23 @@ const MyProfile = () => {
         setShowAddressModal(false);
         refreshUserData();
       } else {
-        toast.error(response.message || "Failed to save address");
+        // Try to parse field-specific errors
+        const fieldErrors = parseAddressError(response.message || "");
+        if (fieldErrors) {
+          setAddressErrors(fieldErrors);
+        } else {
+          toast.error(response.message || "Failed to save address");
+        }
       }
     } catch (error) {
       console.error("Error saving address:", error);
-      toast.error("Failed to save address");
+      // Try to parse field-specific errors from error message
+      const fieldErrors = parseAddressError(error.message || "");
+      if (fieldErrors) {
+        setAddressErrors(fieldErrors);
+      } else {
+        toast.error(error.message || "Failed to save address");
+      }
     } finally {
       setSaving(false);
     }
@@ -1075,9 +1132,13 @@ const MyProfile = () => {
                       name="pincode"
                       value={addressData.pincode}
                       onChange={handleAddressChange}
-                      className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter"
+                      maxLength={6}
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter ${addressErrors.pincode ? "border border-red-400" : ""}`}
                       required
                     />
+                    {addressErrors.pincode && (
+                      <p className="text-red-500 text-xs mt-1">{addressErrors.pincode}</p>
+                    )}
                   </div>
                   <div className="md:col-span-2">
                     <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
@@ -1088,9 +1149,12 @@ const MyProfile = () => {
                       name="addressLine1"
                       value={addressData.addressLine1}
                       onChange={handleAddressChange}
-                      className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter"
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter ${addressErrors.addressLine1 ? "border border-red-400" : ""}`}
                       required
                     />
+                    {addressErrors.addressLine1 && (
+                      <p className="text-red-500 text-xs mt-1">{addressErrors.addressLine1}</p>
+                    )}
                   </div>
                   <div className="md:col-span-2">
                     <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
@@ -1113,9 +1177,12 @@ const MyProfile = () => {
                       name="city"
                       value={addressData.city}
                       onChange={handleAddressChange}
-                      className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter"
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter ${addressErrors.city ? "border border-red-400" : ""}`}
                       required
                     />
+                    {addressErrors.city && (
+                      <p className="text-red-500 text-xs mt-1">{addressErrors.city}</p>
+                    )}
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
@@ -1125,7 +1192,7 @@ const MyProfile = () => {
                       name="state"
                       value={addressData.state}
                       onChange={handleAddressChange}
-                      className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs appearance-none cursor-pointer"
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs appearance-none cursor-pointer ${addressErrors.state ? "border border-red-400" : ""}`}
                       required
                     >
                       <option value="">Select State</option>
@@ -1135,6 +1202,9 @@ const MyProfile = () => {
                         </option>
                       ))}
                     </select>
+                    {addressErrors.state && (
+                      <p className="text-red-500 text-xs mt-1">{addressErrors.state}</p>
+                    )}
                   </div>
                 </div>
 

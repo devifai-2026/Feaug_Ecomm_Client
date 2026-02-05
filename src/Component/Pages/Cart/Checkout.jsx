@@ -128,13 +128,13 @@ const Checkout = () => {
             user.addresses?.find((a) => a.isDefault) || user.addresses?.[0];
           setShippingInfo((prev) => ({
             ...prev,
-            _id: defaultAddr._id || "",
+            _id: defaultAddr?._id || "",
             firstName: user.firstName || "",
             lastName: user.lastName || "",
             email: user.email || "",
             phone: user.phone || "",
             address: defaultAddr
-              ? `${defaultAddr.addressLine1}${defaultAddr.addressLine2 ? ", " + defaultAddr.addressLine2 : ""}`
+              ? `${defaultAddr.addressLine1 || defaultAddr.address || ""}${defaultAddr.addressLine2 || defaultAddr.landmark ? ", " + (defaultAddr.addressLine2 || defaultAddr.landmark) : ""}`
               : "",
             city: defaultAddr?.city || "",
             state: defaultAddr?.state || "",
