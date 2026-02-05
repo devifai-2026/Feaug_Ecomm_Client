@@ -96,10 +96,18 @@ const Banner = ({
 
     const handleBannerClick = () => {
         if (banner?.redirectUrl) {
-            if (banner.redirectUrl.startsWith('http')) {
-                window.location.href = banner.redirectUrl;
+            let url = banner.redirectUrl;
+
+            // Add promo code as query parameter if available
+            if (banner.promoCode) {
+                const separator = url.includes('?') ? '&' : '?';
+                url = `${url}${separator}promo=${banner.promoCode}`;
+            }
+
+            if (url.startsWith('http')) {
+                window.location.href = url;
             } else {
-                navigate(banner.redirectUrl);
+                navigate(url);
             }
         }
     };
@@ -217,8 +225,8 @@ const Banner = ({
                                     goToImage(index);
                                 }}
                                 className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${index === currentImageIndex
-                                        ? 'bg-white w-6 md:w-8'
-                                        : 'bg-white/50 hover:bg-white/75'
+                                    ? 'bg-white w-6 md:w-8'
+                                    : 'bg-white/50 hover:bg-white/75'
                                     }`}
                                 aria-label={`Go to image ${index + 1}`}
                             />

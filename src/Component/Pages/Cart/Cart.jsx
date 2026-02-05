@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BsCurrencyRupee,
   BsTrash,
@@ -10,15 +10,18 @@ import {
   BsShieldCheck,
   BsArrowRepeat,
 } from "react-icons/bs";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { useCart } from "../../Context/CartContext";
 import Banner from "../../Common/Banner";
+import cartApi from "../../../apis/cartApi";
 
 const Cart = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [promoCode, setPromoCode] = useState("");
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+  const [appliedPromo, setAppliedPromo] = useState(null);
 
   const {
     cartItems,
@@ -30,6 +33,18 @@ const Cart = () => {
     getTotalItems,
     getSubtotal,
   } = useCart();
+
+  // Auto-apply promo code from URL parameter
+  useEffect(() => {
+    const promoFromUrl = searchParams.get('promo');
+    if (promoFromUrl && !appliedPromo) {
+      setPromoCode(promoFromUrl);
+      handleApplyPromo(promoFromUrl);
+      // Remove promo parameter from URL after applying
+      searchParams.delete('promo');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, []);
 
   const handleRemoveItem = (item, e) => {
     e.stopPropagation();
@@ -51,24 +66,33 @@ const Cart = () => {
     );
   };
 
-  const handleApplyPromo = () => {
-    if (!promoCode.trim()) {
+  const handleApplyPromo = (codeToApply) => {
+    const code = codeToApply || promoCode;
+    if (!code.trim()) {
       toast.error("Please enter a promo code!");
       return;
     }
 
-    setIsApplyingPromo(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsApplyingPromo(false);
-      if (promoCode.toUpperCase() === "SAVE10") {
-        toast.success("Promo code applied! 10% discount added.");
-      } else {
-        toast.error("Invalid promo code!");
+    cartApi.applyCoupon({
+      couponCode: code,
+      setLoading: setIsApplyingPromo,
+      onSuccess: (response) => {
+        if (response.status === 'success') {
+          setAppliedPromo({
+            code: code,
+            discount: response.data.discount,
+            message: response.data.message
+          });
+          toast.success(response.data.message || "Promo code applied successfully!");
+          setPromoCode("");
+        }
+      },
+      onError: (error) => {
+        console.error('Error applying promo code:', error);
+        const errorMessage = error.response?.data?.message || "Invalid promo code!";
+        toast.error(errorMessage);
       }
-      setPromoCode("");
-    }, 1000);
+    });
   };
 
   const handleProceedToCheckout = () => {
@@ -102,18 +126,18 @@ const Cart = () => {
     navigate("/categories");
   };
 
-    const handleQuantityChange = (itemId, value) => {
-        const quantity = parseInt(value) || 1;
-        const item = cartItems.find(i => i.id === itemId);
-        const maxLimit = item?.stockQuantity || 10;
+  const handleQuantityChange = (itemId, value) => {
+    const quantity = parseInt(value) || 1;
+    const item = cartItems.find(i => i.id === itemId);
+    const maxLimit = item?.stockQuantity || 10;
 
-        if (quantity >= 1 && quantity <= maxLimit) {
-            updateQuantity(itemId, quantity);
-        } else if (quantity > maxLimit) {
-            toast.error(`Only ${maxLimit} units available`);
-            updateQuantity(itemId, maxLimit);
-        }
-    };
+    if (quantity >= 1 && quantity <= maxLimit) {
+      updateQuantity(itemId, quantity);
+    } else if (quantity > maxLimit) {
+      toast.error(`Only ${maxLimit} units available`);
+      updateQuantity(itemId, maxLimit);
+    }
+  };
 
   const calculateItemTotal = (item) => {
     const price = item.price || 0;
@@ -320,26 +344,26 @@ const Cart = () => {
                             className="w-16 h-8 border border-gray-300 text-center text-gray-800 font-medium"
                           />
 
-                                                    <button
-                                                        onClick={() => {
-                                                            if (item.stockQuantity && item.quantity >= item.stockQuantity) {
-                                                                toast.error(`Only ${item.stockQuantity} units available`);
-                                                                return;
-                                                            }
-                                                            increaseQuantity(item.id);
-                                                        }}
-                                                        disabled={item.quantity >= 10 || (item.stockQuantity && item.quantity >= item.stockQuantity)}
-                                                        className="w-8 h-8 flex items-center justify-center border border-gray-300 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                                    >
-                                                        <BsPlus className="text-gray-600" />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                          <button
+                            onClick={() => {
+                              if (item.stockQuantity && item.quantity >= item.stockQuantity) {
+                                toast.error(`Only ${item.stockQuantity} units available`);
+                                return;
+                              }
+                              increaseQuantity(item.id);
+                            }}
+                            disabled={item.quantity >= 10 || (item.stockQuantity && item.quantity >= item.stockQuantity)}
+                            className="w-8 h-8 flex items-center justify-center border border-gray-300 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          >
+                            <BsPlus className="text-gray-600" />
+                          </button>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
 
             {/* Right Column - Order Summary */}
             <div className="lg:col-span-1">
