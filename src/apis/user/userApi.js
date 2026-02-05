@@ -31,6 +31,8 @@ const storeUserData = (responseData) => {
     localStorage.setItem('user', JSON.stringify(userData));
     localStorage.setItem('token', responseData.token);
     localStorage.setItem('isLoggedIn', 'true');
+    // Clear guestId as it is now merged
+    localStorage.removeItem('guestId');
     window.dispatchEvent(new Event('userLoginStatusChanged'));
   }
 };

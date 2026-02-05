@@ -197,7 +197,10 @@ const ProductDetails = () => {
         icon: "🔒",
         duration: 3000,
       });
-      setTimeout(() => navigate(`/login?redirect=/checkout`), 1000);
+      setTimeout(
+        () => navigate(`/login?redirect=${encodeURIComponent("/checkout")}`),
+        1000,
+      );
       return;
     }
 
@@ -876,10 +879,11 @@ const ProductDetails = () => {
                   {productImages.map((image, index) => (
                     <div
                       key={index}
-                      className={`flex-shrink-0 cursor-pointer border-2 transition-all duration-300 ${selectedImageIndex === index
-                        ? "border-orange-500 shadow-md"
-                        : "border-transparent hover:border-gray-300"
-                        }`}
+                      className={`flex-shrink-0 cursor-pointer border-2 transition-all duration-300 ${
+                        selectedImageIndex === index
+                          ? "border-orange-500 shadow-md"
+                          : "border-transparent hover:border-gray-300"
+                      }`}
                       onClick={() => handleThumbnailClick(index)}
                     >
                       <img
@@ -1094,10 +1098,11 @@ const ProductDetails = () => {
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`whitespace-nowrap py-3 px-6 font-medium transition-all duration-300 ${activeTab === tab
-                      ? "bg-black text-white"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                      }`}
+                    className={`whitespace-nowrap py-3 px-6 font-medium transition-all duration-300 ${
+                      activeTab === tab
+                        ? "bg-black text-white"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
                   >
                     {tab}
                   </button>

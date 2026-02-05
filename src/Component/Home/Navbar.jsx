@@ -56,7 +56,7 @@ const Navbar = () => {
   const [dragStartTime, setDragStartTime] = useState(0);
 
   // Get cart from context
-  const { getTotalUniqueItems } = useCart();
+  const { getTotalUniqueItems, fetchCartFromApi } = useCart();
 
   // Carousel content state
   const [carouselSlides, setCarouselSlides] = useState([
@@ -506,6 +506,10 @@ const Navbar = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     setIsUserDropdownOpen(false);
+
+    // Refresh cart to reflect guest state
+    fetchCartFromApi();
+
     navigate("/");
     // You can add a toast notification here
     console.log("Logged out successfully");

@@ -21,8 +21,9 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const redirectPath =
-    searchParams.get("redirect") || location.state?.from || "/";
+  const redirectPath = searchParams.get("redirect")
+    ? decodeURIComponent(searchParams.get("redirect"))
+    : location.state?.from || "/";
 
   const handleChange = (e) => {
     const { name, value } = e.target;

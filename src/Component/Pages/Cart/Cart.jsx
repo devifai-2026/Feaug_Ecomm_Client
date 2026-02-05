@@ -142,7 +142,10 @@ const Cart = () => {
         duration: 3000,
       });
       // Navigate to login page with redirect param
-      setTimeout(() => navigate("/login?redirect=/checkout"), 1000);
+      setTimeout(
+        () => navigate(`/login?redirect=${encodeURIComponent("/checkout")}`),
+        1000,
+      );
       return;
     }
 
