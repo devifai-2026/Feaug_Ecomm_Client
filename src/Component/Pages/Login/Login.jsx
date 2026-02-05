@@ -1,6 +1,11 @@
 // Component/Pages/Login/Login.jsx
 import React, { useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useSearchParams,
+  useLocation,
+} from "react-router-dom";
 import { LuUserRound, LuLock, LuMail, LuEye, LuEyeOff } from "react-icons/lu";
 import { toast } from "react-toastify";
 import userApi from "../../../apis/user/userApi";
@@ -14,8 +19,10 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
-  const redirectPath = searchParams.get("redirect") || "/";
+  const redirectPath =
+    searchParams.get("redirect") || location.state?.from || "/";
 
   const handleChange = (e) => {
     const { name, value } = e.target;

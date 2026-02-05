@@ -48,76 +48,76 @@ function App() {
     }, 100);
 
     // Recent purchase notification logic
-    // let activityInterval;
+    let activityInterval;
 
-    // const fetchAndShowActivity = () => {
-    //   orderApi.getRecentActivity({
-    //     onSuccess: (response) => {
-    //       if (response && response.data && response.data.length > 0) {
-    //         // Function to show random purchase toast
-    //         const showRandomToast = () => {
-    //           const randomOrder = response.data[Math.floor(Math.random() * response.data.length)];
+    const fetchAndShowActivity = () => {
+      orderApi.getRecentActivity({
+        onSuccess: (response) => {
+          if (response && response.data && response.data.length > 0) {
+            // Function to show random purchase toast
+            const showRandomToast = () => {
+              const randomOrder = response.data[Math.floor(Math.random() * response.data.length)];
 
-    //           // Custom content for the toast
-    //           const ToastContent = () => (
-    //             <div className="flex items-center gap-3">
-    //               {randomOrder.image ? (
-    //                 <img
-    //                   src={randomOrder.image}
-    //                   alt={randomOrder.product}
-    //                   className="w-10 h-10 object-cover rounded-md"
-    //                 />
-    //               ) : (
-    //                 <div className="w-10 h-10 bg-purple-100 rounded-md flex items-center justify-center text-purple-600 font-bold">
-    //                   {randomOrder.user.charAt(0)}
-    //                 </div>
-    //               )}
-    //               <div className="flex-1 min-w-0">
-    //                 <p className="text-sm font-medium text-gray-900 truncate">
-    //                   {randomOrder.user}
-    //                 </p>
-    //                 <p className="text-xs text-gray-500 truncate">
-    //                   bought {randomOrder.product}
-    //                 </p>
-    //                 <p className="text-[10px] text-gray-400 mt-0.5">
-    //                   {randomOrder.city} • Just now
-    //                 </p>
-    //               </div>
-    //             </div>
-    //           );
+              // Custom content for the toast
+              const ToastContent = () => (
+                <div className="flex items-center gap-3">
+                  {randomOrder.image ? (
+                    <img
+                      src={randomOrder.image}
+                      alt={randomOrder.product}
+                      className="w-10 h-10 object-cover rounded-md"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-purple-100 rounded-md flex items-center justify-center text-purple-600 font-bold">
+                      {randomOrder.user.charAt(0)}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {randomOrder.user}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      bought {randomOrder.product}
+                    </p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">
+                      {randomOrder.city} • Just now
+                    </p>
+                  </div>
+                </div>
+              );
 
-    //           toast(<ToastContent />, {
-    //             position: "bottom-left",
-    //             autoClose: 5000,
-    //             hideProgressBar: true,
-    //             closeOnClick: true,
-    //             pauseOnHover: true,
-    //             draggable: true,
-    //             className: "!rounded-xl !shadow-lg border border-gray-100",
-    //             bodyClassName: "!p-0",
-    //             style: { background: "rgba(255, 255, 255, 0.95)", backdropFilter: "blur(4px)" }
-    //           });
+              toast(<ToastContent />, {
+                position: "bottom-left",
+                autoClose: 5000,
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                className: "!rounded-xl !shadow-lg border border-gray-100",
+                bodyClassName: "!p-0",
+                style: { background: "rgba(255, 255, 255, 0.95)", backdropFilter: "blur(4px)" }
+              });
 
-    //           // Schedule next toast (random time between 15-30 seconds)
-    //           const nextTime = Math.random() * (30000 - 15000) + 15000;
-    //           activityInterval = setTimeout(showRandomToast, nextTime);
-    //         };
+              // Schedule next toast (random time between 15-30 seconds)
+              const nextTime = Math.random() * (300000 - 150000) + 15000;
+              activityInterval = setTimeout(showRandomToast, nextTime);
+            };
 
-    //         // Start showing toasts after initial delay
-    //         activityInterval = setTimeout(showRandomToast, 10000);
-    //       }
-    //     },
-    //     onError: (err) => {
-    //       console.error("Failed to fetch recent activity:", err);
-    //     }
-    //   });
-    // };
+            // Start showing toasts after initial delay
+            activityInterval = setTimeout(showRandomToast, 10000);
+          }
+        },
+        onError: (err) => {
+          console.error("Failed to fetch recent activity:", err);
+        }
+      });
+    };
 
-    // fetchAndShowActivity();
+    fetchAndShowActivity();
 
-    // return () => {
-    //   if (activityInterval) clearTimeout(activityInterval);
-    // };
+    return () => {
+      if (activityInterval) clearTimeout(activityInterval);
+    };
   }, []);
 
   return (

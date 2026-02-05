@@ -110,7 +110,7 @@ const Checkout = () => {
     const initCheckout = async () => {
       if (!userApi.isAuthenticated()) {
         toast.error("Please login to checkout");
-        navigate("/login", { state: { from: "/checkout" } });
+        navigate("/login?redirect=/checkout");
         return;
       }
 
