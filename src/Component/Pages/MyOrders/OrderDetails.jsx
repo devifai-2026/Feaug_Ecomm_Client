@@ -61,11 +61,12 @@ const OrderDetails = () => {
 
           // Helper to get full image URL
           const getImageUrl = (imageUrl) => {
-            if (!imageUrl) return 'https://via.placeholder.com/150';
-            if (imageUrl.startsWith('http')) return imageUrl;
+            if (!imageUrl) return "https://via.placeholder.com/150";
+            if (imageUrl.startsWith("http")) return imageUrl;
             // Prepend backend URL for relative paths
-            const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
-            return `${backendUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+            const backendUrl =
+              import.meta.env.VITE_API_URL || "http://localhost:5001";
+            return `${backendUrl}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`;
           };
 
           const transformedOrder = {
@@ -79,24 +80,36 @@ const OrderDetails = () => {
             shippingCharge: orderData.shippingCharge || 0,
             tax: orderData.tax || 0,
             amount: orderData.grandTotal || orderData.total || 0,
+            promoCode: orderData.promoCode,
             status: orderData.status || "pending",
             shippingStatus: orderData.shippingStatus,
             paymentStatus: orderData.paymentStatus,
             paymentMethod: orderData.paymentMethod || "Online",
             razorpayOrderId: orderData.razorpayOrderId,
             razorpayPaymentId: orderData.razorpayPaymentId,
-            items: (orderData.items || []).map(item => ({
+            items: (orderData.items || []).map((item) => ({
               id: item.product?._id || item.product || item.productId,
-              name: item.productName || item.product?.name || item.name || 'Product',
+              name:
+                item.productName ||
+                item.product?.name ||
+                item.name ||
+                "Product",
               quantity: item.quantity || 1,
               price: item.price || 0,
-              image: getImageUrl(item.productImage || item.product?.images?.[0]?.url)
+              image: getImageUrl(
+                item.productImage || item.product?.images?.[0]?.url,
+              ),
             })),
             shippingAddress: orderData.shippingAddress || {},
             billingAddress: orderData.billingAddress || {},
-            trackingId: orderData.trackingNumber || orderData.shiprocketAWB || null,
+            trackingId:
+              orderData.trackingNumber || orderData.shiprocketAWB || null,
             shiprocketAWB: orderData.shiprocketAWB || null,
-            trackingUrl: orderData.trackingUrl || (orderData.shiprocketAWB ? `https://shiprocket.co/tracking/${orderData.shiprocketAWB}` : null),
+            trackingUrl:
+              orderData.trackingUrl ||
+              (orderData.shiprocketAWB
+                ? `https://shiprocket.co/tracking/${orderData.shiprocketAWB}`
+                : null),
             courierName: orderData.courierName || null,
             estimatedDelivery: orderData.estimatedDelivery || null,
             deliveredAt: orderData.deliveredAt || null,
@@ -357,9 +370,13 @@ const OrderDetails = () => {
                 {order.trackingId && (
                   <div className="bg-white px-4 py-2 rounded-lg border border-[#C19A6B]/20">
                     <p className="text-sm text-gray-600">AWB / Tracking ID</p>
-                    <p className="font-medium text-gray-900">{order.trackingId}</p>
+                    <p className="font-medium text-gray-900">
+                      {order.trackingId}
+                    </p>
                     {order.courierName && (
-                      <p className="text-xs text-gray-500 mt-1">via {order.courierName}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        via {order.courierName}
+                      </p>
                     )}
                   </div>
                 )}
@@ -380,60 +397,90 @@ const OrderDetails = () => {
                       <FaCheckCircle className="text-white text-xs" />
                     </div>
                     <div>
-                      <p className="font-bold text-gray-800 text-sm">Order Placed</p>
-                      <p className="text-xs text-gray-500">{formatDate(order.date)}</p>
-                      <p className="text-xs text-green-600 mt-1">Your order has been placed successfully.</p>
+                      <p className="font-bold text-gray-800 text-sm">
+                        Order Placed
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {formatDate(order.date)}
+                      </p>
+                      <p className="text-xs text-green-600 mt-1">
+                        Your order has been placed successfully.
+                      </p>
                     </div>
                   </div>
 
                   {/* Processing / Confirmed */}
-                  {['confirmed', 'processing', 'shipped', 'delivered'].includes(order.status) && (
+                  {["confirmed", "processing", "shipped", "delivered"].includes(
+                    order.status,
+                  ) && (
                     <div className="relative">
-                      <div className={`absolute -left-[31px] ${['cancelled'].includes(order.status) ? 'bg-red-500' : 'bg-blue-500'} h-6 w-6 rounded-full flex items-center justify-center border-4 border-white shadow-sm`}>
+                      <div
+                        className={`absolute -left-[31px] ${["cancelled"].includes(order.status) ? "bg-red-500" : "bg-blue-500"} h-6 w-6 rounded-full flex items-center justify-center border-4 border-white shadow-sm`}
+                      >
                         <FaClock className="text-white text-xs" />
                       </div>
                       <div>
-                        <p className="font-bold text-gray-800 text-sm">Order Confirmed</p>
-                        <p className="text-xs text-gray-500">We are processing your order.</p>
+                        <p className="font-bold text-gray-800 text-sm">
+                          Order Confirmed
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          We are processing your order.
+                        </p>
                       </div>
                     </div>
                   )}
 
                   {/* Shipped */}
-                  {['shipped', 'delivered'].includes(order.status) && (
+                  {["shipped", "delivered"].includes(order.status) && (
                     <div className="relative">
                       <div className="absolute -left-[31px] bg-purple-500 h-6 w-6 rounded-full flex items-center justify-center border-4 border-white shadow-sm">
                         <FaTruck className="text-white text-xs" />
                       </div>
                       <div>
-                        <p className="font-bold text-gray-800 text-sm">Shipped</p>
-                        {order.courierName && <p className="text-xs text-gray-500">Courier: {order.courierName}</p>}
-                        {order.shiprocketAWB && <p className="text-xs text-gray-500">AWB: {order.shiprocketAWB}</p>}
+                        <p className="font-bold text-gray-800 text-sm">
+                          Shipped
+                        </p>
+                        {order.courierName && (
+                          <p className="text-xs text-gray-500">
+                            Courier: {order.courierName}
+                          </p>
+                        )}
+                        {order.shiprocketAWB && (
+                          <p className="text-xs text-gray-500">
+                            AWB: {order.shiprocketAWB}
+                          </p>
+                        )}
                       </div>
                     </div>
                   )}
 
                   {/* Out for Delivery (Simulated for visualization) */}
-                  {['delivered'].includes(order.status) && (
+                  {["delivered"].includes(order.status) && (
                     <div className="relative">
                       <div className="absolute -left-[31px] bg-orange-500 h-6 w-6 rounded-full flex items-center justify-center border-4 border-white shadow-sm">
                         <FaHome className="text-white text-xs" />
                       </div>
                       <div>
-                        <p className="font-bold text-gray-800 text-sm">Out for Delivery</p>
+                        <p className="font-bold text-gray-800 text-sm">
+                          Out for Delivery
+                        </p>
                       </div>
                     </div>
                   )}
 
                   {/* Delivered */}
-                  {['delivered'].includes(order.status) && (
+                  {["delivered"].includes(order.status) && (
                     <div className="relative">
                       <div className="absolute -left-[31px] bg-green-600 h-6 w-6 rounded-full flex items-center justify-center border-4 border-white shadow-sm">
                         <FaCheckCircle className="text-white text-xs" />
                       </div>
                       <div>
-                        <p className="font-bold text-gray-800 text-sm">Delivered</p>
-                        <p className="text-xs text-gray-500">{formatDate(order.deliveredAt)}</p>
+                        <p className="font-bold text-gray-800 text-sm">
+                          Delivered
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {formatDate(order.deliveredAt)}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -457,11 +504,17 @@ const OrderDetails = () => {
               {order.paymentStatus && (
                 <div className="mt-4 flex items-center gap-2">
                   <span className="text-gray-600">Payment Status:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${order.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
-                    order.paymentStatus === 'failed' ? 'bg-red-100 text-red-800' :
-                      'bg-yellow-100 text-yellow-800'
-                    }`}>
-                    {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      order.paymentStatus === "paid"
+                        ? "bg-green-100 text-green-800"
+                        : order.paymentStatus === "failed"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
+                    {order.paymentStatus.charAt(0).toUpperCase() +
+                      order.paymentStatus.slice(1)}
                   </span>
                 </div>
               )}
@@ -572,7 +625,9 @@ const OrderDetails = () => {
                     </div>
                     {order.discount > 0 && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Discount</span>
+                        <span className="text-gray-600">
+                          Discount {order.promoCode && `(${order.promoCode})`}
+                        </span>
                         <span className="text-green-600">
                           -{formatPrice(order.discount)}
                         </span>
@@ -640,7 +695,7 @@ const OrderDetails = () => {
                   <button
                     onClick={() => {
                       if (order.trackingUrl) {
-                        window.open(order.trackingUrl, '_blank');
+                        window.open(order.trackingUrl, "_blank");
                       } else {
                         handleTrackOrder(); // Fallback to existing toast logic
                       }
@@ -648,7 +703,7 @@ const OrderDetails = () => {
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors duration-300 font-medium"
                   >
                     <FaTruck />
-                    {order.trackingUrl ? 'Track Package' : 'Track Order'}
+                    {order.trackingUrl ? "Track Package" : "Track Order"}
                   </button>
                 )}
 

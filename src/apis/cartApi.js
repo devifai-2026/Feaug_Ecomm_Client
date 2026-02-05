@@ -84,6 +84,24 @@ const cartApi = {
       onSuccess,
       onError,
     }),
+  
+  // New Promo Codes (simplified)
+  getPromoCodes: ({ setLoading, onSuccess, onError }) =>
+    apiCall.get({
+      route: '/promo-codes',
+      setLoading,
+      onSuccess,
+      onError,
+    }),
+
+  applyPromoCode: ({ code, setLoading, onSuccess, onError }) =>
+    apiCall.post({
+      route: '/promo-codes/validate',
+      payload: { code },
+      setLoading,
+      onSuccess,
+      onError,
+    }),
 };
 
 export default cartApi;

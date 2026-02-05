@@ -9,6 +9,7 @@ import {
   BsTruck,
   BsShieldCheck,
   BsArrowRepeat,
+  BsTicketPerforated,
 } from "react-icons/bs";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
@@ -21,7 +22,8 @@ const Cart = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [promoCode, setPromoCode] = useState("");
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
-  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [availablePromos, setAvailablePromos] = useState([]);
+  const [isLoadingPromos, setIsLoadingPromos] = useState(false);
 
   const {
     cartItems,
@@ -32,18 +34,37 @@ const Cart = () => {
     clearCart,
     getTotalItems,
     getSubtotal,
+    appliedPromo,
+    setAppliedPromo,
   } = useCart();
 
   // Auto-apply promo code from URL parameter
   useEffect(() => {
-    const promoFromUrl = searchParams.get('promo');
+    const promoFromUrl = searchParams.get("promo");
     if (promoFromUrl && !appliedPromo) {
       setPromoCode(promoFromUrl);
       handleApplyPromo(promoFromUrl);
-      // Remove promo parameter from URL after applying
-      searchParams.delete('promo');
+      searchParams.delete("promo");
       setSearchParams(searchParams, { replace: true });
     }
+  }, [searchParams, appliedPromo]);
+
+  // Fetch available promo codes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      cartApi.getPromoCodes({
+        setLoading: setIsLoadingPromos,
+        onSuccess: (response) => {
+          const promos = response?.data?.promoCodes || [];
+          setAvailablePromos(promos);
+        },
+        onError: (err) => {
+          console.error("Error fetching promo codes:", err);
+        },
+      });
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const handleRemoveItem = (item, e) => {
@@ -73,26 +94,38 @@ const Cart = () => {
       return;
     }
 
-    cartApi.applyCoupon({
-      couponCode: code,
+    cartApi.applyPromoCode({
+      code: code,
       setLoading: setIsApplyingPromo,
       onSuccess: (response) => {
-        if (response.status === 'success') {
+        if (response.status === "success") {
+          const promo = response.data.promoCode;
+          const subtotal = getSubtotal();
+          const discountAmount = (subtotal * promo.discountPercentage) / 100;
+
           setAppliedPromo({
-            code: code,
-            discount: response.data.discount,
-            message: response.data.message
+            code: promo.code,
+            discountPercentage: promo.discountPercentage,
+            discountAmount: discountAmount,
           });
-          toast.success(response.data.message || "Promo code applied successfully!");
+          toast.success(
+            `'${promo.code}' applied! You saved ₹${discountAmount.toFixed(2)}`,
+          );
           setPromoCode("");
         }
       },
       onError: (error) => {
-        console.error('Error applying promo code:', error);
-        const errorMessage = error.response?.data?.message || "Invalid promo code!";
+        console.error("Error applying promo code:", error);
+        const errorMessage =
+          error.response?.data?.message || "Invalid promo code!";
         toast.error(errorMessage);
-      }
+      },
     });
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    toast.success("Promo code removed");
   };
 
   const handleProceedToCheckout = () => {
@@ -128,7 +161,7 @@ const Cart = () => {
 
   const handleQuantityChange = (itemId, value) => {
     const quantity = parseInt(value) || 1;
-    const item = cartItems.find(i => i.id === itemId);
+    const item = cartItems.find((i) => i.id === itemId);
     const maxLimit = item?.stockQuantity || 10;
 
     if (quantity >= 1 && quantity <= maxLimit) {
@@ -219,6 +252,20 @@ const Cart = () => {
                 
                 .animate-fadeInUp {
                     animation: fadeInUp 0.5s ease-out;
+                }
+                
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 4px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #e5e7eb;
+                    border-radius: 10px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #d1d5db;
                 }
             `}</style>
 
@@ -346,13 +393,22 @@ const Cart = () => {
 
                           <button
                             onClick={() => {
-                              if (item.stockQuantity && item.quantity >= item.stockQuantity) {
-                                toast.error(`Only ${item.stockQuantity} units available`);
+                              if (
+                                item.stockQuantity &&
+                                item.quantity >= item.stockQuantity
+                              ) {
+                                toast.error(
+                                  `Only ${item.stockQuantity} units available`,
+                                );
                                 return;
                               }
                               increaseQuantity(item.id);
                             }}
-                            disabled={item.quantity >= 10 || (item.stockQuantity && item.quantity >= item.stockQuantity)}
+                            disabled={
+                              item.quantity >= 10 ||
+                              (item.stockQuantity &&
+                                item.quantity >= item.stockQuantity)
+                            }
                             className="w-8 h-8 flex items-center justify-center border border-gray-300 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                           >
                             <BsPlus className="text-gray-600" />
@@ -383,29 +439,116 @@ const Cart = () => {
                         {getSubtotal().toFixed(2)}
                       </span>
                     </div>
+
+                    {appliedPromo && (
+                      <div className="flex justify-between text-green-600 animate-fadeInUp">
+                        <span className="flex items-center gap-1">
+                          Promo Discount ({appliedPromo.code})
+                          <button
+                            onClick={handleRemovePromo}
+                            className="text-red-400 hover:text-red-600 text-xs"
+                          >
+                            (Remove)
+                          </button>
+                        </span>
+                        <span className="font-medium flex items-center">
+                          -<BsCurrencyRupee className="text-sm mr-1" />
+                          {appliedPromo.discountAmount.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Promo Code */}
-                  <div className="mb-6">
-                    <h3 className="font-medium text-gray-700 mb-2">
-                      Promo Code
-                    </h3>
-                    <div className="flex gap-2">
+                  {/* Promo Code Section */}
+                  <div className="mb-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">
+                        Promo Code
+                      </h3>
+                      <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100 uppercase">
+                        Save More
+                      </span>
+                    </div>
+
+                    {/* Input field */}
+                    <div className="relative group">
                       <input
                         type="text"
                         value={promoCode}
                         onChange={(e) => setPromoCode(e.target.value)}
-                        placeholder="Enter promo code"
-                        className="flex-1 px-4 py-2 border border-gray-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none"
+                        placeholder="ENTER COUPON CODE"
+                        className="w-full pl-4 pr-24 py-3 border-2 border-dashed border-gray-200 focus:border-amber-500 focus:ring-0 outline-none uppercase font-black text-sm transition-all bg-gray-50/50"
                       />
                       <button
-                        onClick={handleApplyPromo}
+                        onClick={() => handleApplyPromo()}
                         disabled={isApplyingPromo}
-                        className="px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-700 text-white font-medium hover:from-amber-700 hover:to-amber-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="absolute right-1 top-1 bottom-1 px-6 bg-gray-900 text-white font-bold text-xs uppercase hover:bg-black transition-all disabled:opacity-50"
                       >
-                        {isApplyingPromo ? "Applying..." : "Apply"}
+                        {isApplyingPromo ? "..." : "Apply"}
                       </button>
                     </div>
+
+                    {/* Available Promos List - Production UI */}
+                    {availablePromos.length > 0 ? (
+                      <div className="mt-6 pt-6 border-t border-gray-100">
+                        <div className="flex items-center gap-2 mb-4">
+                          <BsTicketPerforated className="h-4 w-4 text-amber-500" />
+                          <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest">
+                            Available Offers
+                          </p>
+                        </div>
+
+                        <div className="space-y-3 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                          {availablePromos.map((promo) => (
+                            <div
+                              key={promo._id}
+                              onClick={() => {
+                                if (appliedPromo?.code !== promo.code) {
+                                  handleApplyPromo(promo.code);
+                                }
+                              }}
+                              className={`relative group cursor-pointer border rounded-xl p-3 transition-all ${
+                                appliedPromo?.code === promo.code
+                                  ? "bg-amber-50 border-amber-200 shadow-sm ring-1 ring-amber-100"
+                                  : "bg-white border-gray-100 hover:border-amber-200 hover:shadow-md"
+                              }`}
+                            >
+                              <div className="flex justify-between items-center relative z-10">
+                                <div>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="font-mono font-black text-sm text-gray-900 group-hover:text-amber-700 transition-colors">
+                                      {promo.code}
+                                    </span>
+                                    {appliedPromo?.code === promo.code && (
+                                      <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    )}
+                                  </div>
+                                  <p className="text-[10px] font-bold text-gray-500 uppercase">
+                                    Get {promo.discountPercentage}% OFF on your
+                                    order
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-xs font-black text-amber-600">
+                                    APPLY
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Ticket Cut-outs */}
+                              <div className="absolute top-1/2 -left-1.5 w-3 h-3 bg-white border border-gray-100 rounded-full -translate-y-1/2 z-20"></div>
+                              <div className="absolute top-1/2 -right-1.5 w-3 h-3 bg-white border border-gray-100 rounded-full -translate-y-1/2 z-20"></div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-6 pt-4 border-t border-gray-100">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">
+                          No offers available right now
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Total */}
@@ -414,7 +557,9 @@ const Cart = () => {
                       <span className="font-bold text-gray-800">Total</span>
                       <span className="font-bold text-gray-800 flex items-center">
                         <BsCurrencyRupee className="text-sm mr-1" />
-                        {getSubtotal().toFixed(2)}
+                        {(
+                          getSubtotal() - (appliedPromo?.discountAmount || 0)
+                        ).toFixed(2)}
                       </span>
                     </div>
                     <p className="text-sm text-gray-500">

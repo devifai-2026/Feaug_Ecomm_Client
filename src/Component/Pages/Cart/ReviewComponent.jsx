@@ -11,6 +11,8 @@ export const ReviewComponent = ({
   shippingCost,
   tax,
   total,
+  discountAmount,
+  appliedPromo,
 }) => (
   <div className="bg-white shadow-sm border border-gray-200 p-6">
     <div className="flex items-center gap-3 mb-6">
@@ -57,7 +59,9 @@ export const ReviewComponent = ({
               </div>
               <div>
                 <p className="font-medium text-blue-700">Online Payment</p>
-                <p className="text-gray-600 text-xs">Pay securely via Razorpay</p>
+                <p className="text-gray-600 text-xs">
+                  Pay securely via Razorpay
+                </p>
               </div>
             </div>
           )}
@@ -68,7 +72,9 @@ export const ReviewComponent = ({
               </div>
               <div>
                 <p className="font-medium text-amber-600">Cash on Delivery</p>
-                <p className="text-gray-600 text-xs">Pay when you receive your order (+₹50 COD charges)</p>
+                <p className="text-gray-600 text-xs">
+                  Pay when you receive your order (+₹50 COD charges)
+                </p>
               </div>
             </div>
           )}
@@ -79,7 +85,10 @@ export const ReviewComponent = ({
         <h3 className="text-lg font-semibold text-gray-800 mb-3">Items</h3>
         <div className="space-y-3">
           {cartItems.map((item, i) => (
-            <div key={i} className="flex justify-between p-3 bg-gray-50 rounded">
+            <div
+              key={i}
+              className="flex justify-between p-3 bg-gray-50 rounded"
+            >
               <div>
                 <p className="font-medium">{item.title}</p>
                 <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
@@ -90,6 +99,46 @@ export const ReviewComponent = ({
               </p>
             </div>
           ))}
+        </div>
+      </div>
+
+      <div className="border-t pt-4">
+        <h3 className="text-lg font-semibold text-gray-800 mb-3">
+          Order Summary
+        </h3>
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span className="text-gray-600">Subtotal</span>
+            <span className="font-medium flex items-center">
+              <BsCurrencyRupee className="text-xs mr-1" />
+              {subtotal.toFixed(2)}
+            </span>
+          </div>
+          {discountAmount > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span className="flex items-center gap-1">
+                Discount {appliedPromo && `(${appliedPromo.code})`}
+              </span>
+              <span className="font-medium flex items-center">
+                -<BsCurrencyRupee className="text-xs mr-1" />
+                {discountAmount.toFixed(2)}
+              </span>
+            </div>
+          )}
+          <div className="flex justify-between">
+            <span className="text-gray-600">Shipping</span>
+            <span className="font-medium flex items-center">
+              <BsCurrencyRupee className="text-xs mr-1" />
+              {shippingCost.toFixed(2)}
+            </span>
+          </div>
+          <div className="flex justify-between font-bold text-base border-t mt-2 pt-2">
+            <span>Total Payable</span>
+            <span className="flex items-center text-primary-gold">
+              <BsCurrencyRupee className="mr-1" />
+              {total.toFixed(2)}
+            </span>
+          </div>
         </div>
       </div>
     </div>

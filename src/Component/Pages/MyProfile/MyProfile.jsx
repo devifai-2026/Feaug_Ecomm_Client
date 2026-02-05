@@ -380,7 +380,10 @@ const MyProfile = () => {
 
     if (msg.includes("pincode")) {
       errors.pincode = errorMessage;
-    } else if (msg.includes("address") && (msg.includes("line 1") || msg.includes("addressline1"))) {
+    } else if (
+      msg.includes("address") &&
+      (msg.includes("line 1") || msg.includes("addressline1"))
+    ) {
       errors.addressLine1 = errorMessage;
     } else if (msg.includes("city")) {
       errors.city = errorMessage;
@@ -1137,7 +1140,9 @@ const MyProfile = () => {
                       required
                     />
                     {addressErrors.pincode && (
-                      <p className="text-red-500 text-xs mt-1">{addressErrors.pincode}</p>
+                      <p className="text-red-500 text-xs mt-1">
+                        {addressErrors.pincode}
+                      </p>
                     )}
                   </div>
                   <div className="md:col-span-2">
@@ -1153,7 +1158,9 @@ const MyProfile = () => {
                       required
                     />
                     {addressErrors.addressLine1 && (
-                      <p className="text-red-500 text-xs mt-1">{addressErrors.addressLine1}</p>
+                      <p className="text-red-500 text-xs mt-1">
+                        {addressErrors.addressLine1}
+                      </p>
                     )}
                   </div>
                   <div className="md:col-span-2">
@@ -1181,7 +1188,9 @@ const MyProfile = () => {
                       required
                     />
                     {addressErrors.city && (
-                      <p className="text-red-500 text-xs mt-1">{addressErrors.city}</p>
+                      <p className="text-red-500 text-xs mt-1">
+                        {addressErrors.city}
+                      </p>
                     )}
                   </div>
                   <div>
@@ -1203,7 +1212,9 @@ const MyProfile = () => {
                       ))}
                     </select>
                     {addressErrors.state && (
-                      <p className="text-red-500 text-xs mt-1">{addressErrors.state}</p>
+                      <p className="text-red-500 text-xs mt-1">
+                        {addressErrors.state}
+                      </p>
                     )}
                   </div>
                 </div>

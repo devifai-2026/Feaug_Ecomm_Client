@@ -55,7 +55,7 @@ const SHIPPING_OPTIONS = [
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { cartItems, getCartTotal, clearCart } = useCart();
+  const { cartItems, getCartTotal, clearCart, appliedPromo } = useCart();
 
   // Custom color definitions
   const primaryColor = "#C19A6B";
@@ -248,8 +248,15 @@ const Checkout = () => {
     (opt) => opt.id === selectedShipping,
   );
   const shippingCost = selectedShippingOption?.cost || 0;
-  const tax = Math.round(subtotal * 0.03); // 3% GST
-  const total = subtotal + shippingCost + tax;
+
+  const discountAmount = appliedPromo
+    ? appliedPromo.discountAmount ||
+      (subtotal * appliedPromo.discountPercentage) / 100
+    : 0;
+  const discountedSubtotal = Math.max(0, subtotal - discountAmount);
+
+  const tax = Math.round(discountedSubtotal * 0.03); // 3% GST on discounted subtotal
+  const total = discountedSubtotal + shippingCost + tax;
 
   useEffect(() => {
     if (sameAsShipping) {
@@ -446,8 +453,9 @@ const Checkout = () => {
     toast.custom(
       (t) => (
         <div
-          className={`transform transition-all duration-300 ${t.visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
-            }`}
+          className={`transform transition-all duration-300 ${
+            t.visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
+          }`}
         >
           <div className="relative bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-2xl shadow-2xl overflow-hidden border border-green-200 w-96">
             <div
@@ -569,11 +577,23 @@ const Checkout = () => {
       // If no shipping ID (i.e., user entered new address but didn't click "Save")
       if (!finalShippingId) {
         // Validate shipping info before attempting to save
-        const requiredFields = ["firstName", "lastName", "phone", "address", "city", "state", "zipCode"];
+        const requiredFields = [
+          "firstName",
+          "lastName",
+          "phone",
+          "address",
+          "city",
+          "state",
+          "zipCode",
+        ];
         const validationErrors = {};
 
         requiredFields.forEach((field) => {
-          const error = validateShippingField(field, shippingInfo[field], shippingInfo);
+          const error = validateShippingField(
+            field,
+            shippingInfo[field],
+            shippingInfo,
+          );
           if (error) {
             validationErrors[field] = error;
           }
@@ -582,7 +602,10 @@ const Checkout = () => {
         if (Object.keys(validationErrors).length > 0) {
           // Show first error message
           const firstError = Object.values(validationErrors)[0];
-          toast.error(firstError || "Please fill in all required address fields correctly");
+          toast.error(
+            firstError ||
+              "Please fill in all required address fields correctly",
+          );
           setLoading(false);
           setStep(1); // Go back to shipping step
           return;
@@ -618,7 +641,10 @@ const Checkout = () => {
           }
         } catch (err) {
           console.error("Failed to auto-save address during checkout:", err);
-          const errorMessage = err.response?.data?.message || err.message || "Please provide a valid address";
+          const errorMessage =
+            err.response?.data?.message ||
+            err.message ||
+            "Please provide a valid address";
           toast.error(errorMessage);
           setLoading(false);
           return;
@@ -638,6 +664,7 @@ const Checkout = () => {
         billingAddressId: finalBillingId,
         shippingMethod: selectedShipping,
         paymentMethod: paymentInfo.method === "cod" ? "cod" : "razorpay",
+        promoCode: appliedPromo?.code,
       };
 
       // Create order via API
@@ -680,7 +707,7 @@ const Checkout = () => {
                       console.error("Payment failed:", paymentError);
                       toast.error(
                         "Order created but payment failed. Please retry payment from My Orders.",
-                        { duration: 5000 }
+                        { duration: 5000 },
                       );
                       // Redirect to order details so user can't duplicate order creation
                       // They should retry payment from the order page
@@ -689,7 +716,9 @@ const Checkout = () => {
                       }, 2000);
                     }
                   } else {
-                    toast.error("Failed to initiate payment. Please check My Orders.");
+                    toast.error(
+                      "Failed to initiate payment. Please check My Orders.",
+                    );
                     setTimeout(() => {
                       navigate("/myOrders");
                     }, 2000);
@@ -722,9 +751,12 @@ const Checkout = () => {
               <div>
                 <p className="font-bold">Stock Issue</p>
                 <p className="text-sm">{errorMessage}</p>
-                <p className="text-xs mt-1">Please check if you already have a pending order or update your cart.</p>
+                <p className="text-xs mt-1">
+                  Please check if you already have a pending order or update
+                  your cart.
+                </p>
               </div>,
-              { duration: 6000 }
+              { duration: 6000 },
             );
           } else {
             toast.error(errorMessage);
@@ -830,6 +862,8 @@ const Checkout = () => {
                 shippingCost={shippingCost}
                 tax={tax}
                 total={total}
+                discountAmount={discountAmount}
+                appliedPromo={appliedPromo}
               />
             )}
 
@@ -889,6 +923,8 @@ const Checkout = () => {
               shippingCost={shippingCost}
               tax={tax}
               total={total}
+              discountAmount={discountAmount}
+              appliedPromo={appliedPromo}
               selectedShipping={selectedShipping}
               setSelectedShipping={setSelectedShipping}
               shippingOptions={SHIPPING_OPTIONS}

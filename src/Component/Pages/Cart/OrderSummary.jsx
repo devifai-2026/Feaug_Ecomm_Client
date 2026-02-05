@@ -5,6 +5,8 @@ export const OrderSummary = ({
   shippingCost,
   tax,
   total,
+  discountAmount,
+  appliedPromo,
 }) => (
   <div className="sticky top-24 space-y-6">
     <div className="bg-white shadow-sm border border-gray-200 p-6">
@@ -21,6 +23,18 @@ export const OrderSummary = ({
           </span>
         </div>
 
+        {discountAmount > 0 && (
+          <div className="flex justify-between text-green-600">
+            <span className="flex items-center gap-1">
+              Discount {appliedPromo && `(${appliedPromo.code})`}
+            </span>
+            <span className="font-medium flex items-center">
+              -<BsCurrencyRupee className="text-sm mr-1" />
+              {discountAmount.toFixed(2)}
+            </span>
+          </div>
+        )}
+
         <div className="flex justify-between">
           <span className="text-gray-600">Shipping</span>
           <span className="font-medium flex items-center">
@@ -30,7 +44,7 @@ export const OrderSummary = ({
         </div>
 
         <div className="flex justify-between">
-          <span className="text-gray-600">Tax (18% GST)</span>
+          <span className="text-gray-600">Tax (3% GST)</span>
           <span className="font-medium flex items-center">
             <BsCurrencyRupee className="text-sm mr-1" />
             {tax.toFixed(2)}

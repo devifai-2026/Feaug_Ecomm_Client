@@ -18,6 +18,7 @@ export const useCart = () => {
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
+  const [appliedPromo, setAppliedPromo] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -36,7 +37,7 @@ export const CartProvider = ({ children }) => {
             image: item.product?.images?.[0]?.url || item.image,
             quantity: item.quantity,
             variant: item.variant,
-                        stockQuantity: item.product?.stockQuantity || 0,
+            stockQuantity: item.product?.stockQuantity || 0,
             addedAt: item.addedAt || new Date().toISOString(),
           }));
           setCartItems(apiCartItems);
@@ -62,6 +63,15 @@ export const CartProvider = ({ children }) => {
     }
     setIsInitialized(true);
 
+    const savedPromo = localStorage.getItem("appliedPromo");
+    if (savedPromo) {
+      try {
+        setAppliedPromo(JSON.parse(savedPromo));
+      } catch (error) {
+        console.error("Error parsing promo from localStorage:", error);
+      }
+    }
+
     // Sync with API
     fetchCartFromApi();
   }, []);
@@ -77,15 +87,20 @@ export const CartProvider = ({ children }) => {
       window.removeEventListener("userLoginStatusChanged", handleLoginChange);
   }, []);
 
-    // Save cart to localStorage whenever it changes
-    useEffect(() => {
-        if (isInitialized) {
-            localStorage.setItem('cart', JSON.stringify(cartItems));
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    if (isInitialized) {
+      localStorage.setItem("cart", JSON.stringify(cartItems));
+      if (appliedPromo) {
+        localStorage.setItem("appliedPromo", JSON.stringify(appliedPromo));
+      } else {
+        localStorage.removeItem("appliedPromo");
+      }
 
-            // Dispatch custom event to notify other components
-            window.dispatchEvent(new Event('cartUpdated'));
-        }
-    }, [cartItems, isInitialized]);
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new Event("cartUpdated"));
+    }
+  }, [cartItems, appliedPromo, isInitialized]);
 
   // Listen for localStorage changes from other tabs
   useEffect(() => {
@@ -205,12 +220,13 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-    // Increase quantity by 1
-    const increaseQuantity = (productId) => {
-        updateQuantity(productId,
-            (cartItems.find(item => item.id === productId)?.quantity || 0) + 1
-        );
-    };
+  // Increase quantity by 1
+  const increaseQuantity = (productId) => {
+    updateQuantity(
+      productId,
+      (cartItems.find((item) => item.id === productId)?.quantity || 0) + 1,
+    );
+  };
 
   // Decrease quantity by 1
   const decreaseQuantity = (productId) => {
@@ -261,10 +277,15 @@ export const CartProvider = ({ children }) => {
   };
 
   // Calculate total with shipping and tax
-  const getTotal = (shipping = 0, taxRate = 0.18) => {
+  const getTotal = (shipping = 0, taxRate = 0.03) => {
     const subtotal = getSubtotal();
-    const tax = subtotal * taxRate;
-    return subtotal + shipping + tax;
+    const discount = appliedPromo
+      ? appliedPromo.discountAmount ||
+        (subtotal * appliedPromo.discountPercentage) / 100
+      : 0;
+    const discountedSubtotal = Math.max(0, subtotal - discount);
+    const tax = discountedSubtotal * taxRate;
+    return discountedSubtotal + shipping + tax;
   };
 
   return (
@@ -285,6 +306,8 @@ export const CartProvider = ({ children }) => {
         getTotal,
         isSyncing,
         fetchCartFromApi,
+        appliedPromo,
+        setAppliedPromo,
       }}
     >
       {children}
