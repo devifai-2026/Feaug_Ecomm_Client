@@ -79,6 +79,12 @@ const Category = () => {
   const handleAddToCart = (product, e) => {
     e.stopPropagation();
 
+    // Check if product is out of stock
+    if (product.stockStatus === 'out_of_stock' || product.stockQuantity === 0) {
+      toast.error('This product is currently out of stock');
+      return;
+    }
+
     addToCart(
       {
         id: product._id || product.id,
@@ -156,7 +162,7 @@ const Category = () => {
         image: product.images?.[0]?.url || product.image || one,
         material: product.material,
         brand: product.brand,
-        inStock: true,
+        inStock: product.stockStatus !== 'out_of_stock' && product.stockQuantity !== 0,
       });
 
       toast.success(
@@ -825,6 +831,7 @@ const Category = () => {
                 const displayImage =
                   product.images?.[0]?.url || product.image || one;
                 const displayPrice = product.sellingPrice || product.price;
+                const isOutOfStock = product.stockStatus === 'out_of_stock' || product.stockQuantity === 0;
 
                 return (
                   <div
@@ -860,6 +867,15 @@ const Category = () => {
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
+
+                      {/* Out of Stock Overlay */}
+                      {isOutOfStock && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                          <span className="bg-white/90 text-gray-900 px-4 py-2 font-bold uppercase tracking-wider text-sm shadow-lg">
+                            Out of Stock
+                          </span>
+                        </div>
+                      )}
 
                       {/* Action Icons - Static flex-col top-right for md and sm only */}
                       <div
@@ -898,9 +914,14 @@ const Category = () => {
 
                         {/* Cart Button */}
                         <button
-                          className="p-2 rounded-full text-[#a67c00] hover:text-green-600 transition-all duration-300 bg-white bg-opacity-80"
-                          onClick={(e) => handleAddToCart(product, e)}
-                          title="Add to cart"
+                          className={`p-2 rounded-full transition-all duration-300 bg-white bg-opacity-80 ${
+                            isOutOfStock
+                              ? "text-gray-400 cursor-not-allowed"
+                              : "text-[#a67c00] hover:text-green-600"
+                          }`}
+                          onClick={(e) => !isOutOfStock && handleAddToCart(product, e)}
+                          title={isOutOfStock ? "Out of stock" : "Add to cart"}
+                          disabled={isOutOfStock}
                         >
                           <FaShoppingBag className="text-xs md:text-sm" />
                         </button>
@@ -951,9 +972,14 @@ const Category = () => {
 
                           {/* Cart Button */}
                           <button
-                            className="p-2 rounded-full text-[#a67c00] hover:text-green-600 transition-all duration-300"
-                            onClick={(e) => handleAddToCart(product, e)}
-                            title="Add to cart"
+                            className={`p-2 rounded-full transition-all duration-300 ${
+                              isOutOfStock
+                                ? "text-gray-400 cursor-not-allowed"
+                                : "text-[#a67c00] hover:text-green-600"
+                            }`}
+                            onClick={(e) => !isOutOfStock && handleAddToCart(product, e)}
+                            title={isOutOfStock ? "Out of stock" : "Add to cart"}
+                            disabled={isOutOfStock}
                           >
                             <FaShoppingBag className="text-lg" />
                           </button>
