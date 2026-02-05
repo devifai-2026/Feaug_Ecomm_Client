@@ -69,6 +69,10 @@ const Checkout = () => {
   const [saveInfo, setSaveInfo] = useState(false);
   const [selectedShipping, setSelectedShipping] = useState("standard");
   const [userAddresses, setUserAddresses] = useState([]);
+  const [addressPage, setAddressPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalAddresses, setTotalAddresses] = useState(0);
+  const ADDRESSES_PER_PAGE = 4;
 
   const [shippingInfo, setShippingInfo] = useState({
     firstName: "",
@@ -116,30 +120,8 @@ const Checkout = () => {
         if (response.status === "success" && response.data) {
           const user = response.data.user || response.data;
 
-          // Store all user addresses
-          if (user.addresses && Array.isArray(user.addresses)) {
-            // Map API addresses to the format expected by ShippingComponent
-            const formattedAddresses = user.addresses.map((addr) => ({
-              id: addr._id,
-              _id: addr._id,
-              firstName: user.firstName,
-              lastName: user.lastName,
-              email: user.email,
-              phone: addr.phone || user.phone,
-              address: addr.address || addr.addressLine1 || "",
-              addressLine1: addr.address || addr.addressLine1 || "",
-              addressLine2: addr.landmark || addr.addressLine2 || "",
-              city: addr.city,
-              state: addr.state,
-              zipCode: addr.pincode,
-              pincode: addr.pincode,
-              country: addr.country,
-              isDefault: addr.isDefault,
-              type: addr.addressType || addr.type,
-              label: addr.addressType || addr.type,
-            }));
-            setUserAddresses(formattedAddresses);
-          }
+          // Fetch paginated addresses
+          await fetchPaginatedAddresses(1);
 
           // Find default or first address
           const defaultAddr =
@@ -182,40 +164,56 @@ const Checkout = () => {
     initCheckout();
   }, [navigate]);
 
-  const refreshAddresses = async () => {
+  const fetchPaginatedAddresses = async (page) => {
     try {
-      const response = await userApi.getCurrentUser();
-      if (response.status === "success" && response.data) {
-        const user = response.data.user || response.data;
-        if (user.addresses && Array.isArray(user.addresses)) {
-          const formattedAddresses = user.addresses.map((addr) => ({
-            id: addr._id,
-            _id: addr._id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            phone: addr.phone || user.phone,
-            address: addr.address || addr.addressLine1 || "",
-            addressLine1: addr.address || addr.addressLine1 || "",
-            addressLine2: addr.landmark || addr.addressLine2 || "",
-            city: addr.city,
-            state: addr.state,
-            zipCode: addr.pincode,
-            pincode: addr.pincode,
-            country: addr.country,
-            isDefault: addr.isDefault,
-            type: addr.addressType || addr.type,
-            label: addr.addressType || addr.type,
-          }));
-          setUserAddresses(formattedAddresses);
-          return formattedAddresses;
+      const response = await userApi.getAddresses(page, ADDRESSES_PER_PAGE);
+      if (response.status === "success") {
+        const user = userApi.getStoredUser();
+        const formattedAddresses = response.data.addresses.map((addr) => ({
+          id: addr._id || addr.id,
+          _id: addr._id || addr.id,
+          firstName: addr.name?.split(" ")[0] || user?.firstName || "",
+          lastName: addr.name?.split(" ")[1] || user?.lastName || "",
+          email: addr.email || user?.email || "",
+          phone: addr.phone || user?.phone || "",
+          address: addr.address || addr.addressLine1,
+          addressLine1: addr.addressLine1,
+          addressLine2: addr.addressLine2,
+          city: addr.city,
+          state: addr.state,
+          zipCode: addr.pincode,
+          country: addr.country,
+          isDefault: addr.isDefault,
+          type: addr.addressType || addr.type,
+          label: addr.addressType || addr.type,
+        }));
+        setUserAddresses(formattedAddresses);
+        setTotalPages(response.totalPages);
+        setTotalAddresses(response.total);
+        setAddressPage(response.page);
+
+        // If current page is empty and we're not on page 1, go to previous page
+        if (response.data.addresses.length === 0 && page > 1) {
+          setAddressPage(page - 1);
         }
+
+        return formattedAddresses;
       }
     } catch (error) {
-      console.error("Error refreshing addresses:", error);
+      console.error("Error fetching addresses:", error);
     }
     return null;
   };
+
+  const refreshAddresses = async () => {
+    return await fetchPaginatedAddresses(addressPage);
+  };
+
+  useEffect(() => {
+    if (step === 1 && userApi.isAuthenticated()) {
+      fetchPaginatedAddresses(addressPage);
+    }
+  }, [addressPage, step]);
 
   // Check stock availability
   useEffect(() => {
@@ -565,8 +563,8 @@ const Checkout = () => {
 
     try {
       // 1) Ensure we have valid addresses with IDs
-      let finalShippingId = shippingInfo._id;
-      let finalBillingId = billingInfo._id || shippingInfo._id;
+      let finalShippingId = shippingInfo._id || shippingInfo.id;
+      let finalBillingId = billingInfo._id || billingInfo.id || finalShippingId;
 
       // If no shipping ID (i.e., user entered new address but didn't click "Save")
       if (!finalShippingId) {
@@ -791,6 +789,10 @@ const Checkout = () => {
                 setSaveInfo={setSaveInfo}
                 savedAddresses={userAddresses}
                 refreshAddresses={refreshAddresses}
+                page={addressPage}
+                totalPages={totalPages}
+                totalAddresses={totalAddresses}
+                onPageChange={setAddressPage}
               />
             )}
 

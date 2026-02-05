@@ -1,7 +1,17 @@
 import { apiCall } from '../helpers/apicall/apiCall';
 
 const reviewApi = {
-  // Get product reviews (public)
+  // Create a new review
+  createReview: ({ data, setLoading, onSuccess, onError }) =>
+    apiCall.post({
+      route: '/reviews',
+      payload: data,
+      setLoading,
+      onSuccess,
+      onError,
+    }),
+
+  // Get reviews for a product (already in productApi but good to have here too)
   getProductReviews: ({ productId, params, setLoading, onSuccess, onError }) =>
     apiCall.get({
       route: `/reviews/product/${productId}`,
@@ -11,46 +21,7 @@ const reviewApi = {
       onError,
     }),
 
-  // Get user's reviews (public)
-  getUserReviews: ({ userId, params, setLoading, onSuccess, onError }) =>
-    apiCall.get({
-      route: `/reviews/user/${userId}`,
-      params,
-      setLoading,
-      onSuccess,
-      onError,
-    }),
-
-  // Create a review (protected)
-  createReview: ({ productId, rating, title, comment, images, setLoading, onSuccess, onError }) =>
-    apiCall.post({
-      route: '/reviews',
-      payload: { productId, rating, title, comment, images },
-      setLoading,
-      onSuccess,
-      onError,
-    }),
-
-  // Update a review (protected)
-  updateReview: ({ reviewId, rating, title, comment, images, setLoading, onSuccess, onError }) =>
-    apiCall.patch({
-      route: `/reviews/${reviewId}`,
-      payload: { rating, title, comment, images },
-      setLoading,
-      onSuccess,
-      onError,
-    }),
-
-  // Delete a review (protected)
-  deleteReview: ({ reviewId, setLoading, onSuccess, onError }) =>
-    apiCall.delete({
-      route: `/reviews/${reviewId}`,
-      setLoading,
-      onSuccess,
-      onError,
-    }),
-
-  // Mark review as helpful (protected)
+  // Mark a review as helpful
   markHelpful: ({ reviewId, setLoading, onSuccess, onError }) =>
     apiCall.post({
       route: `/reviews/${reviewId}/helpful`,
@@ -59,11 +30,11 @@ const reviewApi = {
       onError,
     }),
 
-  // Report a review (protected)
-  reportReview: ({ reviewId, reason, setLoading, onSuccess, onError }) =>
+  // Report a review
+  reportReview: ({ reviewId, data, setLoading, onSuccess, onError }) =>
     apiCall.post({
       route: `/reviews/${reviewId}/report`,
-      payload: { reason },
+      payload: data,
       setLoading,
       onSuccess,
       onError,

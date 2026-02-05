@@ -283,10 +283,10 @@ const userApi = {
     }
   },
 
-  // Get User Addresses
-  getAddresses: async () => {
+  // Get User Addresses with optional pagination
+  getAddresses: async (page = 1, limit = 4) => {
     try {
-      const response = await axiosInstance.get("/users/addresses");
+      const response = await axiosInstance.get(`/users/addresses?page=${page}&limit=${limit}`);
       return response.data;
     } catch (error) {
       return handleApiError(error, "Failed to fetch addresses");

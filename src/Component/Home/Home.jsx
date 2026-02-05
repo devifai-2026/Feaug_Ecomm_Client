@@ -43,11 +43,11 @@ const Home = () => {
             <FlashSale></FlashSale>
 
             {/* Middle Banner - Between content sections */}
-            <Banner
+            {/* <Banner
                 page="home"
                 position="middle"
                 className="h-48 md:h-64 my-8"
-            />
+            /> */}
 
             <FAQ></FAQ>
             <QuestionsUpdate></QuestionsUpdate>

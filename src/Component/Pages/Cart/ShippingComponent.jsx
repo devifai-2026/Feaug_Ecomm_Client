@@ -12,6 +12,7 @@ import {
 import { INDIAN_STATES, validateShippingField } from "../../utils/Validation";
 import userApi from "../../../apis/user/userApi";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const InputField = ({
   label,
@@ -100,12 +101,17 @@ const ShippingComponent = ({
   setSaveInfo,
   savedAddresses: fetchedAddresses,
   refreshAddresses,
+  page,
+  totalPages,
+  totalAddresses,
+  onPageChange,
 }) => {
   // Custom color definitions
   const primaryColor = "#C19A6B";
   const primaryLight = "#E8D4B9";
   const primaryDark = "#A07A4B";
 
+  const navigate = useNavigate();
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -406,7 +412,9 @@ const ShippingComponent = ({
         </div>
         {!isAddingNewAddress && (
           <button
-            onClick={handleAddNewAddress}
+            onClick={() => {
+              navigate("/myProfile?tab=addresses");
+            }}
             className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1 md:py-2 font-medium hover:opacity-90 transition-colors text-nowrap"
             style={{
               backgroundColor: primaryColor,
@@ -476,7 +484,9 @@ const ShippingComponent = ({
                         handleDeleteAddress(address.id);
                       }}
                       className="p-1 text-gray-500 hover:text-red-600"
-                      disabled={savedAddresses.length <= 1}
+                      disabled={
+                        savedAddresses.length <= 1 && totalAddresses <= 1
+                      }
                     >
                       <BsTrash />
                     </button>
@@ -526,6 +536,37 @@ const ShippingComponent = ({
               </div>
             ))}
           </div>
+
+          {/* Pagination Controls */}
+          {totalAddresses > 4 && (
+            <div className="flex items-center justify-center gap-4 mt-8 pb-4">
+              <button
+                disabled={page === 1}
+                onClick={() => onPageChange(page - 1)}
+                className={`flex items-center gap-2 px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
+                  page === 1
+                    ? "text-gray-300 border-gray-100 cursor-not-allowed"
+                    : "text-gray-700 border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                Previous
+              </button>
+              <div className="text-sm font-medium text-gray-600">
+                Page {page} of {totalPages}
+              </div>
+              <button
+                disabled={page === totalPages}
+                onClick={() => onPageChange(page + 1)}
+                className={`flex items-center gap-2 px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
+                  page === totalPages
+                    ? "text-gray-300 border-gray-100 cursor-not-allowed"
+                    : "text-gray-700 border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         /* Add/Edit Address Form */

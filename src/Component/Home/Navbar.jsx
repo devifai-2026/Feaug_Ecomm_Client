@@ -30,6 +30,7 @@ import three from "../../assets/Navbar/oneAngle.webp";
 import four from "../../assets/Navbar/sixAngle.avif";
 import five from "../../assets/Navbar/threeAngle.webp";
 import six from "../../assets/Navbar/twoAngle.webp";
+import bannerApi from "../../apis/bannerApi";
 
 const Navbar = () => {
   const location = useLocation();
@@ -56,6 +57,36 @@ const Navbar = () => {
 
   // Get cart from context
   const { getTotalUniqueItems } = useCart();
+
+  // Carousel content state
+  const [carouselSlides, setCarouselSlides] = useState([
+    {
+      title: "Discover Sparkle",
+      subtitle: "With Style",
+      description:
+        "Whether casual or formal, find the perfect jewelry for every occasion.",
+      background: banner,
+    },
+    {
+      title: "Elegant Collection",
+      subtitle: "Timeless Beauty",
+      description: "Explore our exclusive range of handcrafted jewelry pieces.",
+      background: banneTwo,
+    },
+    {
+      title: "Luxury Redefined",
+      subtitle: "Premium Quality",
+      description:
+        "Experience the finest craftsmanship in every piece we create.",
+      background: bannerThree,
+    },
+    {
+      title: "Special Offers",
+      subtitle: "Limited Edition",
+      description: "Don't miss out on our exclusive seasonal collections.",
+      background: bannerFour,
+    },
+  ]);
 
   // Refs for dropdowns
   const dropdownRef = useRef(null);
@@ -300,35 +331,33 @@ const Navbar = () => {
     { name: "All Jewelry", image: one, path: "/categories" },
   ];
 
-  // Carousel content
-  const carouselSlides = [
-    {
-      title: "Discover Sparkle",
-      subtitle: "With Style",
-      description:
-        "Whether casual or formal, find the perfect jewelry for every occasion.",
-      background: banner,
-    },
-    {
-      title: "Elegant Collection",
-      subtitle: "Timeless Beauty",
-      description: "Explore our exclusive range of handcrafted jewelry pieces.",
-      background: banneTwo,
-    },
-    {
-      title: "Luxury Redefined",
-      subtitle: "Premium Quality",
-      description:
-        "Experience the finest craftsmanship in every piece we create.",
-      background: bannerThree,
-    },
-    {
-      title: "Special Offers",
-      subtitle: "Limited Edition",
-      description: "Don't miss out on our exclusive seasonal collections.",
-      background: bannerFour,
-    },
-  ];
+  // Fetch carousel slides from API
+  useEffect(() => {
+    if (!isHomePage) return;
+
+    bannerApi.getBannersByPage({
+      page: "home",
+      position: "top",
+      onSuccess: (response) => {
+        if (
+          response.status === "success" &&
+          response.data?.banners?.length > 0
+        ) {
+          const mappedSlides = response.data.banners.map((b) => ({
+            title: b.title || "",
+            subtitle: b.subheader || "",
+            description: b.body || "",
+            background: b.images?.[0]?.url || b.images?.[0] || "",
+            redirectUrl: b.redirectUrl,
+          }));
+          setCarouselSlides(mappedSlides);
+        }
+      },
+      onError: (err) => {
+        console.error("Failed to fetch carousel slides:", err);
+      },
+    });
+  }, [isHomePage]);
 
   // Auto carousel effect
   useEffect(() => {
@@ -346,13 +375,25 @@ const Navbar = () => {
     setCurrentSlide(index);
   };
 
+  const handleSlideClick = (slide) => {
+    if (slide.redirectUrl) {
+      if (slide.redirectUrl.startsWith("http")) {
+        window.location.href = slide.redirectUrl;
+      } else {
+        navigate(slide.redirectUrl);
+      }
+    } else {
+      navigate("/categories");
+    }
+  };
+
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
   };
 
   const prevSlide = () => {
     setCurrentSlide(
-      (prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length
+      (prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length,
     );
   };
 
@@ -433,10 +474,19 @@ const Navbar = () => {
   };
 
   // Handle categories item click
-  const handleCategoriesItemClick = (e, path) => {
+  const handleCategoriesItemClick = (e, category) => {
     e.stopPropagation(); // Prevent event from bubbling up
     setIsCategoriesOpen(false);
+
+    // If it's "All Jewelry", just navigate to /categories
+    // Otherwise, add the category name as a query parameter
+    const path =
+      category.name === "All Jewelry"
+        ? "/categories"
+        : `/categories?category=${encodeURIComponent(category.name)}`;
+
     navigate(path);
+
     // Close mobile menu if open
     if (isMobileMenuOpen) {
       setIsMobileMenuOpen(false);
@@ -560,9 +610,7 @@ const Navbar = () => {
           {/* Left Section - Logo */}
           <div className="lg:hidden">
             <Link to="/">
-              <h2
-                className={`uppercase text-2xl font-bold  ${getTextColor()}`}
-              >
+              <h2 className={`uppercase text-2xl font-bold  ${getTextColor()}`}>
                 Feauag
               </h2>
             </Link>
@@ -579,18 +627,20 @@ const Navbar = () => {
                 className="flex items-center gap-1 group"
               >
                 <p
-                  className={`transition-colors duration-300 ${isActiveLink("/categories")
+                  className={`transition-colors duration-300 ${
+                    isActiveLink("/categories")
                       ? "text-[#C19A6B]"
                       : getTextColor()
-                    } hover:text-[#C19A6B]`}
+                  } hover:text-[#C19A6B]`}
                 >
                   Categories
                 </p>
                 <LuChevronDown
-                  className={`text-sm transition-all duration-200 ${isActiveLink("/categories")
+                  className={`text-sm transition-all duration-200 ${
+                    isActiveLink("/categories")
                       ? "text-[#C19A6B]"
                       : "group-hover:text-[#C19A6B]"
-                    } ${isCategoriesOpen ? "rotate-180" : ""}`}
+                  } ${isCategoriesOpen ? "rotate-180" : ""}`}
                 />
               </button>
 
@@ -620,7 +670,7 @@ const Navbar = () => {
                         >
                           <button
                             onClick={(e) =>
-                              handleCategoriesItemClick(e, category.path)
+                              handleCategoriesItemClick(e, category)
                             }
                             className="flex flex-col items-center group cursor-pointer select-none w-full"
                           >
@@ -659,8 +709,9 @@ const Navbar = () => {
 
             <Link to="/about">
               <p
-                className={`cursor-pointer transition-colors duration-300 ${isActiveLink("/about") ? "text-[#C19A6B]" : getTextColor()
-                  } hover:text-[#C19A6B]`}
+                className={`cursor-pointer transition-colors duration-300 ${
+                  isActiveLink("/about") ? "text-[#C19A6B]" : getTextColor()
+                } hover:text-[#C19A6B]`}
               >
                 About
               </p>
@@ -668,8 +719,9 @@ const Navbar = () => {
 
             <Link to="/contact">
               <p
-                className={`cursor-pointer transition-colors duration-300 ${isActiveLink("/contact") ? "text-[#C19A6B]" : getTextColor()
-                  } hover:text-[#C19A6B]`}
+                className={`cursor-pointer transition-colors duration-300 ${
+                  isActiveLink("/contact") ? "text-[#C19A6B]" : getTextColor()
+                } hover:text-[#C19A6B]`}
               >
                 Contact
               </p>
@@ -823,20 +875,23 @@ const Navbar = () => {
 
         {/* Mobile Menu - Smooth Slide In */}
         <div
-          className={`lg:hidden fixed inset-0 z-40 transition-all duration-300 ease-in-out ${isMobileMenuOpen ? "visible" : "invisible"
-            }`}
+          className={`lg:hidden fixed inset-0 z-40 transition-all duration-300 ease-in-out ${
+            isMobileMenuOpen ? "visible" : "invisible"
+          }`}
         >
           {/* Overlay */}
           <div
-            className={`absolute inset-0 bg-black transition-opacity duration-300 ${isMobileMenuOpen ? "opacity-50" : "opacity-0"
-              }`}
+            className={`absolute inset-0 bg-black transition-opacity duration-300 ${
+              isMobileMenuOpen ? "opacity-50" : "opacity-0"
+            }`}
             onClick={() => setIsMobileMenuOpen(false)}
           />
 
           {/* Sidebar */}
           <div
-            className={`absolute top-0 right-0 h-full w-64 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-              }`}
+            className={`absolute top-0 right-0 h-full w-64 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out ${
+              isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+            }`}
           >
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold">Menu</h3>
@@ -944,8 +999,9 @@ const Navbar = () => {
                             Categories
                           </span>
                           <LuChevronDown
-                            className={`transition-transform duration-300 ${isMobileCategoriesOpen ? "rotate-180" : ""
-                              }`}
+                            className={`transition-transform duration-300 ${
+                              isMobileCategoriesOpen ? "rotate-180" : ""
+                            }`}
                           />
                         </button>
 
@@ -955,10 +1011,9 @@ const Navbar = () => {
                             {categories.map((category, index) => (
                               <button
                                 key={index}
-                                onClick={() => {
-                                  setIsMobileMenuOpen(false);
-                                  navigate(category.path);
-                                }}
+                                onClick={(e) =>
+                                  handleCategoriesItemClick(e, category)
+                                }
                                 className="flex items-center gap-3 w-full px-3 py-2 text-gray-600 hover:bg-gray-50 hover:text-[#C19A6B] rounded-lg transition-colors duration-200 text-left"
                               >
                                 <span className="font-medium">
@@ -975,14 +1030,16 @@ const Navbar = () => {
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <div
-                          className={`cursor-pointer py-2 hover:bg-gray-50 px-3 rounded-lg transition-colors ${isActiveLink("/about") ? "bg-gray-50" : ""
-                            }`}
+                          className={`cursor-pointer py-2 hover:bg-gray-50 px-3 rounded-lg transition-colors ${
+                            isActiveLink("/about") ? "bg-gray-50" : ""
+                          }`}
                         >
                           <span
-                            className={`font-medium transition-colors duration-300 ${isActiveLink("/about")
+                            className={`font-medium transition-colors duration-300 ${
+                              isActiveLink("/about")
                                 ? "text-[#C19A6B]"
                                 : "text-gray-800 hover:text-[#C19A6B]"
-                              }`}
+                            }`}
                           >
                             About
                           </span>
@@ -994,14 +1051,16 @@ const Navbar = () => {
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <div
-                          className={`cursor-pointer py-2 hover:bg-gray-50 px-3 rounded-lg transition-colors ${isActiveLink("/contact") ? "bg-gray-50" : ""
-                            }`}
+                          className={`cursor-pointer py-2 hover:bg-gray-50 px-3 rounded-lg transition-colors ${
+                            isActiveLink("/contact") ? "bg-gray-50" : ""
+                          }`}
                         >
                           <span
-                            className={`font-medium transition-colors duration-300 ${isActiveLink("/contact")
+                            className={`font-medium transition-colors duration-300 ${
+                              isActiveLink("/contact")
                                 ? "text-[#C19A6B]"
                                 : "text-gray-800 hover:text-[#C19A6B]"
-                              }`}
+                            }`}
                           >
                             Contact
                           </span>
@@ -1023,8 +1082,9 @@ const Navbar = () => {
           {carouselSlides.map((slide, index) => (
             <div
               key={index}
-              className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-in-out ${index === currentSlide ? "opacity-100" : "opacity-0"
-                }`}
+              className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-in-out ${
+                index === currentSlide ? "opacity-100" : "opacity-0"
+              }`}
               style={{ backgroundImage: `url(${slide.background})` }}
             >
               {/* Overlay */}
@@ -1032,8 +1092,9 @@ const Navbar = () => {
 
               {/* Carousel Content */}
               <div
-                className={`relative z-10 flex flex-col items-center justify-center text-center text-white min-h-[calc(100vh-4rem)] md:min-h-screen px-4 mx-auto ${index === currentSlide ? "translate-y-0" : "translate-y-10"
-                  }`}
+                className={`relative z-10 flex flex-col items-center justify-center text-center text-white min-h-[calc(100vh-4rem)] md:min-h-screen px-4 mx-auto ${
+                  index === currentSlide ? "translate-y-0" : "translate-y-10"
+                }`}
               >
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-bold mb-2 md:mb-3 drop-shadow-lg uppercase leading-tight">
                   {slide.title}
@@ -1045,7 +1106,10 @@ const Navbar = () => {
                   {slide.description}
                 </p>
                 {/* UPDATED SHOP NOW BUTTON - Original styling */}
-                <button className="bg-transparent text-white font-semibold py-2 px-6 sm:py-3 sm:px-8 transition duration-300 transform hover:scale-110 text-sm sm:text-base border-t-2 border-b-2 border-r border-l hover:border-[#C19A6B] ">
+                <button
+                  onClick={() => handleSlideClick(slide)}
+                  className="bg-transparent text-white font-semibold py-2 px-6 sm:py-3 sm:px-8 transition duration-300 transform hover:scale-110 text-sm sm:text-base border-t-2 border-b-2 border-r border-l hover:border-[#C19A6B] "
+                >
                   Shop Now
                 </button>
               </div>
@@ -1058,10 +1122,11 @@ const Navbar = () => {
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentSlide
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === currentSlide
                     ? "bg-white scale-125"
                     : "bg-white bg-opacity-50 hover:bg-opacity-75 hover:scale-110"
-                  }`}
+                }`}
               />
             ))}
           </div>

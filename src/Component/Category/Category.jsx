@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FaRegHeart,
   FaShoppingBag,
@@ -52,8 +52,24 @@ const Category = () => {
   const productsPerPage = 12;
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { addToCart } = useCart();
+
+  // Sync with URL category parameter
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const categoryParam = params.get("category");
+
+    if (categoryParam && categories.length > 0) {
+      const index = categories.findIndex(
+        (cat) => cat.toLowerCase() === categoryParam.toLowerCase(),
+      );
+      if (index !== -1) {
+        setActiveCategory(index);
+      }
+    }
+  }, [location.search, categories]);
 
   const handleProductClick = (productId) => {
     navigate(`/product/${productId}`);
@@ -162,6 +178,27 @@ const Category = () => {
         },
       );
     }
+  };
+
+  const handleShare = (product, e) => {
+    e.stopPropagation();
+    const productUrl = `${window.location.origin}/product/${product._id || product.id}`;
+
+    navigator.clipboard
+      .writeText(productUrl)
+      .then(() => {
+        toast.success("Link copied to clipboard!", {
+          icon: "🔗",
+          style: {
+            background: "#f0f9ff",
+            border: "1px solid #bae6fd",
+          },
+        });
+      })
+      .catch((err) => {
+        console.error("Could not copy text: ", err);
+        toast.error("Failed to copy link");
+      });
   };
 
   // API state
@@ -338,6 +375,12 @@ const Category = () => {
       result.sort((a, b) => b.sellingPrice - a.sellingPrice);
     } else if (sortBy === "Newest") {
       result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else if (sortBy === "Popularity") {
+      result.sort(
+        (a, b) =>
+          (b.purchaseCount || 0) - (a.purchaseCount || 0) ||
+          (b.ratingAverage || 0) - (a.ratingAverage || 0),
+      );
     }
     // Default or Popularity (could use rating or views)
 
@@ -727,11 +770,15 @@ const Category = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-600">Sort by</span>
-                <select className="px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black">
-                  <option>Popularity</option>
-                  <option>Price: Low to High</option>
-                  <option>Price: High to Low</option>
-                  <option>Newest</option>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black cursor-pointer bg-white"
+                >
+                  <option value="Popularity">Popularity</option>
+                  <option value="Price: Low to High">Price: Low to High</option>
+                  <option value="Price: High to Low">Price: High to Low</option>
+                  <option value="Newest">Newest</option>
                 </select>
 
                 <span className="text-sm text-[#a67c00]">|</span>
@@ -843,7 +890,8 @@ const Category = () => {
                         {/* Share Button */}
                         <button
                           className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300 bg-white bg-opacity-80"
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => handleShare(product, e)}
+                          title="Share product"
                         >
                           <IoMdShare className="text-xs md:text-sm" />
                         </button>
@@ -895,7 +943,8 @@ const Category = () => {
                           {/* Share Button */}
                           <button
                             className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300"
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => handleShare(product, e)}
+                            title="Share product"
                           >
                             <IoMdShare className="text-lg" />
                           </button>
