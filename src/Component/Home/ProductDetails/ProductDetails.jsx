@@ -24,6 +24,7 @@ import { useCart } from "../../Context/CartContext";
 
 import productApi from "../../../apis/productApi";
 import reviewApi from "../../../apis/reviewApi";
+import userApi from "../../../apis/user/userApi";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -398,9 +399,8 @@ const ProductDetails = () => {
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("rememberToken");
 
-    if (!token) {
+    if (!userApi.isAuthenticated()) {
       toast.error("Please login to write a review");
       navigate(`/login?redirect=/product/${id}`);
       return;
