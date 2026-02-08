@@ -172,17 +172,7 @@ const ProductDetails = () => {
   const handleBuyNow = async () => {
     if (!product) return;
     const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-    if (!isLoggedIn) {
-      toast.error("Please login to proceed to checkout", {
-        icon: "🔒",
-        duration: 3000,
-      });
-      setTimeout(
-        () => navigate(`/login?redirect=${encodeURIComponent("/checkout")}`),
-        1000,
-      );
-      return;
-    }
+
     // Add to cart first so it's preserved after redirect/login
     if (!isProductInCart) {
       await addToCart(
@@ -200,10 +190,21 @@ const ProductDetails = () => {
         quantity,
       );
     }
-
+    if (!isLoggedIn) {
+      toast.error("Please login to proceed to checkout", {
+        icon: "🔒",
+        duration: 3000,
+      });
+      setTimeout(
+        () => navigate(`/login?redirect=${encodeURIComponent("/checkout")}`),
+        1000,
+      );
+      return;
+    }
     // Check if user is logged in
-
-    navigate("/checkout");
+    if (isLoggedIn) {
+      navigate("/checkout");
+    }
   };
 
   const updateProductQuantity = (newQty) => {
