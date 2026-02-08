@@ -202,7 +202,7 @@ const ProductDetails = () => {
       return;
     }
     // Check if user is logged in
-    if (isLoggedIn) {
+    else if (isLoggedIn) {
       navigate("/checkout");
     }
   };
