@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import {
   BsArrowLeft,
   BsHeart,
@@ -28,6 +28,7 @@ import reviewApi from "../../../apis/reviewApi";
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,6 +66,21 @@ const ProductDetails = () => {
       setQuantity(cartQuantity);
     }
   }, [isProductInCart, cartQuantity]);
+
+  // Handle review redirect
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (product && params.get("review") === "true") {
+      setActiveTab("REVIEWS");
+      setShowReviewForm(true);
+      setTimeout(() => {
+        reviewsSectionRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 500);
+    }
+  }, [location.search, product]);
 
   const fetchProduct = async () => {
     setIsLoading(true);

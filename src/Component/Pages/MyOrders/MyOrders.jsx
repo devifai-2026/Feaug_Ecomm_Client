@@ -19,6 +19,7 @@ import {
   FaChevronDown,
   FaPhone,
   FaMapMarkerAlt,
+  FaChevronLeft,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -35,7 +36,20 @@ const MyOrders = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
-  const [totalSpent, setTotalSpent] = useState(0);
+  const [orderStats, setOrderStats] = useState({
+    totalSpent: 0,
+    pendingCount: 0,
+    shippedCount: 0,
+    deliveredCount: 0,
+    cancelledCount: 0,
+    totalOrders: 0,
+  });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+    totalOrders: 0,
+  });
 
   // Scroll to top on component mount
   useEffect(() => {
@@ -55,7 +69,11 @@ const MyOrders = () => {
       setLoading(true);
 
       orderApi.getUserOrders({
-        params: { limit: 50, sort: "-createdAt" },
+        params: {
+          limit: pagination.limit,
+          page: pagination.page,
+          sort: "-createdAt",
+        },
         setLoading,
         onSuccess: (data) => {
           if (data.success && data.data) {
@@ -63,14 +81,15 @@ const MyOrders = () => {
 
             // Helper to get full image URL
             const getImageUrl = (imageUrl) => {
-              if (!imageUrl) return 'https://via.placeholder.com/150';
-              if (imageUrl.startsWith('http')) return imageUrl;
+              if (!imageUrl) return "https://via.placeholder.com/150";
+              if (imageUrl.startsWith("http")) return imageUrl;
               // Prepend backend URL for relative paths
-              const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
-              return `${backendUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+              const backendUrl =
+                import.meta.env.VITE_API_URL || "http://localhost:5001";
+              return `${backendUrl}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`;
             };
 
-            const transformedOrders = ordersData.map(order => ({
+            const transformedOrders = ordersData.map((order) => ({
               id: order._id || order.id,
               orderNo:
                 order.orderId ||
@@ -80,12 +99,18 @@ const MyOrders = () => {
               status: order.status || "pending",
               shippingStatus: order.shippingStatus,
               paymentStatus: order.paymentStatus,
-              items: (order.items || []).map(item => ({
+              items: (order.items || []).map((item) => ({
                 id: item.product?._id || item.product || item.productId,
-                name: item.productName || item.product?.name || item.name || 'Product',
+                name:
+                  item.productName ||
+                  item.product?.name ||
+                  item.name ||
+                  "Product",
                 quantity: item.quantity || 1,
                 price: item.price || 0,
-                image: getImageUrl(item.productImage || item.product?.images?.[0]?.url)
+                image: getImageUrl(
+                  item.productImage || item.product?.images?.[0]?.url,
+                ),
               })),
               shippingAddress: order.shippingAddress
                 ? `${order.shippingAddress.street || ""}, ${order.shippingAddress.city || ""}, ${order.shippingAddress.state || ""} - ${order.shippingAddress.postalCode || ""}`
@@ -97,13 +122,18 @@ const MyOrders = () => {
             }));
 
             setOrders(transformedOrders);
+            setPagination((prev) => ({
+              ...prev,
+              totalPages: Math.ceil((data.total || 0) / prev.limit),
+              totalOrders: data.total || 0,
+            }));
 
-            // Calculate total spent from delivered orders
-            const total = transformedOrders.reduce(
-              (sum, o) => sum + (o.amount || 0),
-              0,
-            );
-            setTotalSpent(total);
+            if (data.data.stats) {
+              setOrderStats({
+                ...data.data.stats,
+                totalOrders: data.total || 0,
+              });
+            }
           } else {
             setOrders([]);
           }
@@ -117,58 +147,59 @@ const MyOrders = () => {
     };
 
     fetchOrders();
-  }, [navigate]);
+  }, [navigate, pagination.page, pagination.limit]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      setPagination((prev) => ({ ...prev, page: newPage }));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   const stats = [
     {
       label: "Total Orders",
-      value: orders.length,
+      value: pagination.totalOrders,
       icon: <FaHistory className="text-[#C19A6B]" />,
     },
     {
       label: "Total Spent",
-      value: `₹${totalSpent.toLocaleString("en-IN")}`,
+      value: `₹${(orderStats.totalSpent || 0).toLocaleString("en-IN")}`,
       icon: <FaRupeeSign className="text-[#C19A6B]" />,
     },
     {
       label: "Pending",
-      value: orders.filter((o) =>
-        ["pending", "confirmed", "processing"].includes(o.status),
-      ).length,
+      value: orderStats.pendingCount || 0,
       icon: <FaClock className="text-[#C19A6B]" />,
     },
     {
       label: "Delivered",
-      value: orders.filter((o) => o.status === "delivered").length,
+      value: orderStats.deliveredCount || 0,
       icon: <FaCheckCircle className="text-[#C19A6B]" />,
     },
   ];
 
   const filters = [
-    { key: "all", label: "All", count: orders.length },
+    { key: "all", label: "All", count: pagination.totalOrders },
     {
       key: "processing",
       label: "Processing",
-      count: orders.filter((o) =>
-        ["pending", "confirmed", "processing"].includes(o.status),
-      ).length,
+      count: orderStats.pendingCount || 0,
     },
     {
       key: "shipped",
       label: "Shipped",
-      count: orders.filter((o) => o.status === "shipped").length,
+      count: orderStats.shippedCount || 0,
     },
     {
       key: "delivered",
       label: "Delivered",
-      count: orders.filter((o) => o.status === "delivered").length,
+      count: orderStats.deliveredCount || 0,
     },
     {
       key: "cancelled",
       label: "Cancelled",
-      count: orders.filter((o) =>
-        ["cancelled", "returned", "refunded"].includes(o.status),
-      ).length,
+      count: orderStats.cancelledCount || 0,
     },
   ];
 
@@ -320,8 +351,12 @@ const MyOrders = () => {
     });
   };
 
-  const handleWriteReview = (orderId) => {
-    toast.info("Review feature coming soon!");
+  const handleWriteReview = (productId) => {
+    if (productId) {
+      navigate(`/product/${productId}?review=true`);
+    } else {
+      toast.error("Product information not available");
+    }
   };
 
   const handleCallSupport = () => {
@@ -692,7 +727,9 @@ const MyOrders = () => {
                             Reorder
                           </button> */}
                           <button
-                            onClick={() => handleWriteReview(order.id)}
+                            onClick={() =>
+                              handleWriteReview(order.items[0]?.id)
+                            }
                             className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm bg-purple-50 text-purple-600 rounded-lg font-medium border border-purple-100"
                           >
                             <FaStar className="text-xs" />
@@ -855,15 +892,17 @@ const MyOrders = () => {
 
                           {order.status === "delivered" && (
                             <>
-                              <button
+                              {/* <button
                                 onClick={() => handleReorder(order)}
                                 className="flex items-center gap-2 px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors duration-200"
                               >
                                 <FaRedo className="text-xs" />
                                 Reorder
-                              </button>
+                              </button> */}
                               <button
-                                onClick={() => handleWriteReview(order.id)}
+                                onClick={() =>
+                                  handleWriteReview(order.items[0]?.id)
+                                }
                                 className="flex items-center gap-2 px-3 py-1 text-sm text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded transition-colors duration-200"
                               >
                                 <FaStar className="text-xs" />
@@ -902,6 +941,60 @@ const MyOrders = () => {
             </div>
           )}
         </div>
+
+        {/* Pagination Controls */}
+        {pagination.totalPages > 1 && (
+          <div className="flex justify-center items-center mt-8 gap-2 pb-6">
+            <button
+              onClick={() => handlePageChange(pagination.page - 1)}
+              disabled={pagination.page === 1}
+              className={`p-2 rounded-lg border ${
+                pagination.page === 1
+                  ? "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-[#C19A6B]"
+              } transition-colors duration-200`}
+            >
+              <FaChevronLeft />
+            </button>
+
+            <div className="flex items-center gap-2 overflow-x-auto max-w-[200px] md:max-w-none px-2 scrollbar-hide">
+              {Array.from(
+                { length: pagination.totalPages },
+                (_, i) => i + 1,
+              ).map((pageNum) => {
+                // Logic to show limited page numbers if too many pages
+                // Simple version: show all if <= 5, otherwise logic needed.
+                // For now, let's just show all or maybe a simple slice if needed.
+                // Given "limit 10", 50 orders is only 5 pages.
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => handlePageChange(pageNum)}
+                    className={`min-w-[40px] h-10 rounded-lg border font-medium transition-colors duration-200 flex items-center justify-center ${
+                      pagination.page === pageNum
+                        ? "bg-[#C19A6B] text-white border-[#C19A6B]"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-[#C19A6B]"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => handlePageChange(pagination.page + 1)}
+              disabled={pagination.page === pagination.totalPages}
+              className={`p-2 rounded-lg border ${
+                pagination.page === pagination.totalPages
+                  ? "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-[#C19A6B]"
+              } transition-colors duration-200`}
+            >
+              <FaChevronRight />
+            </button>
+          </div>
+        )}
 
         {/* Mobile Help Section */}
         <div className="md:hidden mt-8">

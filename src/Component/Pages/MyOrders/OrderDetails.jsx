@@ -199,8 +199,12 @@ const OrderDetails = () => {
     toast.info("Reorder feature coming soon!");
   };
 
-  const handleWriteReview = () => {
-    toast.info("Review feature coming soon!");
+  const handleWriteReview = (productId) => {
+    if (productId) {
+      navigate(`/product/${productId}?review=true`);
+    } else {
+      toast.error("Product information not available");
+    }
   };
 
   const handleTrackOrder = () => {
@@ -674,15 +678,15 @@ const OrderDetails = () => {
               <div className="space-y-3">
                 {order.status === "delivered" && (
                   <>
-                    <button
+                    {/* <button
                       onClick={handleReorder}
                       className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#C19A6B] text-white rounded-lg hover:bg-[#B08D5F] transition-colors duration-300 font-medium"
                     >
                       <FaRedo />
                       Reorder
-                    </button>
+                    </button> */}
                     <button
-                      onClick={handleWriteReview}
+                      onClick={() => handleWriteReview(order.items[0]?.id)}
                       className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors duration-300 font-medium"
                     >
                       <FaStar />
