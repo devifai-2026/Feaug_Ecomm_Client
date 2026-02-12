@@ -29,42 +29,96 @@ import TermsCondition from "./Component/Pages/Footer/TermsCondition";
 import MyProfile from "./Component/Pages/MyProfile/MyProfile";
 import MyOrders from "./Component/Pages/MyOrders/MyOrders";
 import OrderDetails from "./Component/Pages/MyOrders/OrderDetails";
+import PaymentStatus from "./Component/Pages/Payment/PaymentStatus";
+import orderApi from "./apis/orderApi";
 
 function App() {
-  // useEffect(() => {
-  //   // Initialize AOS with better settings to prevent layout shift
-  //   AOS.init({
-  //     duration: 800,
-  //     once: true,
-  //     offset: 120,
-  //     easing: "ease-out",
-  //     disable: window.innerWidth < 768, // Disable on mobile
-  //   });
+  useEffect(() => {
+    // Initialize AOS
+    AOS.init({
+      duration: 800,
+      once: true,
+      offset: 120,
+      easing: "ease-out",
+      disable: window.innerWidth < 768,
+    });
 
-  //   // Refresh AOS after page load to ensure proper initialization
-  //   setTimeout(() => {
-  //     AOS.refresh();
-  //   }, 100);
+    setTimeout(() => {
+      AOS.refresh();
+    }, 100);
 
-  //   const showToast = () => {
-  //     toast.success("Subhojit Dutta purchased necklace!", {
-  //       position: "top-right",
-  //       autoClose: 5000,
-  //       hideProgressBar: false,
-  //       closeOnClick: true,
-  //       pauseOnHover: true,
-  //       draggable: true,
-  //       progress: undefined,
-  //       theme: "light",
-  //     });
+    // Recent purchase notification logic
+    let activityInterval;
 
-  //     setTimeout(showToast, 4 * 60 * 1000);
-  //   };
+    const fetchAndShowActivity = () => {
+      orderApi.getRecentActivity({
+        onSuccess: (response) => {
+          if (response && response.data && response.data.length > 0) {
+            // Function to show random purchase toast
+            const showRandomToast = () => {
+              const randomOrder = response.data[Math.floor(Math.random() * response.data.length)];
 
-  //   const timeoutId = setTimeout(showToast, 4 * 60 * 1000);
+              // Custom content for the toast
+              const ToastContent = () => (
+                <div className="flex items-center gap-3">
+                  {randomOrder.image ? (
+                    <img
+                      src={randomOrder.image}
+                      alt={randomOrder.product}
+                      className="w-10 h-10 object-cover rounded-md"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-purple-100 rounded-md flex items-center justify-center text-purple-600 font-bold">
+                      {randomOrder.user.charAt(0)}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {randomOrder.user}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      bought {randomOrder.product}
+                    </p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">
+                      {randomOrder.city} • Just now
+                    </p>
+                  </div>
+                </div>
+              );
 
-  //   return () => clearTimeout(timeoutId);
-  // }, []);
+              toast(<ToastContent />, {
+                position: "bottom-left",
+                autoClose: 5000,
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                className: "!rounded-xl !shadow-lg border border-gray-100",
+                bodyClassName: "!p-0",
+                style: { background: "rgba(255, 255, 255, 0.95)", backdropFilter: "blur(4px)" }
+              });
+
+              // Schedule next toast (random time between 15-30 seconds)
+              const nextTime = Math.random() * (300000 - 150000) + 15000;
+              activityInterval = setTimeout(showRandomToast, nextTime);
+            };
+
+            // Start showing toasts after initial delay
+            activityInterval = setTimeout(showRandomToast, 10000);
+          }
+        },
+        onError: (err) => {
+          console.error("Failed to fetch recent activity:", err);
+        }
+      });
+    };
+
+    fetchAndShowActivity();
+
+    return () => {
+      if (activityInterval) clearTimeout(activityInterval);
+    };
+  }, []);
 
   return (
     <>
@@ -105,6 +159,7 @@ function App() {
             path="orderDetails/:orderId"
             element={<OrderDetails />}
           ></Route>
+          <Route path="payment-status" element={<PaymentStatus />}></Route>
         </Route>
       </Routes>
     </>

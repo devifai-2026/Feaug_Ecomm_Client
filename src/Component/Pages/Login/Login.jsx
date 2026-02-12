@@ -1,6 +1,11 @@
 // Component/Pages/Login/Login.jsx
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useSearchParams,
+  useLocation,
+} from "react-router-dom";
 import { LuUserRound, LuLock, LuMail, LuEye, LuEyeOff } from "react-icons/lu";
 import { toast } from "react-toastify";
 import userApi from "../../../apis/user/userApi";
@@ -14,6 +19,11 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get("redirect")
+    ? decodeURIComponent(searchParams.get("redirect"))
+    : location.state?.from || "/";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -47,27 +57,12 @@ const Login = () => {
 
       if (response.status === "success") {
         toast.success("Login successful!");
-
-        // Store user info in localStorage (with remember me option)
-        const userData = {
-          email: formData.email,
-          isLoggedIn: true,
-          rememberMe: rememberMe,
-          // Store additional user data from response if available
-          ...(response.data?.user && { user: response.data.user }),
-        };
-
-        localStorage.setItem("user", JSON.stringify(userData));
-
-        // If remember me is checked, store token in localStorage
-        if (rememberMe && response.token) {
+        if (rememberMe || response?.token) {
           localStorage.setItem("rememberToken", response.token);
         } else {
           localStorage.removeItem("rememberToken");
         }
-
-        // Redirect to home page or dashboard
-        navigate("/");
+        navigate(redirectPath);
       } else {
         toast.error(response.message || "Login failed");
       }

@@ -1,11 +1,92 @@
 import axiosInstance from "../../axios/axiosInstance";
 import { handleApiError } from "../../error/apiError";
+import { getGuestId } from "../../helpers/guest/guestId";
+
+// Helper to store user data in localStorage (aligned with helpers pattern)
+const storeUserData = (responseData) => {
+  // Backend response after normalization: { status, success, token, data: { user } }
+  if (responseData.token && responseData.data?.user) {
+    const userData = {
+      ...responseData.data.user,
+      token: responseData.token,
+    };
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('token', responseData.token);
+    localStorage.setItem('isLoggedIn', 'true');
+    window.dispatchEvent(new Event('userLoginStatusChanged'));
+  } else if (responseData.user && responseData.tokens) {
+    // Alternative format with tokens object
+    const userData = {
+      ...responseData.user,
+      token: responseData.tokens.accessToken,
+      refreshToken: responseData.tokens.refreshToken,
+    };
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('token', responseData.tokens.accessToken);
+    localStorage.setItem('isLoggedIn', 'true');
+    window.dispatchEvent(new Event('userLoginStatusChanged'));
+  } else if (responseData.token && responseData.user) {
+    // Simple format with user and token at same level
+    const userData = { ...responseData.user, token: responseData.token };
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('token', responseData.token);
+    localStorage.setItem('isLoggedIn', 'true');
+    // Clear guestId as it is now merged
+    localStorage.removeItem('guestId');
+    window.dispatchEvent(new Event('userLoginStatusChanged'));
+  }
+};
+
+// Helper to clear user data from localStorage
+const clearUserData = () => {
+  localStorage.removeItem('user');
+  localStorage.removeItem('token');
+  localStorage.removeItem('isLoggedIn');
+  window.dispatchEvent(new Event('userLoginStatusChanged'));
+};
+
+// Helper to get current user from localStorage
+const getStoredUser = () => {
+  try {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  } catch {
+    return null;
+  }
+};
+
+// Helper to update stored token
+const updateStoredToken = (newToken, newRefreshToken) => {
+  const user = getStoredUser();
+  if (user) {
+    user.token = newToken;
+    if (newRefreshToken) {
+      user.refreshToken = newRefreshToken;
+    }
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+};
+
+// Helper to update stored user data without overwriting token
+const updateStoredUser = (updatedUser) => {
+  const currentUser = getStoredUser();
+  if (currentUser) {
+    const freshUser = { ...currentUser, ...updatedUser };
+    localStorage.setItem('user', JSON.stringify(freshUser));
+    window.dispatchEvent(new Event('userLoginStatusChanged'));
+  }
+};
 
 const userApi = {
   // User Registration
   register: async (userData) => {
     try {
-      const response = await axiosInstance.post("/auth/register", userData);
+      const guestId = getGuestId();
+      const payload = { ...userData, guestId };
+      const response = await axiosInstance.post("/auth/register", payload);
+      if (response.data.status === 'success') {
+        storeUserData(response.data);
+      }
       return response.data;
     } catch (error) {
       return handleApiError(error, "Failed to register user");
@@ -15,13 +96,14 @@ const userApi = {
   // User Login
   login: async (credentials) => {
     try {
-      const response = await axiosInstance.post("/auth/login", credentials);
+      const guestId = getGuestId();
+      const payload = { ...credentials, guestId };
+      const response = await axiosInstance.post("/auth/login", payload);
 
-      // Store token if present in response
-      if (response.data.token) {
-        localStorage.setItem("accessToken", response.data.token);
-        axiosInstance.defaults.headers.common["Authorization"] =
-          `Bearer ${response.data.token}`;
+      // Store user data using standardized format
+      // Pass entire response.data which contains { status, success, token, data: { user } }
+      if (response.data.status === 'success') {
+        storeUserData(response.data);
       }
 
       return response.data;
@@ -35,12 +117,13 @@ const userApi = {
     try {
       const response = await axiosInstance.post("/auth/logout");
 
-      // Remove token from localStorage
-      localStorage.removeItem("accessToken");
-      delete axiosInstance.defaults.headers.common["Authorization"];
+      // Clear user data using standardized format
+      clearUserData();
 
       return response.data;
     } catch (error) {
+      // Clear data even on error
+      clearUserData();
       return handleApiError(error, "Failed to logout");
     }
   },
@@ -58,10 +141,15 @@ const userApi = {
   // Update User Profile
   updateProfile: async (profileData) => {
     try {
-      const response = await axiosInstance.patch(
+      const response = await axiosInstance.post(
         "/auth/update-me",
         profileData,
       );
+      
+      if (response.data.status === 'success' && response.data.data?.user) {
+        updateStoredUser(response.data.data.user);
+      }
+      
       return response.data;
     } catch (error) {
       return handleApiError(error, "Failed to update profile");
@@ -71,7 +159,7 @@ const userApi = {
   // Update Password
   updatePassword: async (passwordData) => {
     try {
-      const response = await axiosInstance.patch("/auth/update-password", {
+      const response = await axiosInstance.post("/auth/update-password", {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });
@@ -133,13 +221,17 @@ const userApi = {
   // Refresh Token
   refreshToken: async () => {
     try {
-      const response = await axiosInstance.post("/auth/refresh-token");
+      const user = getStoredUser();
+      const response = await axiosInstance.post("/auth/refresh-token", {
+        refreshToken: user?.refreshToken,
+      });
 
       // Store new token if present in response
-      if (response.data.token) {
-        localStorage.setItem("accessToken", response.data.token);
-        axiosInstance.defaults.headers.common["Authorization"] =
-          `Bearer ${response.data.token}`;
+      if (response.data.success && response.data.data?.tokens) {
+        updateStoredToken(
+          response.data.data.tokens.accessToken,
+          response.data.data.tokens.refreshToken
+        );
       }
 
       return response.data;
@@ -164,7 +256,7 @@ const userApi = {
   // Update Address
   updateAddress: async (addressId, addressData) => {
     try {
-      const response = await axiosInstance.patch(
+      const response = await axiosInstance.post(
         `/users/addresses/${addressId}`,
         addressData,
       );
@@ -189,7 +281,7 @@ const userApi = {
   // Set Default Address
   setDefaultAddress: async (addressId) => {
     try {
-      const response = await axiosInstance.patch(
+      const response = await axiosInstance.post(
         `/users/addresses/${addressId}/set-default`,
       );
       return response.data;
@@ -198,10 +290,10 @@ const userApi = {
     }
   },
 
-  // Get User Addresses
-  getAddresses: async () => {
+  // Get User Addresses with optional pagination
+  getAddresses: async (page = 1, limit = 4) => {
     try {
-      const response = await axiosInstance.get("/users/addresses");
+      const response = await axiosInstance.get(`/users/addresses?page=${page}&limit=${limit}`);
       return response.data;
     } catch (error) {
       return handleApiError(error, "Failed to fetch addresses");
@@ -209,21 +301,21 @@ const userApi = {
   },
 
   // Utility function to set auth token manually
-  setAuthToken: (token) => {
+  setAuthToken: (token, refreshToken) => {
     if (token) {
-      localStorage.setItem("accessToken", token);
-      axiosInstance.defaults.headers.common["Authorization"] =
-        `Bearer ${token}`;
+      updateStoredToken(token, refreshToken);
     } else {
-      localStorage.removeItem("accessToken");
-      delete axiosInstance.defaults.headers.common["Authorization"];
+      clearUserData();
     }
   },
 
   // Check if user is authenticated
   isAuthenticated: () => {
-    return !!localStorage.getItem("accessToken");
+    return localStorage.getItem('isLoggedIn') === 'true';
   },
+
+  // Get stored user data
+  getStoredUser,
 };
 
 export default userApi;

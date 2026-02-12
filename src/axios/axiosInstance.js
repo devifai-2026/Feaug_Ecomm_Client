@@ -2,22 +2,41 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-//   baseURL: "https://cpanel.fun4pets.co.in/api/v1", // Your backend base URL
-  baseURL: "http://localhost:5000/api/v1", // Your backend base URL
-  withCredentials: true, // For cookies if you're using them
+  baseURL: "http://localhost:5001/api/v1", // Backend API URL
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
+// Helper to get token from user object in localStorage
+const getToken = () => {
+  try {
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      return user.token;
+    }
+  } catch (error) {
+    console.error("Error parsing user from localStorage:", error);
+  }
+  return null;
+};
+
 // Request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    // You can modify the config here (e.g., add auth token)
-    const token = localStorage.getItem("accessToken");
+    const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Add Guest ID from localStorage
+    const guestId = localStorage.getItem('guestId');
+    if (guestId) {
+      config.headers['x-guest-id'] = guestId;
+    }
+    
     return config;
   },
   (error) => {
@@ -31,7 +50,11 @@ axiosInstance.interceptors.response.use(
   (error) => {
     // Handle errors globally
     if (error.response?.status === 401) {
-      // Handle unauthorized access
+      // Clear user data and redirect to login
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("isLoggedIn");
+      window.dispatchEvent(new Event('userLoginStatusChanged'));
       window.location.href = "/login";
     }
     return Promise.reject(error);

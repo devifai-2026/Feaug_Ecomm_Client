@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import sale from "../../assets/BestSeller/left.jpeg";
-import one from "../../assets/BestSeller/one.webp";
-import two from "../../assets/BestSeller/two.webp";
-import three from "../../assets/BestSeller/three.webp";
-import oneAngle from "../../assets/BestSeller/oneAngle.jpg"; 
-import twoAngle from "../../Assets/BestSeller/twoAngle.webp"; 
-import threeAngle from "../../Assets/BestSeller/threeAngle.jpg"; 
 import { BsHeart, BsShare, BsArrowsAngleExpand, BsCurrencyRupee, BsHeartFill } from 'react-icons/bs';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -15,116 +9,48 @@ import { FaArrowRightLong } from "react-icons/fa6";
 import toast, { Toaster } from 'react-hot-toast';
 import { useWishlist } from '../Context/WishlistContext';
 import { useCart } from '../Context/CartContext';
+import productApi from '../../apis/productApi';
+import { transformProducts } from '../../helpers/transformers/productTransformer';
 
 const BestSeller = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { addToCart } = useCart();
 
-  const products = [
-    { 
-      id: 1,
-      title: "Arch Pendant Necklace", 
-      price: 149.99, 
-      originalPrice: null,
-      image: one,
-      angleImage: oneAngle,
-      description: "Beautiful arch pendant necklace",
-      rating: 4.5
-    },
-    { 
-      id: 2,
-      title: "Golden Pearls Bracelet", 
-      price: 89.99, 
-      originalPrice: 103.40,
-      image: two,
-      angleImage: twoAngle,
-      description: "Elegant golden pearls bracelet",
-      rating: 4.2
-    },
-    { 
-      id: 3,
-      title: "Diamond Engagement Ring", 
-      price: 799.99, 
-      originalPrice: null,
-      image: three,
-      angleImage: threeAngle,
-      description: "Gorgeous diamond engagement ring",
-      rating: 4.8
-    },
-    { 
-      id: 4,
-      title: "Silver Chain Necklace", 
-      price: 129.99, 
-      originalPrice: null,
-      image: two,
-      angleImage: twoAngle,
-      description: "Classic silver chain necklace",
-      rating: 4.3
-    },
-    { 
-      id: 5,
-      title: "Ruby Earrings", 
-      price: 199.99, 
-      originalPrice: 249.99,
-      image: three,
-      angleImage: threeAngle,
-      description: "Stunning ruby earrings",
-      rating: 4.6
-    },
-    { 
-      id: 6,
-      title: "Pearl Drop Earrings", 
-      price: 159.99, 
-      originalPrice: null,
-      image: one,
-      angleImage: oneAngle,
-      description: "Elegant pearl drop earrings",
-      rating: 4.4
-    },
-    { 
-      id: 7,
-      title: "Gold Plated Bracelet", 
-      price: 69.99, 
-      originalPrice: 89.99,
-      image: two,
-      angleImage: twoAngle,
-      description: "Stylish gold plated bracelet",
-      rating: 4.1
-    },
-    { 
-      id: 8,
-      title: "Sapphire Ring", 
-      price: 299.99, 
-      originalPrice: null,
-      image: one,
-      angleImage: oneAngle,
-      description: "Beautiful sapphire ring",
-      rating: 4.7
-    },
-    { 
-      id: 9,
-      title: "Crystal Pendant", 
-      price: 79.99, 
-      originalPrice: 99.99,
-      image: three,
-      angleImage: threeAngle,
-      description: "Sparkling crystal pendant",
-      rating: 4.0
-    },
-    { 
-      id: 10,
-      title: "Diamond Stud Earrings", 
-      price: 349.99, 
-      originalPrice: null,
-      image: one,
-      angleImage: oneAngle,
-      description: "Classic diamond stud earrings",
-      rating: 4.9
-    },
-  ];
+  // Fetch best seller products from API
+  useEffect(() => {
+    const fetchBestSellers = async () => {
+      setLoading(true);
+      setError(null);
+
+      await productApi.getBestSellers({
+        params: { limit: 10 },
+        setLoading,
+        onSuccess: (data) => {
+          if (data.status === 'success' && data.data?.products?.length > 0) {
+            // Transform API products to match component format
+            const transformedProducts = transformProducts(data.data.products);
+            setProducts(transformedProducts);
+          } else {
+            setProducts([]);
+            setError('No best sellers available at the moment');
+          }
+        },
+        onError: (err) => {
+          console.error('Error fetching best sellers:', err);
+          setError('Failed to load best sellers. Please try again later.');
+          setProducts([]);
+        },
+      });
+    };
+
+    fetchBestSellers();
+  }, []);
 
   const slidesPerPage = 3;
   const totalSlides = Math.ceil(products.length / slidesPerPage);
@@ -156,7 +82,7 @@ const BestSeller = () => {
   // Handle Add to Cart
   const handleAddToCart = (product, e) => {
     e.stopPropagation();
-    
+
     addToCart({
       id: product.id,
       title: product.title,
@@ -165,7 +91,7 @@ const BestSeller = () => {
       description: product.description,
       rating: product.rating
     }, 1);
-    
+
     toast.success(
       <div>
         <p className="font-semibold">Added to cart!</p>
@@ -185,7 +111,7 @@ const BestSeller = () => {
   // Handle Wishlist Click
   const handleWishlistClick = (product, e) => {
     e.stopPropagation();
-    
+
     if (isInWishlist(product.id)) {
       removeFromWishlist(product.id);
       toast.custom((t) => (
@@ -232,7 +158,7 @@ const BestSeller = () => {
         rating: product.rating,
         inStock: true
       });
-      
+
       toast.success(
         <div>
           <p className="font-semibold">Added to wishlist!</p>
@@ -261,7 +187,7 @@ const BestSeller = () => {
 
   // Handle view more
   const handleViewMore = () => {
-    navigate('/products');
+    navigate('/categories');
   };
 
   // Refresh AOS when slide changes
@@ -271,7 +197,7 @@ const BestSeller = () => {
 
   return (
     <div className="mt-16 max-w-[90%] mx-auto overflow-hidden">
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           duration: 3000,
@@ -282,7 +208,7 @@ const BestSeller = () => {
         }}
       />
 
-      <style jsx>{`
+      <style>{`
         @keyframes slideInRight {
           from {
             transform: translateX(50px);
@@ -302,16 +228,16 @@ const BestSeller = () => {
       <div className="mb-10">
         <hr />
       </div>
-      
+
       {/* Main Content */}
       <div className="flex flex-col lg:flex-row items-start justify-between gap-2">
         {/* Seasonal Sale */}
         <div className="w-full lg:w-1/3">
           <div className="relative">
-            <img 
-              className="w-full h-[500px] object-cover" 
-              src={sale} 
-              alt="Seasonal Sale" 
+            <img
+              className="w-full h-[500px] object-cover"
+              src={sale}
+              alt="Seasonal Sale"
               data-aos="fade-right"
               data-aos-delay="200"
             />
@@ -319,7 +245,7 @@ const BestSeller = () => {
               <p className="text-lg font-semibold">SALE</p>
               <p className="text-2xl font-bold">15%</p>
               <p className="text-xl font-bold">Seasonal Sale</p>
-              <button 
+              <button
                 onClick={handleViewMore}
                 className="border border-white px-6 py-2 hover:bg-white hover:text-black transition-all duration-300 transform hover:scale-105"
               >
@@ -338,7 +264,7 @@ const BestSeller = () => {
                 Take a look at our best selling products that we have <br /> provided for your beauty and jewelry needs.
               </p>
             </div>
-            
+
             <div className="flex items-center gap-6 mt-4 sm:mt-0">
               {/* View Wishlist Button */}
               <button
@@ -354,7 +280,7 @@ const BestSeller = () => {
 
               {/* Slider Pagination */}
               <div className="flex items-center gap-4" data-aos="fade-down" data-aos-delay="400">
-                <button 
+                <button
                   onClick={prevSlide}
                   className="w-10 h-10 flex items-center justify-center transition-colors hover:bg-gray-100 rounded-full"
                 >
@@ -363,7 +289,7 @@ const BestSeller = () => {
                 <span className="text-sm font-medium">
                   {currentSlide + 1}/{totalSlides}
                 </span>
-                <button 
+                <button
                   onClick={nextSlide}
                   className="w-10 h-10 flex items-center justify-center transition-colors hover:bg-gray-100 rounded-full"
                 >
@@ -377,9 +303,9 @@ const BestSeller = () => {
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
             {visibleProducts.map((product, index) => {
               const isInWishlistItem = isInWishlist(product.id);
-              
+
               return (
-                <div 
+                <div
                   key={product.id}
                   className="relative overflow-hidden group cursor-pointer"
                   onMouseEnter={() => setHoveredCard(index)}
@@ -391,31 +317,28 @@ const BestSeller = () => {
                   {/* Image Container */}
                   <div className="relative overflow-hidden bg-gray-100">
                     {/* Main Image */}
-                    <img 
-                      className={`w-full h-80 object-cover transition-opacity duration-500 ${
-                        hoveredCard === index ? 'opacity-0' : 'opacity-100'
-                      }`} 
-                      src={product.image} 
-                      alt={product.title} 
+                    <img
+                      className={`w-full h-80 object-cover transition-opacity duration-500 ${hoveredCard === index ? 'opacity-0' : 'opacity-100'
+                        }`}
+                      src={product.image}
+                      alt={product.title}
                     />
-                    
+
                     {/* Angle Image - Shows on hover */}
-                    <img 
-                      className={`absolute top-0 left-0 w-full h-80 object-cover transition-opacity duration-500 ${
-                        hoveredCard === index ? 'opacity-100' : 'opacity-0'
-                      }`} 
-                      src={product.angleImage} 
-                      alt={`${product.title} - alternate angle`} 
+                    <img
+                      className={`absolute top-0 left-0 w-full h-80 object-cover transition-opacity duration-500 ${hoveredCard === index ? 'opacity-100' : 'opacity-0'
+                        }`}
+                      src={product.angleImage}
+                      alt={`${product.title} - alternate angle`}
                     />
-                    
+
                     {/* Hover Icons - Mobile & Tablet: Always visible */}
                     <div className='lg:hidden absolute top-3 right-3 flex flex-col gap-2 z-10'>
-                      <button 
-                        className={`p-2 rounded-full shadow-lg transition-all duration-300 ${
-                          isInWishlistItem 
-                            ? 'bg-red-50 text-red-500' 
-                            : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-500'
-                        }`}
+                      <button
+                        className={`p-2 rounded-full shadow-lg transition-all duration-300 ${isInWishlistItem
+                          ? 'bg-red-50 text-red-500'
+                          : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-500'
+                          }`}
                         onClick={(e) => handleWishlistClick(product, e)}
                         title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}
                       >
@@ -428,7 +351,7 @@ const BestSeller = () => {
                       <button className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors">
                         <BsShare className="text-gray-700 hover:text-blue-500" />
                       </button>
-                      <button 
+                      <button
                         className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
                         onClick={(e) => handleExpandClick(product.id, e)}
                       >
@@ -437,15 +360,13 @@ const BestSeller = () => {
                     </div>
 
                     {/* Hover Icons - Desktop: Show on hover */}
-                    <div className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${
-                      hoveredCard === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
-                    }`}>
-                      <button 
-                        className={`p-2 rounded-full shadow-lg transition-all duration-300 ${
-                          isInWishlistItem 
-                            ? 'bg-red-50 text-red-500' 
-                            : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-500'
-                        }`}
+                    <div className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${hoveredCard === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+                      }`}>
+                      <button
+                        className={`p-2 rounded-full shadow-lg transition-all duration-300 ${isInWishlistItem
+                          ? 'bg-red-50 text-red-500'
+                          : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-500'
+                          }`}
                         onClick={(e) => handleWishlistClick(product, e)}
                         title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}
                       >
@@ -458,7 +379,7 @@ const BestSeller = () => {
                       <button className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors">
                         <BsShare className="text-gray-700 hover:text-blue-500" />
                       </button>
-                      <button 
+                      <button
                         className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
                         onClick={(e) => handleExpandClick(product.id, e)}
                       >
@@ -467,7 +388,7 @@ const BestSeller = () => {
                     </div>
 
                     {/* Add to Cart Button - Mobile & Tablet: Always visible */}
-                    <button 
+                    <button
                       className='lg:hidden absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-black w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest z-10'
                       onClick={(e) => handleAddToCart(product, e)}
                     >
@@ -475,10 +396,9 @@ const BestSeller = () => {
                     </button>
 
                     {/* Add to Cart Button - Desktop: Show on hover */}
-                    <button 
-                      className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-black w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest z-10 ${
-                        hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                      }`}
+                    <button
+                      className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-black w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest z-10 ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                        }`}
                       onClick={(e) => handleAddToCart(product, e)}
                     >
                       ADD TO CART
@@ -487,9 +407,8 @@ const BestSeller = () => {
 
                   {/* Product Info */}
                   <div className="mt-4">
-                    <h3 className={`text-lg font-semibold mb-2 transition-colors duration-300 ${
-                      hoveredCard === index ? 'text-orange-800' : 'text-gray-900'
-                    }`}>
+                    <h3 className={`text-lg font-semibold mb-2 transition-colors duration-300 ${hoveredCard === index ? 'text-orange-800' : 'text-gray-900'
+                      }`}>
                       {product.title}
                     </h3>
                     <div className="flex items-center gap-2">
