@@ -29,6 +29,16 @@ const paymentApi = {
       onSuccess,
       onError,
     }),
+
+  // Process card payment via S2S API
+  processCardPayment: ({ orderId, razorpayOrderId, card, amount, setLoading, onSuccess, onError }) =>
+    apiCall.post({
+      route: '/payments/process-card',
+      payload: { orderId, razorpayOrderId, card, amount },
+      setLoading,
+      onSuccess,
+      onError,
+    }),
 };
 
 export default paymentApi;
