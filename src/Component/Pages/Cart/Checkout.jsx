@@ -420,6 +420,7 @@ const Checkout = () => {
         name: "Feauage Jewelry",
         description: `Order #${orderData.orderId}`,
         order_id: orderData.razorpayOrderId,
+        customer_id: orderData.razorpayCustomerId,
         handler: function (response) {
           resolve({
             razorpayPaymentId: response.razorpay_payment_id,
@@ -767,6 +768,7 @@ const Checkout = () => {
                 razorpayOrderId: rzpOrder.id,
                 amount: rzpOrder.amount,
                 currency: rzpOrder.currency,
+                razorpayCustomerId: initData.data.razorpayCustomerId,
               });
 
               if (paymentResult) {
