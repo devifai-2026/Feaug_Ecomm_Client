@@ -19,6 +19,8 @@ import {
   FaMapMarkedAlt,
   FaUserCircle,
   FaCamera,
+  FaEye,
+  FaEyeSlash,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import userApi from "../../../apis/user/userApi";
@@ -60,6 +62,11 @@ const MyProfile = () => {
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
   });
   const [passwordErrors, setPasswordErrors] = useState({});
   const [addressErrors, setAddressErrors] = useState({});
@@ -293,6 +300,11 @@ const MyProfile = () => {
           newPassword: "",
           confirmPassword: "",
         });
+        setShowPasswords({
+          current: false,
+          new: false,
+          confirm: false,
+        });
         toast.success("Password updated successfully!");
       } else {
         toast.error(response.message || "Failed to update password");
@@ -303,6 +315,13 @@ const MyProfile = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const togglePasswordVisibility = (field) => {
+    setShowPasswords((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
   };
 
   const handleAddressChange = (e) => {
@@ -1045,47 +1064,75 @@ const MyProfile = () => {
         <div className="fixed inset-0 z-[210] flex items-center justify-center p-4 backdrop-blur-md bg-white/40 animate-in fade-in duration-500">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm border border-neutral-100 animate-in zoom-in-95 duration-500">
             <div className="p-8">
-              <h2 className="text-2xl  font-bold text-neutral-900 mb-8">
-                Change Password
-              </h2>
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-bold text-neutral-900">
+                  Change Password
+                </h2>
+                <button
+                  onClick={() => setShowPasswordModal(false)}
+                  className="p-3 bg-neutral-50 text-neutral-400 rounded-full border border-neutral-100"
+                >
+                  <FaTimes size={12} />
+                </button>
+              </div>
+
               <div className="space-y-6 mb-8">
-                {["currentPassword", "newPassword", "confirmPassword"].map(
-                  (pwField) => (
-                    <div key={pwField}>
-                      <label className="text-xs font-semibold text-[#C19A6B] block mb-2">
-                        {pwField === "currentPassword"
-                          ? "Current Password"
-                          : pwField === "newPassword"
-                            ? "New Password"
-                            : "Confirm Password"}
-                      </label>
+                {[
+                  {
+                    id: "currentPassword",
+                    key: "current",
+                    label: "Current Password",
+                  },
+                  { id: "newPassword", key: "new", label: "New Password" },
+                  {
+                    id: "confirmPassword",
+                    key: "confirm",
+                    label: "Confirm Password",
+                  },
+                ].map((field) => (
+                  <div key={field.id}>
+                    <label className="text-xs font-semibold text-[#C19A6B] block mb-2">
+                      {field.label}
+                    </label>
+                    <div className="relative">
                       <input
-                        type="password"
-                        name={pwField}
-                        value={passwordData[pwField]}
+                        type={showPasswords[field.key] ? "text" : "password"}
+                        name={field.id}
+                        value={passwordData[field.id]}
                         onChange={handlePasswordChange}
                         placeholder="••••••••"
-                        className={`w-full bg-neutral-50 border-2 rounded-xl px-5 py-3 outline-none text-xs ${
-                          passwordErrors[pwField]
+                        className={`w-full bg-neutral-50 border-2 rounded-xl px-5 py-3 pr-12 outline-none text-xs transition-all ${
+                          passwordErrors[field.id]
                             ? "border-red-200"
                             : "border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
                         }`}
                       />
-                      {passwordErrors[pwField] && (
-                        <p className="text-red-400 text-[8px] font-black mt-2 ml-1 uppercase tracking-tighter">
-                          {passwordErrors[pwField]}
-                        </p>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => togglePasswordVisibility(field.key)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-[#C19A6B] transition-colors"
+                      >
+                        {showPasswords[field.key] ? (
+                          <FaEyeSlash size={14} />
+                        ) : (
+                          <FaEye size={14} />
+                        )}
+                      </button>
                     </div>
-                  ),
-                )}
+                    {passwordErrors[field.id] && (
+                      <p className="text-red-400 text-[8px] font-black mt-2 ml-1 uppercase tracking-tighter">
+                        {passwordErrors[field.id]}
+                      </p>
+                    )}
+                  </div>
+                ))}
               </div>
               <button
                 onClick={handlePasswordSubmit}
                 disabled={saving}
-                className="w-full py-4 bg-neutral-900 text-white rounded-xl font-bold text-xs hover:bg-[#C19A6B] transition-all"
+                className="w-full py-4 bg-neutral-900 text-white rounded-xl font-bold text-xs hover:bg-[#C19A6B] transition-all disabled:opacity-50"
               >
-                Update Password
+                {saving ? "Updating..." : "Update Password"}
               </button>
             </div>
           </div>

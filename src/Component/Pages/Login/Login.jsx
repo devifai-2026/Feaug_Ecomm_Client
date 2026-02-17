@@ -67,28 +67,8 @@ const Login = () => {
         toast.error(response.message || "Login failed");
       }
     } catch (error) {
-      // Check for specific error messages
-      if (error.response) {
-        switch (error.response.status) {
-          case 401:
-            toast.error("Invalid email or password");
-            break;
-          case 403:
-            toast.error(
-              "Your account has been deactivated. Please contact support.",
-            );
-            break;
-          case 423:
-            toast.error(
-              "Account is temporarily locked. Please try again later.",
-            );
-            break;
-          default:
-            toast.error(error.message || "Login failed. Please try again.");
-        }
-      } else {
-        toast.error("Network error. Please check your connection.");
-      }
+      // The error message is already distilled by handleApiError in userApi
+      toast.error(error.message || "Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -224,13 +204,19 @@ const Login = () => {
         <div className="mt-6 md:mt-8 text-center text-xs md:text-sm text-gray-600">
           <p>
             By signing in, you agree to our{" "}
-            <a href="#" className="text-[#C19A6B] hover:text-amber-700">
+            <Link
+              to="/terms-condition"
+              className="text-[#C19A6B] hover:text-amber-700"
+            >
               Terms
-            </a>{" "}
+            </Link>{" "}
             and{" "}
-            <a href="#" className="text-[#C19A6B] hover:text-amber-700">
+            <Link
+              to="/privacyPolicy"
+              className="text-[#C19A6B] hover:text-amber-700"
+            >
               Privacy Policy
-            </a>
+            </Link>
           </p>
         </div>
       </div>

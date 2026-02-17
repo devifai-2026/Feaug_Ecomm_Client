@@ -39,10 +39,11 @@ const InputField = ({
         onBlur={onBlur}
         placeholder={placeholder}
         maxLength={maxLength}
-        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${error
+        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+          error
             ? "border-red-500 focus:ring-red-500 bg-red-50"
             : "border-gray-300"
-          }`}
+        }`}
         style={!error ? { "--tw-ring-color": primaryColor } : {}}
       />
       {error && (
@@ -67,10 +68,11 @@ const StateSelect = ({ label, name, value, onChange, onBlur, error }) => {
         value={value}
         onChange={onChange}
         onBlur={onBlur}
-        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${error
+        className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+          error
             ? "border-red-500 focus:ring-red-500 bg-red-50"
             : "border-gray-300"
-          }`}
+        }`}
         style={!error ? { "--tw-ring-color": primaryColor } : {}}
       >
         <option value="">Select a state</option>
@@ -265,7 +267,7 @@ const ShippingComponent = ({
           const match = isEditing
             ? updatedAddresses.find((a) => a._id === data._id)
             : updatedAddresses.find((a) => a.isDefault && !isEditing) ||
-            updatedAddresses[updatedAddresses.length - 1];
+              updatedAddresses[updatedAddresses.length - 1];
 
           if (match) {
             setSelectedAddressId(match._id);
@@ -293,7 +295,13 @@ const ShippingComponent = ({
     setLoading(true);
     try {
       const response = await userApi.deleteAddress(id);
-      if (response.status === "success" || response.success) {
+      // Backend might return 204 with empty body, so we treat successful completion as success
+      if (
+        !response ||
+        response.status === "success" ||
+        response.success ||
+        response === ""
+      ) {
         toast.success("Address deleted");
         await refreshAddresses();
 
@@ -436,17 +444,18 @@ const ShippingComponent = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {savedAddresses.map((address, index) => (
               <div
-                key={address.id || index}
-                className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedAddressId === (address._id || address.id)
+                key={address._id || address.id || index}
+                className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                  selectedAddressId === (address._id || address.id)
                     ? "border-2"
                     : "border-gray-200 hover:border-gray-300"
-                  }`}
+                }`}
                 style={
                   selectedAddressId === (address._id || address.id)
                     ? {
-                      borderColor: primaryColor,
-                      backgroundColor: primaryLight + "20",
-                    }
+                        borderColor: primaryColor,
+                        backgroundColor: primaryLight + "20",
+                      }
                     : {}
                 }
                 onClick={() => handleSelectAddress(address)}
@@ -481,7 +490,7 @@ const ShippingComponent = ({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDeleteAddress(address.id);
+                        handleDeleteAddress(address._id || address.id);
                       }}
                       className="p-1 text-gray-500 hover:text-red-600"
                       disabled={
@@ -514,12 +523,13 @@ const ShippingComponent = ({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleSetDefaultAddress(address.id);
+                      handleSetDefaultAddress(address._id || address.id);
                     }}
-                    className={`text-xs flex items-center gap-1 ${address.isDefault
+                    className={`text-xs flex items-center gap-1 ${
+                      address.isDefault
                         ? "text-amber-600"
                         : "text-gray-500 hover:text-amber-600"
-                      }`}
+                    }`}
                     style={address.isDefault ? { color: primaryColor } : {}}
                   >
                     {address.isDefault ? (
@@ -632,10 +642,11 @@ const ShippingComponent = ({
                 onChange={handleChange}
                 onBlur={handleBlur}
                 placeholder="you@example.com"
-                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${errors.email
+                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors.email
                     ? "border-red-500 focus:ring-red-500 bg-red-50"
                     : "border-gray-300"
-                  } custom-focus`}
+                } custom-focus`}
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
@@ -661,17 +672,19 @@ const ShippingComponent = ({
                   onBlur={handleBlur}
                   placeholder="9876543210"
                   maxLength="10"
-                  className={`w-full pl-14 pr-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${errors.phone
+                  className={`w-full pl-14 pr-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+                    errors.phone
                       ? "border-red-500 focus:ring-red-500 bg-red-50"
                       : "border-gray-300"
-                    } custom-focus`}
+                  } custom-focus`}
                 />
                 {data.phone && (
                   <span
-                    className={`absolute right-3 top-2.5 text-sm ${data.phone.length === 10
+                    className={`absolute right-3 top-2.5 text-sm ${
+                      data.phone.length === 10
                         ? "text-green-600"
                         : "text-yellow-600"
-                      }`}
+                    }`}
                   >
                     {data.phone.length}/10
                   </span>
@@ -693,10 +706,11 @@ const ShippingComponent = ({
                 onBlur={handleBlur}
                 placeholder="House/Flat No., Building, Street, Area"
                 rows="3"
-                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${errors.address
+                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors.address
                     ? "border-red-500 focus:ring-red-500 bg-red-50"
                     : "border-gray-300"
-                  } custom-focus`}
+                } custom-focus`}
               />
               {errors.address && (
                 <p className="mt-1 text-sm text-red-600">{errors.address}</p>
