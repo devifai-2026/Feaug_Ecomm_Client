@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import sale from "../../assets/BestSeller/left.jpeg";
+import fallbackSaleImage from "../../assets/BestSeller/left.jpeg";
 import {
   BsHeart,
   BsShare,
@@ -17,6 +17,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { useWishlist } from "../Context/WishlistContext";
 import { useCart } from "../Context/CartContext";
 import productApi from "../../apis/productApi";
+import bannerApi from "../../apis/bannerApi";
 import { transformProducts } from "../../helpers/transformers/productTransformer";
 
 const BestSeller = () => {
@@ -29,32 +30,57 @@ const BestSeller = () => {
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { addToCart } = useCart();
   const [selectedImage, setSelectedImage] = useState(null);
+  const [saleBanner, setSaleBanner] = useState(null);
 
-  // Fetch best seller products from API
+  // Fallback sale banner data
+  const defaultSaleBanner = {
+    image: fallbackSaleImage,
+    label: "SALE",
+    discount: "15%",
+    title: "Seasonal Sale",
+    buttonText: "SHOP NOW",
+    redirectUrl: "/categories",
+  };
+
+  // Fetch best seller products and sale banner from API
   useEffect(() => {
     const fetchBestSellers = async () => {
       setLoading(true);
       setError(null);
 
-      await productApi.getBestSellers({
-        params: { limit: 10 },
-        setLoading,
-        onSuccess: (data) => {
-          if (data.status === "success" && data.data?.products?.length > 0) {
-            // Transform API products to match component format
-            const transformedProducts = transformProducts(data.data.products);
-            setProducts(transformedProducts);
-          } else {
+      await Promise.all([
+        productApi.getBestSellers({
+          params: { limit: 10 },
+          setLoading: () => {},
+          onSuccess: (data) => {
+            if (data.status === "success" && data.data?.products?.length > 0) {
+              const transformedProducts = transformProducts(data.data.products);
+              setProducts(transformedProducts);
+            } else {
+              setProducts([]);
+              setError("No best sellers available at the moment");
+            }
+          },
+          onError: (err) => {
+            console.error("Error fetching best sellers:", err);
+            setError("Failed to load best sellers. Please try again later.");
             setProducts([]);
-            setError("No best sellers available at the moment");
-          }
-        },
-        onError: (err) => {
-          console.error("Error fetching best sellers:", err);
-          setError("Failed to load best sellers. Please try again later.");
-          setProducts([]);
-        },
-      });
+          },
+        }),
+        bannerApi.getBannersByPage({
+          page: "home",
+          position: "sidebar",
+          setLoading: () => {},
+          onSuccess: (data) => {
+            if (data.status === "success" && data.data?.banners?.length > 0) {
+              setSaleBanner(data.data.banners[0]);
+            }
+          },
+          onError: () => {},
+        }),
+      ]);
+
+      setLoading(false);
     };
 
     fetchBestSellers();
@@ -90,7 +116,12 @@ const BestSeller = () => {
   // Handle Share
   const handleShare = (product, e) => {
     e.stopPropagation();
-    const shareUrl = `${window.location.origin}/product/${product.id}`;
+    const productId = product.id || product._id;
+    if (!productId) {
+      toast.error("Product link not available");
+      return;
+    }
+    const shareUrl = `${window.location.origin}/product/${productId}`;
 
     if (navigator.share) {
       navigator
@@ -101,8 +132,15 @@ const BestSeller = () => {
         })
         .catch((err) => console.log("Error sharing:", err));
     } else {
-      navigator.clipboard.writeText(shareUrl);
-      toast.success("Product link copied to clipboard!");
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => {
+          toast.success("Product link copied to clipboard!");
+        })
+        .catch((err) => {
+          console.error("Failed to copy:", err);
+          toast.error("Failed to copy link");
+        });
     }
   };
 
@@ -223,6 +261,20 @@ const BestSeller = () => {
     navigate("/categories");
   };
 
+  // Compute sale banner data with fallback
+  const saleData = saleBanner
+    ? {
+        image: saleBanner.images?.[0]?.url || defaultSaleBanner.image,
+        label: saleBanner.subheader || defaultSaleBanner.label,
+        discount: saleBanner.discountPercentage
+          ? `${saleBanner.discountPercentage}%`
+          : defaultSaleBanner.discount,
+        title: saleBanner.title || defaultSaleBanner.title,
+        buttonText: saleBanner.buttonText || defaultSaleBanner.buttonText,
+        redirectUrl: saleBanner.redirectUrl || defaultSaleBanner.redirectUrl,
+      }
+    : defaultSaleBanner;
+
   // Refresh AOS when slide changes
   useEffect(() => {
     AOS.refresh();
@@ -266,23 +318,29 @@ const BestSeller = () => {
       <div className="flex flex-col lg:flex-row items-start justify-between gap-2">
         {/* Seasonal Sale */}
         <div className="w-full lg:w-1/3">
-          <div className="relative">
+          <div
+            className={`relative ${saleData.redirectUrl ? "cursor-pointer" : ""}`}
+            onClick={() => saleData.redirectUrl && navigate(saleData.redirectUrl)}
+          >
             <img
               className="w-full h-[500px] object-cover"
-              src={sale}
-              alt="Seasonal Sale"
+              src={saleData.image}
+              alt={saleData.title}
               data-aos="fade-right"
               data-aos-delay="200"
             />
             <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 text-white text-center space-y-4">
-              <p className="text-lg font-semibold">SALE</p>
-              <p className="text-2xl font-bold">15%</p>
-              <p className="text-xl font-bold">Seasonal Sale</p>
+              <p className="text-lg font-semibold">{saleData.label}</p>
+              <p className="text-2xl font-bold">{saleData.discount}</p>
+              <p className="text-xl font-bold">{saleData.title}</p>
               <button
-                onClick={handleViewMore}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(saleData.redirectUrl || "/categories");
+                }}
                 className="border border-white px-6 py-2 hover:bg-white hover:text-black transition-all duration-300 transform hover:scale-105"
               >
-                SHOP NOW
+                {saleData.buttonText}
               </button>
             </div>
           </div>
@@ -358,18 +416,16 @@ const BestSeller = () => {
                   <div className="relative overflow-hidden bg-gray-100">
                     {/* Main Image */}
                     <img
-                      className={`w-full h-80 object-cover transition-opacity duration-500 ${
-                        hoveredCard === index ? "opacity-0" : "opacity-100"
-                      }`}
+                      className={`w-full h-80 object-cover transition-opacity duration-500 ${hoveredCard === index ? "opacity-0" : "opacity-100"
+                        }`}
                       src={product.image}
                       alt={product.title}
                     />
 
                     {/* Angle Image - Shows on hover */}
                     <img
-                      className={`absolute top-0 left-0 w-full h-80 object-cover transition-opacity duration-500 ${
-                        hoveredCard === index ? "opacity-100" : "opacity-0"
-                      }`}
+                      className={`absolute top-0 left-0 w-full h-80 object-cover transition-opacity duration-500 ${hoveredCard === index ? "opacity-100" : "opacity-0"
+                        }`}
                       src={product.angleImage}
                       alt={`${product.title} - alternate angle`}
                     />
@@ -377,11 +433,10 @@ const BestSeller = () => {
                     {/* Hover Icons - Mobile & Tablet: Always visible */}
                     <div className="lg:hidden absolute top-3 right-3 flex flex-col gap-2 z-10">
                       <button
-                        className={`p-2 rounded-full shadow-lg transition-all duration-300 ${
-                          isInWishlistItem
+                        className={`p-2 rounded-full shadow-lg transition-all duration-300 ${isInWishlistItem
                             ? "bg-red-50 text-red-500"
                             : "bg-white text-gray-700 hover:bg-red-50 hover:text-red-500"
-                        }`}
+                          }`}
                         onClick={(e) => handleWishlistClick(product, e)}
                         title={
                           isInWishlistItem
@@ -411,18 +466,16 @@ const BestSeller = () => {
 
                     {/* Hover Icons - Desktop: Show on hover */}
                     <div
-                      className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${
-                        hoveredCard === index
+                      className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${hoveredCard === index
                           ? "opacity-100 translate-x-0"
                           : "opacity-0 translate-x-4"
-                      }`}
+                        }`}
                     >
                       <button
-                        className={`p-2 rounded-full shadow-lg transition-all duration-300 ${
-                          isInWishlistItem
+                        className={`p-2 rounded-full shadow-lg transition-all duration-300 ${isInWishlistItem
                             ? "bg-red-50 text-red-500"
                             : "bg-white text-gray-700 hover:bg-red-50 hover:text-red-500"
-                        }`}
+                          }`}
                         onClick={(e) => handleWishlistClick(product, e)}
                         title={
                           isInWishlistItem
@@ -460,11 +513,10 @@ const BestSeller = () => {
 
                     {/* Add to Cart Button - Desktop: Show on hover */}
                     <button
-                      className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-black w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest z-10 ${
-                        hoveredCard === index
+                      className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-black w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest z-10 ${hoveredCard === index
                           ? "opacity-100 translate-y-0"
                           : "opacity-0 translate-y-4"
-                      }`}
+                        }`}
                       onClick={(e) => handleAddToCart(product, e)}
                     >
                       ADD TO CART
@@ -474,11 +526,10 @@ const BestSeller = () => {
                   {/* Product Info */}
                   <div className="mt-4">
                     <h3
-                      className={`text-lg font-semibold mb-2 transition-colors duration-300 ${
-                        hoveredCard === index
+                      className={`text-lg font-semibold mb-2 transition-colors duration-300 ${hoveredCard === index
                           ? "text-orange-800"
                           : "text-gray-900"
-                      }`}
+                        }`}
                     >
                       {product.title}
                     </h3>

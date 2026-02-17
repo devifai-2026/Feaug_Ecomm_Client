@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import banner from "../../assets/cleopatra/freepik__design-editorial-soft-studio-light-photography-hig__70850.png"
+import fallbackBannerImage from "../../assets/cleopatra/freepik__design-editorial-soft-studio-light-photography-hig__70850.png"
 import productApi from '../../apis/productApi';
+import bannerApi from '../../apis/bannerApi';
 import { useCart } from '../Context/CartContext';
 
 const FlashSale = () => {
@@ -10,6 +11,7 @@ const FlashSale = () => {
     const { addToCart } = useCart();
 
     const [saleProduct, setSaleProduct] = useState(null);
+    const [flashBanner, setFlashBanner] = useState(null);
     const [loading, setLoading] = useState(true);
     const [timeLeft, setTimeLeft] = useState({
         days: 0,
@@ -18,62 +20,89 @@ const FlashSale = () => {
         secs: 0
     });
 
-    // Set end date for flash sale (7 days from now by default)
-    const [saleEndDate] = useState(() => {
+    // Default end date (1 day from now) — overridden by banner endDate if available
+    const getDefaultEndDate = () => {
         const endDate = new Date();
         endDate.setDate(endDate.getDate() + 1);
         endDate.setHours(23, 59, 59, 999);
         return endDate;
-    });
+    };
 
-    // Fetch on-sale products
+    const [saleEndDate, setSaleEndDate] = useState(getDefaultEndDate);
+
+    // Fetch flash sale banner and on-sale products
     useEffect(() => {
-        productApi.getOnSaleProducts({
-            params: { limit: 1 },
-            setLoading,
-            onSuccess: (data) => {
-                if (data.success && data.data?.products?.length > 0) {
-                    const product = data.data.products[0];
-                    setSaleProduct({
-                        id: product._id || product.id,
-                        name: product.name,
-                        description: product.shortDescription || product.description,
-                        image: product.images?.[0]?.url || banner,
-                        price: product.sellingPrice || product.basePrice,
-                        originalPrice: product.basePrice,
-                        discountPercentage: product.discountValue ||
-                            (product.basePrice && product.sellingPrice
-                                ? Math.round(((product.basePrice - product.sellingPrice) / product.basePrice) * 100)
-                                : 0),
-                        stock: product.stock || 0
-                    });
-                } else {
-                    // Fallback to featured product if no sale products
-                    productApi.getFeaturedProducts({
-                        params: { limit: 1 },
-                        onSuccess: (featuredData) => {
-                            if (featuredData.success && featuredData.data?.products?.length > 0) {
-                                const product = featuredData.data.products[0];
-                                setSaleProduct({
-                                    id: product._id || product.id,
-                                    name: product.name,
-                                    description: product.shortDescription || product.description,
-                                    image: product.images?.[0]?.url || banner,
-                                    price: product.sellingPrice || product.basePrice,
-                                    originalPrice: product.basePrice,
-                                    discountPercentage: 0,
-                                    stock: product.stock || 0
-                                });
-                            }
-                        },
-                        onError: () => { }
-                    });
-                }
-            },
-            onError: (err) => {
-                console.error('Error fetching sale products:', err);
-            },
-        });
+        const fetchData = async () => {
+            setLoading(true);
+
+            // Fetch flash sale banner
+            await bannerApi.getBannersByPage({
+                page: "home",
+                bannerType: "slider",
+                setLoading: () => {},
+                onSuccess: (data) => {
+                    if (data.status === "success" && data.data?.banners?.length > 0) {
+                        const banner = data.data.banners[0];
+                        setFlashBanner(banner);
+                        // Use banner's endDate for the countdown if available
+                        if (banner.endDate) {
+                            setSaleEndDate(new Date(banner.endDate));
+                        }
+                    }
+                },
+                onError: () => {},
+            });
+
+            // Fetch on-sale products
+            await productApi.getOnSaleProducts({
+                params: { limit: 1 },
+                setLoading,
+                onSuccess: (data) => {
+                    if (data.success && data.data?.products?.length > 0) {
+                        const product = data.data.products[0];
+                        setSaleProduct({
+                            id: product._id || product.id,
+                            name: product.name,
+                            description: product.shortDescription || product.description,
+                            image: product.images?.[0]?.url || fallbackBannerImage,
+                            price: product.sellingPrice || product.basePrice,
+                            originalPrice: product.basePrice,
+                            discountPercentage: product.discountValue ||
+                                (product.basePrice && product.sellingPrice
+                                    ? Math.round(((product.basePrice - product.sellingPrice) / product.basePrice) * 100)
+                                    : 0),
+                            stock: product.stock || 0
+                        });
+                    } else {
+                        // Fallback to featured product if no sale products
+                        productApi.getFeaturedProducts({
+                            params: { limit: 1 },
+                            onSuccess: (featuredData) => {
+                                if (featuredData.success && featuredData.data?.products?.length > 0) {
+                                    const product = featuredData.data.products[0];
+                                    setSaleProduct({
+                                        id: product._id || product.id,
+                                        name: product.name,
+                                        description: product.shortDescription || product.description,
+                                        image: product.images?.[0]?.url || fallbackBannerImage,
+                                        price: product.sellingPrice || product.basePrice,
+                                        originalPrice: product.basePrice,
+                                        discountPercentage: 0,
+                                        stock: product.stock || 0
+                                    });
+                                }
+                            },
+                            onError: () => { }
+                        });
+                    }
+                },
+                onError: (err) => {
+                    console.error('Error fetching sale products:', err);
+                },
+            });
+        };
+
+        fetchData();
     }, []);
 
     // Countdown timer
@@ -131,7 +160,10 @@ const FlashSale = () => {
         return num.toString().padStart(2, '0');
     };
 
-    const backgroundImage = saleProduct?.image || banner;
+    // Use banner image first, then product image, then fallback
+    const backgroundImage = flashBanner?.images?.[0]?.url || saleProduct?.image || fallbackBannerImage;
+    const flashLabel = flashBanner?.title || 'FLASH SALE';
+    const flashDescription = flashBanner?.body || saleProduct?.description || 'Discover our exclusive collection of premium jewelry.';
 
     return (
         <div
@@ -160,7 +192,7 @@ const FlashSale = () => {
                     <p
                         className="text-xs sm:text-sm font-semibold tracking-wider text-center text-yellow-800 text-opacity-35 mb-3 sm:mb-4"
                     >
-                        FLASH SALE
+                        {flashLabel}
                         {saleProduct?.discountPercentage > 0 && (
                             <span className="ml-2 text-red-500">
                                 {saleProduct.discountPercentage}% OFF
@@ -190,7 +222,7 @@ const FlashSale = () => {
                         <p
                             className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6 text-center line-clamp-3"
                         >
-                            {saleProduct?.description || 'Discover our exclusive collection of premium jewelry.'}
+                            {saleProduct?.description || flashDescription}
                         </p>
                     )}
 

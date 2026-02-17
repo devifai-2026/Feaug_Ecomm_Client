@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   BsCurrencyRupee,
@@ -250,10 +250,19 @@ const Checkout = () => {
   );
   const shippingCost = selectedShippingOption?.cost || 0;
 
-  const discountAmount = appliedPromo
-    ? appliedPromo.discountAmount ||
-      (subtotal * appliedPromo.discountPercentage) / 100
-    : 0;
+  const discountAmount = useMemo(() => {
+    if (!appliedPromo) return 0;
+    const amount = Number(appliedPromo.discountAmount);
+    if (!isNaN(amount)) return amount;
+
+    // Fallback to percentage calculation
+    const percentage = parseFloat(appliedPromo.discountPercentage);
+    if (!isNaN(percentage)) {
+      return (subtotal * percentage) / 100;
+    }
+    return 0;
+  }, [appliedPromo, subtotal]);
+
   const discountedSubtotal = Math.max(0, subtotal - discountAmount);
 
   const tax = Math.round(discountedSubtotal * 0.03); // 3% GST on discounted subtotal
@@ -515,9 +524,8 @@ const Checkout = () => {
     toast.custom(
       (t) => (
         <div
-          className={`transform transition-all duration-300 ${
-            t.visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
-          }`}
+          className={`transform transition-all duration-300 ${t.visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
+            }`}
         >
           <div className="relative bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-2xl shadow-2xl overflow-hidden border border-green-200 w-96">
             <div
@@ -666,7 +674,7 @@ const Checkout = () => {
           const firstError = Object.values(validationErrors)[0];
           toast.error(
             firstError ||
-              "Please fill in all required address fields correctly",
+            "Please fill in all required address fields correctly",
           );
           setLoading(false);
           setStep(1); // Go back to shipping step
@@ -735,7 +743,7 @@ const Checkout = () => {
           orderData,
           setLoading,
           onSuccess: (data) => {
-            if (data.success && data.data) {
+            if ((data.status === 'success' || data.success) && data.data) {
               const order = data.data.order || data.data;
               clearCart();
               showSuccessToast(order.orderId || order._id);
@@ -754,11 +762,15 @@ const Checkout = () => {
 
       // Case 2: Online Payment (Razorpay Modal)
       // NEW FLOW: Initiate -> Pay (via Modal) -> Create (Finalize)
+      // Case 2: Online Payment (Razorpay Modal)
+      // NEW FLOW: Initiate -> Pay (via Modal) -> Create (Finalize)
+      // Pass setLoading: null to prevent loading from turning off after initiatePayment completes
+      // We want loading to stay true while Razorpay modal is open
       orderApi.initiatePayment({
         orderData,
-        setLoading,
+        setLoading: null,
         onSuccess: async (initData) => {
-          if (initData.success && initData.data?.razorpayOrder) {
+          if ((initData.status === 'success' || initData.success) && initData.data?.razorpayOrder) {
             const rzpOrder = initData.data.razorpayOrder;
 
             try {
@@ -780,7 +792,7 @@ const Checkout = () => {
                     razorpayOrderId: paymentResult.razorpayOrderId,
                     razorpaySignature: paymentResult.razorpaySignature,
                   },
-                  setLoading,
+                  setLoading, // Let this one turn off loading when done
                   onSuccess: (finalData) => {
                     const finalOrder = finalData.data.order || finalData.data;
                     clearCart();
@@ -791,24 +803,31 @@ const Checkout = () => {
                     toast.error(
                       "Payment successful but order creation failed. Please contact support.",
                     );
+                    setLoading(false);
                   },
                 });
+              } else {
+                setLoading(false);
               }
             } catch (err) {
               toast.error(err.message || "Payment cancelled");
+              setLoading(false);
             }
           } else {
             toast.error("Failed to initiate payment gateway");
+            setLoading(false);
           }
         },
         onError: (err) => {
-          toast.error(err.message || "Failed to initiate payment");
+          // err is likely the response object itself or the error object
+          const errorMessage = err.data?.message || err.response?.data?.message || err.message || "Failed to initiate payment";
+          toast.error(errorMessage);
+          setLoading(false);
         },
       });
     } catch (error) {
       console.error("Checkout error:", error);
       toast.error("An error occurred. Please try again.");
-    } finally {
       setLoading(false);
     }
   };

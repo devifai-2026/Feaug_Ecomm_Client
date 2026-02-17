@@ -223,6 +223,36 @@ const FeaturedCollection = () => {
     }
   };
 
+  const handleShare = (product, e) => {
+    e.stopPropagation();
+    const productId = product.id || product._id;
+    if (!productId) {
+      toast.error("Product link not available");
+      return;
+    }
+    const shareUrl = `${window.location.origin}/product/${productId}`;
+
+    if (navigator.share) {
+      navigator
+        .share({
+          title: product.title,
+          text: `Check out this beautiful ${product.title} at Feauage Jewelry!`,
+          url: shareUrl,
+        })
+        .catch((err) => console.log("Error sharing:", err));
+    } else {
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => {
+          toast.success("Product link copied to clipboard!");
+        })
+        .catch((err) => {
+          console.error("Failed to copy:", err);
+          toast.error("Failed to copy link");
+        });
+    }
+  };
+
   const handleViewWishlist = () => {
     navigate("/wishlist");
   };
@@ -248,7 +278,7 @@ const FeaturedCollection = () => {
           },
         }}
       />
-
+      {/* ... styles ... */}
       <style>{`
                 @keyframes slideInRight {
                     from {
@@ -310,7 +340,7 @@ const FeaturedCollection = () => {
                     animation: zoomIn 0.5s ease-out;
                 }
             `}</style>
-
+      {/* ... header ... */}
       <div className="flex items-center justify-between mb-10">
         <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-500 animate-fadeDown">
           Featured Collection
@@ -344,18 +374,16 @@ const FeaturedCollection = () => {
               <div className="relative overflow-hidden">
                 {/* Main Image */}
                 <img
-                  className={`w-full h-72 object-cover transition-opacity duration-500 ${
-                    hoveredCard === index ? "opacity-0" : "opacity-100"
-                  }`}
+                  className={`w-full h-72 object-cover transition-opacity duration-500 ${hoveredCard === index ? "opacity-0" : "opacity-100"
+                    }`}
                   src={product.image}
                   alt={product.title}
                 />
 
                 {/* Angle Image - Shows on hover */}
                 <img
-                  className={`absolute top-0 left-0 w-full h-72 object-cover transition-opacity duration-500 ${
-                    hoveredCard === index ? "opacity-100" : "opacity-0"
-                  }`}
+                  className={`absolute top-0 left-0 w-full h-72 object-cover transition-opacity duration-500 ${hoveredCard === index ? "opacity-100" : "opacity-0"
+                    }`}
                   src={product.angleImage}
                   alt={`${product.title} - alternate angle`}
                 />
@@ -382,11 +410,10 @@ const FeaturedCollection = () => {
                 {/* Mobile & Tablet: Always visible */}
                 <div className="lg:hidden absolute top-3 right-3 flex flex-col gap-2 z-10">
                   <button
-                    className={`p-2 shadow-lg transition-all duration-300 hover:scale-110 ${
-                      isInWishlistItem
+                    className={`p-2 shadow-lg transition-all duration-300 hover:scale-110 ${isInWishlistItem
                         ? "bg-red-50 text-red-500"
                         : "bg-white text-gray-700 rounded-full hover:bg-red-50 hover:text-red-500"
-                    }`}
+                      }`}
                     onClick={(e) => handleWishlistClick(product, e)}
                     title={
                       isInWishlistItem
@@ -402,7 +429,7 @@ const FeaturedCollection = () => {
                   </button>
                   <button
                     className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors hover:scale-110"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => handleShare(product, e)}
                   >
                     <BsShare className="text-gray-700 hover:text-blue-500" />
                   </button>
@@ -416,18 +443,16 @@ const FeaturedCollection = () => {
 
                 {/* Desktop: Show on hover */}
                 <div
-                  className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${
-                    hoveredCard === index
+                  className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${hoveredCard === index
                       ? "opacity-100 translate-x-0"
                       : "opacity-0 translate-x-4"
-                  }`}
+                    }`}
                 >
                   <button
-                    className={`p-2 shadow-lg transition-all duration-300 hover:scale-110 ${
-                      isInWishlistItem
+                    className={`p-2 shadow-lg transition-all duration-300 hover:scale-110 ${isInWishlistItem
                         ? "bg-red-50 text-red-500"
                         : "bg-white text-gray-700 rounded-full hover:bg-red-50 hover:text-red-500"
-                    }`}
+                      }`}
                     onClick={(e) => handleWishlistClick(product, e)}
                     title={
                       isInWishlistItem
@@ -443,7 +468,7 @@ const FeaturedCollection = () => {
                   </button>
                   <button
                     className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors hover:scale-110"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => handleShare(product, e)}
                   >
                     <BsShare className="text-gray-700 hover:text-blue-500" />
                   </button>
@@ -461,9 +486,8 @@ const FeaturedCollection = () => {
                   <>
                     <button
                       disabled={!product.inStock}
-                      className={`lg:hidden absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] hover:scale-105 uppercase tracking-wide text-sm text-nowrap z-10 font-semibold shadow-md hover:bg-gray-50 border border-gray-200 ${
-                        !product.inStock ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
+                      className={`lg:hidden absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] hover:scale-105 uppercase tracking-wide text-sm text-nowrap z-10 font-semibold shadow-md hover:bg-gray-50 border border-gray-200 ${!product.inStock ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
                       onClick={(e) => handleAddToCart(product, e)}
                     >
                       {product.inStock ? "Add to Cart" : "Out of Stock"}
@@ -472,11 +496,10 @@ const FeaturedCollection = () => {
                     {/* Desktop: Show on hover */}
                     <button
                       disabled={!product.inStock}
-                      className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] hover:scale-105 uppercase tracking-widest z-10 font-semibold shadow-md hover:bg-gray-50 border border-gray-200 ${
-                        hoveredCard === index
+                      className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 py-2 px-6 transition-all duration-300 w-[90%] hover:scale-105 uppercase tracking-widest z-10 font-semibold shadow-md hover:bg-gray-50 border border-gray-200 ${hoveredCard === index
                           ? "opacity-100 translate-y-0"
                           : "opacity-0 translate-y-4"
-                      } ${!product.inStock ? "opacity-50 cursor-not-allowed" : ""}`}
+                        } ${!product.inStock ? "opacity-50 cursor-not-allowed" : ""}`}
                       onClick={(e) => handleAddToCart(product, e)}
                     >
                       {product.inStock ? "Add to Cart" : "Out of Stock"}

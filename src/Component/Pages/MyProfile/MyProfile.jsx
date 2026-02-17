@@ -50,6 +50,8 @@ const MyProfile = () => {
   const [editingAddressId, setEditingAddressId] = useState(null);
   const [addressData, setAddressData] = useState({
     type: "home",
+    name: "",
+    phone: "",
     addressLine1: "",
     addressLine2: "",
     city: "",
@@ -58,6 +60,7 @@ const MyProfile = () => {
     country: "India",
     isDefault: false,
   });
+
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -75,6 +78,7 @@ const MyProfile = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [paginatedAddresses, setPaginatedAddresses] = useState([]);
   const ADDRESSES_PER_PAGE = 4;
+
 
   // Helper to get initials
   const getInitials = (firstName, lastName) => {
@@ -202,10 +206,13 @@ const MyProfile = () => {
     setSaving(true);
 
     try {
+      // Clean phone number (remove non-digits)
+      const cleanPhone = (tempData.phone || "").replace(/\D/g, "");
+
       const updateData = {
         firstName: tempData.firstName,
         lastName: tempData.lastName,
-        phone: tempData.phone,
+        phone: cleanPhone,
         gender:
           tempData.gender === "Prefer not to say"
             ? "prefer_not_to_say"
@@ -423,6 +430,11 @@ const MyProfile = () => {
 
     // Client-side validation
     const newErrors = {};
+    if (!addressData.name) newErrors.name = "Name is required";
+    if (!addressData.phone) newErrors.phone = "Phone is required";
+    else if (!/^\d{10}$/.test(addressData.phone.replace(/\D/g, "")))
+      newErrors.phone = "Phone must be 10 digits";
+
     if (!addressData.addressLine1) {
       newErrors.addressLine1 = "Address Line 1 is required";
     }
@@ -446,11 +458,17 @@ const MyProfile = () => {
 
     setSaving(true);
     try {
+      // Clean phone
+      const submissionData = {
+        ...addressData,
+        phone: addressData.phone.replace(/\D/g, ""),
+      };
+
       let response;
       if (editingAddressId) {
-        response = await userApi.updateAddress(editingAddressId, addressData);
+        response = await userApi.updateAddress(editingAddressId, submissionData);
       } else {
-        response = await userApi.addAddress(addressData);
+        response = await userApi.addAddress(submissionData);
       }
 
       if (response.status === "success") {
@@ -606,11 +624,10 @@ const MyProfile = () => {
               <button
                 key={section.id}
                 onClick={() => setActiveSection(section.id)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 border ${
-                  activeSection === section.id
-                    ? "bg-[#C19A6B] text-white shadow-md border-transparent translate-x-1"
-                    : "bg-white text-neutral-400 border-neutral-100 hover:border-[#C19A6B]/40 hover:text-neutral-700"
-                }`}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 border ${activeSection === section.id
+                  ? "bg-[#C19A6B] text-white shadow-md border-transparent translate-x-1"
+                  : "bg-white text-neutral-400 border-neutral-100 hover:border-[#C19A6B]/40 hover:text-neutral-700"
+                  }`}
               >
                 <div className="flex items-center gap-4">
                   <span className="text-lg">{section.icon}</span>
@@ -750,7 +767,7 @@ const MyProfile = () => {
                           userData.gender === "prefer_not_to_say"
                             ? "Prefer not to say"
                             : userData.gender.charAt(0).toUpperCase() +
-                              userData.gender.slice(1),
+                            userData.gender.slice(1),
                         icon: <FaCalendarAlt />,
                       },
                     ].map((item, idx) => (
@@ -792,11 +809,10 @@ const MyProfile = () => {
                       paginatedAddresses.map((addr, index) => (
                         <div
                           key={addr._id || index}
-                          className={`relative p-6 rounded-3xl border transition-all duration-300 ${
-                            addr.isDefault
-                              ? "bg-white border-[#C19A6B]/30 shadow-md"
-                              : "bg-neutral-50 border-neutral-50 hover:bg-white hover:border-neutral-200"
-                          }`}
+                          className={`relative p-6 rounded-3xl border transition-all duration-300 ${addr.isDefault
+                            ? "bg-white border-[#C19A6B]/30 shadow-md"
+                            : "bg-neutral-50 border-neutral-50 hover:bg-white hover:border-neutral-200"
+                            }`}
                         >
                           <div className="flex items-center justify-between mb-6">
                             <span className="px-4 py-1.5 bg-neutral-900 text-white rounded-full text-[10px] font-bold uppercase transition-all">
@@ -867,11 +883,10 @@ const MyProfile = () => {
                       <button
                         disabled={addressPage === 1}
                         onClick={() => setAddressPage((prev) => prev - 1)}
-                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
-                          addressPage === 1
-                            ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
-                            : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
-                        }`}
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${addressPage === 1
+                          ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
+                          : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
+                          }`}
                       >
                         Previous
                       </button>
@@ -881,14 +896,13 @@ const MyProfile = () => {
                       <button
                         disabled={addressPage === totalPages}
                         onClick={() => setAddressPage((prev) => prev + 1)}
-                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
-                          addressPage ===
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${addressPage ===
                           Math.ceil(
                             userData.addresses.length / ADDRESSES_PER_PAGE,
                           )
-                            ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
-                            : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
-                        }`}
+                          ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
+                          : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
+                          }`}
                       >
                         Next
                       </button>
@@ -1013,11 +1027,10 @@ const MyProfile = () => {
                       value={field.value}
                       onChange={handleInputChange}
                       disabled={field.disabled}
-                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none transition-all font-inter text-xs ${
-                        field.disabled
-                          ? "text-neutral-300 cursor-not-allowed opacity-60"
-                          : "text-neutral-800 border-2 border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
-                      }`}
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none transition-all font-inter text-xs ${field.disabled
+                        ? "text-neutral-300 cursor-not-allowed opacity-60"
+                        : "text-neutral-800 border-2 border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
+                        }`}
                     />
                   </div>
                 ))}
@@ -1101,11 +1114,10 @@ const MyProfile = () => {
                         value={passwordData[field.id]}
                         onChange={handlePasswordChange}
                         placeholder="••••••••"
-                        className={`w-full bg-neutral-50 border-2 rounded-xl px-5 py-3 pr-12 outline-none text-xs transition-all ${
-                          passwordErrors[field.id]
-                            ? "border-red-200"
-                            : "border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
-                        }`}
+                        className={`w-full bg-neutral-50 border-2 rounded-xl px-5 py-3 pr-12 outline-none text-xs transition-all ${passwordErrors[field.id]
+                          ? "border-red-200"
+                          : "border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
+                          }`}
                       />
                       <button
                         type="button"
@@ -1127,13 +1139,21 @@ const MyProfile = () => {
                   </div>
                 ))}
               </div>
-              <button
-                onClick={handlePasswordSubmit}
-                disabled={saving}
-                className="w-full py-4 bg-neutral-900 text-white rounded-xl font-bold text-xs hover:bg-[#C19A6B] transition-all disabled:opacity-50"
-              >
-                {saving ? "Updating..." : "Update Password"}
-              </button>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setShowPasswordModal(false)}
+                  className="flex-1 py-4 bg-neutral-50 text-neutral-500 rounded-xl font-bold text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePasswordSubmit}
+                  disabled={saving}
+                  className="flex-[2] py-4 bg-neutral-900 text-white rounded-xl font-bold text-xs hover:bg-[#C19A6B] transition-all disabled:opacity-50"
+                >
+                  {saving ? "Updating..." : "Update Password"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1172,6 +1192,43 @@ const MyProfile = () => {
                       <option value="work">Work</option>
                       <option value="other">Other</option>
                     </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={addressData.name}
+                      onChange={handleAddressChange}
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter ${addressErrors.name ? "border border-red-400" : ""}`}
+                      required
+                    />
+                    {addressErrors.name && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {addressErrors.name}
+                      </p>
+                    )}
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                      Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={addressData.phone}
+                      onChange={handleAddressChange}
+                      maxLength={10}
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter ${addressErrors.phone ? "border border-red-400" : ""}`}
+                      required
+                    />
+                    {addressErrors.phone && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {addressErrors.phone}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
@@ -1309,3 +1366,4 @@ const MyProfile = () => {
 };
 
 export default MyProfile;
+// Force update

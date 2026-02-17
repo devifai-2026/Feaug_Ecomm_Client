@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5001/api/v1", // Backend API URL
+  baseURL: "http://127.0.0.1:5001/api/v1", // Backend API URL
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -30,13 +30,13 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     // Add Guest ID from localStorage
     const guestId = localStorage.getItem('guestId');
     if (guestId) {
       config.headers['x-guest-id'] = guestId;
     }
-    
+
     return config;
   },
   (error) => {

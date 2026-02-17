@@ -80,8 +80,8 @@ const Register = () => {
     const digitsOnly = phone.replace(/\D/g, "");
     if (digitsOnly.length !== 10)
       return "Phone number must be exactly 10 digits";
-    if (!/^[6-9]\d{9}$/.test(digitsOnly))
-      return "Please enter a valid Indian mobile number";
+    if (!/^\d{10}$/.test(digitsOnly))
+      return "Please enter a valid 10-digit mobile number";
     return "";
   };
 
@@ -282,13 +282,12 @@ const Register = () => {
       !errors[fieldName] &&
       formData[fieldName].length > 0;
 
-    return `appearance-none block w-full pl-10 md:pl-12 px-3 py-2 md:py-3 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 text-sm md:text-base transition-colors ${
-      hasError
+    return `appearance-none block w-full pl-10 md:pl-12 px-3 py-2 md:py-3 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 text-sm md:text-base transition-colors ${hasError
         ? "border-red-300 focus:border-red-500 focus:ring-red-500"
         : isValid
           ? "border-green-300 focus:border-green-500 focus:ring-green-500"
           : "border-gray-300 focus:border-[#C19A6B] focus:ring-[#C19A6B]"
-    }`;
+      }`;
   };
 
   return (

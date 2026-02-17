@@ -9,5 +9,8 @@ export const handleApiError = (error, defaultMessage) => {
   console.error(`API Error: ${errorMessage}`);
 
   // Throw an error with the original message
-  throw new Error(errorMessage);
+  // Create error with message and status
+  const errorObj = new Error(errorMessage);
+  errorObj.status = error.response?.status;
+  throw errorObj;
 };
