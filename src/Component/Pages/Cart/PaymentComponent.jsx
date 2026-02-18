@@ -36,13 +36,13 @@ const PaymentComponent = ({
       desc: "Pay securely with Card, UPI, or Netbanking",
       recommended: true,
     },
-    {
-      value: "cod",
-      label: "Cash on Delivery",
-      icon: BsCash,
-      desc: "Pay when you receive your order (+₹50 COD charges)",
-      recommended: false,
-    },
+    // {
+    //   value: "cod",
+    //   label: "Cash on Delivery",
+    //   icon: BsCash,
+    //   desc: "Pay when you receive your order (+₹50 COD charges)",
+    //   recommended: false,
+    // },
   ];
 
   return (
