@@ -1,12 +1,13 @@
 import { BsCurrencyRupee } from "react-icons/bs";
 
 export const OrderSummary = ({
-  subtotal,
-  shippingCost,
-  tax,
-  total,
-  discountAmount,
-  cartItems,
+  subtotal = 0,
+  shippingCost = 0,
+  tax = 0,
+  total = 0,
+  discountAmount = 0,
+  cartItems = [],
+  appliedPromo,
 }) => (
   <div className="sticky top-24 space-y-6">
     <div className="bg-white shadow-sm border border-gray-200 p-6">

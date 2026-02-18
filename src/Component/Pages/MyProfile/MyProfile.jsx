@@ -19,6 +19,8 @@ import {
   FaMapMarkedAlt,
   FaUserCircle,
   FaCamera,
+  FaEye,
+  FaEyeSlash,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import userApi from "../../../apis/user/userApi";
@@ -48,6 +50,8 @@ const MyProfile = () => {
   const [editingAddressId, setEditingAddressId] = useState(null);
   const [addressData, setAddressData] = useState({
     type: "home",
+    name: "",
+    phone: "",
     addressLine1: "",
     addressLine2: "",
     city: "",
@@ -56,10 +60,16 @@ const MyProfile = () => {
     country: "India",
     isDefault: false,
   });
+
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
   });
   const [passwordErrors, setPasswordErrors] = useState({});
   const [addressErrors, setAddressErrors] = useState({});
@@ -68,6 +78,7 @@ const MyProfile = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [paginatedAddresses, setPaginatedAddresses] = useState([]);
   const ADDRESSES_PER_PAGE = 4;
+
 
   // Helper to get initials
   const getInitials = (firstName, lastName) => {
@@ -195,10 +206,13 @@ const MyProfile = () => {
     setSaving(true);
 
     try {
+      // Clean phone number (remove non-digits)
+      const cleanPhone = (tempData.phone || "").replace(/\D/g, "");
+
       const updateData = {
         firstName: tempData.firstName,
         lastName: tempData.lastName,
-        phone: tempData.phone,
+        phone: cleanPhone,
         gender:
           tempData.gender === "Prefer not to say"
             ? "prefer_not_to_say"
@@ -293,6 +307,11 @@ const MyProfile = () => {
           newPassword: "",
           confirmPassword: "",
         });
+        setShowPasswords({
+          current: false,
+          new: false,
+          confirm: false,
+        });
         toast.success("Password updated successfully!");
       } else {
         toast.error(response.message || "Failed to update password");
@@ -303,6 +322,13 @@ const MyProfile = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const togglePasswordVisibility = (field) => {
+    setShowPasswords((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
   };
 
   const handleAddressChange = (e) => {
@@ -404,6 +430,11 @@ const MyProfile = () => {
 
     // Client-side validation
     const newErrors = {};
+    if (!addressData.name) newErrors.name = "Name is required";
+    if (!addressData.phone) newErrors.phone = "Phone is required";
+    else if (!/^\d{10}$/.test(addressData.phone.replace(/\D/g, "")))
+      newErrors.phone = "Phone must be 10 digits";
+
     if (!addressData.addressLine1) {
       newErrors.addressLine1 = "Address Line 1 is required";
     }
@@ -427,11 +458,17 @@ const MyProfile = () => {
 
     setSaving(true);
     try {
+      // Clean phone
+      const submissionData = {
+        ...addressData,
+        phone: addressData.phone.replace(/\D/g, ""),
+      };
+
       let response;
       if (editingAddressId) {
-        response = await userApi.updateAddress(editingAddressId, addressData);
+        response = await userApi.updateAddress(editingAddressId, submissionData);
       } else {
-        response = await userApi.addAddress(addressData);
+        response = await userApi.addAddress(submissionData);
       }
 
       if (response.status === "success") {
@@ -587,11 +624,10 @@ const MyProfile = () => {
               <button
                 key={section.id}
                 onClick={() => setActiveSection(section.id)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 border ${
-                  activeSection === section.id
-                    ? "bg-[#C19A6B] text-white shadow-md border-transparent translate-x-1"
-                    : "bg-white text-neutral-400 border-neutral-100 hover:border-[#C19A6B]/40 hover:text-neutral-700"
-                }`}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 border ${activeSection === section.id
+                  ? "bg-[#C19A6B] text-white shadow-md border-transparent translate-x-1"
+                  : "bg-white text-neutral-400 border-neutral-100 hover:border-[#C19A6B]/40 hover:text-neutral-700"
+                  }`}
               >
                 <div className="flex items-center gap-4">
                   <span className="text-lg">{section.icon}</span>
@@ -731,7 +767,7 @@ const MyProfile = () => {
                           userData.gender === "prefer_not_to_say"
                             ? "Prefer not to say"
                             : userData.gender.charAt(0).toUpperCase() +
-                              userData.gender.slice(1),
+                            userData.gender.slice(1),
                         icon: <FaCalendarAlt />,
                       },
                     ].map((item, idx) => (
@@ -773,11 +809,10 @@ const MyProfile = () => {
                       paginatedAddresses.map((addr, index) => (
                         <div
                           key={addr._id || index}
-                          className={`relative p-6 rounded-3xl border transition-all duration-300 ${
-                            addr.isDefault
-                              ? "bg-white border-[#C19A6B]/30 shadow-md"
-                              : "bg-neutral-50 border-neutral-50 hover:bg-white hover:border-neutral-200"
-                          }`}
+                          className={`relative p-6 rounded-3xl border transition-all duration-300 ${addr.isDefault
+                            ? "bg-white border-[#C19A6B]/30 shadow-md"
+                            : "bg-neutral-50 border-neutral-50 hover:bg-white hover:border-neutral-200"
+                            }`}
                         >
                           <div className="flex items-center justify-between mb-6">
                             <span className="px-4 py-1.5 bg-neutral-900 text-white rounded-full text-[10px] font-bold uppercase transition-all">
@@ -848,11 +883,10 @@ const MyProfile = () => {
                       <button
                         disabled={addressPage === 1}
                         onClick={() => setAddressPage((prev) => prev - 1)}
-                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
-                          addressPage === 1
-                            ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
-                            : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
-                        }`}
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${addressPage === 1
+                          ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
+                          : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
+                          }`}
                       >
                         Previous
                       </button>
@@ -862,14 +896,13 @@ const MyProfile = () => {
                       <button
                         disabled={addressPage === totalPages}
                         onClick={() => setAddressPage((prev) => prev + 1)}
-                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
-                          addressPage ===
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${addressPage ===
                           Math.ceil(
                             userData.addresses.length / ADDRESSES_PER_PAGE,
                           )
-                            ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
-                            : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
-                        }`}
+                          ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
+                          : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
+                          }`}
                       >
                         Next
                       </button>
@@ -994,11 +1027,10 @@ const MyProfile = () => {
                       value={field.value}
                       onChange={handleInputChange}
                       disabled={field.disabled}
-                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none transition-all font-poppins text-xs ${
-                        field.disabled
-                          ? "text-neutral-300 cursor-not-allowed opacity-60"
-                          : "text-neutral-800 border-2 border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
-                      }`}
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none transition-all font-poppins text-xs ${field.disabled
+                        ? "text-neutral-300 cursor-not-allowed opacity-60"
+                        : "text-neutral-800 border-2 border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
+                        }`}
                     />
                   </div>
                 ))}
@@ -1045,48 +1077,83 @@ const MyProfile = () => {
         <div className="fixed inset-0 z-[210] flex items-center justify-center p-4 backdrop-blur-md bg-white/40 animate-in fade-in duration-500">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm border border-neutral-100 animate-in zoom-in-95 duration-500">
             <div className="p-8">
-              <h2 className="text-2xl  font-bold text-neutral-900 mb-8">
-                Change Password
-              </h2>
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-bold text-neutral-900">
+                  Change Password
+                </h2>
+                <button
+                  onClick={() => setShowPasswordModal(false)}
+                  className="p-3 bg-neutral-50 text-neutral-400 rounded-full border border-neutral-100"
+                >
+                  <FaTimes size={12} />
+                </button>
+              </div>
+
               <div className="space-y-6 mb-8">
-                {["currentPassword", "newPassword", "confirmPassword"].map(
-                  (pwField) => (
-                    <div key={pwField}>
-                      <label className="text-xs font-semibold text-[#C19A6B] block mb-2">
-                        {pwField === "currentPassword"
-                          ? "Current Password"
-                          : pwField === "newPassword"
-                            ? "New Password"
-                            : "Confirm Password"}
-                      </label>
+                {[
+                  {
+                    id: "currentPassword",
+                    key: "current",
+                    label: "Current Password",
+                  },
+                  { id: "newPassword", key: "new", label: "New Password" },
+                  {
+                    id: "confirmPassword",
+                    key: "confirm",
+                    label: "Confirm Password",
+                  },
+                ].map((field) => (
+                  <div key={field.id}>
+                    <label className="text-xs font-semibold text-[#C19A6B] block mb-2">
+                      {field.label}
+                    </label>
+                    <div className="relative">
                       <input
-                        type="password"
-                        name={pwField}
-                        value={passwordData[pwField]}
+                        type={showPasswords[field.key] ? "text" : "password"}
+                        name={field.id}
+                        value={passwordData[field.id]}
                         onChange={handlePasswordChange}
                         placeholder="••••••••"
-                        className={`w-full bg-neutral-50 border-2 rounded-xl px-5 py-3 outline-none text-xs ${
-                          passwordErrors[pwField]
-                            ? "border-red-200"
-                            : "border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
-                        }`}
+                        className={`w-full bg-neutral-50 border-2 rounded-xl px-5 py-3 pr-12 outline-none text-xs transition-all ${passwordErrors[field.id]
+                          ? "border-red-200"
+                          : "border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
+                          }`}
                       />
-                      {passwordErrors[pwField] && (
-                        <p className="text-red-400 text-[8px] font-black mt-2 ml-1 uppercase tracking-tighter">
-                          {passwordErrors[pwField]}
-                        </p>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => togglePasswordVisibility(field.key)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-[#C19A6B] transition-colors"
+                      >
+                        {showPasswords[field.key] ? (
+                          <FaEyeSlash size={14} />
+                        ) : (
+                          <FaEye size={14} />
+                        )}
+                      </button>
                     </div>
-                  ),
-                )}
+                    {passwordErrors[field.id] && (
+                      <p className="text-red-400 text-[8px] font-black mt-2 ml-1 uppercase tracking-tighter">
+                        {passwordErrors[field.id]}
+                      </p>
+                    )}
+                  </div>
+                ))}
               </div>
-              <button
-                onClick={handlePasswordSubmit}
-                disabled={saving}
-                className="w-full py-4 bg-neutral-900 text-white rounded-xl font-bold text-xs hover:bg-[#C19A6B] transition-all"
-              >
-                Update Password
-              </button>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setShowPasswordModal(false)}
+                  className="flex-1 py-4 bg-neutral-50 text-neutral-500 rounded-xl font-bold text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePasswordSubmit}
+                  disabled={saving}
+                  className="flex-[2] py-4 bg-neutral-900 text-white rounded-xl font-bold text-xs hover:bg-[#C19A6B] transition-all disabled:opacity-50"
+                >
+                  {saving ? "Updating..." : "Update Password"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1125,6 +1192,43 @@ const MyProfile = () => {
                       <option value="work">Work</option>
                       <option value="other">Other</option>
                     </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={addressData.name}
+                      onChange={handleAddressChange}
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter ${addressErrors.name ? "border border-red-400" : ""}`}
+                      required
+                    />
+                    {addressErrors.name && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {addressErrors.name}
+                      </p>
+                    )}
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                      Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={addressData.phone}
+                      onChange={handleAddressChange}
+                      maxLength={10}
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter ${addressErrors.phone ? "border border-red-400" : ""}`}
+                      required
+                    />
+                    {addressErrors.phone && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {addressErrors.phone}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
@@ -1262,3 +1366,4 @@ const MyProfile = () => {
 };
 
 export default MyProfile;
+// Force update

@@ -48,6 +48,16 @@ const orderApi = {
       onError,
     }),
 
+  // Initiate payment (get Razorpay ID without creating order)
+  initiatePayment: ({ orderData, setLoading, onSuccess, onError }) =>
+    apiCall.post({
+      route: '/orders/initiate-payment',
+      payload: orderData,
+      setLoading,
+      onSuccess,
+      onError,
+    }),
+
   // Cancel an order
   cancelOrder: ({ orderId, reason, setLoading, onSuccess, onError }) =>
     apiCall.patch({

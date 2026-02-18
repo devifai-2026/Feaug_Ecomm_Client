@@ -80,8 +80,8 @@ const Category = () => {
     e.stopPropagation();
 
     // Check if product is out of stock
-    if (product.stockStatus === 'out_of_stock' || product.stockQuantity === 0) {
-      toast.error('This product is currently out of stock');
+    if (product.stockStatus === "out_of_stock" || product.stockQuantity === 0) {
+      toast.error("This product is currently out of stock");
       return;
     }
 
@@ -162,7 +162,8 @@ const Category = () => {
         image: product.images?.[0]?.url || product.image || one,
         material: product.material,
         brand: product.brand,
-        inStock: product.stockStatus !== 'out_of_stock' && product.stockQuantity !== 0,
+        inStock:
+          product.stockStatus !== "out_of_stock" && product.stockQuantity !== 0,
       });
 
       toast.success(
@@ -816,133 +817,83 @@ const Category = () => {
             {/* Products Grid/List */}
             <div
               className={`mb-12 ${
-                layout === "grid"
+                layout === "grid" && currentProducts.length > 0
                   ? "grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6 "
                   : "space-y-4"
               }`}
             >
-              {currentProducts.map((product) => {
-                const isInWishlistItem = isInWishlist(
-                  product._id || product.id,
-                );
-                // Handle different image structures (API vs Mock)
-                // API might return images array, Mock returned image property
-                // Also handle fallback to placeholder
-                const displayImage =
-                  product.images?.[0]?.url || product.image || one;
-                const displayPrice = product.sellingPrice || product.price;
-                const isOutOfStock = product.stockStatus === 'out_of_stock' || product.stockQuantity === 0;
+              {loading ? (
+                <div className="col-span-full py-20 text-center">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-amber-700 mb-4"></div>
+                  <p className="text-gray-600">Loading products...</p>
+                </div>
+              ) : currentProducts.length > 0 ? (
+                currentProducts.map((product) => {
+                  const isInWishlistItem = isInWishlist(
+                    product._id || product.id,
+                  );
+                  // Handle different image structures (API vs Mock)
+                  // API might return images array, Mock returned image property
+                  // Also handle fallback to placeholder
+                  const displayImage =
+                    product.images?.[0]?.url || product.image || one;
+                  const displayPrice = product.sellingPrice || product.price;
+                  const isOutOfStock =
+                    product.stockStatus === "out_of_stock" ||
+                    product.stockQuantity === 0;
 
-                return (
-                  <div
-                    key={`${product._id || product.id}-${currentPage}`}
-                    className={`group relative bg-white transition-all duration-300 hover:border-2 border-amber-700 ${
-                      layout === "grid" ? "" : "flex border border-gray-200 "
-                    } ${
-                      hoveredProduct ===
-                      `${product._id || product.id}-${currentPage}`
-                        ? " "
-                        : ""
-                    }`}
-                    onMouseEnter={() =>
-                      setHoveredProduct(
-                        `${product._id || product.id}-${currentPage}`,
-                      )
-                    }
-                    onMouseLeave={() => setHoveredProduct(null)}
-                  >
-                    {/* Make the image container clickable */}
+                  return (
                     <div
-                      className={`relative bg-gray-100 overflow-hidden transition-all duration-300 cursor-pointer ${
-                        layout === "grid"
-                          ? "aspect-[3/4] "
-                          : "w-48 aspect-[3/4] flex-shrink-0 "
+                      key={`${product._id || product.id}-${currentPage}`}
+                      className={`group relative bg-white transition-all duration-300 hover:border-2 border-amber-700 ${
+                        layout === "grid" ? "" : "flex border border-gray-200 "
+                      } ${
+                        hoveredProduct ===
+                        `${product._id || product.id}-${currentPage}`
+                          ? " "
+                          : ""
                       }`}
-                      onClick={() =>
-                        handleProductClick(product._id || product.id)
+                      onMouseEnter={() =>
+                        setHoveredProduct(
+                          `${product._id || product.id}-${currentPage}`,
+                        )
                       }
+                      onMouseLeave={() => setHoveredProduct(null)}
                     >
-                      <img
-                        src={displayImage}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-
-                      {/* Out of Stock Overlay */}
-                      {isOutOfStock && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
-                          <span className="bg-white/90 text-gray-900 px-4 py-2 font-bold uppercase tracking-wider text-sm shadow-lg">
-                            Out of Stock
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Action Icons - Static flex-col top-right for md and sm only */}
+                      {/* Make the image container clickable */}
                       <div
-                        className="absolute top-2 right-2 flex flex-col space-y-2 opacity-100 md:opacity-100 lg:hidden"
-                        onClick={(e) => e.stopPropagation()}
+                        className={`relative bg-gray-100 overflow-hidden transition-all duration-300 cursor-pointer ${
+                          layout === "grid"
+                            ? "aspect-[3/4] "
+                            : "w-48 aspect-[3/4] flex-shrink-0 "
+                        }`}
+                        onClick={() =>
+                          handleProductClick(product._id || product.id)
+                        }
                       >
-                        {/* Wishlist Button */}
-                        <button
-                          className={`p-2 rounded-full transition-all duration-300 bg-white bg-opacity-80 ${
-                            isInWishlistItem
-                              ? "text-red-500 hover:text-red-600"
-                              : "text-[#a67c00] hover:text-red-600"
-                          }`}
-                          onClick={(e) => handleWishlistClick(product, e)}
-                          title={
-                            isInWishlistItem
-                              ? "Remove from wishlist"
-                              : "Add to wishlist"
-                          }
-                        >
-                          {isInWishlistItem ? (
-                            <BsHeartFill className="text-xs md:text-sm" />
-                          ) : (
-                            <FaHeart className="text-xs md:text-sm" />
-                          )}
-                        </button>
+                        <img
+                          src={displayImage}
+                          alt={product.name}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
 
-                        {/* Share Button */}
-                        <button
-                          className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300 bg-white bg-opacity-80"
-                          onClick={(e) => handleShare(product, e)}
-                          title="Share product"
-                        >
-                          <IoMdShare className="text-xs md:text-sm" />
-                        </button>
+                        {/* Out of Stock Overlay */}
+                        {isOutOfStock && (
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                            <span className="bg-white/90 text-gray-900 px-4 py-2 font-bold uppercase tracking-wider text-sm shadow-lg">
+                              Out of Stock
+                            </span>
+                          </div>
+                        )}
 
-                        {/* Cart Button */}
-                        <button
-                          className={`p-2 rounded-full transition-all duration-300 bg-white bg-opacity-80 ${
-                            isOutOfStock
-                              ? "text-gray-400 cursor-not-allowed"
-                              : "text-[#a67c00] hover:text-green-600"
-                          }`}
-                          onClick={(e) => !isOutOfStock && handleAddToCart(product, e)}
-                          title={isOutOfStock ? "Out of stock" : "Add to cart"}
-                          disabled={isOutOfStock}
-                        >
-                          <FaShoppingBag className="text-xs md:text-sm" />
-                        </button>
-                      </div>
-
-                      {/* Product Info Overlay - For desktop and tablet */}
-                      <div
-                        className={`hidden md:block absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent `}
-                      >
-                        {/* Action Icons - Horizontal row above title (for lg devices only) */}
+                        {/* Action Icons - Static flex-col top-right for md and sm only */}
                         <div
-                          className={`hidden lg:flex justify-center space-x-2 mb-2 transition-all duration-300 ${
-                            layout === "grid"
-                              ? "opacity-0 group-hover:opacity-100 "
-                              : "opacity-100"
-                          }`}
+                          className="absolute top-2 right-2 flex flex-col space-y-2 opacity-100 md:opacity-100 lg:hidden"
                           onClick={(e) => e.stopPropagation()}
                         >
                           {/* Wishlist Button */}
                           <button
-                            className={`p-2 rounded-full transition-all duration-300 ${
+                            className={`p-2 rounded-full transition-all duration-300 bg-white bg-opacity-80 ${
                               isInWishlistItem
                                 ? "text-red-500 hover:text-red-600"
                                 : "text-[#a67c00] hover:text-red-600"
@@ -955,97 +906,182 @@ const Category = () => {
                             }
                           >
                             {isInWishlistItem ? (
-                              <BsHeartFill className="text-lg" />
+                              <BsHeartFill className="text-xs md:text-sm" />
                             ) : (
-                              <FaRegHeart className="text-lg" />
+                              <FaHeart className="text-xs md:text-sm" />
                             )}
                           </button>
 
                           {/* Share Button */}
                           <button
-                            className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300"
+                            className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300 bg-white bg-opacity-80"
                             onClick={(e) => handleShare(product, e)}
                             title="Share product"
                           >
-                            <IoMdShare className="text-lg" />
+                            <IoMdShare className="text-xs md:text-sm" />
                           </button>
 
                           {/* Cart Button */}
                           <button
-                            className={`p-2 rounded-full transition-all duration-300 ${
+                            className={`p-2 rounded-full transition-all duration-300 bg-white bg-opacity-80 ${
                               isOutOfStock
                                 ? "text-gray-400 cursor-not-allowed"
                                 : "text-[#a67c00] hover:text-green-600"
                             }`}
-                            onClick={(e) => !isOutOfStock && handleAddToCart(product, e)}
-                            title={isOutOfStock ? "Out of stock" : "Add to cart"}
+                            onClick={(e) =>
+                              !isOutOfStock && handleAddToCart(product, e)
+                            }
+                            title={
+                              isOutOfStock ? "Out of stock" : "Add to cart"
+                            }
                             disabled={isOutOfStock}
                           >
-                            <FaShoppingBag className="text-lg" />
+                            <FaShoppingBag className="text-xs md:text-sm" />
                           </button>
                         </div>
 
-                        {/* Product Title and Price - For desktop and tablet */}
+                        {/* Product Info Overlay - For desktop and tablet */}
                         <div
-                          onClick={() =>
-                            handleProductClick(product._id || product.id)
-                          }
+                          className={`hidden md:block absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent `}
                         >
-                          <h3
-                            className={`font-semibold mb-1 text-sm line-clamp-2 text-white text-center cursor-pointer`}
+                          {/* Action Icons - Horizontal row above title (for lg devices only) */}
+                          <div
+                            className={`hidden lg:flex justify-center space-x-2 mb-2 transition-all duration-300 ${
+                              layout === "grid"
+                                ? "opacity-0 group-hover:opacity-100 "
+                                : "opacity-100"
+                            }`}
+                            onClick={(e) => e.stopPropagation()}
                           >
-                            {product.name}
-                          </h3>
+                            {/* Wishlist Button */}
+                            <button
+                              className={`p-2 rounded-full transition-all duration-300 ${
+                                isInWishlistItem
+                                  ? "text-red-500 hover:text-red-600"
+                                  : "text-[#a67c00] hover:text-red-600"
+                              }`}
+                              onClick={(e) => handleWishlistClick(product, e)}
+                              title={
+                                isInWishlistItem
+                                  ? "Remove from wishlist"
+                                  : "Add to wishlist"
+                              }
+                            >
+                              {isInWishlistItem ? (
+                                <BsHeartFill className="text-lg" />
+                              ) : (
+                                <FaRegHeart className="text-lg" />
+                              )}
+                            </button>
 
-                          <p
-                            className={`text-sm font-medium flex items-center gap-1 justify-center text-white cursor-pointer`}
+                            {/* Share Button */}
+                            <button
+                              className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300"
+                              onClick={(e) => handleShare(product, e)}
+                              title="Share product"
+                            >
+                              <IoMdShare className="text-lg" />
+                            </button>
+
+                            {/* Cart Button */}
+                            <button
+                              className={`p-2 rounded-full transition-all duration-300 ${
+                                isOutOfStock
+                                  ? "text-gray-400 cursor-not-allowed"
+                                  : "text-[#a67c00] hover:text-green-600"
+                              }`}
+                              onClick={(e) =>
+                                !isOutOfStock && handleAddToCart(product, e)
+                              }
+                              title={
+                                isOutOfStock ? "Out of stock" : "Add to cart"
+                              }
+                              disabled={isOutOfStock}
+                            >
+                              <FaShoppingBag className="text-lg" />
+                            </button>
+                          </div>
+
+                          {/* Product Title and Price - For desktop and tablet */}
+                          <div
+                            onClick={() =>
+                              handleProductClick(product._id || product.id)
+                            }
                           >
-                            <MdOutlineCurrencyRupee className="text-base" />
-                            {displayPrice}
-                          </p>
+                            <h3
+                              className={`font-semibold mb-1 text-sm line-clamp-2 text-white text-center cursor-pointer`}
+                            >
+                              {product.name}
+                            </h3>
+
+                            <p
+                              className={`text-sm font-medium flex items-center gap-1 justify-center text-white cursor-pointer`}
+                            >
+                              <MdOutlineCurrencyRupee className="text-base" />
+                              {displayPrice}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Product Title and Price - For mobile only (outside below the card) */}
-                    <div
-                      className="md:hidden p-3 cursor-pointer"
-                      onClick={() =>
-                        handleProductClick(product._id || product.id)
-                      }
-                    >
-                      <h3 className="font-semibold text-sm line-clamp-2 text-gray-900 text-center">
-                        {product.name}
-                      </h3>
-                      <p className="text-sm font-medium flex items-center gap-1 justify-center text-gray-900">
-                        <MdOutlineCurrencyRupee className="text-base" />
-                        {displayPrice}
-                      </p>
-                    </div>
-
-                    {/* Additional info for list layout */}
-                    {layout === "list" && (
+                      {/* Product Title and Price - For mobile only (outside below the card) */}
                       <div
-                        className="flex-1 p-4 cursor-pointer"
+                        className="md:hidden p-3 cursor-pointer"
                         onClick={() =>
                           handleProductClick(product._id || product.id)
                         }
                       >
-                        <p className="text-sm text-gray-600 mb-2">
-                          Material: {product.material}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Brand: {product.brand}
-                        </p>
-                        <p className="text-sm text-gray-600 mt-2 line-clamp-3">
-                          {product.description ||
-                            `This beautiful ${product.name.toLowerCase()} is perfect for any occasion...`}
+                        <h3 className="font-semibold text-sm line-clamp-2 text-gray-900 text-center">
+                          {product.name}
+                        </h3>
+                        <p className="text-sm font-medium flex items-center gap-1 justify-center text-gray-900">
+                          <MdOutlineCurrencyRupee className="text-base" />
+                          {displayPrice}
                         </p>
                       </div>
-                    )}
+
+                      {/* Additional info for list layout */}
+                      {layout === "list" && (
+                        <div
+                          className="flex-1 p-4 cursor-pointer"
+                          onClick={() =>
+                            handleProductClick(product._id || product.id)
+                          }
+                        >
+                          <p className="text-sm text-gray-600 mb-2">
+                            Material: {product.material}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Brand: {product.brand}
+                          </p>
+                          <p className="text-sm text-gray-600 mt-2 line-clamp-3">
+                            {product.description ||
+                              `This beautiful ${product.name.toLowerCase()} is perfect for any occasion...`}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="col-span-full py-20 text-center bg-gray-50 rounded-lg border border-dashed border-gray-300 mx-4">
+                  <div className="mb-4">
+                    <FaShoppingBag className="mx-auto text-4xl text-gray-300" />
                   </div>
-                );
-              })}
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    No Products available in this category
+                  </h3>
+                  <p className="text-gray-600">
+                    We couldn't find any products matching your current filters.
+                  </p>
+                  <button
+                    onClick={clearAllFilters}
+                    className="mt-6 text-amber-700 font-medium hover:underline"
+                  >
+                    Clear all filters
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Pagination */}

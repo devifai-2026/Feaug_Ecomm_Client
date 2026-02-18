@@ -18,25 +18,11 @@ const Home = () => {
 
     return (
         <div>
-            {/* Hero Banner - Fetches banner for home page at hero position */}
-            <Banner
-                page="home"
-                position="hero"
-                className="h-[60vh] md:h-[70vh] lg:h-[80vh]"
-                autoPlay={true}
-                autoPlayInterval={5000}
-            />
-
-            {/* Top Banner - Optional promotional banner */}
-            <Banner
-                page="home"
-                position="top"
-                className="h-32 md:h-40"
-            />
+            {/* Header Banner is rendered by Navbar carousel (fetches position="top") */}
 
             <BottomBanner></BottomBanner>
             <FeaturedCollection></FeaturedCollection>
-            <CleopatraGlam></CleopatraGlam>
+            <CleopatraGlam />
             <ExploreProducts></ExploreProducts>
             <BestSeller></BestSeller>
             <Services></Services>

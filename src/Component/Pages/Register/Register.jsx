@@ -80,6 +80,8 @@ const Register = () => {
     const digitsOnly = phone.replace(/\D/g, "");
     if (digitsOnly.length !== 10)
       return "Phone number must be exactly 10 digits";
+    if (!/^\d{10}$/.test(digitsOnly))
+      return "Please enter a valid 10-digit mobile number";
     return "";
   };
 
@@ -109,23 +111,8 @@ const Register = () => {
 
     // Format phone number as user types
     if (name === "phone") {
-      // Remove all non-digit characters
-      const digitsOnly = value.replace(/\D/g, "");
-      // Limit to 10 digits
-      const limitedDigits = digitsOnly.slice(0, 10);
-
-      // Format as (XXX) XXX-XXXX
-      if (limitedDigits.length > 0) {
-        if (limitedDigits.length <= 3) {
-          formattedValue = `(${limitedDigits}`;
-        } else if (limitedDigits.length <= 6) {
-          formattedValue = `(${limitedDigits.slice(0, 3)}) ${limitedDigits.slice(3)}`;
-        } else {
-          formattedValue = `(${limitedDigits.slice(0, 3)}) ${limitedDigits.slice(3, 6)}-${limitedDigits.slice(6, 10)}`;
-        }
-      } else {
-        formattedValue = "";
-      }
+      // Remove all non-digit characters and limit to 10 digits
+      formattedValue = value.replace(/\D/g, "").slice(0, 10);
     }
 
     setFormData((prev) => ({
@@ -295,13 +282,12 @@ const Register = () => {
       !errors[fieldName] &&
       formData[fieldName].length > 0;
 
-    return `appearance-none block w-full pl-10 md:pl-12 px-3 py-2 md:py-3 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 text-sm md:text-base transition-colors ${
-      hasError
+    return `appearance-none block w-full pl-10 md:pl-12 px-3 py-2 md:py-3 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 text-sm md:text-base transition-colors ${hasError
         ? "border-red-300 focus:border-red-500 focus:ring-red-500"
         : isValid
           ? "border-green-300 focus:border-green-500 focus:ring-green-500"
           : "border-gray-300 focus:border-[#C19A6B] focus:ring-[#C19A6B]"
-    }`;
+      }`;
   };
 
   return (
@@ -500,8 +486,8 @@ const Register = () => {
                   onChange={handleChange}
                   onBlur={handleBlur}
                   className={getInputClassName("phone")}
-                  placeholder="(123) 456-7890"
-                  maxLength="14"
+                  placeholder="9876543210"
+                  maxLength="10"
                 />
                 {touched.phone && !errors.phone && formData.phone && (
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -527,7 +513,7 @@ const Register = () => {
                 </p>
               ) : (
                 <p className="mt-1 text-xs md:text-sm text-gray-500">
-                  Format: (123) 456-7890 (10 digits)
+                  Format: 10 digit mobile number (e.g., 9876543210)
                 </p>
               )}
             </div>
@@ -675,13 +661,19 @@ const Register = () => {
                 className="ml-2 block text-sm md:text-base text-gray-900"
               >
                 I agree to the{" "}
-                <a href="#" className="text-[#C19A6B] hover:text-amber-700">
+                <Link
+                  to="/terms-condition"
+                  className="text-[#C19A6B] hover:text-amber-700"
+                >
                   Terms of Service
-                </a>{" "}
+                </Link>{" "}
                 and{" "}
-                <a href="#" className="text-[#C19A6B] hover:text-amber-700">
+                <Link
+                  to="/privacyPolicy"
+                  className="text-[#C19A6B] hover:text-amber-700"
+                >
                   Privacy Policy
-                </a>
+                </Link>
               </label>
             </div>
             {!agreeTerms && Object.values(touched).some((t) => t) && (

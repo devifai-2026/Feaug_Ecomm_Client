@@ -1,16 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import sale from "../../assets/BestSeller/left.jpeg";
-import { BsHeart, BsShare, BsArrowsAngleExpand, BsCurrencyRupee, BsHeartFill } from 'react-icons/bs';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+import fallbackSaleImage from "../../assets/BestSeller/left.jpeg";
+import {
+  BsHeart,
+  BsShare,
+  BsArrowsAngleExpand,
+  BsCurrencyRupee,
+  BsHeartFill,
+} from "react-icons/bs";
+import AOS from "aos";
+import "aos/dist/aos.css";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { FaArrowRightLong } from "react-icons/fa6";
-import toast, { Toaster } from 'react-hot-toast';
-import { useWishlist } from '../Context/WishlistContext';
-import { useCart } from '../Context/CartContext';
-import productApi from '../../apis/productApi';
-import { transformProducts } from '../../helpers/transformers/productTransformer';
+import { FaTimes } from "react-icons/fa";
+import toast, { Toaster } from "react-hot-toast";
+import { useWishlist } from "../Context/WishlistContext";
+import { useCart } from "../Context/CartContext";
+import productApi from "../../apis/productApi";
+import bannerApi from "../../apis/bannerApi";
+import { transformProducts } from "../../helpers/transformers/productTransformer";
 
 const BestSeller = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -21,32 +29,58 @@ const BestSeller = () => {
   const navigate = useNavigate();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { addToCart } = useCart();
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [saleBanner, setSaleBanner] = useState(null);
 
-  // Fetch best seller products from API
+  // Fallback sale banner data
+  const defaultSaleBanner = {
+    image: fallbackSaleImage,
+    label: "SALE",
+    discount: "15%",
+    title: "Seasonal Sale",
+    buttonText: "SHOP NOW",
+    redirectUrl: "/categories",
+  };
+
+  // Fetch best seller products and sale banner from API
   useEffect(() => {
     const fetchBestSellers = async () => {
       setLoading(true);
       setError(null);
 
-      await productApi.getBestSellers({
-        params: { limit: 10 },
-        setLoading,
-        onSuccess: (data) => {
-          if (data.status === 'success' && data.data?.products?.length > 0) {
-            // Transform API products to match component format
-            const transformedProducts = transformProducts(data.data.products);
-            setProducts(transformedProducts);
-          } else {
+      await Promise.all([
+        productApi.getBestSellers({
+          params: { limit: 10 },
+          setLoading: () => {},
+          onSuccess: (data) => {
+            if (data.status === "success" && data.data?.products?.length > 0) {
+              const transformedProducts = transformProducts(data.data.products);
+              setProducts(transformedProducts);
+            } else {
+              setProducts([]);
+              setError("No best sellers available at the moment");
+            }
+          },
+          onError: (err) => {
+            console.error("Error fetching best sellers:", err);
+            setError("Failed to load best sellers. Please try again later.");
             setProducts([]);
-            setError('No best sellers available at the moment');
-          }
-        },
-        onError: (err) => {
-          console.error('Error fetching best sellers:', err);
-          setError('Failed to load best sellers. Please try again later.');
-          setProducts([]);
-        },
-      });
+          },
+        }),
+        bannerApi.getBannersByPage({
+          page: "home",
+          position: "sidebar",
+          setLoading: () => {},
+          onSuccess: (data) => {
+            if (data.status === "success" && data.data?.banners?.length > 0) {
+              setSaleBanner(data.data.banners[0]);
+            }
+          },
+          onError: () => {},
+        }),
+      ]);
+
+      setLoading(false);
     };
 
     fetchBestSellers();
@@ -65,7 +99,7 @@ const BestSeller = () => {
 
   const visibleProducts = products.slice(
     currentSlide * slidesPerPage,
-    (currentSlide + 1) * slidesPerPage
+    (currentSlide + 1) * slidesPerPage,
   );
 
   // Handle card click to navigate to details page
@@ -73,24 +107,58 @@ const BestSeller = () => {
     navigate(`/product/${productId}`);
   };
 
-  // Handle expand icon click (same as card click)
-  const handleExpandClick = (productId, e) => {
+  // Handle expand icon click (Open Image Preview)
+  const handleExpandClick = (product, e) => {
     e.stopPropagation(); // Prevent card click from triggering
-    navigate(`/product/${productId}`);
+    setSelectedImage(product.image);
+  };
+
+  // Handle Share
+  const handleShare = (product, e) => {
+    e.stopPropagation();
+    const productId = product.id || product._id;
+    if (!productId) {
+      toast.error("Product link not available");
+      return;
+    }
+    const shareUrl = `${window.location.origin}/product/${productId}`;
+
+    if (navigator.share) {
+      navigator
+        .share({
+          title: product.title,
+          text: `Check out this beautiful ${product.title} at Feauage Jewelry!`,
+          url: shareUrl,
+        })
+        .catch((err) => console.log("Error sharing:", err));
+    } else {
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => {
+          toast.success("Product link copied to clipboard!");
+        })
+        .catch((err) => {
+          console.error("Failed to copy:", err);
+          toast.error("Failed to copy link");
+        });
+    }
   };
 
   // Handle Add to Cart
   const handleAddToCart = (product, e) => {
     e.stopPropagation();
 
-    addToCart({
-      id: product.id,
-      title: product.title,
-      price: product.price,
-      image: product.image,
-      description: product.description,
-      rating: product.rating
-    }, 1);
+    addToCart(
+      {
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        image: product.image,
+        description: product.description,
+        rating: product.rating,
+      },
+      1,
+    );
 
     toast.success(
       <div>
@@ -98,13 +166,13 @@ const BestSeller = () => {
         <p className="text-sm">{product.title}</p>
       </div>,
       {
-        icon: '🛒',
+        icon: "🛒",
         duration: 3000,
         style: {
-          background: '#f0fdf4',
-          border: '1px solid #bbf7d0',
+          background: "#f0fdf4",
+          border: "1px solid #bbf7d0",
         },
-      }
+      },
     );
   };
 
@@ -114,38 +182,41 @@ const BestSeller = () => {
 
     if (isInWishlist(product.id)) {
       removeFromWishlist(product.id);
-      toast.custom((t) => (
-        <div className="animate-slideInRight max-w-md w-full bg-white shadow-lg flex border border-gray-200">
-          <div className="flex-1 w-0 p-4">
-            <div className="flex items-start">
-              <div className="flex-shrink-0 pt-0.5">
-                <BsHeartFill className="h-6 w-6 text-red-500" />
-              </div>
-              <div className="ml-3 flex-1">
-                <p className="text-sm font-medium text-gray-900">
-                  Removed from wishlist
-                </p>
-                <p className="mt-1 text-sm text-gray-500">
-                  {product.title} has been removed
-                </p>
+      toast.custom(
+        (t) => (
+          <div className="animate-slideInRight max-w-md w-full bg-white shadow-lg flex border border-gray-200">
+            <div className="flex-1 w-0 p-4">
+              <div className="flex items-start">
+                <div className="flex-shrink-0 pt-0.5">
+                  <BsHeartFill className="h-6 w-6 text-red-500" />
+                </div>
+                <div className="ml-3 flex-1">
+                  <p className="text-sm font-medium text-gray-900">
+                    Removed from wishlist
+                  </p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {product.title} has been removed
+                  </p>
+                </div>
               </div>
             </div>
+            <div className="flex border-l border-gray-200">
+              <button
+                onClick={() => {
+                  toast.dismiss(t.id);
+                  navigate("/wishlist");
+                }}
+                className="w-full border border-transparent p-4 flex items-center justify-center text-sm font-medium text-pink-600 hover:text-pink-500 transition-colors"
+              >
+                View Wishlist
+              </button>
+            </div>
           </div>
-          <div className="flex border-l border-gray-200">
-            <button
-              onClick={() => {
-                toast.dismiss(t.id);
-                navigate('/wishlist');
-              }}
-              className="w-full border border-transparent p-4 flex items-center justify-center text-sm font-medium text-pink-600 hover:text-pink-500 transition-colors"
-            >
-              View Wishlist
-            </button>
-          </div>
-        </div>
-      ), {
-        duration: 4000,
-      });
+        ),
+        {
+          duration: 4000,
+        },
+      );
     } else {
       addToWishlist({
         id: product.id,
@@ -156,7 +227,7 @@ const BestSeller = () => {
         angleImage: product.angleImage,
         description: product.description,
         rating: product.rating,
-        inStock: true
+        inStock: true,
       });
 
       toast.success(
@@ -165,30 +236,44 @@ const BestSeller = () => {
           <p className="text-sm">{product.title}</p>
         </div>,
         {
-          icon: '❤️',
+          icon: "❤️",
           duration: 3000,
           style: {
-            background: '#fff5f5',
-            border: '1px solid #fca5a5',
+            background: "#fff5f5",
+            border: "1px solid #fca5a5",
           },
           iconTheme: {
-            primary: '#ef4444',
-            secondary: '#fff',
+            primary: "#ef4444",
+            secondary: "#fff",
           },
-        }
+        },
       );
     }
   };
 
   // Handle view wishlist
   const handleViewWishlist = () => {
-    navigate('/wishlist');
+    navigate("/wishlist");
   };
 
   // Handle view more
   const handleViewMore = () => {
-    navigate('/categories');
+    navigate("/categories");
   };
+
+  // Compute sale banner data with fallback
+  const saleData = saleBanner
+    ? {
+        image: saleBanner.images?.[0]?.url || defaultSaleBanner.image,
+        label: saleBanner.subheader || defaultSaleBanner.label,
+        discount: saleBanner.discountPercentage
+          ? `${saleBanner.discountPercentage}%`
+          : defaultSaleBanner.discount,
+        title: saleBanner.title || defaultSaleBanner.title,
+        buttonText: saleBanner.buttonText || defaultSaleBanner.buttonText,
+        redirectUrl: saleBanner.redirectUrl || defaultSaleBanner.redirectUrl,
+      }
+    : defaultSaleBanner;
 
   // Refresh AOS when slide changes
   useEffect(() => {
@@ -202,8 +287,8 @@ const BestSeller = () => {
         toastOptions={{
           duration: 3000,
           style: {
-            background: '#fff',
-            border: '1px solid #e5e7eb',
+            background: "#fff",
+            border: "1px solid #e5e7eb",
           },
         }}
       />
@@ -233,23 +318,29 @@ const BestSeller = () => {
       <div className="flex flex-col lg:flex-row items-start justify-between gap-2">
         {/* Seasonal Sale */}
         <div className="w-full lg:w-1/3">
-          <div className="relative">
+          <div
+            className={`relative ${saleData.redirectUrl ? "cursor-pointer" : ""}`}
+            onClick={() => saleData.redirectUrl && navigate(saleData.redirectUrl)}
+          >
             <img
               className="w-full h-[500px] object-cover"
-              src={sale}
-              alt="Seasonal Sale"
+              src={saleData.image}
+              alt={saleData.title}
               data-aos="fade-right"
               data-aos-delay="200"
             />
             <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 text-white text-center space-y-4">
-              <p className="text-lg font-semibold">SALE</p>
-              <p className="text-2xl font-bold">15%</p>
-              <p className="text-xl font-bold">Seasonal Sale</p>
+              <p className="text-lg font-semibold">{saleData.label}</p>
+              <p className="text-2xl font-bold">{saleData.discount}</p>
+              <p className="text-xl font-bold">{saleData.title}</p>
               <button
-                onClick={handleViewMore}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(saleData.redirectUrl || "/categories");
+                }}
                 className="border border-white px-6 py-2 hover:bg-white hover:text-black transition-all duration-300 transform hover:scale-105"
               >
-                SHOP NOW
+                {saleData.buttonText}
               </button>
             </div>
           </div>
@@ -259,9 +350,12 @@ const BestSeller = () => {
         <div className="w-full lg:w-2/3">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
             <div data-aos="fade-down" data-aos-delay="300">
-              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold">Best Seller</h2>
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold">
+                Best Seller
+              </h2>
               <p className="text-gray-500 mt-2 text-sm">
-                Take a look at our best selling products that we have <br /> provided for your beauty and jewelry needs.
+                Take a look at our best selling products that we have <br />{" "}
+                provided for your beauty and jewelry needs.
               </p>
             </div>
 
@@ -279,7 +373,11 @@ const BestSeller = () => {
               </button>
 
               {/* Slider Pagination */}
-              <div className="flex items-center gap-4" data-aos="fade-down" data-aos-delay="400">
+              <div
+                className="flex items-center gap-4"
+                data-aos="fade-down"
+                data-aos-delay="400"
+              >
                 <button
                   onClick={prevSlide}
                   className="w-10 h-10 flex items-center justify-center transition-colors hover:bg-gray-100 rounded-full"
@@ -318,7 +416,7 @@ const BestSeller = () => {
                   <div className="relative overflow-hidden bg-gray-100">
                     {/* Main Image */}
                     <img
-                      className={`w-full h-80 object-cover transition-opacity duration-500 ${hoveredCard === index ? 'opacity-0' : 'opacity-100'
+                      className={`w-full h-80 object-cover transition-opacity duration-500 ${hoveredCard === index ? "opacity-0" : "opacity-100"
                         }`}
                       src={product.image}
                       alt={product.title}
@@ -326,62 +424,80 @@ const BestSeller = () => {
 
                     {/* Angle Image - Shows on hover */}
                     <img
-                      className={`absolute top-0 left-0 w-full h-80 object-cover transition-opacity duration-500 ${hoveredCard === index ? 'opacity-100' : 'opacity-0'
+                      className={`absolute top-0 left-0 w-full h-80 object-cover transition-opacity duration-500 ${hoveredCard === index ? "opacity-100" : "opacity-0"
                         }`}
                       src={product.angleImage}
                       alt={`${product.title} - alternate angle`}
                     />
 
                     {/* Hover Icons - Mobile & Tablet: Always visible */}
-                    <div className='lg:hidden absolute top-3 right-3 flex flex-col gap-2 z-10'>
+                    <div className="lg:hidden absolute top-3 right-3 flex flex-col gap-2 z-10">
                       <button
                         className={`p-2 rounded-full shadow-lg transition-all duration-300 ${isInWishlistItem
-                          ? 'bg-red-50 text-red-500'
-                          : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-500'
+                            ? "bg-red-50 text-red-500"
+                            : "bg-white text-gray-700 hover:bg-red-50 hover:text-red-500"
                           }`}
                         onClick={(e) => handleWishlistClick(product, e)}
-                        title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}
+                        title={
+                          isInWishlistItem
+                            ? "Remove from wishlist"
+                            : "Add to wishlist"
+                        }
                       >
                         {isInWishlistItem ? (
-                          <BsHeartFill className='text-lg' />
+                          <BsHeartFill className="text-lg" />
                         ) : (
-                          <BsHeart className='text-lg' />
+                          <BsHeart className="text-lg" />
                         )}
                       </button>
-                      <button className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors">
+                      <button
+                        className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                        onClick={(e) => handleShare(product, e)}
+                      >
                         <BsShare className="text-gray-700 hover:text-blue-500" />
                       </button>
                       <button
                         className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
-                        onClick={(e) => handleExpandClick(product.id, e)}
+                        onClick={(e) => handleExpandClick(product, e)}
                       >
                         <BsArrowsAngleExpand className="text-gray-700" />
                       </button>
                     </div>
 
                     {/* Hover Icons - Desktop: Show on hover */}
-                    <div className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${hoveredCard === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
-                      }`}>
+                    <div
+                      className={`hidden lg:flex absolute top-3 right-3 flex-col gap-2 transition-all duration-300 z-10 ${hoveredCard === index
+                          ? "opacity-100 translate-x-0"
+                          : "opacity-0 translate-x-4"
+                        }`}
+                    >
                       <button
                         className={`p-2 rounded-full shadow-lg transition-all duration-300 ${isInWishlistItem
-                          ? 'bg-red-50 text-red-500'
-                          : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-500'
+                            ? "bg-red-50 text-red-500"
+                            : "bg-white text-gray-700 hover:bg-red-50 hover:text-red-500"
                           }`}
                         onClick={(e) => handleWishlistClick(product, e)}
-                        title={isInWishlistItem ? "Remove from wishlist" : "Add to wishlist"}
+                        title={
+                          isInWishlistItem
+                            ? "Remove from wishlist"
+                            : "Add to wishlist"
+                        }
                       >
                         {isInWishlistItem ? (
-                          <BsHeartFill className='text-lg' />
+                          <BsHeartFill className="text-lg" />
                         ) : (
-                          <BsHeart className='text-lg' />
+                          <BsHeart className="text-lg" />
                         )}
                       </button>
-                      <button className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors">
+                      <button
+                        className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                        onClick={(e) => handleShare(product, e)}
+                      >
                         <BsShare className="text-gray-700 hover:text-blue-500" />
                       </button>
                       <button
                         className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
-                        onClick={(e) => handleExpandClick(product.id, e)}
+                        onClick={(e) => handleExpandClick(product, e)}
                       >
                         <BsArrowsAngleExpand className="text-gray-700" />
                       </button>
@@ -389,7 +505,7 @@ const BestSeller = () => {
 
                     {/* Add to Cart Button - Mobile & Tablet: Always visible */}
                     <button
-                      className='lg:hidden absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-black w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest z-10'
+                      className="lg:hidden absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-black w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest z-10"
                       onClick={(e) => handleAddToCart(product, e)}
                     >
                       ADD TO CART
@@ -397,7 +513,9 @@ const BestSeller = () => {
 
                     {/* Add to Cart Button - Desktop: Show on hover */}
                     <button
-                      className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-black w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest z-10 ${hoveredCard === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                      className={`hidden lg:block absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-black w-[90%] py-3 px-3 text-sm font-medium transition-all duration-300 text-nowrap hover:scale-105 tracking-widest z-10 ${hoveredCard === index
+                          ? "opacity-100 translate-y-0"
+                          : "opacity-0 translate-y-4"
                         }`}
                       onClick={(e) => handleAddToCart(product, e)}
                     >
@@ -407,23 +525,30 @@ const BestSeller = () => {
 
                   {/* Product Info */}
                   <div className="mt-4">
-                    <h3 className={`text-lg font-semibold mb-2 transition-colors duration-300 ${hoveredCard === index ? 'text-orange-800' : 'text-gray-900'
-                      }`}>
+                    <h3
+                      className={`text-lg font-semibold mb-2 transition-colors duration-300 ${hoveredCard === index
+                          ? "text-orange-800"
+                          : "text-gray-900"
+                        }`}
+                    >
                       {product.title}
                     </h3>
                     <div className="flex items-center gap-2">
                       {product.originalPrice ? (
                         <>
                           <span className="text-gray-600 font-bold flex items-center gap-1">
-                            <BsCurrencyRupee />{product.price}
+                            <BsCurrencyRupee />
+                            {product.price}
                           </span>
                           <span className="text-gray-400 line-through text-sm flex items-center gap-1">
-                            <BsCurrencyRupee />{product.originalPrice}
+                            <BsCurrencyRupee />
+                            {product.originalPrice}
                           </span>
                         </>
                       ) : (
                         <span className="text-gray-600 font-bold flex items-center gap-1">
-                          <BsCurrencyRupee />{product.price}
+                          <BsCurrencyRupee />
+                          {product.price}
                         </span>
                       )}
                     </div>
@@ -438,6 +563,31 @@ const BestSeller = () => {
       <div className="mt-10">
         <hr />
       </div>
+
+      {/* Image Modal for Expand Button */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div
+            className="relative max-w-4xl w-full max-h-[90vh] flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute -top-12 right-0 text-white text-3xl hover:text-gray-300 transition-colors"
+              onClick={() => setSelectedImage(null)}
+            >
+              <FaTimes />
+            </button>
+            <img
+              src={selectedImage}
+              alt="Product Preview"
+              className="max-w-full max-h-[85vh] object-contain shadow-2xl animate-in zoom-in-95 duration-300"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

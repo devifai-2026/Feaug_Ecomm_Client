@@ -3,6 +3,7 @@ import "./App.css";
 import Layout from "./Component/Layout/Layout";
 import Home from "./Component/Home/Home";
 import { useEffect } from "react";
+import usePageTracking from "./hooks/usePageTracking";
 
 // Import AOS
 import AOS from "aos";
@@ -33,6 +34,8 @@ import PaymentStatus from "./Component/Pages/Payment/PaymentStatus";
 import orderApi from "./apis/orderApi";
 
 function App() {
+  usePageTracking();
+
   useEffect(() => {
     // Initialize AOS
     AOS.init({

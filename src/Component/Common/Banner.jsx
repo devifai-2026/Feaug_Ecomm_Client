@@ -23,6 +23,7 @@ const Banner = ({
     className = '',
     autoPlay = true,
     autoPlayInterval = 5000,
+    showContent = true,
 }) => {
     const navigate = useNavigate();
     const [banner, setBanner] = useState(null);
@@ -45,6 +46,18 @@ const Banner = ({
         return () => clearInterval(interval);
     }, [banner, autoPlay, autoPlayInterval]);
 
+    // Default banner configuration
+    const defaultBanner = {
+        title: "DISCOVER SPARKLE WITH STYLE",
+        subheader: "Whether casual or formal, find the perfect jewelry for every occasion.",
+        images: [{ url: new URL('../../assets/Banner/one.png', import.meta.url).href }],
+        buttonText: "Shop Now",
+        redirectUrl: "/categories",
+        buttonColor: "#000000",
+        backgroundColor: "transparent",
+        textColor: "#ffffff"
+    };
+
     const fetchBanner = async () => {
         setLoading(true);
         setError(null);
@@ -59,12 +72,14 @@ const Banner = ({
                         if (data.status === 'success' && data.data?.banner) {
                             setBanner(data.data.banner);
                         } else {
-                            setError('Banner not found');
+                            // Use default if not found
+                            setBanner(defaultBanner);
                         }
                     },
                     onError: (err) => {
                         console.error('Error fetching banner:', err);
-                        setError('Failed to load banner');
+                        // Use default on error
+                        setBanner(defaultBanner);
                     },
                 });
             } else if (page) {
@@ -78,18 +93,33 @@ const Banner = ({
                         if (data.status === 'success' && data.data?.banners?.length > 0) {
                             setBanner(data.data.banners[0]); // Take first banner
                         } else {
-                            setError('No banners available');
+                            // Use default if no banners found AND it's the hero/top position
+                            if (page === 'home' && (position === 'hero' || position === 'top')) {
+                                setBanner(defaultBanner);
+                            } else {
+                                setError('No banners available');
+                            }
                         }
                     },
                     onError: (err) => {
                         console.error('Error fetching banners:', err);
-                        setError('Failed to load banners');
+                        // Use default on error for main locations
+                        if (page === 'home' && (position === 'hero' || position === 'top')) {
+                            setBanner(defaultBanner);
+                        } else {
+                            setError('Failed to load banners');
+                        }
                     },
                 });
             }
         } catch (err) {
             console.error('Banner fetch error:', err);
-            setError('Failed to load banner');
+            // Use default on catch for main locations
+            if (page === 'home' && (position === 'hero' || position === 'top')) {
+                setBanner(defaultBanner);
+            } else {
+                setError('Failed to load banner');
+            }
             setLoading(false);
         }
     };
@@ -141,6 +171,11 @@ const Banner = ({
     const currentImage = banner.images?.[currentImageIndex];
     const hasMultipleImages = banner.images && banner.images.length > 1;
 
+    // Derived content from current image or fallback to banner defaults
+    const title = currentImage?.title || banner.title;
+    const subtitle = currentImage?.subtitle || currentImage?.subheader || banner.subheader;
+    const description = currentImage?.description || banner.body;
+
     return (
         <div
             className={`relative overflow-hidden group ${banner.redirectUrl ? 'cursor-pointer' : ''} ${className}`}
@@ -154,27 +189,27 @@ const Banner = ({
             {currentImage && (
                 <img
                     src={currentImage.url}
-                    alt={currentImage.alt || banner.title || 'Banner'}
+                    alt={currentImage.alt || title || 'Banner'}
                     className="w-full h-full object-cover transition-opacity duration-500"
                 />
             )}
 
             {/* Content Overlay */}
-            {(banner.title || banner.subheader || banner.body || banner.footer || banner.buttonText) && (
+            {showContent && (title || subtitle || description || banner.footer || banner.buttonText) && (
                 <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-6 md:p-12 bg-black/20">
-                    {banner.title && (
+                    {title && (
                         <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-2 md:mb-4 drop-shadow-lg">
-                            {banner.title}
+                            {title}
                         </h2>
                     )}
-                    {banner.subheader && (
+                    {subtitle && (
                         <h3 className="text-xl md:text-2xl lg:text-3xl font-medium mb-2 md:mb-4 drop-shadow-lg">
-                            {banner.subheader}
+                            {subtitle}
                         </h3>
                     )}
-                    {banner.body && (
+                    {description && (
                         <p className="text-base md:text-lg lg:text-xl max-w-2xl mb-4 md:mb-6 drop-shadow-lg">
-                            {banner.body}
+                            {description}
                         </p>
                     )}
                     {banner.buttonText && (

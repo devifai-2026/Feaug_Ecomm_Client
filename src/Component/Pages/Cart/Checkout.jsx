@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   BsCurrencyRupee,
@@ -23,6 +23,7 @@ import { OrderSummary } from "./OrderSummary";
 import { useCart } from "../../Context/CartContext";
 import orderApi from "../../../apis/orderApi";
 import cartApi from "../../../apis/cartApi";
+import paymentApi from "../../../apis/paymentApi";
 import userApi from "../../../apis/user/userApi";
 import { env } from "../../../environments";
 import {
@@ -249,10 +250,19 @@ const Checkout = () => {
   );
   const shippingCost = selectedShippingOption?.cost || 0;
 
-  const discountAmount = appliedPromo
-    ? appliedPromo.discountAmount ||
-      (subtotal * appliedPromo.discountPercentage) / 100
-    : 0;
+  const discountAmount = useMemo(() => {
+    if (!appliedPromo) return 0;
+    const amount = Number(appliedPromo.discountAmount);
+    if (!isNaN(amount)) return amount;
+
+    // Fallback to percentage calculation
+    const percentage = parseFloat(appliedPromo.discountPercentage);
+    if (!isNaN(percentage)) {
+      return (subtotal * percentage) / 100;
+    }
+    return 0;
+  }, [appliedPromo, subtotal]);
+
   const discountedSubtotal = Math.max(0, subtotal - discountAmount);
 
   const tax = Math.round(discountedSubtotal * 0.03); // 3% GST on discounted subtotal
@@ -419,6 +429,7 @@ const Checkout = () => {
         name: "Feauage Jewelry",
         description: `Order #${orderData.orderId}`,
         order_id: orderData.razorpayOrderId,
+        customer_id: orderData.razorpayCustomerId,
         handler: function (response) {
           resolve({
             razorpayPaymentId: response.razorpay_payment_id,
@@ -449,13 +460,72 @@ const Checkout = () => {
     });
   };
 
+  // Handle 3DS redirect in popup for S2S card payments
+  const handleS2SRedirect = (redirectUrl, orderId) => {
+    const width = 500;
+    const height = 600;
+    const left = (window.innerWidth - width) / 2;
+    const top = (window.innerHeight - height) / 2;
+
+    const popup = window.open(
+      redirectUrl,
+      "razorpay_3ds",
+      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`,
+    );
+
+    if (!popup) {
+      toast.error("Popup blocked. Redirecting to bank verification...");
+      window.location.href = redirectUrl;
+      return;
+    }
+
+    // Poll for popup closure
+    const pollInterval = setInterval(() => {
+      try {
+        if (popup.closed) {
+          clearInterval(pollInterval);
+          checkPaymentStatus(orderId);
+        }
+      } catch (e) {
+        // Cross-origin access error expected while popup is on bank page
+      }
+    }, 1000);
+
+    // Safety timeout - stop polling after 10 minutes
+    setTimeout(() => {
+      clearInterval(pollInterval);
+      if (!popup.closed) popup.close();
+      checkPaymentStatus(orderId);
+    }, 600000);
+  };
+
+  // Check payment status after 3DS redirect
+  const checkPaymentStatus = (orderId) => {
+    paymentApi.getPaymentStatus({
+      orderId,
+      onSuccess: (data) => {
+        if (data.success && data.data?.paymentStatus === "paid") {
+          showSuccessToast(orderId);
+          setTimeout(() => navigate("/myOrders"), 3000);
+        } else if (data.data?.paymentStatus === "failed") {
+          toast.error("Payment failed. Please try again from My Orders.");
+          setTimeout(() => navigate("/myOrders"), 2000);
+        } else {
+          navigate(`/payment-status?status=pending&orderId=${orderId}`);
+        }
+      },
+      onError: () => {
+        navigate(`/payment-status?status=pending&orderId=${orderId}`);
+      },
+    });
+  };
+
   const showSuccessToast = (orderId) => {
     toast.custom(
       (t) => (
         <div
-          className={`transform transition-all duration-300 ${
-            t.visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
-          }`}
+          className={`transform transition-all duration-300 ${t.visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
+            }`}
         >
           <div className="relative bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-2xl shadow-2xl overflow-hidden border border-green-200 w-96">
             <div
@@ -604,7 +674,7 @@ const Checkout = () => {
           const firstError = Object.values(validationErrors)[0];
           toast.error(
             firstError ||
-              "Please fill in all required address fields correctly",
+            "Please fill in all required address fields correctly",
           );
           setLoading(false);
           setStep(1); // Go back to shipping step
@@ -667,106 +737,97 @@ const Checkout = () => {
         promoCode: appliedPromo?.code,
       };
 
-      // Create order via API
-      orderApi.createOrder({
-        orderData,
-        setLoading,
-        onSuccess: async (data) => {
-          if (data.success && data.data) {
-            const order = data.data.order || data.data;
-
-            // IMPORTANT: Clear cart immediately as order is created in DB
-            // This prevents duplicate order creation if payment fails and user clicks "Place Order" again
-            clearCart();
-
-            if (
-              paymentInfo.method === "online" &&
-              order.paymentStatus !== "paid"
-            ) {
-              // Create Razorpay payment order
-              orderApi.createPaymentOrder({
-                orderId: order._id || order.id,
-                onSuccess: async (paymentData) => {
-                  if (paymentData.success && paymentData.data) {
-                    try {
-                      const paymentResult = await handleRazorpayPayment({
-                        orderId: order.orderId || order._id,
-                        razorpayOrderId: paymentData.data.razorpayOrderId,
-                        amount: paymentData.data.amount,
-                        currency: paymentData.data.currency,
-                      });
-
-                      if (paymentResult) {
-                        // Payment successful
-                        showSuccessToast(order.orderId || order._id);
-                        setTimeout(() => {
-                          navigate("/myOrders");
-                        }, 3000);
-                      }
-                    } catch (paymentError) {
-                      console.error("Payment failed:", paymentError);
-                      toast.error(
-                        "Order created but payment failed. Please retry payment from My Orders.",
-                        { duration: 5000 },
-                      );
-                      // Redirect to order details so user can't duplicate order creation
-                      // They should retry payment from the order page
-                      setTimeout(() => {
-                        navigate(`/myOrders/${order._id || order.id}`);
-                      }, 2000);
-                    }
-                  } else {
-                    toast.error(
-                      "Failed to initiate payment. Please check My Orders.",
-                    );
-                    setTimeout(() => {
-                      navigate("/myOrders");
-                    }, 2000);
-                  }
-                },
-                onError: (err) => {
-                  toast.error(err.message || "Failed to create payment order");
-                  setTimeout(() => {
-                    navigate("/myOrders");
-                  }, 2000);
-                },
-              });
-            } else {
-              // COD order - no payment needed
+      // Case 1: COD - Create order immediately
+      if (paymentInfo.method === "cod") {
+        orderApi.createOrder({
+          orderData,
+          setLoading,
+          onSuccess: (data) => {
+            if ((data.status === 'success' || data.success) && data.data) {
+              const order = data.data.order || data.data;
+              clearCart();
               showSuccessToast(order.orderId || order._id);
-              setTimeout(() => {
-                navigate("/myOrders");
-              }, 3000);
+              setTimeout(() => navigate("/myOrders"), 3000);
+            } else {
+              toast.error(data.message || "Failed to create order");
+            }
+          },
+          onError: (err) => {
+            const errorMessage = err.message || "Failed to create order.";
+            toast.error(errorMessage);
+          },
+        });
+        return;
+      }
+
+      // Case 2: Online Payment (Razorpay Modal)
+      // NEW FLOW: Initiate -> Pay (via Modal) -> Create (Finalize)
+      // Case 2: Online Payment (Razorpay Modal)
+      // NEW FLOW: Initiate -> Pay (via Modal) -> Create (Finalize)
+      // Pass setLoading: null to prevent loading from turning off after initiatePayment completes
+      // We want loading to stay true while Razorpay modal is open
+      orderApi.initiatePayment({
+        orderData,
+        setLoading: null,
+        onSuccess: async (initData) => {
+          if ((initData.status === 'success' || initData.success) && initData.data?.razorpayOrder) {
+            const rzpOrder = initData.data.razorpayOrder;
+
+            try {
+              // Open Razorpay Modal
+              const paymentResult = await handleRazorpayPayment({
+                orderId: "New Order",
+                razorpayOrderId: rzpOrder.id,
+                amount: rzpOrder.amount,
+                currency: rzpOrder.currency,
+                razorpayCustomerId: initData.data.razorpayCustomerId,
+              });
+
+              if (paymentResult) {
+                // Now hit the POST /api/v1/orders with payment proof
+                orderApi.createOrder({
+                  orderData: {
+                    ...orderData,
+                    razorpayPaymentId: paymentResult.razorpayPaymentId,
+                    razorpayOrderId: paymentResult.razorpayOrderId,
+                    razorpaySignature: paymentResult.razorpaySignature,
+                  },
+                  setLoading, // Let this one turn off loading when done
+                  onSuccess: (finalData) => {
+                    const finalOrder = finalData.data.order || finalData.data;
+                    clearCart();
+                    showSuccessToast(finalOrder.orderId || finalOrder._id);
+                    setTimeout(() => navigate("/myOrders"), 3000);
+                  },
+                  onError: (err) => {
+                    toast.error(
+                      "Payment successful but order creation failed. Please contact support.",
+                    );
+                    setLoading(false);
+                  },
+                });
+              } else {
+                setLoading(false);
+              }
+            } catch (err) {
+              toast.error(err.message || "Payment cancelled");
+              setLoading(false);
             }
           } else {
-            toast.error(data.message || "Failed to create order");
+            toast.error("Failed to initiate payment gateway");
+            setLoading(false);
           }
         },
         onError: (err) => {
-          console.error("Order creation error:", err);
-          const errorMessage = err.message || "Failed to create order.";
-
-          if (errorMessage.toLowerCase().includes("insufficient stock")) {
-            toast.error(
-              <div>
-                <p className="font-bold">Stock Issue</p>
-                <p className="text-sm">{errorMessage}</p>
-                <p className="text-xs mt-1">
-                  Please check if you already have a pending order or update
-                  your cart.
-                </p>
-              </div>,
-              { duration: 6000 },
-            );
-          } else {
-            toast.error(errorMessage);
-          }
+          // err is likely the response object itself or the error object
+          const errorMessage = err.data?.message || err.response?.data?.message || err.message || "Failed to initiate payment";
+          toast.error(errorMessage);
+          setLoading(false);
         },
       });
     } catch (error) {
       console.error("Checkout error:", error);
       toast.error("An error occurred. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
@@ -846,6 +907,10 @@ const Checkout = () => {
                     data={paymentInfo}
                     setData={setPaymentInfo}
                     total={total}
+                    errors={errors}
+                    touched={touched}
+                    setErrors={setErrors}
+                    setTouched={setTouched}
                   />
                 </div>
               </>
