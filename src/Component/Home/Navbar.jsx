@@ -736,7 +736,7 @@ const Navbar = () => {
           <div className="hidden lg:flex absolute left-1/2 transform -translate-x-1/2">
             <Link to="/">
               <h2
-                className={`uppercase text-3xl font-bold font-playfair ${getTextColor()}`}
+                className={`uppercase text-3xl font-bold font-passenger ${getTextColor()}`}
               >
                 Feauag
               </h2>

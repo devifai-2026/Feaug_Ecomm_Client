@@ -2,7 +2,7 @@
 
 @font-face {
   font-family: 'Passenger Display';
-  src: url('./assets/fonts/PassengerDisplay-Thin.otf') format('opentype');
+  src: url('./assets/fonts/PassengerDisplay-Thin.woff2') format('woff2');
   font-weight: 100;
   font-style: normal;
   font-display: swap;
@@ -10,7 +10,7 @@
 
 @font-face {
   font-family: 'Passenger Display';
-  src: url('./assets/fonts/PassengerDisplay-Extralight.otf') format('opentype');
+  src: url('./assets/fonts/PassengerDisplay-Extralight.woff2') format('woff2');
   font-weight: 200;
   font-style: normal;
   font-display: swap;
@@ -18,7 +18,7 @@
 
 @font-face {
   font-family: 'Passenger Display';
-  src: url('./assets/fonts/PassengerDisplay-Light.otf') format('opentype');
+  src: url('./assets/fonts/PassengerDisplay-Light.woff2') format('woff2');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -26,7 +26,7 @@
 
 @font-face {
   font-family: 'Passenger Display';
-  src: url('./assets/fonts/PassengerDisplay-Regular.otf') format('opentype');
+  src: url('./assets/fonts/PassengerDisplay-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -34,7 +34,7 @@
 
 @font-face {
   font-family: 'Passenger Display';
-  src: url('./assets/fonts/PassengerDisplay-Medium.otf') format('opentype');
+  src: url('./assets/fonts/PassengerDisplay-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -42,7 +42,7 @@
 
 @font-face {
   font-family: 'Passenger Display';
-  src: url('./assets/fonts/PassengerDisplay-Semibold.otf') format('opentype');
+  src: url('./assets/fonts/PassengerDisplay-Semibold.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -50,7 +50,7 @@
 
 @font-face {
   font-family: 'Passenger Display';
-  src: url('./assets/fonts/PassengerDisplay-Bold.otf') format('opentype');
+  src: url('./assets/fonts/PassengerDisplay-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -58,7 +58,7 @@
 
 @font-face {
   font-family: 'Passenger Display';
-  src: url('./assets/fonts/PassengerDisplay-Extrabold.otf') format('opentype');
+  src: url('./assets/fonts/PassengerDisplay-Extrabold.woff2') format('woff2');
   font-weight: 800;
   font-style: normal;
   font-display: swap;
@@ -66,7 +66,7 @@
 
 @font-face {
   font-family: 'Passenger Display';
-  src: url('./assets/fonts/PassengerDisplay-Black.otf') format('opentype');
+  src: url('./assets/fonts/PassengerDisplay-Black.woff2') format('woff2');
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -75,7 +75,7 @@
 /* Italic versions */
 @font-face {
   font-family: 'Passenger Display';
-  src: url('./assets/fonts/PassengerDisplay-Italic.otf') format('opentype');
+  src: url('./assets/fonts/PassengerDisplay-Italic.woff2') format('woff2');
   font-weight: 400;
   font-style: italic;
   font-display: swap;
@@ -83,7 +83,7 @@
 
 @font-face {
   font-family: 'Passenger Display';
-  src: url('./assets/fonts/PassengerDisplay-BoldItalic.otf') format('opentype');
+  src: url('./assets/fonts/PassengerDisplay-BoldItalic.woff2') format('woff2');
   font-weight: 700;
   font-style: italic;
   font-display: swap;

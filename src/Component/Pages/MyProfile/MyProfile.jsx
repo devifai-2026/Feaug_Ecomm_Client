@@ -518,7 +518,7 @@ const MyProfile = () => {
             <FaUserCircle className="text-4xl text-neutral-300" />
           </div>
           <h2 className="text-xl  text-neutral-800 mb-2">Access Required</h2>
-          <p className="text-neutral-500 mb-6 font-inter text-sm leading-relaxed">
+          <p className="text-neutral-500 mb-6 font-poppins text-sm leading-relaxed">
             Please sign in to access your profile settings.
           </p>
           <button
@@ -566,7 +566,7 @@ const MyProfile = () => {
               <h1 className="text-2xl sm:text-3xl  font-bold text-neutral-900 mb-1 tracking-tight">
                 {userData.name}
               </h1>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-neutral-500 font-inter text-xs">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-neutral-500 font-poppins text-xs">
                 <span>Since {formatDate(userData.joinDate)}</span>
                 {userData.isEmailVerified && (
                   <span className="text-emerald-600 flex items-center gap-1 font-bold">
@@ -595,7 +595,7 @@ const MyProfile = () => {
               >
                 <div className="flex items-center gap-4">
                   <span className="text-lg">{section.icon}</span>
-                  <span className="font-semibold font-inter text-sm">
+                  <span className="font-semibold font-poppins text-sm">
                     {section.label}
                   </span>
                 </div>
@@ -612,7 +612,7 @@ const MyProfile = () => {
             >
               <div className="flex items-center gap-4">
                 <FaTimes size={14} />
-                <span className="font-bold font-inter text-[11px] uppercase">
+                <span className="font-bold font-poppins text-[11px] uppercase">
                   Sign Out
                 </span>
               </div>
@@ -629,7 +629,7 @@ const MyProfile = () => {
                     <h2 className="text-2xl  font-bold text-neutral-900 mb-1">
                       My Profile
                     </h2>
-                    <p className="text-neutral-500 font-inter text-sm">
+                    <p className="text-neutral-500 font-poppins text-sm">
                       View and manage your account details.
                     </p>
                   </div>
@@ -651,7 +651,7 @@ const MyProfile = () => {
                           Email Address
                         </label>
                         <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-50">
-                          <p className="text-sm text-neutral-900 font-inter">
+                          <p className="text-sm text-neutral-900 font-poppins">
                             {userData.email}
                           </p>
                         </div>
@@ -663,7 +663,7 @@ const MyProfile = () => {
                           Phone Number
                         </label>
                         <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-50">
-                          <p className="text-base text-neutral-900 font-inter">
+                          <p className="text-base text-neutral-900 font-poppins">
                             {userData.phone || "Not provided"}
                           </p>
                         </div>
@@ -673,7 +673,7 @@ const MyProfile = () => {
                           Default Address
                         </label>
                         <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-50">
-                          <p className="text-neutral-500 text-xs font-inter line-clamp-1">
+                          <p className="text-neutral-500 text-xs font-poppins line-clamp-1">
                             {userData.address}
                           </p>
                         </div>
@@ -793,7 +793,7 @@ const MyProfile = () => {
                           <h3 className="text-xl  font-bold text-neutral-900 mb-1">
                             {addr.name || userData.name}
                           </h3>
-                          <p className="text-neutral-500 text-xs leading-relaxed mb-6 font-inter">
+                          <p className="text-neutral-500 text-xs leading-relaxed mb-6 font-poppins">
                             {addr.addressLine1}
                             <span className="block mt-1 font-bold">
                               {addr.city}, {addr.state} - {addr.pincode}
@@ -889,7 +889,7 @@ const MyProfile = () => {
                       <h2 className="text-2xl  font-bold text-neutral-900">
                         Password & Security
                       </h2>
-                      <p className="text-neutral-500 font-inter text-sm">
+                      <p className="text-neutral-500 font-poppins text-sm">
                         Manage your account security settings.
                       </p>
                     </div>
@@ -994,7 +994,7 @@ const MyProfile = () => {
                       value={field.value}
                       onChange={handleInputChange}
                       disabled={field.disabled}
-                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none transition-all font-inter text-xs ${
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none transition-all font-poppins text-xs ${
                         field.disabled
                           ? "text-neutral-300 cursor-not-allowed opacity-60"
                           : "text-neutral-800 border-2 border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
@@ -1010,7 +1010,7 @@ const MyProfile = () => {
                     name="gender"
                     value={tempData.gender}
                     onChange={handleInputChange}
-                    className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none transition-all font-inter text-xs text-neutral-800 border-2 border-transparent focus:border-[#C19A6B]/20 focus:bg-white appearance-none cursor-pointer"
+                    className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none transition-all font-poppins text-xs text-neutral-800 border-2 border-transparent focus:border-[#C19A6B]/20 focus:bg-white appearance-none cursor-pointer"
                   >
                     <option value="male">Male</option>
                     <option value="female">Female</option>
@@ -1136,7 +1136,7 @@ const MyProfile = () => {
                       value={addressData.pincode}
                       onChange={handleAddressChange}
                       maxLength={6}
-                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter ${addressErrors.pincode ? "border border-red-400" : ""}`}
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-poppins ${addressErrors.pincode ? "border border-red-400" : ""}`}
                       required
                     />
                     {addressErrors.pincode && (
@@ -1154,7 +1154,7 @@ const MyProfile = () => {
                       name="addressLine1"
                       value={addressData.addressLine1}
                       onChange={handleAddressChange}
-                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter ${addressErrors.addressLine1 ? "border border-red-400" : ""}`}
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-poppins ${addressErrors.addressLine1 ? "border border-red-400" : ""}`}
                       required
                     />
                     {addressErrors.addressLine1 && (
@@ -1172,7 +1172,7 @@ const MyProfile = () => {
                       name="addressLine2"
                       value={addressData.addressLine2}
                       onChange={handleAddressChange}
-                      className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter"
+                      className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-poppins"
                     />
                   </div>
                   <div>
@@ -1184,7 +1184,7 @@ const MyProfile = () => {
                       name="city"
                       value={addressData.city}
                       onChange={handleAddressChange}
-                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter ${addressErrors.city ? "border border-red-400" : ""}`}
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-poppins ${addressErrors.city ? "border border-red-400" : ""}`}
                       required
                     />
                     {addressErrors.city && (

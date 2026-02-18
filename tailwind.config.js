@@ -12,6 +12,8 @@ export default {
         'inter': ['"Inter"', 'sans-serif'],
         'passenger': ['"Passenger Display"', 'sans-serif'],
         'poppins': ['"Poppins"', 'sans-serif'],
+        'sans': ['"Poppins"', 'sans-serif'],
+        'serif': ['"Passenger Display"', 'serif'],
       },
   },
   },
