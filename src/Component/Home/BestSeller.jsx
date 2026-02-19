@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import fallbackSaleImage from "../../assets/BestSeller/left.jpeg";
 import {
   BsHeart,
-  BsShare,
+
   BsArrowsAngleExpand,
   BsCurrencyRupee,
   BsHeartFill,
@@ -113,36 +113,7 @@ const BestSeller = () => {
     setSelectedImage(product.image);
   };
 
-  // Handle Share
-  const handleShare = (product, e) => {
-    e.stopPropagation();
-    const productId = product.id || product._id;
-    if (!productId) {
-      toast.error("Product link not available");
-      return;
-    }
-    const shareUrl = `${window.location.origin}/product/${productId}`;
 
-    if (navigator.share) {
-      navigator
-        .share({
-          title: product.title,
-          text: `Check out this beautiful ${product.title} at Feauage Jewelry!`,
-          url: shareUrl,
-        })
-        .catch((err) => console.log("Error sharing:", err));
-    } else {
-      navigator.clipboard
-        .writeText(shareUrl)
-        .then(() => {
-          toast.success("Product link copied to clipboard!");
-        })
-        .catch((err) => {
-          console.error("Failed to copy:", err);
-          toast.error("Failed to copy link");
-        });
-    }
-  };
 
   // Handle Add to Cart
   const handleAddToCart = (product, e) => {
@@ -450,12 +421,7 @@ const BestSeller = () => {
                           <BsHeart className="text-lg" />
                         )}
                       </button>
-                      <button
-                        className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
-                        onClick={(e) => handleShare(product, e)}
-                      >
-                        <BsShare className="text-gray-700 hover:text-blue-500" />
-                      </button>
+
                       <button
                         className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
                         onClick={(e) => handleExpandClick(product, e)}
@@ -489,12 +455,7 @@ const BestSeller = () => {
                           <BsHeart className="text-lg" />
                         )}
                       </button>
-                      <button
-                        className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
-                        onClick={(e) => handleShare(product, e)}
-                      >
-                        <BsShare className="text-gray-700 hover:text-blue-500" />
-                      </button>
+
                       <button
                         className="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
                         onClick={(e) => handleExpandClick(product, e)}
