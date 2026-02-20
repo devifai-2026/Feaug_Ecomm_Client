@@ -57,6 +57,11 @@ const Category = () => {
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { addToCart } = useCart();
 
+  // Scroll to top when category or page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [activeCategory, currentPage]);
+
   // Sync with URL category parameter
   useEffect(() => {
     const params = new URLSearchParams(location.search);
