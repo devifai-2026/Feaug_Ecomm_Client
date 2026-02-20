@@ -1,4 +1,4 @@
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation, Navigate } from "react-router-dom";
 import "./App.css";
 import Layout from "./Component/Layout/Layout";
 import Home from "./Component/Home/Home";
@@ -38,128 +38,126 @@ function App() {
   const location = useLocation();
 
   useEffect(() => {
-  const skipToastPaths = ["/login", "/register"];
-  if (skipToastPaths.includes(location.pathname)) return;
-  AOS.init({
-    duration: 800,
-    once: true,
-    offset: 120,
-    easing: "ease-out",
-    disable: window.innerWidth < 768,
-  });
+    const skipToastPaths = ["/login", "/register"];
+    if (skipToastPaths.includes(location.pathname)) return;
+    AOS.init({
+      duration: 800,
+      once: true,
+      offset: 120,
+      easing: "ease-out",
+      disable: window.innerWidth < 768,
+    });
 
-  setTimeout(() => {
-    AOS.refresh();
-  }, 100);
+    setTimeout(() => {
+      AOS.refresh();
+    }, 100);
 
-  let activityInterval;
+    let activityInterval;
 
-  const shuffleArray = (arr) => {
-    const shuffled = [...arr];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  };
-
-  const fetchAndShowActivity = async () => {
-    let activityData = [];
-    let userNames = [];
-
-    try {
-      const productsRes = await productApi.getAllProducts({ params: {} });
-      if (productsRes?.data?.products?.length > 0) {
-        activityData = productsRes.data.products.map((p) => ({
-          product: p.name,
-          image: p.images?.[0]?.url || p.image || null,
-        }));
+    const shuffleArray = (arr) => {
+      const shuffled = [...arr];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
-    } catch (err) {
-      console.error("Failed to fetch products for activity:", err);
-    }
-
-    userNames = shuffleArray([
-      "Aarav Sharma",
-      "Vivaan Patel",
-      "Aditya Singh",
-      "Arjun Verma",
-      "Ishaan Mehta",
-      "Kabir Gupta",
-      "Rohan Nair",
-      "Rahul Yadav",
-      "Siddharth Jain",
-      "Manish Kumar",
-      "Ananya Reddy",
-      "Diya Kapoor",
-      "Priya Sharma",
-      "Sneha Iyer",
-      "Kavya Menon",
-      "Neha Joshi",
-      "Aditi Rao",
-      "Pooja Desai",
-      "Meera Kulkarni",
-      "Ritika Choudhary",
-    ]);
-
-    if (!activityData.length || !userNames.length) return;
-
-    let nameIndex = 0;
-
-    const showNextToast = () => {
-      const randomActivity =
-        activityData[Math.floor(Math.random() * activityData.length)];
-
-      if (nameIndex >= userNames.length) {
-        userNames = shuffleArray(userNames);
-        nameIndex = 0;
-      }
-
-      const userName = userNames[nameIndex++];
-
-      const ToastContent = () => (
-        <div className="flex items-center gap-3">
-          {randomActivity.image ? (
-            <img
-              src={randomActivity.image}
-              alt={randomActivity.product}
-              className="w-10 h-10 object-cover rounded-md"
-            />
-          ) : (
-            <div className="w-10 h-10 bg-purple-100 rounded-md flex items-center justify-center text-purple-600 font-bold">
-              {userName.charAt(0)}
-            </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">
-              {userName}
-            </p>
-            <p className="text-xs text-gray-500 truncate">
-              bought {randomActivity.product}
-            </p>
-            <p className="text-[10px] text-gray-400 mt-0.5">
-              Just now
-            </p>
-          </div>
-        </div>
-      );
-
-      toast(<ToastContent />);
+      return shuffled;
     };
 
-    // 🔥 Show immediately
-    showNextToast();
+    const fetchAndShowActivity = async () => {
+      let activityData = [];
+      let userNames = [];
 
-    // 🔁 Then repeat every 5 seconds
-    activityInterval = setInterval(showNextToast, 25000);
-  };
+      try {
+        const productsRes = await productApi.getAllProducts({ params: {} });
+        if (productsRes?.data?.products?.length > 0) {
+          activityData = productsRes.data.products.map((p) => ({
+            product: p.name,
+            image: p.images?.[0]?.url || p.image || null,
+          }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch products for activity:", err);
+      }
 
-  fetchAndShowActivity();
+      userNames = shuffleArray([
+        "Aarav Sharma",
+        "Vivaan Patel",
+        "Aditya Singh",
+        "Arjun Verma",
+        "Ishaan Mehta",
+        "Kabir Gupta",
+        "Rohan Nair",
+        "Rahul Yadav",
+        "Siddharth Jain",
+        "Manish Kumar",
+        "Ananya Reddy",
+        "Diya Kapoor",
+        "Priya Sharma",
+        "Sneha Iyer",
+        "Kavya Menon",
+        "Neha Joshi",
+        "Aditi Rao",
+        "Pooja Desai",
+        "Meera Kulkarni",
+        "Ritika Choudhary",
+      ]);
 
-  return () => {
-    if (activityInterval) clearInterval(activityInterval);
-  };
-}, [location.pathname]);
+      if (!activityData.length || !userNames.length) return;
+
+      let nameIndex = 0;
+
+      const showNextToast = () => {
+        const randomActivity =
+          activityData[Math.floor(Math.random() * activityData.length)];
+
+        if (nameIndex >= userNames.length) {
+          userNames = shuffleArray(userNames);
+          nameIndex = 0;
+        }
+
+        const userName = userNames[nameIndex++];
+
+        const ToastContent = () => (
+          <div className="flex items-center gap-3">
+            {randomActivity.image ? (
+              <img
+                src={randomActivity.image}
+                alt={randomActivity.product}
+                className="w-10 h-10 object-cover rounded-md"
+              />
+            ) : (
+              <div className="w-10 h-10 bg-purple-100 rounded-md flex items-center justify-center text-purple-600 font-bold">
+                {userName.charAt(0)}
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {userName}
+              </p>
+              <p className="text-xs text-gray-500 truncate">
+                bought {randomActivity.product}
+              </p>
+              <p className="text-[10px] text-gray-400 mt-0.5">Just now</p>
+            </div>
+          </div>
+        );
+
+        toast(<ToastContent />);
+      };
+
+      // 🔥 Show immediately
+      showNextToast();
+
+      // 🔁 Then repeat every 5 seconds
+      activityInterval = setInterval(showNextToast, 200000);
+    };
+
+    fetchAndShowActivity();
+
+    return () => {
+      if (activityInterval) clearInterval(activityInterval);
+    };
+  }, [location.pathname]);
 
   return (
     <>
@@ -192,8 +190,26 @@ function App() {
           <Route path="wishlist" element={<Wishlist />}></Route>
           <Route path="cart" element={<Cart />}></Route>
           <Route path="checkout" element={<Checkout />}></Route>
-          <Route path="register" element={<Register />}></Route>
-          <Route path="login" element={<Login />}></Route>
+          <Route
+            path="register"
+            element={
+              localStorage.getItem("user") ? (
+                <Navigate to="/" />
+              ) : (
+                <Register />
+              )
+            }
+          ></Route>
+          <Route
+            path="login"
+            element={
+              localStorage.getItem("user") ? (
+                <Navigate to="/" />
+              ) : (
+                <Login />
+              )
+            }
+          ></Route>
           <Route path="forgotPassword" element={<ForgotPassword />}></Route>
           <Route path="helpCenter" element={<HelpCenter />}></Route>
           <Route path="privacyPolicy" element={<PrivacyPolicy />}></Route>
