@@ -206,6 +206,25 @@ const userApi = {
     }
   },
 
+  // Dummy OTP logic
+  sendRegisterOtp: async (email) => {
+    try {
+      const response = await axiosInstance.post("/auth/send-register-otp", { email });
+      return response.data;
+    } catch (error) {
+      return handleApiError(error, "Failed to send OTP");
+    }
+  },
+
+  verifyOtp: async (otp) => {
+    try {
+      const response = await axiosInstance.post("/auth/verify-otp", { otp });
+      return response.data;
+    } catch (error) {
+      return handleApiError(error, "Failed to verify OTP");
+    }
+  },
+
   // Resend Verification Email
   resendVerification: async (email) => {
     try {

@@ -79,7 +79,6 @@ const MyProfile = () => {
   const [paginatedAddresses, setPaginatedAddresses] = useState([]);
   const ADDRESSES_PER_PAGE = 4;
 
-
   // Helper to get initials
   const getInitials = (firstName, lastName) => {
     return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "U";
@@ -466,7 +465,10 @@ const MyProfile = () => {
 
       let response;
       if (editingAddressId) {
-        response = await userApi.updateAddress(editingAddressId, submissionData);
+        response = await userApi.updateAddress(
+          editingAddressId,
+          submissionData,
+        );
       } else {
         response = await userApi.addAddress(submissionData);
       }
@@ -619,15 +621,16 @@ const MyProfile = () => {
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Compact Sidebar */}
-          <div className="lg:col-span-3 space-y-2 sticky top-28">
+          <div className="lg:col-span-3 space-y-2 lg:sticky lg:top-28">
             {sections.map((section) => (
               <button
                 key={section.id}
                 onClick={() => setActiveSection(section.id)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 border ${activeSection === section.id
-                  ? "bg-[#C19A6B] text-white shadow-md border-transparent translate-x-1"
-                  : "bg-white text-neutral-400 border-neutral-100 hover:border-[#C19A6B]/40 hover:text-neutral-700"
-                  }`}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 border ${
+                  activeSection === section.id
+                    ? "bg-[#C19A6B] text-white shadow-md border-transparent translate-x-1"
+                    : "bg-white text-neutral-400 border-neutral-100 hover:border-[#C19A6B]/40 hover:text-neutral-700"
+                }`}
               >
                 <div className="flex items-center gap-4">
                   <span className="text-lg">{section.icon}</span>
@@ -767,7 +770,7 @@ const MyProfile = () => {
                           userData.gender === "prefer_not_to_say"
                             ? "Prefer not to say"
                             : userData.gender.charAt(0).toUpperCase() +
-                            userData.gender.slice(1),
+                              userData.gender.slice(1),
                         icon: <FaCalendarAlt />,
                       },
                     ].map((item, idx) => (
@@ -809,10 +812,11 @@ const MyProfile = () => {
                       paginatedAddresses.map((addr, index) => (
                         <div
                           key={addr._id || index}
-                          className={`relative p-6 rounded-3xl border transition-all duration-300 ${addr.isDefault
-                            ? "bg-white border-[#C19A6B]/30 shadow-md"
-                            : "bg-neutral-50 border-neutral-50 hover:bg-white hover:border-neutral-200"
-                            }`}
+                          className={`relative p-6 rounded-3xl border transition-all duration-300 ${
+                            addr.isDefault
+                              ? "bg-white border-[#C19A6B]/30 shadow-md"
+                              : "bg-neutral-50 border-neutral-50 hover:bg-white hover:border-neutral-200"
+                          }`}
                         >
                           <div className="flex items-center justify-between mb-6">
                             <span className="px-4 py-1.5 bg-neutral-900 text-white rounded-full text-[10px] font-bold uppercase transition-all">
@@ -883,10 +887,11 @@ const MyProfile = () => {
                       <button
                         disabled={addressPage === 1}
                         onClick={() => setAddressPage((prev) => prev - 1)}
-                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${addressPage === 1
-                          ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
-                          : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
-                          }`}
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
+                          addressPage === 1
+                            ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
+                            : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
+                        }`}
                       >
                         Previous
                       </button>
@@ -896,13 +901,14 @@ const MyProfile = () => {
                       <button
                         disabled={addressPage === totalPages}
                         onClick={() => setAddressPage((prev) => prev + 1)}
-                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${addressPage ===
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
+                          addressPage ===
                           Math.ceil(
                             userData.addresses.length / ADDRESSES_PER_PAGE,
                           )
-                          ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
-                          : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
-                          }`}
+                            ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
+                            : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
+                        }`}
                       >
                         Next
                       </button>
@@ -1027,10 +1033,11 @@ const MyProfile = () => {
                       value={field.value}
                       onChange={handleInputChange}
                       disabled={field.disabled}
-                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none transition-all font-poppins text-xs ${field.disabled
-                        ? "text-neutral-300 cursor-not-allowed opacity-60"
-                        : "text-neutral-800 border-2 border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
-                        }`}
+                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none transition-all font-poppins text-xs ${
+                        field.disabled
+                          ? "text-neutral-300 cursor-not-allowed opacity-60"
+                          : "text-neutral-800 border-2 border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
+                      }`}
                     />
                   </div>
                 ))}
@@ -1114,10 +1121,11 @@ const MyProfile = () => {
                         value={passwordData[field.id]}
                         onChange={handlePasswordChange}
                         placeholder="••••••••"
-                        className={`w-full bg-neutral-50 border-2 rounded-xl px-5 py-3 pr-12 outline-none text-xs transition-all ${passwordErrors[field.id]
-                          ? "border-red-200"
-                          : "border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
-                          }`}
+                        className={`w-full bg-neutral-50 border-2 rounded-xl px-5 py-3 pr-12 outline-none text-xs transition-all ${
+                          passwordErrors[field.id]
+                            ? "border-red-200"
+                            : "border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
+                        }`}
                       />
                       <button
                         type="button"

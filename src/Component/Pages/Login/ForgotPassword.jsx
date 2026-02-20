@@ -53,7 +53,7 @@ const ForgotPassword = () => {
   // Validate token (for password reset)
   const validateToken = (token) => {
     if (!token) return "Reset token is required";
-    if (token.length < 10) return "Invalid reset token";
+    if (token.length < 6) return "Invalid reset token";
     return "";
   };
 
@@ -145,7 +145,7 @@ const ForgotPassword = () => {
     if (step === 1) {
       isValid = !errors.email && formData.email.length > 0;
     } else if (step === 2) {
-      isValid = !errors.token && formData.token.length >= 10;
+      isValid = !errors.token && formData.token.length >= 6;
     } else if (step === 3) {
       const passwordValid =
         !errors.newPassword && formData.newPassword.length > 0;
@@ -205,10 +205,17 @@ const ForgotPassword = () => {
     setIsLoading(true);
 
     try {
-      // In actual implementation, you might verify the token with backend
-      // For now, we'll just proceed to step 3
-      setStep(3);
-      toast.success("Token verified! Now set your new password.");
+      const response = await userApi.verifyOtp(formData.token);
+
+      if (
+        response.status === "success" ||
+        response.message === "OTP verified successfully"
+      ) {
+        setStep(3);
+        toast.success("Token verified! Now set your new password.");
+      } else {
+        toast.error(response.message || "Token verification failed");
+      }
     } catch (error) {
       toast.error(error.message || "Token verification failed");
     } finally {
