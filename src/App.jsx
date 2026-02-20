@@ -59,7 +59,8 @@ function App() {
           if (response && response.data && response.data.length > 0) {
             // Function to show random purchase toast
             const showRandomToast = () => {
-              const randomOrder = response.data[Math.floor(Math.random() * response.data.length)];
+              const randomOrder =
+                response.data[Math.floor(Math.random() * response.data.length)];
 
               // Custom content for the toast
               const ToastContent = () => (
@@ -89,17 +90,7 @@ function App() {
                 </div>
               );
 
-              toast(<ToastContent />, {
-                position: "bottom-left",
-                autoClose: 5000,
-                hideProgressBar: true,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                className: "!rounded-xl !shadow-lg border border-gray-100",
-                bodyClassName: "!p-0",
-                style: { background: "rgba(255, 255, 255, 0.95)", backdropFilter: "blur(4px)" }
-              });
+              toast(<ToastContent />);
 
               // Schedule next toast (random time between 15-30 seconds)
               const nextTime = Math.random() * (300000 - 150000) + 15000;
@@ -112,7 +103,7 @@ function App() {
         },
         onError: (err) => {
           console.error("Failed to fetch recent activity:", err);
-        }
+        },
       });
     };
 
@@ -128,7 +119,7 @@ function App() {
       <ToastContainer
         position="top-right"
         autoClose={5000}
-        hideProgressBar={false}
+        hideProgressBar={true}
         newestOnTop={false}
         closeOnClick
         rtl={false}
@@ -136,6 +127,12 @@ function App() {
         draggable
         pauseOnHover
         theme="light"
+        toastClassName="!rounded-xl !shadow-lg border border-gray-100 !p-4"
+        bodyClassName="!p-0"
+        toastStyle={{
+          background: "rgba(255, 255, 255, 0.95)",
+          backdropFilter: "blur(4px)",
+        }}
       />
 
       <Routes>
