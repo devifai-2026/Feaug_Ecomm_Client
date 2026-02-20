@@ -788,7 +788,7 @@ const ProductDetails = () => {
               "The product you're looking for doesn't exist or is currently unavailable."}
           </p>
           <button
-            onClick={() => navigate("/products")}
+            onClick={() => navigate(-1)}
             className="bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800 transition-colors"
           >
             Back to Products
@@ -951,12 +951,12 @@ const ProductDetails = () => {
                   Home
                 </Link>
                 <span className="text-gray-400">|</span>
-                <Link
-                  to="/products"
+                <span
+                  onClick={() => navigate(-1)}
                   className="cursor-pointer hover:text-gray-700"
                 >
                   Products
-                </Link>
+                </span>
                 <span className="text-gray-400">|</span>
                 <span className="text-gray-800 font-medium">Details</span>
               </div>

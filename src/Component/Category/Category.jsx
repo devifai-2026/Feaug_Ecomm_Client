@@ -71,6 +71,7 @@ const Category = () => {
 
   // Categories list for UI
   const categoriesList = useMemo(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
     return ["All Jewelry", ...filterOptions.categories.map((c) => c.name)];
   }, [filterOptions.categories]);
 
@@ -937,19 +938,31 @@ const Category = () => {
                       {/* Additional info for list layout */}
                       {layout === "list" && (
                         <div
-                          className="flex-1 p-4 cursor-pointer"
+                          className="flex-1 min-w-0 p-4 cursor-pointer overflow-hidden"
                           onClick={() =>
                             handleProductClick(product._id || product.id)
                           }
                         >
-                          <p className="text-sm text-gray-600 mb-2">
-                            Material: {product.material}
+                          <p className="text-sm text-gray-600 mb-1 font-medium">
+                            Material: <span className="text-gray-900">{product.material || "N/A"}</span>
                           </p>
-                          <p className="text-sm text-gray-600">
-                            Brand: {product.brand}
+                          <p className="text-sm text-gray-600 mb-1 font-medium">
+                            Brand: <span className="text-gray-900">{product.brand || "N/A"}</span>
                           </p>
-                          <p className="text-sm text-gray-600 mt-2 line-clamp-3">
-                            {product.description ||
+                          <p className="text-sm text-gray-600 mt-2 line-clamp-3 break-words whitespace-normal leading-relaxed">
+                            {(content => {
+                              if (!content) return "";
+                              // Strip actual tags first
+                              let cleaned = content.replace(/<[^>]*>/g, "");
+                              // Decode entities (like &lt;p&gt; or &nbsp;)
+                              const tempDiv = document.createElement("div");
+                              tempDiv.innerHTML = cleaned;
+                              cleaned = tempDiv.textContent || tempDiv.innerText || "";
+                              // Strip tags again in case they were encoded as entities
+                              cleaned = cleaned.replace(/<[^>]*>/g, "");
+                              // Final cleanup of non-breaking spaces and extra whitespace
+                              return cleaned.replace(/&nbsp;/g, " ").replace(/\u00a0/g, " ").trim();
+                            })(product.description) ||
                               `This beautiful ${product.name.toLowerCase()} is perfect for any occasion...`}
                           </p>
                         </div>
