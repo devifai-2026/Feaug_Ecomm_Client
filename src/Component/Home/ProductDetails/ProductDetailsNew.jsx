@@ -747,7 +747,7 @@ const ProductDetails = () => {
               "The product you're looking for doesn't exist or is currently unavailable."}
           </p>
           <button
-            onClick={() => navigate("/products")}
+            onClick={() => navigate(-1)}
             className="bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800 transition-colors"
           >
             Back to Products
