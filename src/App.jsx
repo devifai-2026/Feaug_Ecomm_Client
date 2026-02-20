@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
 import Layout from "./Component/Layout/Layout";
 import Home from "./Component/Home/Home";
@@ -35,8 +35,11 @@ import productApi from "./apis/productApi";
 
 function App() {
   usePageTracking();
+  const location = useLocation();
 
   useEffect(() => {
+  const skipToastPaths = ["/login", "/register"];
+  if (skipToastPaths.includes(location.pathname)) return;
   AOS.init({
     duration: 800,
     once: true,
@@ -148,7 +151,7 @@ function App() {
     showNextToast();
 
     // 🔁 Then repeat every 5 seconds
-    activityInterval = setInterval(showNextToast, 10000);
+    activityInterval = setInterval(showNextToast, 25000);
   };
 
   fetchAndShowActivity();
@@ -156,7 +159,7 @@ function App() {
   return () => {
     if (activityInterval) clearInterval(activityInterval);
   };
-}, []);
+}, [location.pathname]);
 
   return (
     <>
