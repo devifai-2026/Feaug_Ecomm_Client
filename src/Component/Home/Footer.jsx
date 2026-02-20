@@ -15,14 +15,14 @@ const Footer = () => {
                 : 'text-gray-800'
         }`}>
             {/* Main Footer Content */}
-            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 justify-between gap-6 lg:gap-8 p-8 sm:p-10 lg:p-12 ${
+            <div className={`flex flex-col md:grid md:grid-cols-2 lg:flex lg:flex-row lg:justify-between gap-8 lg:gap-12 p-8 sm:p-10 lg:p-12 ${
                 isProductDetailsPage 
                     ? 'bg-gray-900 border-gray-800' 
                     : 'bg-stone-100 border-gray-200'
             }  shadow-sm`}>
                 
                 {/* Contact Info Section */}
-                <div className="w-full lg:w-auto lg:flex-1 min-w-[250px] text-center sm:text-left">
+                <div className="w-full lg:w-auto lg:max-w-xs text-center sm:text-left">
                     <div className={`text-3xl md:text-4xl font-bold mb-8 sm:mb-10 ${
                         isProductDetailsPage 
                             ? 'text-white' 
@@ -69,7 +69,7 @@ const Footer = () => {
                 </div>
 
                 {/* Company Links */}
-                <div className="w-full lg:w-auto lg:flex-1 min-w-[150px] text-center sm:text-left">
+                <div className="w-full lg:w-auto text-center sm:text-left">
                     <div className={`text-base sm:text-lg font-bold mb-4 sm:mb-6 ${
                         isProductDetailsPage 
                             ? 'text-white' 
@@ -105,7 +105,7 @@ const Footer = () => {
                 </div>
 
                 {/* Support Links */}
-                <div className="w-full lg:w-auto lg:flex-1 min-w-[150px] text-center sm:text-left">
+                <div className="w-full lg:w-auto text-center sm:text-left lg:text-right">
                     <div className={`text-base sm:text-lg font-bold mb-4 sm:mb-6 ${
                         isProductDetailsPage 
                             ? 'text-white' 
@@ -117,7 +117,7 @@ const Footer = () => {
                         isProductDetailsPage 
                             ? 'text-gray-300 hover:text-white' 
                             : 'text-gray-600 hover:text-gray-800'
-                    }`}>
+                    } lg:items-end`}>
                         <div className='group text-xs sm:text-sm cursor-pointer transition-all duration-300 hover:scale-105'>
                             Order Tracking
                         </div>
@@ -142,41 +142,7 @@ const Footer = () => {
                     </div>
                 </div>
 
-                {/* Newsletter Section */}
-                <div className="w-full lg:w-auto lg:flex-1 min-w-[250px] text-center sm:text-left">
-                    <div className={`text-base sm:text-lg font-bold mb-4 sm:mb-6 ${
-                        isProductDetailsPage 
-                            ? 'text-white' 
-                            : 'text-gray-800'
-                    }`}>
-                        Newsletter
-                    </div>
-                    <div className={`mb-4 sm:mb-6 text-xs sm:text-sm ${
-                        isProductDetailsPage 
-                            ? 'text-gray-300' 
-                            : 'text-gray-600'
-                    }`}>
-                        Get our latest updates and promo bi-monthly.
-                    </div>
-                    <input 
-                        type="email" 
-                        placeholder="Enter your email address"
-                        className={`w-full max-w-xs mx-auto md:mx-0 border-b bg-transparent px-1 py-3 placeholder-gray-400 focus:outline-none text-xs sm:text-sm transition-all duration-300 hover:scale-105 focus:scale-105 ${
-                            isProductDetailsPage 
-                                ? 'border-gray-600 text-white focus:border-white placeholder-gray-500' 
-                                : 'border-gray-300 text-gray-600 focus:border-gray-600 placeholder-gray-400'
-                        }`}
-                    />
-                    <button className={`group mt-6 px-4 py-4 w-[75%] md:w-[45%] lg:w-[85%] max-w-xs mx-auto md:mx-0 text-center uppercase transition-all duration-300 hover:scale-105 ${
-                        isProductDetailsPage 
-                            ? 'bg-[#C19A6B] text-white hover:bg-[#B08B5C]' 
-                            : 'bg-[#C19A6B] text-white hover:bg-[#B08B5C]'
-                    }`}>
-                        <span className='transition-transform duration-300 group-hover:scale-105'>
-                            Subscribe
-                        </span>
-                    </button>
-                </div>
+
             </div>
 
             {/* Bottom Section */}
