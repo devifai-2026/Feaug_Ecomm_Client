@@ -18,7 +18,8 @@ import five from "../../assets/Categories/five.webp";
 import six from "../../assets/Categories/six.webp";
 import seven from "../../assets/Categories/seven.jpeg";
 import eight from "../../assets/Categories/eight.webp";
-import { IoMdShare, IoMdClose } from "react-icons/io";
+
+import { IoMdClose } from "react-icons/io";
 import { MdOutlineCurrencyRupee } from "react-icons/md";
 import { RxDividerVertical, RxDragHandleHorizontal } from "react-icons/rx";
 import SliderLogo from "./SliderLogo";
@@ -187,26 +188,7 @@ const Category = () => {
     }
   };
 
-  const handleShare = (product, e) => {
-    e.stopPropagation();
-    const productUrl = `${window.location.origin}/product/${product._id || product.id}`;
 
-    navigator.clipboard
-      .writeText(productUrl)
-      .then(() => {
-        toast.success("Link copied to clipboard!", {
-          icon: "🔗",
-          style: {
-            background: "#f0f9ff",
-            border: "1px solid #bae6fd",
-          },
-        });
-      })
-      .catch((err) => {
-        console.error("Could not copy text: ", err);
-        toast.error("Failed to copy link");
-      });
-  };
 
   // API state
   const [allProducts, setAllProducts] = useState([]);
@@ -912,14 +894,7 @@ const Category = () => {
                             )}
                           </button>
 
-                          {/* Share Button */}
-                          <button
-                            className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300 bg-white bg-opacity-80"
-                            onClick={(e) => handleShare(product, e)}
-                            title="Share product"
-                          >
-                            <IoMdShare className="text-xs md:text-sm" />
-                          </button>
+
 
                           {/* Cart Button */}
                           <button
@@ -974,14 +949,7 @@ const Category = () => {
                               )}
                             </button>
 
-                            {/* Share Button */}
-                            <button
-                              className="p-2 rounded-full text-[#a67c00] hover:text-blue-600 transition-all duration-300"
-                              onClick={(e) => handleShare(product, e)}
-                              title="Share product"
-                            >
-                              <IoMdShare className="text-lg" />
-                            </button>
+
 
                             {/* Cart Button */}
                             <button

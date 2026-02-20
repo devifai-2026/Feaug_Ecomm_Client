@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import {
   BsArrowLeft,
   BsHeart,
-  BsShare,
+
   BsStarFill,
   BsChevronLeft,
   BsChevronRight,
@@ -44,6 +44,17 @@ const ProductDetails = () => {
   const thumbnailContainerRef = useRef(null);
   const imgRef = useRef(null);
   const reviewsSectionRef = useRef(null);
+  
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = () => {
+    if (thumbnailContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = thumbnailContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth);
+    }
+  };
 
   // Review states
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -138,6 +149,12 @@ const ProductDetails = () => {
       clearInterval(viewCountInterval);
       clearInterval(eyeInterval);
     };
+  }, [product]);
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener("resize", checkScroll);
+    return () => window.removeEventListener("resize", checkScroll);
   }, [product]);
 
   // Add to Cart Functionality
@@ -316,28 +333,7 @@ const ProductDetails = () => {
     }
   };
 
-  const handleShare = () => {
-    if (!product) return;
-    const productUrl = `${window.location.origin}/product/${product._id}`;
 
-    navigator.clipboard
-      .writeText(productUrl)
-      .then(() => {
-        toast.success("Link copied to clipboard!", {
-          icon: "🔗",
-          style: {
-            borderRadius: "8px",
-            background: "#111",
-            color: "#fff",
-            padding: "12px 16px",
-          },
-        });
-      })
-      .catch((err) => {
-        console.error("Could not copy text: ", err);
-        toast.error("Failed to copy link");
-      });
-  };
 
   const handleMouseMove = (e) => {
     if (!imgRef.current) return;
@@ -439,6 +435,13 @@ const ProductDetails = () => {
     }
   };
 
+  const cleanDescription = (content) => {
+    if (!content) return "";
+    const txt = document.createElement("textarea");
+    txt.innerHTML = content;
+    return txt.value.replace(/<[^>]*>/g, "");
+  };
+
   const renderTabContent = () => {
     if (!product) return null;
 
@@ -446,8 +449,8 @@ const ProductDetails = () => {
       case "DESCRIPTION":
         return (
           <div className="prose max-w-none">
-            <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
-              {product.description}
+            <p className="text-gray-600 leading-relaxed whitespace-pre-wrap max-w-[70vw] break-words">
+              {cleanDescription(product.description)}
             </p>
           </div>
         );
@@ -876,15 +879,18 @@ const ProductDetails = () => {
 
             <div className="flex justify-center">
               <div className="flex items-center gap-2 w-full max-w-2xl">
-                <button
-                  onClick={() => scrollThumbnails("left")}
-                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
-                >
-                  <BsChevronLeft className="text-gray-600" />
-                </button>
+                {canScrollLeft && (
+                  <button
+                    onClick={() => scrollThumbnails("left")}
+                    className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
+                  >
+                    <BsChevronLeft className="text-gray-600" />
+                  </button>
+                )}
 
                 <div
                   ref={thumbnailContainerRef}
+                   onScroll={checkScroll}
                   className="flex gap-2 overflow-x-auto flex-1 justify-start px-2 scrollbar-hide"
                   style={{
                     scrollbarWidth: "none",
@@ -911,12 +917,14 @@ const ProductDetails = () => {
                   ))}
                 </div>
 
-                <button
-                  onClick={() => scrollThumbnails("right")}
-                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
-                >
-                  <BsChevronRight className="text-gray-600" />
-                </button>
+                {canScrollRight && (
+                  <button
+                    onClick={() => scrollThumbnails("right")}
+                    className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-300 hover:scale-110 flex-shrink-0"
+                  >
+                    <BsChevronRight className="text-gray-600" />
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -967,10 +975,9 @@ const ProductDetails = () => {
                 )}
               </div>
 
-              <p className="text-gray-600 leading-relaxed line-clamp-3">
-                {product.description}
-              </p>
-
+             <p className="text-gray-600 leading-relaxed whitespace-pre-wrap max-w-[70vw] break-words">
+              {cleanDescription(product.description)}
+            </p>
               <div className="flex items-center gap-4">
                 <div
                   className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100"
@@ -1012,13 +1019,7 @@ const ProductDetails = () => {
                       <BsHeart className="text-xl" />
                     )}
                   </button>
-                  <button
-                    onClick={handleShare}
-                    className="p-2 hover:bg-gray-50 transition-all duration-300 hover:scale-110"
-                    title="Share product"
-                  >
-                    <BsShare className="text-xl text-gray-600 hover:text-blue-500" />
-                  </button>
+
                 </div>
               </div>
             </div>
