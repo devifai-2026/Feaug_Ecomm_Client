@@ -33,7 +33,7 @@ import productApi from "../../apis/productApi";
 import categoryApi from "../../apis/categoryApi";
 
 const Category = () => {
-  const [priceRange, setPriceRange] = useState([0, 100000]);
+  const [priceRange, setPriceRange] = useState([0, 1000000]);
   const [selectedMaterials, setSelectedMaterials] = useState({});
   const [selectedBrands, setSelectedBrands] = useState({});
   const [selectedSizes, setSelectedSizes] = useState({});
@@ -188,8 +188,6 @@ const Category = () => {
     }
   };
 
-
-
   // API state
   const [allProducts, setAllProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -306,11 +304,17 @@ const Category = () => {
 
     // Filter by Category
     const selectedCategoryName = categories[activeCategory];
-    if (selectedCategoryName && selectedCategoryName !== "All Jewelry") {
+    const isAllJewelry =
+      !selectedCategoryName ||
+      selectedCategoryName.toLowerCase().includes("all jewelry") ||
+      selectedCategoryName.toLowerCase().includes("all jewellery") ||
+      selectedCategoryName.toLowerCase() === "all";
+
+    if (!isAllJewelry) {
       result = result.filter(
         (product) =>
           product.category?.name === selectedCategoryName ||
-          product.subCategory?.name === selectedCategoryName, // Optional: search in subcategory too
+          product.subCategory?.name === selectedCategoryName,
       );
     }
 
@@ -379,9 +383,11 @@ const Category = () => {
   }, [
     allProducts,
     activeCategory,
+    categories,
     priceRange,
     selectedMaterials,
     selectedBrands,
+    selectedSizes,
     sortBy,
   ]);
 
@@ -452,7 +458,7 @@ const Category = () => {
     setSelectedMaterials({});
     setSelectedBrands({});
     setSelectedSizes({});
-    setPriceRange([0, 100000]);
+    setPriceRange([0, 1000000]);
   };
 
   const handlePageChange = (pageNumber) => {
@@ -509,12 +515,17 @@ const Category = () => {
 
               {/* Categories */}
               <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Categories</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Categories
+                </h3>
                 <ul className="space-y-2">
                   {isCategoriesLoading ? (
                     <div className="space-y-2 animate-pulse">
                       {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="h-6 bg-gray-100 rounded w-full"></div>
+                        <div
+                          key={i}
+                          className="h-6 bg-gray-100 rounded w-full"
+                        ></div>
                       ))}
                     </div>
                   ) : (
@@ -530,7 +541,8 @@ const Category = () => {
                           onMouseLeave={() => setHoveredCategory(null)}
                           onClick={() => setActiveCategory(index)}
                         >
-                          {(index === activeCategory || index === hoveredCategory) && (
+                          {(index === activeCategory ||
+                            index === hoveredCategory) && (
                             <span className="absolute -left-3 top-1/2 transform -translate-y-1/2 text-[#a67c00] font-bold transition-all duration-300 text-2xl">
                               |
                             </span>
@@ -556,7 +568,9 @@ const Category = () => {
 
               {/* Price Filter */}
               <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Price</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Price
+                </h3>
                 <div className="text-sm text-gray-600 flex items-center gap-1 mb-4">
                   Price: <MdOutlineCurrencyRupee />
                   {priceRange[0].toLocaleString("en-IN")} -{" "}
@@ -573,8 +587,8 @@ const Category = () => {
                     <div
                       className="absolute top-0 h-2 bg-[#a67c00] rounded-full"
                       style={{
-                        left: `${(priceRange[0] / 100000) * 100}%`,
-                        width: `${((priceRange[1] - priceRange[0]) / 100000) * 100}%`,
+                        left: `${(priceRange[0] / 1000000) * 100}%`,
+                        width: `${((priceRange[1] - priceRange[0]) / 1000000) * 100}%`,
                       }}
                     />
 
@@ -582,27 +596,29 @@ const Category = () => {
                     <input
                       type="range"
                       min="0"
-                      max="100000"
+                      max="1000000"
                       step="500"
                       value={priceRange[0]}
                       onChange={(e) => {
                         const val = parseInt(e.target.value);
-                        if (val < priceRange[1]) setPriceRange([val, priceRange[1]]);
+                        if (val < priceRange[1])
+                          setPriceRange([val, priceRange[1]]);
                       }}
                       className="absolute top-0 left-0 w-full h-2 appearance-none bg-transparent cursor-pointer price-slider-thumb"
-                      style={{ zIndex: priceRange[0] > 90000 ? 5 : 3 }}
+                      style={{ zIndex: priceRange[0] > 900000 ? 5 : 3 }}
                     />
 
                     {/* Max thumb */}
                     <input
                       type="range"
                       min="0"
-                      max="100000"
-                      step="500"
+                      max="1000000"
+                      step="1000"
                       value={priceRange[1]}
                       onChange={(e) => {
                         const val = parseInt(e.target.value);
-                        if (val > priceRange[0]) setPriceRange([priceRange[0], val]);
+                        if (val > priceRange[0])
+                          setPriceRange([priceRange[0], val]);
                       }}
                       className="absolute top-0 left-0 w-full h-2 appearance-none bg-transparent cursor-pointer price-slider-thumb"
                       style={{ zIndex: 4 }}
@@ -611,18 +627,28 @@ const Category = () => {
 
                   {/* Price Labels */}
                   <div className="flex justify-between text-xs text-gray-500 mt-4">
-                    <span><MdOutlineCurrencyRupee className="inline" />0</span>
-                    <span><MdOutlineCurrencyRupee className="inline" />1,00,000</span>
+                    <span>
+                      <MdOutlineCurrencyRupee className="inline" />0
+                    </span>
+                    <span>
+                      <MdOutlineCurrencyRupee className="inline" />
+                      10,00,000
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Material Filter */}
               <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Material</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Material
+                </h3>
                 <div className="space-y-3">
                   {materials.map((material, index) => (
-                    <div key={index} className="flex items-center justify-between">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between"
+                    >
                       <label className="flex items-center space-x-3 cursor-pointer">
                         <input
                           type="checkbox"
@@ -630,9 +656,13 @@ const Category = () => {
                           onChange={() => handleMaterialToggle(material.name)}
                           className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
                         />
-                        <span className="text-sm text-gray-600">{material.name}</span>
+                        <span className="text-sm text-gray-600">
+                          {material.name}
+                        </span>
                       </label>
-                      <span className="text-xs text-gray-500">({material.count})</span>
+                      <span className="text-xs text-gray-500">
+                        ({material.count})
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -640,10 +670,15 @@ const Category = () => {
 
               {/* Brands Filter */}
               <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Brands</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Brands
+                </h3>
                 <div className="space-y-3">
                   {brands.map((brand, index) => (
-                    <div key={index} className="flex items-center justify-between">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between"
+                    >
                       <label className="flex items-center space-x-3 cursor-pointer">
                         <input
                           type="checkbox"
@@ -651,9 +686,13 @@ const Category = () => {
                           onChange={() => handleBrandToggle(brand.name)}
                           className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
                         />
-                        <span className="text-sm text-gray-600">{brand.name}</span>
+                        <span className="text-sm text-gray-600">
+                          {brand.name}
+                        </span>
                       </label>
-                      <span className="text-xs text-gray-500">({brand.count})</span>
+                      <span className="text-xs text-gray-500">
+                        ({brand.count})
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -661,7 +700,9 @@ const Category = () => {
 
               {/* Size Filter */}
               <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Size</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Size
+                </h3>
                 <div className="grid grid-cols-3 gap-2">
                   {sizes.map((size, index) => (
                     <button
@@ -889,8 +930,6 @@ const Category = () => {
                             )}
                           </button>
 
-
-
                           {/* Cart Button */}
                           <button
                             className={`p-2 rounded-full transition-all duration-300 bg-white bg-opacity-80 ${
@@ -943,8 +982,6 @@ const Category = () => {
                                 <FaRegHeart className="text-lg" />
                               )}
                             </button>
-
-
 
                             {/* Cart Button */}
                             <button
@@ -1128,12 +1165,17 @@ const Category = () => {
 
             {/* Categories */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Categories</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Categories
+              </h3>
               <ul className="space-y-2">
                 {isCategoriesLoading ? (
                   <div className="space-y-2 animate-pulse">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <div key={i} className="h-6 bg-gray-100 rounded w-full"></div>
+                      <div
+                        key={i}
+                        className="h-6 bg-gray-100 rounded w-full"
+                      ></div>
                     ))}
                   </div>
                 ) : (
@@ -1147,9 +1189,13 @@ const Category = () => {
                         }`}
                         onMouseEnter={() => setHoveredCategory(index)}
                         onMouseLeave={() => setHoveredCategory(null)}
-                        onClick={() => { setActiveCategory(index); setIsDrawerOpen(false); }}
+                        onClick={() => {
+                          setActiveCategory(index);
+                          setIsDrawerOpen(false);
+                        }}
                       >
-                        {(index === activeCategory || index === hoveredCategory) && (
+                        {(index === activeCategory ||
+                          index === hoveredCategory) && (
                           <span className="absolute -left-3 top-1/2 transform -translate-y-1/2 text-[#a67c00] font-bold transition-all duration-300 text-2xl">
                             |
                           </span>
@@ -1166,7 +1212,9 @@ const Category = () => {
 
             {/* Price Filter - Mobile */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Price</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Price
+              </h3>
               <div className="text-sm text-gray-600 flex items-center gap-1 mb-4">
                 Price: <MdOutlineCurrencyRupee />
                 {priceRange[0].toLocaleString("en-IN")} -{" "}
@@ -1179,50 +1227,62 @@ const Category = () => {
                   <div
                     className="absolute top-0 h-2 bg-[#a67c00] rounded-full"
                     style={{
-                      left: `${(priceRange[0] / 100000) * 100}%`,
-                      width: `${((priceRange[1] - priceRange[0]) / 100000) * 100}%`,
+                      left: `${(priceRange[0] / 1000000) * 100}%`,
+                      width: `${((priceRange[1] - priceRange[0]) / 1000000) * 100}%`,
                     }}
                   />
                   <input
                     type="range"
                     min="0"
-                    max="100000"
+                    max="1000000"
                     step="500"
                     value={priceRange[0]}
                     onChange={(e) => {
                       const val = parseInt(e.target.value);
-                      if (val < priceRange[1]) setPriceRange([val, priceRange[1]]);
+                      if (val < priceRange[1])
+                        setPriceRange([val, priceRange[1]]);
                     }}
                     className="absolute top-0 left-0 w-full h-2 appearance-none bg-transparent cursor-pointer price-slider-thumb"
-                    style={{ zIndex: priceRange[0] > 90000 ? 5 : 3 }}
+                    style={{ zIndex: priceRange[0] > 900000 ? 5 : 3 }}
                   />
                   <input
                     type="range"
                     min="0"
-                    max="100000"
-                    step="500"
+                    max="1000000"
+                    step="1000"
                     value={priceRange[1]}
                     onChange={(e) => {
                       const val = parseInt(e.target.value);
-                      if (val > priceRange[0]) setPriceRange([priceRange[0], val]);
+                      if (val > priceRange[0])
+                        setPriceRange([priceRange[0], val]);
                     }}
                     className="absolute top-0 left-0 w-full h-2 appearance-none bg-transparent cursor-pointer price-slider-thumb"
                     style={{ zIndex: 4 }}
                   />
                 </div>
                 <div className="flex justify-between text-xs text-gray-500 mt-4">
-                  <span><MdOutlineCurrencyRupee className="inline" />0</span>
-                  <span><MdOutlineCurrencyRupee className="inline" />1,00,000</span>
+                  <span>
+                    <MdOutlineCurrencyRupee className="inline" />0
+                  </span>
+                  <span>
+                    <MdOutlineCurrencyRupee className="inline" />
+                    10,00,000
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Material Filter - Mobile */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Material</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Material
+              </h3>
               <div className="space-y-3">
                 {materials.map((material, index) => (
-                  <div key={index} className="flex items-center justify-between">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
                     <label className="flex items-center space-x-3 cursor-pointer">
                       <input
                         type="checkbox"
@@ -1230,9 +1290,13 @@ const Category = () => {
                         onChange={() => handleMaterialToggle(material.name)}
                         className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
                       />
-                      <span className="text-sm text-gray-600">{material.name}</span>
+                      <span className="text-sm text-gray-600">
+                        {material.name}
+                      </span>
                     </label>
-                    <span className="text-xs text-gray-500">({material.count})</span>
+                    <span className="text-xs text-gray-500">
+                      ({material.count})
+                    </span>
                   </div>
                 ))}
               </div>
@@ -1240,10 +1304,15 @@ const Category = () => {
 
             {/* Brands Filter - Mobile */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Brands</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Brands
+              </h3>
               <div className="space-y-3">
                 {brands.map((brand, index) => (
-                  <div key={index} className="flex items-center justify-between">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
                     <label className="flex items-center space-x-3 cursor-pointer">
                       <input
                         type="checkbox"
@@ -1251,9 +1320,13 @@ const Category = () => {
                         onChange={() => handleBrandToggle(brand.name)}
                         className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
                       />
-                      <span className="text-sm text-gray-600">{brand.name}</span>
+                      <span className="text-sm text-gray-600">
+                        {brand.name}
+                      </span>
                     </label>
-                    <span className="text-xs text-gray-500">({brand.count})</span>
+                    <span className="text-xs text-gray-500">
+                      ({brand.count})
+                    </span>
                   </div>
                 ))}
               </div>
