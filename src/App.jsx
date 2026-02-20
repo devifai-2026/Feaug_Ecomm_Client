@@ -53,58 +53,89 @@ function App() {
     // Recent purchase notification logic
     let activityInterval;
 
-    const fetchAndShowActivity = () => {
-      orderApi.getRecentActivity({
-        onSuccess: (response) => {
-          if (response && response.data && response.data.length > 0) {
-            // Function to show random purchase toast
-            const showRandomToast = () => {
-              const randomOrder =
-                response.data[Math.floor(Math.random() * response.data.length)];
+    const shuffleArray = (arr) => {
+      const shuffled = [...arr];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    };
 
-              // Custom content for the toast
-              const ToastContent = () => (
-                <div className="flex items-center gap-3">
-                  {randomOrder.image ? (
-                    <img
-                      src={randomOrder.image}
-                      alt={randomOrder.product}
-                      className="w-10 h-10 object-cover rounded-md"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 bg-purple-100 rounded-md flex items-center justify-center text-purple-600 font-bold">
-                      {randomOrder.user.charAt(0)}
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {randomOrder.user}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      bought {randomOrder.product}
-                    </p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">
-                      {randomOrder.city} • Just now
-                    </p>
-                  </div>
-                </div>
-              );
+    const fetchAndShowActivity = async () => {
+      let activityData = [];
+      let userNames = [];
 
-              toast(<ToastContent />);
+      try {
+        const activityRes = await orderApi.getRecentActivity({});
+        console.log(activityData,"activity")
+        if (activityRes && activityRes.data && activityRes.data.length > 0) {
+          activityData = activityRes.data;
+        }
+      } catch (err) {
+        console.error("Failed to fetch recent activity:", err);
+      }
 
-              // Schedule next toast (random time between 15-30 seconds)
-              const nextTime = Math.random() * (300000 - 150000) + 15000;
-              activityInterval = setTimeout(showRandomToast, nextTime);
-            };
+      try {
+        const namesRes = await orderApi.getUserNames({});
+        if (namesRes && namesRes.data && namesRes.data.length > 0) {
+          userNames = shuffleArray(namesRes.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch user names:", err);
+      }
 
-            // Start showing toasts after initial delay
-            activityInterval = setTimeout(showRandomToast, 10000);
-          }
-        },
-        onError: (err) => {
-          console.error("Failed to fetch recent activity:", err);
-        },
-      });
+      if (activityData.length === 0 || userNames.length === 0) return;
+
+      let nameIndex = 0;
+
+      const showNextToast = () => {
+        const randomActivity =
+          activityData[Math.floor(Math.random() * activityData.length)];
+
+        // Cycle through shuffled names; reshuffle when exhausted
+        if (nameIndex >= userNames.length) {
+          userNames = shuffleArray(userNames);
+          nameIndex = 0;
+        }
+        const userName = userNames[nameIndex++];
+
+        const ToastContent = () => (
+          <div className="flex items-center gap-3">
+            {randomActivity.image ? (
+              <img
+                src={randomActivity.image}
+                alt={randomActivity.product}
+                className="w-10 h-10 object-cover rounded-md"
+              />
+            ) : (
+              <div className="w-10 h-10 bg-purple-100 rounded-md flex items-center justify-center text-purple-600 font-bold">
+                {userName.charAt(0)}
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {userName}
+              </p>
+              <p className="text-xs text-gray-500 truncate">
+                bought {randomActivity.product}
+              </p>
+              <p className="text-[10px] text-gray-400 mt-0.5">
+                {randomActivity.city} • Just now
+              </p>
+            </div>
+          </div>
+        );
+
+        toast(<ToastContent />);
+
+        // Next toast: random interval between 40-80 seconds
+        const nextTime = Math.random() * 4000 + 8000;
+        activityInterval = setTimeout(showNextToast, nextTime);
+      };
+
+      // Initial delay: 25 seconds
+      activityInterval = setTimeout(showNextToast, 5000);
     };
 
     fetchAndShowActivity();
