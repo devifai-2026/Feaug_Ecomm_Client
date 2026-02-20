@@ -65,7 +65,7 @@ const ReturnPolicy = () => {
 
   const refundMethods = [
     {
-      method: "Original Payment Method",
+      method: "Original Payment Intent",
       time: "5-7 business days",
       icon: <FaMoneyBillWave className="text-green-600" />
     },
