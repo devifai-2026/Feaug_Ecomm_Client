@@ -471,196 +471,9 @@ const Category = () => {
     }
   };
 
-  const FilterButton = () => (
-    <button
-      onClick={() => setIsDrawerOpen(true)}
-      className="lg:hidden fixed bottom-6 right-6 z-40 bg-black text-white p-4 rounded-full shadow-lg hover:bg-gray-800 transition-colors"
-    >
-      <FaFilter className="text-lg" />
-    </button>
-  );
-
-  const SidebarContent = () => (
-    <div className="h-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-      {/* Categories */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Categories</h3>
-        <ul className="space-y-2">
-          {isCategoriesLoading ? (
-            <div className="space-y-2 animate-pulse">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-6 bg-gray-100 rounded w-full"></div>
-              ))}
-            </div>
-          ) : (
-            categories.map((category, index) => (
-              <li key={index}>
-                <button
-                  className={`w-full text-left py-1 transition-all duration-300 ease-in-out relative group ${
-                    index === activeCategory
-                      ? "text-black font-medium ml-3"
-                      : "text-gray-600 hover:text-black hover:ml-3"
-                  }`}
-                  onMouseEnter={() => setHoveredCategory(index)}
-                  onMouseLeave={() => setHoveredCategory(null)}
-                  onClick={() => setActiveCategory(index)}
-                >
-                  {(index === activeCategory || index === hoveredCategory) && (
-                    <span className="absolute -left-3 top-1/2 transform -translate-y-1/2 text-[#a67c00] font-bold transition-all duration-300 text-2xl">
-                      |
-                    </span>
-                  )}
-                  <span className="transition-all duration-300 group-hover:font-medium">
-                    {category}
-                  </span>
-
-                  <div
-                    className={`absolute inset-0 -z-10 rounded-lg transition-all duration-300 ${
-                      index === activeCategory
-                        ? "opacity-100 scale-100"
-                        : index === hoveredCategory
-                          ? "opacity-50 scale-100"
-                          : "opacity-0 scale-95"
-                    }`}
-                  />
-                </button>
-              </li>
-            ))
-          )}
-        </ul>
-      </div>
-
-      {/* Price Filter - CUSTOM PRICE BAR */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Price</h3>
-
-        <div className="text-sm text-gray-600 flex items-center gap-1 mb-4">
-          Price: <MdOutlineCurrencyRupee />
-          {priceRange[0]} - <MdOutlineCurrencyRupee />
-          {priceRange[1]}
-        </div>
-
-        {/* Custom Price Bar */}
-        <div className="px-2">
-          <div className="relative">
-            {/* Track */}
-            <div className="h-2 bg-gray-300 rounded-full">
-              {/* Filled Track */}
-              <div
-                className="h-2 bg-[#a67c00] rounded-full absolute top-0 left-0"
-                style={{
-                  width: `${((priceRange[1] - 0) / (100000 - 0)) * 100}%`,
-                }}
-              ></div>
-            </div>
-
-            {/* Slider Input */}
-            <input
-              type="range"
-              min="0"
-              max="100000"
-              value={priceRange[1]}
-              onChange={(e) =>
-                setPriceRange([priceRange[0], parseInt(e.target.value)])
-              }
-              className="absolute top-0 left-0 w-full h-2 opacity-0 cursor-pointer"
-            />
-
-            {/* Custom Thumb */}
-            <div
-              className="absolute top-1/2 w-4 h-4 bg-white border-2 border-[#a67c00] rounded-full shadow-lg transform -translate-y-1/2 -translate-x-1/2 cursor-pointer"
-              style={{
-                left: `${((priceRange[1] - 0) / (100000 - 0)) * 100}%`,
-              }}
-            ></div>
-          </div>
-
-          {/* Price Labels */}
-          <div className="flex justify-between text-xs text-gray-500 mt-3">
-            <span>
-              <MdOutlineCurrencyRupee className="inline" />0
-            </span>
-            <span>
-              <MdOutlineCurrencyRupee className="inline" />
-              1,00,000
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Material Filter */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Material</h3>
-        <div className="space-y-3">
-          {materials.map((material, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedMaterials[material.name] || false}
-                  onChange={() => handleMaterialToggle(material.name)}
-                  className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
-                />
-                <span className="text-sm text-gray-600">{material.name}</span>
-              </label>
-              <span className="text-xs text-gray-500">({material.count})</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Brands Filter */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Brands</h3>
-        <div className="space-y-3">
-          {brands.map((brand, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedBrands[brand.name] || false}
-                  onChange={() => handleBrandToggle(brand.name)}
-                  className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
-                />
-                <span className="text-sm text-gray-600">{brand.name}</span>
-              </label>
-              <span className="text-xs text-gray-500">({brand.count})</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Size Filter */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Size</h3>
-        <div className="grid grid-cols-3 gap-2">
-          {sizes.map((size, index) => (
-            <button
-              key={index}
-              onClick={() => handleSizeToggle(size)}
-              className={`py-2 text-sm border rounded transition-colors ${
-                selectedSizes[size]
-                  ? "bg-black text-white border-black"
-                  : "bg-white text-gray-600 border-gray-300 hover:border-gray-400"
-              }`}
-            >
-              {size}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Clear All Filters */}
-      <div className="border-t pt-4">
-        <button
-          onClick={clearAllFilters}
-          className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          X CLEAR ALL FILTER
-        </button>
-      </div>
-    </div>
-  );
+  // Sidebar JSX is rendered inline below (not as a sub-component) to avoid
+  // React unmounting/remounting it on every state change, which caused
+  // scroll-to-top when clicking checkboxes or interacting with the price slider.
 
   return (
     <div className="min-h-screen bg-white">
@@ -691,8 +504,190 @@ const Category = () => {
         <div className="grid grid-cols-12 gap-8">
           {/* Left Sidebar - Filters - Desktop */}
           <div className="hidden lg:block lg:col-span-3">
-            <div className="sticky top-8 h-[calc(100vh-4rem)] overflow-y-auto">
-              <SidebarContent />
+            <div className="sticky top-8 h-[calc(100vh-4rem)] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {/* ── SIDEBAR CONTENT ── */}
+
+              {/* Categories */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Categories</h3>
+                <ul className="space-y-2">
+                  {isCategoriesLoading ? (
+                    <div className="space-y-2 animate-pulse">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className="h-6 bg-gray-100 rounded w-full"></div>
+                      ))}
+                    </div>
+                  ) : (
+                    categories.map((category, index) => (
+                      <li key={index}>
+                        <button
+                          className={`w-full text-left py-1 transition-all duration-300 ease-in-out relative group ${
+                            index === activeCategory
+                              ? "text-black font-medium ml-3"
+                              : "text-gray-600 hover:text-black hover:ml-3"
+                          }`}
+                          onMouseEnter={() => setHoveredCategory(index)}
+                          onMouseLeave={() => setHoveredCategory(null)}
+                          onClick={() => setActiveCategory(index)}
+                        >
+                          {(index === activeCategory || index === hoveredCategory) && (
+                            <span className="absolute -left-3 top-1/2 transform -translate-y-1/2 text-[#a67c00] font-bold transition-all duration-300 text-2xl">
+                              |
+                            </span>
+                          )}
+                          <span className="transition-all duration-300 group-hover:font-medium">
+                            {category}
+                          </span>
+                          <div
+                            className={`absolute inset-0 -z-10 rounded-lg transition-all duration-300 ${
+                              index === activeCategory
+                                ? "opacity-100 scale-100"
+                                : index === hoveredCategory
+                                  ? "opacity-50 scale-100"
+                                  : "opacity-0 scale-95"
+                            }`}
+                          />
+                        </button>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              </div>
+
+              {/* Price Filter */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Price</h3>
+                <div className="text-sm text-gray-600 flex items-center gap-1 mb-4">
+                  Price: <MdOutlineCurrencyRupee />
+                  {priceRange[0].toLocaleString("en-IN")} -{" "}
+                  <MdOutlineCurrencyRupee />
+                  {priceRange[1].toLocaleString("en-IN")}
+                </div>
+
+                {/* Dual-thumb range slider */}
+                <div className="px-2">
+                  <div className="relative h-2 mt-4 mb-2">
+                    {/* Grey track */}
+                    <div className="absolute top-0 left-0 right-0 h-2 bg-gray-300 rounded-full" />
+                    {/* Gold filled segment between min and max thumbs */}
+                    <div
+                      className="absolute top-0 h-2 bg-[#a67c00] rounded-full"
+                      style={{
+                        left: `${(priceRange[0] / 100000) * 100}%`,
+                        width: `${((priceRange[1] - priceRange[0]) / 100000) * 100}%`,
+                      }}
+                    />
+
+                    {/* Min thumb */}
+                    <input
+                      type="range"
+                      min="0"
+                      max="100000"
+                      step="500"
+                      value={priceRange[0]}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        if (val < priceRange[1]) setPriceRange([val, priceRange[1]]);
+                      }}
+                      className="absolute top-0 left-0 w-full h-2 appearance-none bg-transparent cursor-pointer price-slider-thumb"
+                      style={{ zIndex: priceRange[0] > 90000 ? 5 : 3 }}
+                    />
+
+                    {/* Max thumb */}
+                    <input
+                      type="range"
+                      min="0"
+                      max="100000"
+                      step="500"
+                      value={priceRange[1]}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        if (val > priceRange[0]) setPriceRange([priceRange[0], val]);
+                      }}
+                      className="absolute top-0 left-0 w-full h-2 appearance-none bg-transparent cursor-pointer price-slider-thumb"
+                      style={{ zIndex: 4 }}
+                    />
+                  </div>
+
+                  {/* Price Labels */}
+                  <div className="flex justify-between text-xs text-gray-500 mt-4">
+                    <span><MdOutlineCurrencyRupee className="inline" />0</span>
+                    <span><MdOutlineCurrencyRupee className="inline" />1,00,000</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Material Filter */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Material</h3>
+                <div className="space-y-3">
+                  {materials.map((material, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <label className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedMaterials[material.name] || false}
+                          onChange={() => handleMaterialToggle(material.name)}
+                          className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                        />
+                        <span className="text-sm text-gray-600">{material.name}</span>
+                      </label>
+                      <span className="text-xs text-gray-500">({material.count})</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Brands Filter */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Brands</h3>
+                <div className="space-y-3">
+                  {brands.map((brand, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <label className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedBrands[brand.name] || false}
+                          onChange={() => handleBrandToggle(brand.name)}
+                          className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                        />
+                        <span className="text-sm text-gray-600">{brand.name}</span>
+                      </label>
+                      <span className="text-xs text-gray-500">({brand.count})</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Size Filter */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Size</h3>
+                <div className="grid grid-cols-3 gap-2">
+                  {sizes.map((size, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleSizeToggle(size)}
+                      className={`py-2 text-sm border rounded transition-colors ${
+                        selectedSizes[size]
+                          ? "bg-black text-white border-black"
+                          : "bg-white text-gray-600 border-gray-300 hover:border-gray-400"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Clear All Filters */}
+              <div className="border-t pt-4">
+                <button
+                  onClick={clearAllFilters}
+                  className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  X CLEAR ALL FILTER
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1129,13 +1124,181 @@ const Category = () => {
             </button>
           </div>
           <div className="p-4">
-            <SidebarContent />
+            {/* ── MOBILE SIDEBAR CONTENT ── */}
+
+            {/* Categories */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Categories</h3>
+              <ul className="space-y-2">
+                {isCategoriesLoading ? (
+                  <div className="space-y-2 animate-pulse">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div key={i} className="h-6 bg-gray-100 rounded w-full"></div>
+                    ))}
+                  </div>
+                ) : (
+                  categories.map((category, index) => (
+                    <li key={index}>
+                      <button
+                        className={`w-full text-left py-1 transition-all duration-300 ease-in-out relative group ${
+                          index === activeCategory
+                            ? "text-black font-medium ml-3"
+                            : "text-gray-600 hover:text-black hover:ml-3"
+                        }`}
+                        onMouseEnter={() => setHoveredCategory(index)}
+                        onMouseLeave={() => setHoveredCategory(null)}
+                        onClick={() => { setActiveCategory(index); setIsDrawerOpen(false); }}
+                      >
+                        {(index === activeCategory || index === hoveredCategory) && (
+                          <span className="absolute -left-3 top-1/2 transform -translate-y-1/2 text-[#a67c00] font-bold transition-all duration-300 text-2xl">
+                            |
+                          </span>
+                        )}
+                        <span className="transition-all duration-300 group-hover:font-medium">
+                          {category}
+                        </span>
+                      </button>
+                    </li>
+                  ))
+                )}
+              </ul>
+            </div>
+
+            {/* Price Filter - Mobile */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Price</h3>
+              <div className="text-sm text-gray-600 flex items-center gap-1 mb-4">
+                Price: <MdOutlineCurrencyRupee />
+                {priceRange[0].toLocaleString("en-IN")} -{" "}
+                <MdOutlineCurrencyRupee />
+                {priceRange[1].toLocaleString("en-IN")}
+              </div>
+              <div className="px-2">
+                <div className="relative h-2 mt-4 mb-2">
+                  <div className="absolute top-0 left-0 right-0 h-2 bg-gray-300 rounded-full" />
+                  <div
+                    className="absolute top-0 h-2 bg-[#a67c00] rounded-full"
+                    style={{
+                      left: `${(priceRange[0] / 100000) * 100}%`,
+                      width: `${((priceRange[1] - priceRange[0]) / 100000) * 100}%`,
+                    }}
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="100000"
+                    step="500"
+                    value={priceRange[0]}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (val < priceRange[1]) setPriceRange([val, priceRange[1]]);
+                    }}
+                    className="absolute top-0 left-0 w-full h-2 appearance-none bg-transparent cursor-pointer price-slider-thumb"
+                    style={{ zIndex: priceRange[0] > 90000 ? 5 : 3 }}
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="100000"
+                    step="500"
+                    value={priceRange[1]}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (val > priceRange[0]) setPriceRange([priceRange[0], val]);
+                    }}
+                    className="absolute top-0 left-0 w-full h-2 appearance-none bg-transparent cursor-pointer price-slider-thumb"
+                    style={{ zIndex: 4 }}
+                  />
+                </div>
+                <div className="flex justify-between text-xs text-gray-500 mt-4">
+                  <span><MdOutlineCurrencyRupee className="inline" />0</span>
+                  <span><MdOutlineCurrencyRupee className="inline" />1,00,000</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Material Filter - Mobile */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Material</h3>
+              <div className="space-y-3">
+                {materials.map((material, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <label className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedMaterials[material.name] || false}
+                        onChange={() => handleMaterialToggle(material.name)}
+                        className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                      />
+                      <span className="text-sm text-gray-600">{material.name}</span>
+                    </label>
+                    <span className="text-xs text-gray-500">({material.count})</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Brands Filter - Mobile */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Brands</h3>
+              <div className="space-y-3">
+                {brands.map((brand, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <label className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedBrands[brand.name] || false}
+                        onChange={() => handleBrandToggle(brand.name)}
+                        className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                      />
+                      <span className="text-sm text-gray-600">{brand.name}</span>
+                    </label>
+                    <span className="text-xs text-gray-500">({brand.count})</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Size Filter - Mobile */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Size</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {sizes.map((size, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSizeToggle(size)}
+                    className={`py-2 text-sm border rounded transition-colors ${
+                      selectedSizes[size]
+                        ? "bg-black text-white border-black"
+                        : "bg-white text-gray-600 border-gray-300 hover:border-gray-400"
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Clear All Filters - Mobile */}
+            <div className="border-t pt-4">
+              <button
+                onClick={clearAllFilters}
+                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                X CLEAR ALL FILTER
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Floating Filter Button for Mobile */}
-      <FilterButton />
+      <button
+        onClick={() => setIsDrawerOpen(true)}
+        className="lg:hidden fixed bottom-6 right-6 z-40 bg-black text-white p-4 rounded-full shadow-lg hover:bg-gray-800 transition-colors"
+      >
+        <FaFilter className="text-lg" />
+      </button>
 
       {/* Last Banner*/}
       <div className="mb-10 relative max-w-[90%] mx-auto">
