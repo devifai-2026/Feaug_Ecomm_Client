@@ -40,13 +40,25 @@ const Category = () => {
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState(0);
+  const [activeCategory, setActiveCategory] = useState(0); // 0 = All
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [layout, setLayout] = useState("grid"); // 'grid' or 'list'
   const [sortBy, setSortBy] = useState("Popularity");
 
-  // API state for categories
-  const [categories, setCategories] = useState(["All Jewelry"]);
+  // API state
+  const [allProducts, setAllProducts] = useState([]);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Filter options from backend
+  const [filterOptions, setFilterOptions] = useState({
+    materials: [],
+    brands: [],
+    purities: [],
+    categories: [],
+    priceRange: { min: 0, max: 1000000 },
+  });
   const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
 
   const sizes = ["XS", "S", "M", "L", "XL", "2XL"];
@@ -57,20 +69,27 @@ const Category = () => {
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { addToCart } = useCart();
 
+  // Categories list for UI
+  const categoriesList = useMemo(() => {
+    return ["All Jewelry", ...filterOptions.categories.map((c) => c.name)];
+  }, [filterOptions.categories]);
+
   // Sync with URL category parameter
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const categoryParam = params.get("category");
 
-    if (categoryParam && categories.length > 0) {
-      const index = categories.findIndex(
-        (cat) => cat.toLowerCase() === categoryParam.toLowerCase(),
+    if (categoryParam && filterOptions.categories.length > 0) {
+      const index = filterOptions.categories.findIndex(
+        (cat) =>
+          cat.name.toLowerCase() === categoryParam.toLowerCase() ||
+          cat.slug.toLowerCase() === categoryParam.toLowerCase(),
       );
       if (index !== -1) {
-        setActiveCategory(index);
+        setActiveCategory(index + 1);
       }
     }
-  }, [location.search, categories]);
+  }, [location.search, filterOptions.categories]);
 
   const handleProductClick = (productId) => {
     navigate(`/product/${productId}`);
@@ -188,216 +207,111 @@ const Category = () => {
     }
   };
 
-  // API state
-  const [allProducts, setAllProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const materials = useMemo(() => {
-    const predefinedMaterials = [
-      "Gold",
-      "Silver",
-      "Platinum",
-      "Diamond",
-      "Pearl",
-      "Gemstone",
-    ];
-    const counts = {};
-
-    // Initialize counts
-    predefinedMaterials.forEach((m) => (counts[m.toLowerCase()] = 0));
-
-    // Count from products
-    allProducts.forEach((product) => {
-      if (product.material) {
-        const mat = product.material.toLowerCase();
-        // Check if product material matches or contains any of our predefined materials
-        predefinedMaterials.forEach((p) => {
-          if (mat.includes(p.toLowerCase())) {
-            counts[p.toLowerCase()] = (counts[p.toLowerCase()] || 0) + 1;
-          }
-        });
-      }
-    });
-
-    return predefinedMaterials.map((name) => ({
-      name,
-      count: counts[name.toLowerCase()] || 0,
-    }));
-  }, [allProducts]);
-
-  const brands = useMemo(() => {
-    const predefinedBrands = [
-      "Rollage",
-      "HELEN & JAMES",
-      "ORE Jewelry",
-      "Platinum Elite",
-      "Silver Dreams",
-      "Gold Heritage",
-    ];
-    const counts = {};
-
-    // Initialize
-    predefinedBrands.forEach((b) => (counts[b.toLowerCase()] = 0));
-
-    // Count
-    allProducts.forEach((product) => {
-      if (product.brand) {
-        const brandName = product.brand.toLowerCase();
-        // Exact match or partial if desired, usually brand checks are exact
-        predefinedBrands.forEach((pb) => {
-          if (brandName === pb.toLowerCase()) {
-            counts[pb.toLowerCase()] = (counts[pb.toLowerCase()] || 0) + 1;
-          }
-        });
-      }
-    });
-
-    return predefinedBrands.map((name) => ({
-      name,
-      count: counts[name.toLowerCase()] || 0,
-    }));
-  }, [allProducts]);
-
-  // Fetch all products on mount
+  // Fetch filter options and initial products
   useEffect(() => {
-    // Fetch Categories
-    categoryApi.getAdminCategories({
+    // 1. Fetch Categories and Filters
+    productApi.getProductFilters({
       setLoading: setIsCategoriesLoading,
       onSuccess: (response) => {
-        if (response.success && response.data?.categories) {
-          const fetchedCategories = response.data.categories.map(
-            (cat) => cat.name,
-          );
-          setCategories(["All Jewelry", ...fetchedCategories]);
+        if (response.success && response.data?.filters) {
+          setFilterOptions(response.data.filters);
         }
       },
-      onError: (err) => {
-        console.error("Failed to fetch categories:", err);
-      },
-    });
-
-    setLoading(true);
-    productApi.getAllProducts({
-      params: { limit: 1000 },
-      setLoading,
-      onSuccess: (response) => {
-        if (response.success && response.data?.products) {
-          setAllProducts(response.data.products);
-        } else {
-          setAllProducts([]);
-        }
-      },
-      onError: (err) => {
-        console.error("Failed to fetch products:", err);
-        setError("Failed to load products");
-        toast.error("Failed to load products");
-        setAllProducts([]);
-      },
+      onError: (err) => console.error("Failed to fetch filters:", err),
     });
   }, []);
 
-  // Filter products whenever filters or activeCategory changes
+  // 2. Main Fetch Effect (Triggers on filter/page/sort change)
   useEffect(() => {
-    let result = [...allProducts];
+    const fetchProducts = () => {
+      const params = {
+        page: currentPage,
+        limit: productsPerPage,
+      };
 
-    // Filter by Category
-    const selectedCategoryName = categories[activeCategory];
-    const isAllJewelry =
-      !selectedCategoryName ||
-      selectedCategoryName.toLowerCase().includes("all jewelry") ||
-      selectedCategoryName.toLowerCase().includes("all jewellery") ||
-      selectedCategoryName.toLowerCase() === "all";
+      // Category filter
+      if (activeCategory > 0) {
+        const cat = filterOptions.categories[activeCategory - 1];
+        if (cat) params.category = cat._id;
+      }
 
-    if (!isAllJewelry) {
-      result = result.filter(
-        (product) =>
-          product.category?.name === selectedCategoryName ||
-          product.subCategory?.name === selectedCategoryName,
+      // Sort mapping
+      const sortMap = {
+        "Price: Low to High": "sellingPrice",
+        "Price: High to Low": "-sellingPrice",
+        Newest: "-createdAt",
+        Popularity: "-purchaseCount,-ratingAverage", // Matches backend logic
+      };
+      params.sort = sortMap[sortBy] || "-createdAt";
+
+      // Price Range (Backend APIFeatures uses gte/lte)
+      params["sellingPrice[gte]"] = priceRange[0];
+      params["sellingPrice[lte]"] = priceRange[1];
+
+      // Materials (Multi-select)
+      const mats = Object.keys(selectedMaterials).filter(
+        (m) => selectedMaterials[m],
       );
-    }
+      if (mats.length > 0) params.material = mats;
 
-    // Filter by Price
-    result = result.filter(
-      (product) =>
-        product.sellingPrice >= priceRange[0] &&
-        product.sellingPrice <= priceRange[1],
-    );
-
-    // Filter by Material
-    const activeMaterials = Object.keys(selectedMaterials).filter(
-      (m) => selectedMaterials[m],
-    );
-    if (activeMaterials.length > 0) {
-      result = result.filter((product) =>
-        activeMaterials.some((m) =>
-          product.material?.toLowerCase().includes(m.toLowerCase()),
-        ),
+      // Brands (Multi-select)
+      const brnds = Object.keys(selectedBrands).filter(
+        (b) => selectedBrands[b],
       );
-    }
+      if (brnds.length > 0) params.brand = brnds;
 
-    // Filter by Brand
-    const activeBrands = Object.keys(selectedBrands).filter(
-      (b) => selectedBrands[b],
-    );
-    if (activeBrands.length > 0) {
-      result = result.filter(
-        (product) =>
-          product.brand &&
-          activeBrands.some(
-            (brand) => brand.toLowerCase() === product.brand.toLowerCase(),
-          ),
-      );
-    }
+      // Sizes
+      const szs = Object.keys(selectedSizes).filter((s) => selectedSizes[s]);
+      if (szs.length > 0) params.size = szs;
 
-    // Filter by Size
-    const activeSizes = Object.keys(selectedSizes).filter(
-      (s) => selectedSizes[s],
-    );
-    if (activeSizes.length > 0) {
-      result = result.filter(
-        (product) => product.size && activeSizes.includes(product.size),
-      );
-    }
+      setLoading(true);
+      productApi.getAllProducts({
+        params,
+        setLoading,
+        onSuccess: (response) => {
+          if (response.success && response.data?.products) {
+            setAllProducts(response.data.products);
+            setTotalProducts(response.total || response.results);
+          }
+        },
+        onError: (err) => {
+          console.error("Failed to fetch products:", err);
+          setError("Failed to load products");
+          setAllProducts([]);
+        },
+      });
+    };
 
-    // Sort
-    if (sortBy === "Price: Low to High") {
-      result.sort((a, b) => a.sellingPrice - b.sellingPrice);
-    } else if (sortBy === "Price: High to Low") {
-      result.sort((a, b) => b.sellingPrice - a.sellingPrice);
-    } else if (sortBy === "Newest") {
-      result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    } else if (sortBy === "Popularity") {
-      result.sort(
-        (a, b) =>
-          (b.purchaseCount || 0) - (a.purchaseCount || 0) ||
-          (b.ratingAverage || 0) - (a.ratingAverage || 0),
-      );
-    }
-    // Default or Popularity (could use rating or views)
-
-    setFilteredProducts(result);
-    // Reset to page 1 when filters change
-    setCurrentPage(1);
+    fetchProducts();
   }, [
-    allProducts,
     activeCategory,
-    categories,
+    filterOptions.categories,
     priceRange,
     selectedMaterials,
     selectedBrands,
     selectedSizes,
     sortBy,
+    currentPage,
   ]);
 
-  // Pagination Logic
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  // Dynamic filter counting (Optional: You might want to remove these or keep them for UI)
+  const materialsList = useMemo(() => {
+    return filterOptions.materials.map((m) => ({
+      name: m.charAt(0).toUpperCase() + m.slice(1),
+      count: allProducts.filter((p) => p.material === m).length, // This is just for current page now
+    }));
+  }, [filterOptions.materials, allProducts]);
 
-  const currentProducts = useMemo(() => {
-    const start = (currentPage - 1) * productsPerPage;
-    return filteredProducts.slice(start, start + productsPerPage);
-  }, [currentPage, filteredProducts]);
+  const brandsList = useMemo(() => {
+    return filterOptions.brands.map((b) => ({
+      name: b,
+      count: allProducts.filter((p) => p.brand === b).length,
+    }));
+  }, [filterOptions.brands, allProducts]);
+
+  // Pagination Logic
+  const totalPages = Math.ceil(totalProducts / productsPerPage);
+  const currentProducts = allProducts;
 
   const getPageNumbers = () => {
     const pageNumbers = [];
@@ -424,13 +338,10 @@ const Category = () => {
   };
 
   const getShowingText = () => {
-    if (filteredProducts.length === 0) return "Showing 0 results";
+    if (allProducts.length === 0) return "Showing 0 results";
     const startItem = (currentPage - 1) * productsPerPage + 1;
-    const endItem = Math.min(
-      currentPage * productsPerPage,
-      filteredProducts.length,
-    );
-    return `Showing ${startItem}-${endItem} of ${filteredProducts.length} results.`;
+    const endItem = Math.min(currentPage * productsPerPage, totalProducts);
+    return `Showing ${startItem}-${endItem} of ${totalProducts} results.`;
   };
 
   const handleMaterialToggle = useCallback((material) => {
@@ -529,7 +440,7 @@ const Category = () => {
                       ))}
                     </div>
                   ) : (
-                    categories.map((category, index) => (
+                    categoriesList.map((category, index) => (
                       <li key={index}>
                         <button
                           className={`w-full text-left py-1 transition-all duration-300 ease-in-out relative group ${
@@ -550,15 +461,6 @@ const Category = () => {
                           <span className="transition-all duration-300 group-hover:font-medium">
                             {category}
                           </span>
-                          <div
-                            className={`absolute inset-0 -z-10 rounded-lg transition-all duration-300 ${
-                              index === activeCategory
-                                ? "opacity-100 scale-100"
-                                : index === hoveredCategory
-                                  ? "opacity-50 scale-100"
-                                  : "opacity-0 scale-95"
-                            }`}
-                          />
                         </button>
                       </li>
                     ))
@@ -644,7 +546,7 @@ const Category = () => {
                   Material
                 </h3>
                 <div className="space-y-3">
-                  {materials.map((material, index) => (
+                  {filterOptions.materials.map((material, index) => (
                     <div
                       key={index}
                       className="flex items-center justify-between"
@@ -652,17 +554,14 @@ const Category = () => {
                       <label className="flex items-center space-x-3 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={selectedMaterials[material.name] || false}
-                          onChange={() => handleMaterialToggle(material.name)}
+                          checked={selectedMaterials[material] || false}
+                          onChange={() => handleMaterialToggle(material)}
                           className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
                         />
-                        <span className="text-sm text-gray-600">
-                          {material.name}
+                        <span className="text-sm text-gray-600 capitalize">
+                          {material}
                         </span>
                       </label>
-                      <span className="text-xs text-gray-500">
-                        ({material.count})
-                      </span>
                     </div>
                   ))}
                 </div>
@@ -674,7 +573,7 @@ const Category = () => {
                   Brands
                 </h3>
                 <div className="space-y-3">
-                  {brands.map((brand, index) => (
+                  {filterOptions.brands.map((brand, index) => (
                     <div
                       key={index}
                       className="flex items-center justify-between"
@@ -682,17 +581,12 @@ const Category = () => {
                       <label className="flex items-center space-x-3 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={selectedBrands[brand.name] || false}
-                          onChange={() => handleBrandToggle(brand.name)}
+                          checked={selectedBrands[brand] || false}
+                          onChange={() => handleBrandToggle(brand)}
                           className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
                         />
-                        <span className="text-sm text-gray-600">
-                          {brand.name}
-                        </span>
+                        <span className="text-sm text-gray-600">{brand}</span>
                       </label>
-                      <span className="text-xs text-gray-500">
-                        ({brand.count})
-                      </span>
                     </div>
                   ))}
                 </div>
@@ -1179,7 +1073,7 @@ const Category = () => {
                     ))}
                   </div>
                 ) : (
-                  categories.map((category, index) => (
+                  categoriesList.map((category, index) => (
                     <li key={index}>
                       <button
                         className={`w-full text-left py-1 transition-all duration-300 ease-in-out relative group ${
@@ -1278,7 +1172,7 @@ const Category = () => {
                 Material
               </h3>
               <div className="space-y-3">
-                {materials.map((material, index) => (
+                {filterOptions.materials.map((material, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between"
@@ -1286,17 +1180,14 @@ const Category = () => {
                     <label className="flex items-center space-x-3 cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={selectedMaterials[material.name] || false}
-                        onChange={() => handleMaterialToggle(material.name)}
+                        checked={selectedMaterials[material] || false}
+                        onChange={() => handleMaterialToggle(material)}
                         className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
                       />
-                      <span className="text-sm text-gray-600">
-                        {material.name}
+                      <span className="text-sm text-gray-600 capitalize">
+                        {material}
                       </span>
                     </label>
-                    <span className="text-xs text-gray-500">
-                      ({material.count})
-                    </span>
                   </div>
                 ))}
               </div>
@@ -1308,7 +1199,7 @@ const Category = () => {
                 Brands
               </h3>
               <div className="space-y-3">
-                {brands.map((brand, index) => (
+                {filterOptions.brands.map((brand, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between"
@@ -1316,17 +1207,12 @@ const Category = () => {
                     <label className="flex items-center space-x-3 cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={selectedBrands[brand.name] || false}
-                        onChange={() => handleBrandToggle(brand.name)}
+                        checked={selectedBrands[brand] || false}
+                        onChange={() => handleBrandToggle(brand)}
                         className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
                       />
-                      <span className="text-sm text-gray-600">
-                        {brand.name}
-                      </span>
+                      <span className="text-sm text-gray-600">{brand}</span>
                     </label>
-                    <span className="text-xs text-gray-500">
-                      ({brand.count})
-                    </span>
                   </div>
                 ))}
               </div>
