@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import topBanner from "../../assets/About/topBanner.png";
 import bottomBanner from "../../assets/About/bottomBanner.jpg";
 import { RxDividerVertical } from "react-icons/rx";
@@ -6,6 +7,8 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 
 const About = () => {
+  const navigate = useNavigate();
+
   useEffect(() => {
     AOS.init({
       duration: 1000,
@@ -281,7 +284,7 @@ const About = () => {
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl">
             Let's Work with Us!
           </h2>
-          <button className="relative uppercase border border-black px-4 sm:px-5 py-3 sm:py-4 w-full sm:w-[80%] md:w-[60%] lg:w-[20%] mx-auto font-semibold overflow-hidden group text-sm sm:text-base">
+          <button onClick={() => navigate('/contact')} className="relative uppercase border border-black px-4 sm:px-5 py-3 sm:py-4 w-full sm:w-[80%] md:w-[60%] lg:w-[20%] mx-auto font-semibold overflow-hidden group text-sm sm:text-base">
             <span className="relative z-10 transition-colors duration-300 group-hover:text-white">
               Work with Us
             </span>

@@ -360,45 +360,53 @@ const ForgotPassword = () => {
         {/* Progress Steps */}
         <div className="mb-6 md:mb-8">
           <div className="flex items-center justify-center">
-            <div className="flex items-center">
-              {/* Step 1 */}
+
+            {/* Step 1 - label on BOTTOM */}
+            <div className="flex flex-col items-center">
               <div
                 className={`flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full ${step >= 1 ? "bg-[#C19A6B] text-white" : "bg-gray-200 text-gray-600"}`}
               >
                 1
               </div>
-              <div
-                className={`h-1 w-12 md:w-20 ${step >= 2 ? "bg-[#C19A6B]" : "bg-gray-200"}`}
-              ></div>
+              <span className={`text-xs md:text-sm mt-1 ${step >= 1 ? "text-[#C19A6B] font-medium" : "text-gray-600"}`}>
+                Enter Email
+              </span>
+            </div>
 
-              {/* Step 2 */}
+            {/* Connector 1→2 */}
+            <div
+              className={`h-1 w-12 md:w-20 mb-4 ${step >= 2 ? "bg-[#C19A6B]" : "bg-gray-200"}`}
+            ></div>
+
+            {/* Step 2 - label on BOTTOM */}
+            <div className="flex flex-col items-center">
               <div
                 className={`flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full ${step >= 2 ? "bg-[#C19A6B] text-white" : "bg-gray-200 text-gray-600"}`}
               >
                 2
               </div>
-              <div
-                className={`h-1 w-12 md:w-20 ${step >= 3 ? "bg-[#C19A6B]" : "bg-gray-200"}`}
-              ></div>
+              <span className={`text-xs md:text-sm mt-1 ${step >= 2 ? "text-[#C19A6B] font-medium" : "text-gray-600"}`}>
+                Enter OTP
+              </span>
+            </div>
 
-              {/* Step 3 */}
+            {/* Connector 2→3 */}
+            <div
+              className={`h-1 w-12 md:w-20 mb-4 ${step >= 3 ? "bg-[#C19A6B]" : "bg-gray-200"}`}
+            ></div>
+
+            {/* Step 3 - label on BOTTOM */}
+            <div className="flex flex-col items-center">
               <div
                 className={`flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full ${step >= 3 ? "bg-[#C19A6B] text-white" : "bg-gray-200 text-gray-600"}`}
               >
                 3
               </div>
+              <span className={`text-xs md:text-sm mt-1 ${step >= 3 ? "text-[#C19A6B] font-medium" : "text-gray-600"}`}>
+                New Password
+              </span>
             </div>
-          </div>
-          <div className="flex justify-between mt-2 text-xs md:text-sm text-gray-600 px-4 md:px-10">
-            <span className={step >= 1 ? "text-[#C19A6B] font-medium" : ""}>
-              Enter Email
-            </span>
-            <span className={step >= 2 ? "text-[#C19A6B] font-medium" : ""}>
-              Enter OTP
-            </span>
-            <span className={step >= 3 ? "text-[#C19A6B] font-medium" : ""}>
-              New Password
-            </span>
+
           </div>
         </div>
 
