@@ -31,7 +31,7 @@ import MyProfile from "./Component/Pages/MyProfile/MyProfile";
 import MyOrders from "./Component/Pages/MyOrders/MyOrders";
 import OrderDetails from "./Component/Pages/MyOrders/OrderDetails";
 import PaymentStatus from "./Component/Pages/Payment/PaymentStatus";
-import orderApi from "./apis/orderApi";
+import productApi from "./apis/productApi";
 
 function App() {
   usePageTracking();
@@ -65,12 +65,15 @@ function App() {
     let userNames = [];
 
     try {
-      const activityRes = await orderApi.getRecentActivity({});
-      if (activityRes?.data?.length > 0) {
-        activityData = activityRes.data;
+      const productsRes = await productApi.getAllProducts({ params: {} });
+      if (productsRes?.data?.products?.length > 0) {
+        activityData = productsRes.data.products.map((p) => ({
+          product: p.name,
+          image: p.images?.[0]?.url || p.image || null,
+        }));
       }
     } catch (err) {
-      console.error("Failed to fetch recent activity:", err);
+      console.error("Failed to fetch products for activity:", err);
     }
 
     userNames = shuffleArray([
@@ -132,7 +135,7 @@ function App() {
               bought {randomActivity.product}
             </p>
             <p className="text-[10px] text-gray-400 mt-0.5">
-              {randomActivity.city} • Just now
+              Just now
             </p>
           </div>
         </div>
@@ -145,7 +148,7 @@ function App() {
     showNextToast();
 
     // 🔁 Then repeat every 5 seconds
-    activityInterval = setInterval(showNextToast, 5000);
+    activityInterval = setInterval(showNextToast, 10000);
   };
 
   fetchAndShowActivity();
