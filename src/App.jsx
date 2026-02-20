@@ -37,113 +37,123 @@ function App() {
   usePageTracking();
 
   useEffect(() => {
-    // Initialize AOS
-    AOS.init({
-      duration: 800,
-      once: true,
-      offset: 120,
-      easing: "ease-out",
-      disable: window.innerWidth < 768,
-    });
+  AOS.init({
+    duration: 800,
+    once: true,
+    offset: 120,
+    easing: "ease-out",
+    disable: window.innerWidth < 768,
+  });
 
-    setTimeout(() => {
-      AOS.refresh();
-    }, 100);
+  setTimeout(() => {
+    AOS.refresh();
+  }, 100);
 
-    // Recent purchase notification logic
-    let activityInterval;
+  let activityInterval;
 
-    const shuffleArray = (arr) => {
-      const shuffled = [...arr];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  const shuffleArray = (arr) => {
+    const shuffled = [...arr];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  const fetchAndShowActivity = async () => {
+    let activityData = [];
+    let userNames = [];
+
+    try {
+      const activityRes = await orderApi.getRecentActivity({});
+      if (activityRes?.data?.length > 0) {
+        activityData = activityRes.data;
       }
-      return shuffled;
-    };
+    } catch (err) {
+      console.error("Failed to fetch recent activity:", err);
+    }
 
-    const fetchAndShowActivity = async () => {
-      let activityData = [];
-      let userNames = [];
+    userNames = shuffleArray([
+      "Aarav Sharma",
+      "Vivaan Patel",
+      "Aditya Singh",
+      "Arjun Verma",
+      "Ishaan Mehta",
+      "Kabir Gupta",
+      "Rohan Nair",
+      "Rahul Yadav",
+      "Siddharth Jain",
+      "Manish Kumar",
+      "Ananya Reddy",
+      "Diya Kapoor",
+      "Priya Sharma",
+      "Sneha Iyer",
+      "Kavya Menon",
+      "Neha Joshi",
+      "Aditi Rao",
+      "Pooja Desai",
+      "Meera Kulkarni",
+      "Ritika Choudhary",
+    ]);
 
-      try {
-        const activityRes = await orderApi.getRecentActivity({});
-        console.log(activityData,"activity")
-        if (activityRes && activityRes.data && activityRes.data.length > 0) {
-          activityData = activityRes.data;
-        }
-      } catch (err) {
-        console.error("Failed to fetch recent activity:", err);
+    if (!activityData.length || !userNames.length) return;
+
+    let nameIndex = 0;
+
+    const showNextToast = () => {
+      const randomActivity =
+        activityData[Math.floor(Math.random() * activityData.length)];
+
+      if (nameIndex >= userNames.length) {
+        userNames = shuffleArray(userNames);
+        nameIndex = 0;
       }
 
-      try {
-        const namesRes = await orderApi.getUserNames({});
-        if (namesRes && namesRes.data && namesRes.data.length > 0) {
-          userNames = shuffleArray(namesRes.data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch user names:", err);
-      }
+      const userName = userNames[nameIndex++];
 
-      if (activityData.length === 0 || userNames.length === 0) return;
-
-      let nameIndex = 0;
-
-      const showNextToast = () => {
-        const randomActivity =
-          activityData[Math.floor(Math.random() * activityData.length)];
-
-        // Cycle through shuffled names; reshuffle when exhausted
-        if (nameIndex >= userNames.length) {
-          userNames = shuffleArray(userNames);
-          nameIndex = 0;
-        }
-        const userName = userNames[nameIndex++];
-
-        const ToastContent = () => (
-          <div className="flex items-center gap-3">
-            {randomActivity.image ? (
-              <img
-                src={randomActivity.image}
-                alt={randomActivity.product}
-                className="w-10 h-10 object-cover rounded-md"
-              />
-            ) : (
-              <div className="w-10 h-10 bg-purple-100 rounded-md flex items-center justify-center text-purple-600 font-bold">
-                {userName.charAt(0)}
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
-                {userName}
-              </p>
-              <p className="text-xs text-gray-500 truncate">
-                bought {randomActivity.product}
-              </p>
-              <p className="text-[10px] text-gray-400 mt-0.5">
-                {randomActivity.city} • Just now
-              </p>
+      const ToastContent = () => (
+        <div className="flex items-center gap-3">
+          {randomActivity.image ? (
+            <img
+              src={randomActivity.image}
+              alt={randomActivity.product}
+              className="w-10 h-10 object-cover rounded-md"
+            />
+          ) : (
+            <div className="w-10 h-10 bg-purple-100 rounded-md flex items-center justify-center text-purple-600 font-bold">
+              {userName.charAt(0)}
             </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {userName}
+            </p>
+            <p className="text-xs text-gray-500 truncate">
+              bought {randomActivity.product}
+            </p>
+            <p className="text-[10px] text-gray-400 mt-0.5">
+              {randomActivity.city} • Just now
+            </p>
           </div>
-        );
+        </div>
+      );
 
-        toast(<ToastContent />);
-
-        // Next toast: random interval between 40-80 seconds
-        const nextTime = Math.random() * 4000 + 8000;
-        activityInterval = setTimeout(showNextToast, nextTime);
-      };
-
-      // Initial delay: 25 seconds
-      activityInterval = setTimeout(showNextToast, 5000);
+      toast(<ToastContent />);
     };
 
-    fetchAndShowActivity();
+    // 🔥 Show immediately
+    showNextToast();
 
-    return () => {
-      if (activityInterval) clearTimeout(activityInterval);
-    };
-  }, []);
+    // 🔁 Then repeat every 5 seconds
+    activityInterval = setInterval(showNextToast, 5000);
+  };
+
+  fetchAndShowActivity();
+
+  return () => {
+    if (activityInterval) clearInterval(activityInterval);
+  };
+}, []);
 
   return (
     <>
