@@ -535,7 +535,7 @@ const Category = () => {
                     </span>
                     <span>
                       <MdOutlineCurrencyRupee className="inline" />
-                      10,00,000
+                      10,00,0
                     </span>
                   </div>
                 </div>
@@ -594,7 +594,7 @@ const Category = () => {
               </div>
 
               {/* Size Filter */}
-              <div className="mb-8">
+              {/* <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   Size
                 </h3>
@@ -613,7 +613,7 @@ const Category = () => {
                     </button>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               {/* Clear All Filters */}
               <div className="border-t pt-4">
@@ -1173,7 +1173,7 @@ const Category = () => {
                   </span>
                   <span>
                     <MdOutlineCurrencyRupee className="inline" />
-                    10,00,000
+                    10,00,0
                   </span>
                 </div>
               </div>
@@ -1232,7 +1232,7 @@ const Category = () => {
             </div>
 
             {/* Size Filter - Mobile */}
-            <div className="mb-8">
+            {/* <div className="mb-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Size</h3>
               <div className="grid grid-cols-3 gap-2">
                 {sizes.map((size, index) => (
@@ -1249,7 +1249,7 @@ const Category = () => {
                   </button>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* Clear All Filters - Mobile */}
             <div className="border-t pt-4">
