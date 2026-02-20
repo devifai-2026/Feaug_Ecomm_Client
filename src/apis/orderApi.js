@@ -84,6 +84,14 @@ const orderApi = {
       onSuccess,
       onError,
     }),
+
+  // Get all user names for social proof notifications (public)
+  getUserNames: ({ onSuccess, onError }) =>
+    apiCall.get({
+      route: '/orders/user-names',
+      onSuccess,
+      onError,
+    }),
 };
 
 export default orderApi;
