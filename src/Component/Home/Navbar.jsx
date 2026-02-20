@@ -683,65 +683,75 @@ const Navbar = () => {
 
               {/* Categories Dropdown - Enhanced with drag functionality */}
 
-              {isCategoriesOpen && (
-                <div className="fixed left-1/2 transform -translate-x-1/2 top-14 bg-white shadow-xl border border-gray-200 z-50 overflow-hidden animate-fadeIn min-w-[500px] max-w-[100vw]">
-                  <div className="">
-                    {/* Horizontal scrollable container with hidden scrollbar */}
-                    <div
-                      ref={categoriesContainerRef}
-                      className="flex gap-4 pb-2 px-4 select-none"
-                      style={{
-                        overflowX: "auto",
-                        scrollbarWidth: "none",
-                        msOverflowStyle: "none",
-                        cursor: "grab",
-                        scrollBehavior: "smooth",
-                        userSelect: "none",
-                        WebkitUserSelect: "none",
-                      }}
-                    >
-                      {categories.map((category, index) => (
-                        <div
-                          key={index}
-                          className="flex flex-col items-center flex-shrink-0 w-52"
+              <div
+                className="fixed left-1/2 transform -translate-x-1/2 top-14 bg-white shadow-xl border border-gray-200 z-50 overflow-hidden min-w-[500px] max-w-[100vw]"
+                style={{
+                  opacity: isCategoriesOpen ? 1 : 0,
+                  transform: isCategoriesOpen
+                    ? "translateX(-50%) translateY(0)"
+                    : "translateX(-50%) translateY(-8px)",
+                  visibility: isCategoriesOpen ? "visible" : "hidden",
+                  pointerEvents: isCategoriesOpen ? "auto" : "none",
+                  transition:
+                    "opacity 250ms cubic-bezier(0.4,0,0.2,1), transform 250ms cubic-bezier(0.4,0,0.2,1), visibility 250ms",
+                }}
+              >
+                <div className="">
+                  {/* Horizontal scrollable container with hidden scrollbar */}
+                  <div
+                    ref={categoriesContainerRef}
+                    className="flex gap-4 pb-2 px-4 select-none"
+                    style={{
+                      overflowX: "auto",
+                      scrollbarWidth: "none",
+                      msOverflowStyle: "none",
+                      cursor: "grab",
+                      scrollBehavior: "smooth",
+                      userSelect: "none",
+                      WebkitUserSelect: "none",
+                    }}
+                  >
+                    {categories.map((category, index) => (
+                      <div
+                        key={index}
+                        className="flex flex-col items-center flex-shrink-0 w-52"
+                      >
+                        <button
+                          onClick={(e) =>
+                            handleCategoriesItemClick(e, category)
+                          }
+                          className="flex flex-col items-center group cursor-pointer select-none w-full"
                         >
-                          <button
-                            onClick={(e) =>
-                              handleCategoriesItemClick(e, category)
-                            }
-                            className="flex flex-col items-center group cursor-pointer select-none w-full"
-                          >
-                            <div className="w-full h-64 mb-2 overflow-hidden">
-                              <img
-                                src={category.image}
-                                alt={category.name}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                              />
-                            </div>
-                            <div className="flex items-center justify-between w-full">
-                              <span className="text-sm font-medium text-gray-800 group-hover:text-[#C19A6B] transition-colors duration-300 whitespace-nowrap">
-                                {category.name}
-                              </span>
-                              <FaArrowRightLong className="text-[#C19A6B] text-sm" />
-                            </div>
-                          </button>
-                        </div>
-                      ))}
-                    </div>
+                          <div className="w-full h-64 mb-2 overflow-hidden">
+                            <img
+                              src={category.image}
+                              alt={category.name}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                          </div>
+                          <div className="flex items-center justify-between w-full">
+                            <span className="text-sm font-medium text-gray-800 group-hover:text-[#C19A6B] transition-colors duration-300 whitespace-nowrap">
+                              {category.name}
+                            </span>
+                            <FaArrowRightLong className="text-[#C19A6B] text-sm" />
+                          </div>
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                  <style>{`
-                    div[style*="overflow-x: auto"]::-webkit-scrollbar {
-                      display: none;
-                    }
-                    .select-none {
-                      -webkit-user-select: none;
-                      -moz-user-select: none;
-                      -ms-user-select: none;
-                      user-select: none;
-                    }
-                  `}</style>
                 </div>
-              )}
+                <style>{`
+                  div[style*="overflow-x: auto"]::-webkit-scrollbar {
+                    display: none;
+                  }
+                  .select-none {
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    -ms-user-select: none;
+                    user-select: none;
+                  }
+                `}</style>
+              </div>
             </div>
 
             <Link to="/about">

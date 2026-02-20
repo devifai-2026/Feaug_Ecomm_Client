@@ -59,6 +59,7 @@ const ProductDetails = () => {
   // Review states
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [showFullDesc, setShowFullDesc] = useState(false);
   const [newReview, setNewReview] = useState({
     rating: 5,
     comment: "",
@@ -446,14 +447,27 @@ const ProductDetails = () => {
     if (!product) return null;
 
     switch (activeTab) {
-      case "DESCRIPTION":
+      case "DESCRIPTION": {
+        const raw = cleanDescription(product.description) || "";
+        const LIMIT = 300;
+        const isLong = raw.length > LIMIT;
+        const displayed = isLong && !showFullDesc ? raw.slice(0, LIMIT) + "..." : raw;
         return (
           <div className="prose max-w-none">
             <p className="text-gray-600 leading-relaxed whitespace-pre-wrap max-w-[70vw] break-words">
-              {cleanDescription(product.description)}
+              {displayed}
             </p>
+            {isLong && (
+              <button
+                onClick={() => setShowFullDesc((prev) => !prev)}
+                className="mt-3 text-sm font-semibold text-[#a67c00] hover:underline transition-all"
+              >
+                {showFullDesc ? "See Less ↑" : "See More ↓"}
+              </button>
+            )}
           </div>
         );
+      }
       case "DETAILS":
         return (
           <div className="text-gray-600 space-y-4">
@@ -975,9 +989,25 @@ const ProductDetails = () => {
                 )}
               </div>
 
-             <p className="text-gray-600 leading-relaxed whitespace-pre-wrap max-w-[70vw] break-words">
-              {cleanDescription(product.description)}
-            </p>
+             <div>
+               <p className="text-gray-600 leading-relaxed whitespace-pre-wrap max-w-[70vw] break-words">
+                 {(() => {
+                   const raw = cleanDescription(product.description) || "";
+                   const LIMIT = 300;
+                   return showFullDesc || raw.length <= LIMIT
+                     ? raw
+                     : raw.slice(0, LIMIT) + "...";
+                 })()}
+               </p>
+               {(cleanDescription(product.description) || "").length > 300 && (
+                 <button
+                   onClick={() => setShowFullDesc((prev) => !prev)}
+                   className="mt-2 text-sm font-semibold text-[#a67c00] hover:underline transition-all"
+                 >
+                   {showFullDesc ? "See Less ↑" : "See More ↓"}
+                 </button>
+               )}
+             </div>
               <div className="flex items-center gap-4">
                 <div
                   className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100"
