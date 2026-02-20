@@ -13,10 +13,10 @@ import { toast } from "react-toastify";
 import userApi from "../../../apis/user/userApi";
 
 const ForgotPassword = () => {
-  const [step, setStep] = useState(1); // 1: Email input, 2: Token verification, 3: Reset password
+  const [step, setStep] = useState(1); // 1: Email input, 2: OTP verification, 3: Reset password
   const [formData, setFormData] = useState({
     email: "",
-    token: "",
+    otp: "",
     newPassword: "",
     confirmPassword: "",
   });
@@ -24,13 +24,13 @@ const ForgotPassword = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({
     email: "",
-    token: "",
+    otp: "",
     newPassword: "",
     confirmPassword: "",
   });
   const [touched, setTouched] = useState({
     email: false,
-    token: false,
+    otp: false,
     newPassword: false,
     confirmPassword: false,
   });
@@ -50,10 +50,10 @@ const ForgotPassword = () => {
     return "";
   };
 
-  // Validate token (for password reset)
-  const validateToken = (token) => {
-    if (!token) return "Reset token is required";
-    if (token.length < 6) return "Invalid reset token";
+  // Validate OTP (for password reset)
+  const validateOtp = (otp) => {
+    if (!otp) return "OTP is required";
+    if (otp.length !== 6) return "OTP must be exactly 6 digits";
     return "";
   };
 
@@ -86,31 +86,37 @@ const ForgotPassword = () => {
   // Handle input change with validation
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    let formattedValue = value;
+    if (name === "otp") {
+      formattedValue = value.replace(/\\D/g, "").slice(0, 6);
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: formattedValue,
     }));
 
     // Validate on change
     let error = "";
     if (name === "email") {
-      error = validateEmail(value);
-    } else if (name === "token") {
-      error = validateToken(value);
+      error = validateEmail(formattedValue);
+    } else if (name === "otp") {
+      error = validateOtp(formattedValue);
     } else if (name === "newPassword") {
-      error = validatePassword(value);
+      error = validatePassword(formattedValue);
       // Also re-validate confirm password if it exists
       if (formData.confirmPassword) {
         setErrors((prev) => ({
           ...prev,
           confirmPassword: validateConfirmPassword(
             formData.confirmPassword,
-            value,
+            formattedValue,
           ),
         }));
       }
     } else if (name === "confirmPassword") {
-      error = validateConfirmPassword(value, formData.newPassword);
+      error = validateConfirmPassword(formattedValue, formData.newPassword);
     }
 
     setErrors((prev) => ({
@@ -145,7 +151,7 @@ const ForgotPassword = () => {
     if (step === 1) {
       isValid = !errors.email && formData.email.length > 0;
     } else if (step === 2) {
-      isValid = !errors.token && formData.token.length >= 6;
+      isValid = !errors.otp && formData.otp.length === 6;
     } else if (step === 3) {
       const passwordValid =
         !errors.newPassword && formData.newPassword.length > 0;
@@ -157,7 +163,7 @@ const ForgotPassword = () => {
     setCanSubmit(isValid);
   }, [step, errors, formData]);
 
-  const handleSendResetToken = async (e) => {
+  const handleSendOtp = async (e) => {
     e.preventDefault();
 
     // Validate before submitting
@@ -190,40 +196,46 @@ const ForgotPassword = () => {
     }
   };
 
-  const handleVerifyToken = async (e) => {
+  const handleVerifyOtp = async (e) => {
     e.preventDefault();
 
     // Validate before submitting
-    const tokenError = validateToken(formData.token);
-    if (tokenError) {
-      setErrors((prev) => ({ ...prev, token: tokenError }));
-      setTouched((prev) => ({ ...prev, token: true }));
-      toast.error(tokenError);
+    const otpError = validateOtp(formData.otp);
+    if (otpError) {
+      setErrors((prev) => ({ ...prev, otp: otpError }));
+      setTouched((prev) => ({ ...prev, otp: true }));
+      toast.error(otpError);
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const response = await userApi.verifyOtp(formData.token);
+      const response = await userApi.verifyOtp(formData.otp);
 
       if (
         response.status === "success" ||
         response.message === "OTP verified successfully"
       ) {
         setStep(3);
-        toast.success("Token verified! Now set your new password.");
+        toast.success("OTP verified! Now set your new password.");
       } else {
-        toast.error(response.message || "Token verification failed");
+        const errorMsg = response.message || "Invalid OTP";
+        toast.error(errorMsg);
+        setErrors((prev) => ({ ...prev, otp: errorMsg }));
+        setTouched((prev) => ({ ...prev, otp: true }));
       }
     } catch (error) {
-      toast.error(error.message || "Token verification failed");
+      const errorMsg = error.message || "OTP verification failed";
+      toast.error(errorMsg);
+      setErrors((prev) => ({ ...prev, otp: errorMsg }));
+      setTouched((prev) => ({ ...prev, otp: true }));
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleResendToken = async () => {
+  const handleResendOtp = async () => {
     if (countdown > 0) {
       toast.info(`Please wait ${countdown} seconds before resending`);
       return;
@@ -291,7 +303,7 @@ const ForgotPassword = () => {
     try {
       // Call reset password API
       const response = await userApi.resetPassword({
-        token: formData.token,
+        token: formData.otp,
         password: formData.newPassword,
       });
 
@@ -303,7 +315,7 @@ const ForgotPassword = () => {
         // Clear form data
         setFormData({
           email: "",
-          token: "",
+          otp: "",
           newPassword: "",
           confirmPassword: "",
         });
@@ -382,7 +394,7 @@ const ForgotPassword = () => {
               Enter Email
             </span>
             <span className={step >= 2 ? "text-[#C19A6B] font-medium" : ""}>
-              Enter Token
+              Enter OTP
             </span>
             <span className={step >= 3 ? "text-[#C19A6B] font-medium" : ""}>
               New Password
@@ -393,7 +405,7 @@ const ForgotPassword = () => {
         <div className="bg-white py-6 md:py-8 px-4 md:px-8 shadow rounded-lg md:rounded-xl">
           {/* Step 1: Email Input */}
           {step === 1 && (
-            <form className="space-y-6" onSubmit={handleSendResetToken}>
+            <form className="space-y-6" onSubmit={handleSendOtp}>
               <div>
                 <label
                   htmlFor="email"
@@ -444,57 +456,57 @@ const ForgotPassword = () => {
             </form>
           )}
 
-          {/* Step 2: Token Verification */}
+          {/* Step 2: OTP Verification */}
           {step === 2 && (
-            <form className="space-y-6" onSubmit={handleVerifyToken}>
+            <form className="space-y-6" onSubmit={handleVerifyOtp}>
               <div>
                 <label
-                  htmlFor="token"
+                  htmlFor="otp"
                   className="block text-sm md:text-base font-medium text-gray-700 mb-2"
                 >
-                  Enter the reset token from your email
+                  Enter the reset OTP from your email
                 </label>
                 <p className="text-sm md:text-base text-gray-600 mb-4">
                   Check your email at{" "}
                   <span className="font-semibold">{formData.email}</span> for
-                  the reset token
+                  the reset OTP
                 </p>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <LuKeyRound className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    id="token"
-                    name="token"
+                    id="otp"
+                    name="otp"
                     type="text"
                     required
-                    value={formData.token}
+                    value={formData.otp}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     className={`appearance-none block w-full pl-10 px-3 py-3 md:py-3.5 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 text-sm md:text-base ${
-                      touched.token && errors.token
+                      touched.otp && errors.otp
                         ? "border-red-300 focus:border-red-500 focus:ring-red-500"
                         : "border-gray-300 focus:border-[#C19A6B] focus:ring-[#C19A6B]"
                     }`}
-                    placeholder="Enter reset token"
+                    placeholder="Enter reset OTP"
                   />
                 </div>
-                {touched.token && errors.token && (
+                {touched.otp && errors.otp && (
                   <p className="mt-1 text-xs md:text-sm text-red-600">
-                    {errors.token}
+                    {errors.otp}
                   </p>
                 )}
                 <div className="mt-3 flex justify-between items-center">
                   <p className="text-xs md:text-sm text-gray-500">
-                    Didn't receive the token?
+                    Didn't receive the OTP?
                   </p>
                   <button
                     type="button"
-                    onClick={handleResendToken}
+                    onClick={handleResendOtp}
                     disabled={countdown > 0 || isLoading}
                     className="text-sm md:text-base font-medium text-[#C19A6B] hover:text-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {countdown > 0 ? `Resend in ${countdown}s` : "Resend Token"}
+                    {countdown > 0 ? `Resend in ${countdown}s` : "Resend OTP"}
                   </button>
                 </div>
               </div>
@@ -505,7 +517,7 @@ const ForgotPassword = () => {
                   disabled={isLoading || !canSubmit}
                   className="w-full flex justify-center py-3 md:py-3.5 px-4 border border-transparent rounded-md shadow-sm text-sm md:text-base font-medium text-white bg-[#C19A6B] hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C19A6B] transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? "Verifying..." : "Verify Token"}
+                  {isLoading ? "Verifying..." : "Verify OTP"}
                 </button>
                 <button
                   type="button"
@@ -666,7 +678,7 @@ const ForgotPassword = () => {
                   onClick={() => setStep(2)}
                   className="w-full flex justify-center py-3 md:py-3.5 px-4 border border-gray-300 rounded-md shadow-sm text-sm md:text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-300"
                 >
-                  Back to Token Entry
+                  Back to OTP Entry
                 </button>
               </div>
             </form>
@@ -708,8 +720,8 @@ const ForgotPassword = () => {
               </h3>
               <div className="mt-2 text-xs md:text-sm text-amber-700">
                 <p>
-                  For your security, the reset token will expire in 10 minutes.
-                  Never share this token with anyone.
+                  For your security, the reset OTP will expire in 10 minutes.
+                  Never share this OTP with anyone.
                 </p>
               </div>
             </div>

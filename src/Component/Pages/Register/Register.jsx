@@ -111,7 +111,7 @@ const Register = () => {
 
   const validateOtp = (otp) => {
     if (!otp) return "OTP is required";
-    if (otp.length < 6) return "OTP must be at least 6 characters";
+    if (otp.length !== 6) return "OTP must be exactly 6 digits";
     return "";
   };
 
@@ -123,6 +123,9 @@ const Register = () => {
     if (name === "phone") {
       // Remove all non-digit characters and limit to 10 digits
       formattedValue = value.replace(/\D/g, "").slice(0, 10);
+    } else if (name === "otp") {
+      // Remove all non-digit characters and limit to 6 digits
+      formattedValue = value.replace(/\D/g, "").slice(0, 6);
     }
 
     setFormData((prev) => ({
@@ -333,10 +336,16 @@ const Register = () => {
           toast.error(regResponse.message || "Registration failed");
         }
       } else {
-        toast.error(verifyResponse.message || "Invalid OTP");
+        const errorMsg = verifyResponse.message || "Invalid OTP";
+        toast.error(errorMsg);
+        setErrors((prev) => ({ ...prev, otp: errorMsg }));
+        setTouched((prev) => ({ ...prev, otp: true }));
       }
     } catch (error) {
-      toast.error(error.message || "Validation failed");
+      const errorMsg = error.message || "Validation failed";
+      toast.error(errorMsg);
+      setErrors((prev) => ({ ...prev, otp: errorMsg }));
+      setTouched((prev) => ({ ...prev, otp: true }));
     } finally {
       setIsLoading(false);
     }
