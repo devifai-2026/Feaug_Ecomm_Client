@@ -147,16 +147,22 @@ function App() {
       toast(<ToastContent />);
     };
 
-    // 🔥 Show immediately
-    showNextToast();
+    // 🔥 Show after 15–30s delay (random to feel organic)
+    const initialDelay = 15000 + Math.floor(Math.random() * 15000);
+    const initialTimer = setTimeout(() => {
+      showNextToast();
+      // 🔁 Then repeat every 25 seconds
+      activityInterval = setInterval(showNextToast, 25000);
+    }, initialDelay);
 
-    // 🔁 Then repeat every 5 seconds
-    activityInterval = setInterval(showNextToast, 25000);
+    return initialTimer;
   };
 
-  fetchAndShowActivity();
+  let initialTimer;
+  fetchAndShowActivity().then((timer) => { initialTimer = timer; });
 
   return () => {
+    if (initialTimer) clearTimeout(initialTimer);
     if (activityInterval) clearInterval(activityInterval);
   };
 }, [location.pathname]);

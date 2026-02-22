@@ -49,6 +49,19 @@ const Category = () => {
   const [categories, setCategories] = useState(["All Jewelry"]);
   const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
 
+  // activeCategoryFilter is the source of truth for filtering.
+  // Initialized synchronously from the URL so filtering works immediately
+  // on mount without waiting for categories to load (fixes race condition).
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("category") || "";
+  });
+
+  const [searchFilter, setSearchFilter] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("search") || "";
+  });
+
   const sizes = ["XS", "S", "M", "L", "XL", "2XL"];
   const productsPerPage = 12;
 
@@ -57,17 +70,24 @@ const Category = () => {
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { addToCart } = useCart();
 
-  // Sync with URL category parameter
+  // Sync with URL category/search parameters
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const categoryParam = params.get("category");
+    const categoryParam = params.get("category") || "";
+    const searchParam = params.get("search") || "";
 
-    if (categoryParam && categories.length > 0) {
-      const index = categories.findIndex(
-        (cat) => cat.toLowerCase() === categoryParam.toLowerCase(),
-      );
-      if (index !== -1) {
-        setActiveCategory(index);
+    setActiveCategoryFilter(categoryParam);
+    setSearchFilter(searchParam);
+
+    // Also sync the sidebar highlight index once categories are available
+    if (categories.length > 1) {
+      if (!categoryParam) {
+        setActiveCategory(0);
+      } else {
+        const index = categories.findIndex(
+          (cat) => cat.toLowerCase() === categoryParam.toLowerCase(),
+        );
+        if (index !== -1) setActiveCategory(index);
       }
     }
   }, [location.search, categories]);
@@ -300,17 +320,30 @@ const Category = () => {
     });
   }, []);
 
-  // Filter products whenever filters or activeCategory changes
+  // Filter products whenever filters or activeCategoryFilter changes
   useEffect(() => {
     let result = [...allProducts];
 
-    // Filter by Category
-    const selectedCategoryName = categories[activeCategory];
-    if (selectedCategoryName && selectedCategoryName !== "All Jewelry") {
+    // Filter by Category — uses activeCategoryFilter (from URL) as source of truth,
+    // avoiding race conditions between the products fetch and categories fetch.
+    if (activeCategoryFilter) {
       result = result.filter(
         (product) =>
-          product.category?.name === selectedCategoryName ||
-          product.subCategory?.name === selectedCategoryName, // Optional: search in subcategory too
+          product.category?.name?.toLowerCase() === activeCategoryFilter.toLowerCase() ||
+          product.subCategory?.name?.toLowerCase() === activeCategoryFilter.toLowerCase(),
+      );
+    }
+
+    // Filter by Search
+    if (searchFilter) {
+      const q = searchFilter.toLowerCase();
+      result = result.filter(
+        (product) =>
+          product.name?.toLowerCase().includes(q) ||
+          product.shortDescription?.toLowerCase().includes(q) ||
+          product.description?.toLowerCase().includes(q) ||
+          product.brand?.toLowerCase().includes(q) ||
+          product.material?.toLowerCase().includes(q),
       );
     }
 
@@ -378,7 +411,8 @@ const Category = () => {
     setCurrentPage(1);
   }, [
     allProducts,
-    activeCategory,
+    activeCategoryFilter,
+    searchFilter,
     priceRange,
     selectedMaterials,
     selectedBrands,
@@ -503,7 +537,15 @@ const Category = () => {
                   }`}
                   onMouseEnter={() => setHoveredCategory(index)}
                   onMouseLeave={() => setHoveredCategory(null)}
-                  onClick={() => setActiveCategory(index)}
+                  onClick={() => {
+                    setActiveCategory(index);
+                    const cat = categories[index];
+                    if (cat === "All Jewelry") {
+                      navigate("/categories", { replace: true });
+                    } else {
+                      navigate(`/categories?category=${encodeURIComponent(cat)}`, { replace: true });
+                    }
+                  }}
                 >
                   {(index === activeCategory || index === hoveredCategory) && (
                     <span className="absolute -left-3 top-1/2 transform -translate-y-1/2 text-[#a67c00] font-bold transition-all duration-300 text-2xl">
