@@ -32,6 +32,7 @@ import five from "../../assets/Navbar/threeAngle.webp";
 import six from "../../assets/Navbar/twoAngle.webp";
 import bannerApi from "../../apis/bannerApi";
 import categoryApi from "../../apis/categoryApi";
+import productApi from "../../apis/productApi";
 
 const Navbar = () => {
   const location = useLocation();
@@ -42,7 +43,10 @@ const Navbar = () => {
   const [wishlistCount, setWishlistCount] = useState(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [recentSearches, setRecentSearches] = useState([]);
+  const searchTimerRef = useRef(null);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
@@ -184,11 +188,45 @@ const Navbar = () => {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
+      setSearchResults([]);
+      setSearchQuery("");
     }
     return () => {
       document.body.style.overflow = "unset";
     };
   }, [isSearchOpen]);
+
+  // Live search: debounced API call as user types
+  useEffect(() => {
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    searchTimerRef.current = setTimeout(() => {
+      setIsSearchLoading(true);
+      productApi.searchProducts({
+        query: searchQuery.trim(),
+        params: { limit: 6 },
+        onSuccess: (data) => {
+          if (data.success && data.data?.products?.length) {
+            setSearchResults(data.data.products);
+          } else {
+            setSearchResults([]);
+          }
+          setIsSearchLoading(false);
+        },
+        onError: () => {
+          setSearchResults([]);
+          setIsSearchLoading(false);
+        },
+      });
+    }, 350);
+
+    return () => clearTimeout(searchTimerRef.current);
+  }, [searchQuery]);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -458,17 +496,15 @@ const Navbar = () => {
 
       // Close modal and navigate to search results
       setIsSearchOpen(false);
-      // Here you would typically navigate to search results page
-      console.log("Searching for:", searchQuery);
+      navigate(`/categories?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery("");
     }
   };
 
   // Handle recent search click
   const handleRecentSearchClick = (search) => {
-    setSearchQuery(search);
     setIsSearchOpen(false);
-    console.log("Searching for:", search);
+    navigate(`/categories?search=${encodeURIComponent(search.trim())}`);
   };
 
   // Clear recent searches
@@ -605,8 +641,67 @@ const Navbar = () => {
 
               {/* Search Content */}
               <div className="p-6 overflow-y-auto max-h-[calc(80vh-180px)]">
+                {/* Live search results */}
+                {searchQuery.trim() && (
+                  <div className="mb-6">
+                    {isSearchLoading ? (
+                      <div className="flex items-center gap-2 text-gray-500 text-sm py-4">
+                        <div className="animate-spin h-4 w-4 border-2 border-[#C19A6B] border-t-transparent rounded-full"></div>
+                        Searching...
+                      </div>
+                    ) : searchResults.length > 0 ? (
+                      <>
+                        <h3 className="font-semibold text-gray-900 mb-3 text-sm">
+                          Results for "{searchQuery}"
+                        </h3>
+                        <div className="space-y-2">
+                          {searchResults.map((product) => (
+                            <button
+                              key={product._id}
+                              onClick={() => {
+                                setIsSearchOpen(false);
+                                setSearchQuery("");
+                                setSearchResults([]);
+                                navigate(`/product/${product.slug || product._id}`);
+                              }}
+                              className="flex items-center gap-3 w-full p-2 hover:bg-gray-50 rounded-lg text-left transition-colors"
+                            >
+                              <img
+                                src={product.images?.[0]?.url}
+                                alt={product.name}
+                                className="w-10 h-10 object-cover rounded flex-shrink-0 bg-gray-100"
+                                onError={(e) => { e.target.style.display = 'none'; }}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                                <p className="text-xs text-[#C19A6B]">₹{(product.sellingPrice || product.basePrice)?.toLocaleString('en-IN')}</p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                        <button
+                          onClick={() => {
+                            const updatedSearches = [searchQuery, ...recentSearches.filter(s => s !== searchQuery)].slice(0, 5);
+                            setRecentSearches(updatedSearches);
+                            localStorage.setItem("recentSearches", JSON.stringify(updatedSearches));
+                            setIsSearchOpen(false);
+                            navigate(`/categories?search=${encodeURIComponent(searchQuery.trim())}`);
+                            setSearchQuery("");
+                            setSearchResults([]);
+                          }}
+                          className="mt-3 w-full text-center text-sm text-[#C19A6B] hover:underline py-2"
+                        >
+                          See all results for "{searchQuery}"
+                        </button>
+                      </>
+                    ) : (
+                      <p className="text-sm text-gray-500 py-4">No results found for "{searchQuery}"</p>
+                    )}
+                  </div>
+                )}
+
                 {/* Recent Searches */}
-                {recentSearches.length > 0 && (
+                {!searchQuery.trim() && recentSearches.length > 0 && (
                   <div className="mb-8">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold text-gray-900">

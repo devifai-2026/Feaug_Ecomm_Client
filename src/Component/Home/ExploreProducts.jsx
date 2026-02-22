@@ -19,11 +19,11 @@ const ExploreProducts = () => {
 
   // Default categories as fallback
   const defaultCategories = [
-    { label: 'BRACELETS', image: one, slug: 'bracelets' },
+    { label: 'BRACELETS', image: five, slug: 'bracelets' },
     { label: 'EARRINGS', image: two, slug: 'earrings' },
     { label: 'RINGS', subtitle: 'All-time favorite', image: three, slug: 'rings' },
     { label: 'NECKLACES', image: four, slug: 'necklaces' },
-    { label: 'WATCHES', image: five, slug: 'watches' },
+    { label: 'WATCHES', image: one, slug: 'watches' },
   ];
 
   // Use static categories directly
@@ -31,8 +31,9 @@ const ExploreProducts = () => {
 
   // Handle card click navigation
   const handleCardClick = (category) => {
-    if (category?.slug) {
-      navigate(`/categories?category=${category.slug}`);
+    const name = category?.name || category?.label;
+    if (name) {
+      navigate(`/categories?category=${encodeURIComponent(name)}`);
     } else {
       navigate('/categories');
     }
