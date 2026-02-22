@@ -35,6 +35,8 @@ const FlashSale = () => {
         const fetchData = async () => {
             setLoading(true);
 
+            let bannerFeaturedProduct = null;
+
             // Fetch flash sale banner
             await bannerApi.getBannersByPage({
                 page: "home",
@@ -48,12 +50,37 @@ const FlashSale = () => {
                         if (banner.endDate) {
                             setSaleEndDate(new Date(banner.endDate));
                         }
+                        // Capture featured product if admin pinned one
+                        if (banner.featuredProduct) {
+                            bannerFeaturedProduct = banner.featuredProduct;
+                        }
                     }
                 },
                 onError: () => {},
             });
 
-            // Fetch on-sale products
+            // If admin pinned a specific product, use it directly
+            if (bannerFeaturedProduct) {
+                const p = bannerFeaturedProduct;
+                setSaleProduct({
+                    id: p._id,
+                    name: p.name,
+                    description: p.shortDescription || '',
+                    image: fallbackBannerImage,
+                    price: p.sellingPrice || p.basePrice,
+                    originalPrice: p.basePrice,
+                    discountPercentage: p.discountValue ||
+                        (p.basePrice && p.sellingPrice
+                            ? Math.round(((p.basePrice - p.sellingPrice) / p.basePrice) * 100)
+                            : 0),
+                    stock: p.stockQuantity || 0,
+                    slug: p.slug,
+                });
+                setLoading(false);
+                return;
+            }
+
+            // Otherwise fetch on-sale products automatically
             await productApi.getOnSaleProducts({
                 params: { limit: 1 },
                 setLoading,
@@ -71,7 +98,8 @@ const FlashSale = () => {
                                 (product.basePrice && product.sellingPrice
                                     ? Math.round(((product.basePrice - product.sellingPrice) / product.basePrice) * 100)
                                     : 0),
-                            stock: product.stock || 0
+                            stock: product.stock || 0,
+                            slug: product.slug,
                         });
                     } else {
                         // Fallback to featured product if no sale products
@@ -88,7 +116,8 @@ const FlashSale = () => {
                                         price: product.sellingPrice || product.basePrice,
                                         originalPrice: product.basePrice,
                                         discountPercentage: 0,
-                                        stock: product.stock || 0
+                                        stock: product.stock || 0,
+                                        slug: product.slug,
                                     });
                                 }
                             },
@@ -152,8 +181,17 @@ const FlashSale = () => {
 
     const handleViewProduct = () => {
         if (saleProduct) {
-            navigate(`/product/${saleProduct.id}`);
+            navigate(`/product/${saleProduct.slug || saleProduct.id}`);
         }
+    };
+
+    const handleCopyPromoCode = () => {
+        if (!flashBanner?.promoCode) return;
+        navigator.clipboard.writeText(flashBanner.promoCode).then(() => {
+            toast.success(`Code "${flashBanner.promoCode}" copied!`);
+        }).catch(() => {
+            toast.info(`Use code: ${flashBanner.promoCode}`);
+        });
     };
 
     const formatNumber = (num) => {
@@ -224,6 +262,23 @@ const FlashSale = () => {
                         >
                             {saleProduct?.description || flashDescription}
                         </p>
+                    )}
+
+                    {/* Promo Code Chip */}
+                    {flashBanner?.promoCode && (
+                        <button
+                            onClick={handleCopyPromoCode}
+                            className="flex items-center justify-center gap-2 mx-auto mb-4 px-4 py-1.5 bg-yellow-50 border border-yellow-300 border-dashed rounded text-xs font-semibold text-yellow-800 hover:bg-yellow-100 transition-colors cursor-pointer group"
+                            title="Click to copy"
+                        >
+                            <span>Use code: <span className="tracking-widest">{flashBanner.promoCode}</span></span>
+                            {flashBanner.discountPercentage > 0 && (
+                                <span className="text-red-500 font-bold">({flashBanner.discountPercentage}% off)</span>
+                            )}
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                        </button>
                     )}
 
                     {/* Price Display */}
