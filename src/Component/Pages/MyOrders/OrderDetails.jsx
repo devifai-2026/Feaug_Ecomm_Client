@@ -600,7 +600,7 @@ const OrderDetails = () => {
                     </h3>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Payment Method</span>
+                    <span className="text-gray-600">Payment Intent</span>
                     <span className="font-medium text-gray-900 capitalize">
                       {order.paymentMethod}
                     </span>

@@ -86,7 +86,7 @@ const CleopatraGlam = () => {
         description:
           "Introducing our new mesmerizing jewellery collection.Embarace your inner allure with the timeless elegance and radiant beauty of ancient Egypt, now available exclusive on AXELS jewelry",
         buttonText: "SHOP NOW",
-        redirectUrl: null,
+        redirectUrl: "/categories",
       };
 
   // Fallback data for promotional cards
@@ -97,7 +97,7 @@ const CleopatraGlam = () => {
       buttonText: "Redeem Code",
       images: [{ url: fallbackOne }],
       backgroundColor: "#e2e8f0",
-      redirectUrl: null,
+      redirectUrl: "/cart",
     },
     {
       title: "Sparkle in Love",
@@ -105,7 +105,7 @@ const CleopatraGlam = () => {
       buttonText: "View Products",
       images: [{ url: fallbackTwo }],
       backgroundColor: "#FAF9F7",
-      redirectUrl: null,
+      redirectUrl: "/categories",
     },
   ];
 
@@ -172,7 +172,11 @@ const CleopatraGlam = () => {
             className="border-black border-2 px-2 py-1 md:px-3 md:py-2 bg-transparent text-sm md:text-base w-[40%] text-nowrap"
             onClick={(e) => {
               e.stopPropagation();
-              if (heroBanner) handleBannerClick(heroBanner);
+              if (heroBanner) {
+                handleBannerClick(heroBanner);
+              } else {
+                navigate("/categories");
+              }
             }}
           >
             {heroData.buttonText}
@@ -187,7 +191,13 @@ const CleopatraGlam = () => {
             key={index}
             className={`flex items-center justify-around w-full md:flex-1 py-2 md:py-5 lg:py-3 px-4 md:px-0 ${promo.redirectUrl ? "cursor-pointer" : ""}`}
             style={{ backgroundColor: promo.backgroundColor }}
-            onClick={() => promo.banner && handleBannerClick(promo.banner)}
+            onClick={() => {
+              if (promo.banner) {
+                handleBannerClick(promo.banner);
+              } else if (promo.redirectUrl) {
+                navigate(promo.redirectUrl);
+              }
+            }}
           >
             <div className="space-y-1 md:space-y-2">
               <h1 className="text-xl md:text-4xl lg:text-4xl text-nowrap mr-2 md:mr-0 transition-transform duration-300 hover:scale-105">

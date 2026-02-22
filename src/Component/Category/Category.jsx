@@ -33,20 +33,32 @@ import productApi from "../../apis/productApi";
 import categoryApi from "../../apis/categoryApi";
 
 const Category = () => {
-  const [priceRange, setPriceRange] = useState([0, 100000]);
+  const [priceRange, setPriceRange] = useState([0, 1000000]);
   const [selectedMaterials, setSelectedMaterials] = useState({});
   const [selectedBrands, setSelectedBrands] = useState({});
   const [selectedSizes, setSelectedSizes] = useState({});
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState(0);
+  const [activeCategory, setActiveCategory] = useState(0); // 0 = All
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [layout, setLayout] = useState("grid"); // 'grid' or 'list'
   const [sortBy, setSortBy] = useState("Popularity");
 
-  // API state for categories
-  const [categories, setCategories] = useState(["All Jewelry"]);
+  // API state
+  const [allProducts, setAllProducts] = useState([]);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Filter options from backend
+  const [filterOptions, setFilterOptions] = useState({
+    materials: [],
+    brands: [],
+    purities: [],
+    categories: [],
+    priceRange: { min: 0, max: 1000000 },
+  });
   const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
 
   // activeCategoryFilter is the source of truth for filtering.
@@ -90,7 +102,7 @@ const Category = () => {
         if (index !== -1) setActiveCategory(index);
       }
     }
-  }, [location.search, categories]);
+  }, [location.search, filterOptions.categories]);
 
   const handleProductClick = (productId) => {
     navigate(`/product/${productId}`);
@@ -208,97 +220,62 @@ const Category = () => {
     }
   };
 
-
-
-  // API state
-  const [allProducts, setAllProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const materials = useMemo(() => {
-    const predefinedMaterials = [
-      "Gold",
-      "Silver",
-      "Platinum",
-      "Diamond",
-      "Pearl",
-      "Gemstone",
-    ];
-    const counts = {};
-
-    // Initialize counts
-    predefinedMaterials.forEach((m) => (counts[m.toLowerCase()] = 0));
-
-    // Count from products
-    allProducts.forEach((product) => {
-      if (product.material) {
-        const mat = product.material.toLowerCase();
-        // Check if product material matches or contains any of our predefined materials
-        predefinedMaterials.forEach((p) => {
-          if (mat.includes(p.toLowerCase())) {
-            counts[p.toLowerCase()] = (counts[p.toLowerCase()] || 0) + 1;
-          }
-        });
-      }
-    });
-
-    return predefinedMaterials.map((name) => ({
-      name,
-      count: counts[name.toLowerCase()] || 0,
-    }));
-  }, [allProducts]);
-
-  const brands = useMemo(() => {
-    const predefinedBrands = [
-      "Rollage",
-      "HELEN & JAMES",
-      "ORE Jewelry",
-      "Platinum Elite",
-      "Silver Dreams",
-      "Gold Heritage",
-    ];
-    const counts = {};
-
-    // Initialize
-    predefinedBrands.forEach((b) => (counts[b.toLowerCase()] = 0));
-
-    // Count
-    allProducts.forEach((product) => {
-      if (product.brand) {
-        const brandName = product.brand.toLowerCase();
-        // Exact match or partial if desired, usually brand checks are exact
-        predefinedBrands.forEach((pb) => {
-          if (brandName === pb.toLowerCase()) {
-            counts[pb.toLowerCase()] = (counts[pb.toLowerCase()] || 0) + 1;
-          }
-        });
-      }
-    });
-
-    return predefinedBrands.map((name) => ({
-      name,
-      count: counts[name.toLowerCase()] || 0,
-    }));
-  }, [allProducts]);
-
-  // Fetch all products on mount
+  // Fetch filter options and initial products
   useEffect(() => {
-    // Fetch Categories
-    categoryApi.getAdminCategories({
+    // 1. Fetch Categories and Filters
+    productApi.getProductFilters({
       setLoading: setIsCategoriesLoading,
       onSuccess: (response) => {
-        if (response.success && response.data?.categories) {
-          const fetchedCategories = response.data.categories.map(
-            (cat) => cat.name,
-          );
-          setCategories(["All Jewelry", ...fetchedCategories]);
+        if (response.success && response.data?.filters) {
+          setFilterOptions(response.data.filters);
         }
       },
-      onError: (err) => {
-        console.error("Failed to fetch categories:", err);
-      },
+      onError: (err) => console.error("Failed to fetch filters:", err),
     });
+  }, []);
+
+  // 2. Main Fetch Effect (Triggers on filter/page/sort change)
+  useEffect(() => {
+    const fetchProducts = () => {
+      const params = {
+        page: currentPage,
+        limit: productsPerPage,
+      };
+
+      // Category filter
+      if (activeCategory > 0) {
+        const cat = filterOptions.categories[activeCategory - 1];
+        if (cat) params.category = cat._id;
+      }
+
+      // Sort mapping
+      const sortMap = {
+        "Price: Low to High": "sellingPrice",
+        "Price: High to Low": "-sellingPrice",
+        Newest: "-createdAt",
+        Popularity: "-purchaseCount,-ratingAverage", // Matches backend logic
+      };
+      params.sort = sortMap[sortBy] || "-createdAt";
+
+      // Price Range (Backend APIFeatures uses gte/lte)
+      params["sellingPrice[gte]"] = priceRange[0];
+      params["sellingPrice[lte]"] = priceRange[1];
+
+      // Materials (Multi-select)
+      const mats = Object.keys(selectedMaterials).filter(
+        (m) => selectedMaterials[m],
+      );
+      if (mats.length > 0) params.material = mats;
+
+      // Brands (Multi-select)
+      const brnds = Object.keys(selectedBrands).filter(
+        (b) => selectedBrands[b],
+      );
+      if (brnds.length > 0) params.brand = brnds;
+
+      // Sizes
+      const szs = Object.keys(selectedSizes).filter((s) => selectedSizes[s]);
+      if (szs.length > 0) params.size = szs;
 
     setLoading(true);
     productApi.getAllProducts({
@@ -416,16 +393,29 @@ const Category = () => {
     priceRange,
     selectedMaterials,
     selectedBrands,
+    selectedSizes,
     sortBy,
+    currentPage,
   ]);
 
-  // Pagination Logic
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  // Dynamic filter counting (Optional: You might want to remove these or keep them for UI)
+  const materialsList = useMemo(() => {
+    return filterOptions.materials.map((m) => ({
+      name: m.charAt(0).toUpperCase() + m.slice(1),
+      count: allProducts.filter((p) => p.material === m).length, // This is just for current page now
+    }));
+  }, [filterOptions.materials, allProducts]);
 
-  const currentProducts = useMemo(() => {
-    const start = (currentPage - 1) * productsPerPage;
-    return filteredProducts.slice(start, start + productsPerPage);
-  }, [currentPage, filteredProducts]);
+  const brandsList = useMemo(() => {
+    return filterOptions.brands.map((b) => ({
+      name: b,
+      count: allProducts.filter((p) => p.brand === b).length,
+    }));
+  }, [filterOptions.brands, allProducts]);
+
+  // Pagination Logic
+  const totalPages = Math.ceil(totalProducts / productsPerPage);
+  const currentProducts = allProducts;
 
   const getPageNumbers = () => {
     const pageNumbers = [];
@@ -452,13 +442,10 @@ const Category = () => {
   };
 
   const getShowingText = () => {
-    if (filteredProducts.length === 0) return "Showing 0 results";
+    if (allProducts.length === 0) return "Showing 0 results";
     const startItem = (currentPage - 1) * productsPerPage + 1;
-    const endItem = Math.min(
-      currentPage * productsPerPage,
-      filteredProducts.length,
-    );
-    return `Showing ${startItem}-${endItem} of ${filteredProducts.length} results.`;
+    const endItem = Math.min(currentPage * productsPerPage, totalProducts);
+    return `Showing ${startItem}-${endItem} of ${totalProducts} results.`;
   };
 
   const handleMaterialToggle = useCallback((material) => {
@@ -486,7 +473,7 @@ const Category = () => {
     setSelectedMaterials({});
     setSelectedBrands({});
     setSelectedSizes({});
-    setPriceRange([0, 100000]);
+    setPriceRange([0, 1000000]);
   };
 
   const handlePageChange = (pageNumber) => {
@@ -572,169 +559,161 @@ const Category = () => {
         </ul>
       </div>
 
-      {/* Price Filter - CUSTOM PRICE BAR */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Price</h3>
+              {/* Price Filter */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Price
+                </h3>
+                <div className="text-sm text-gray-600 flex items-center gap-1 mb-4">
+                  Price: <MdOutlineCurrencyRupee />
+                  {priceRange[0].toLocaleString("en-IN")} -{" "}
+                  <MdOutlineCurrencyRupee />
+                  {priceRange[1].toLocaleString("en-IN")}
+                </div>
 
-        <div className="text-sm text-gray-600 flex items-center gap-1 mb-4">
-          Price: <MdOutlineCurrencyRupee />
-          {priceRange[0]} - <MdOutlineCurrencyRupee />
-          {priceRange[1]}
-        </div>
+                {/* Dual-thumb range slider */}
+                <div className="px-2">
+                  <div className="relative h-2 mt-4 mb-2">
+                    {/* Grey track */}
+                    <div className="absolute top-0 left-0 right-0 h-2 bg-gray-300 rounded-full" />
+                    {/* Gold filled segment between min and max thumbs */}
+                    <div
+                      className="absolute top-0 h-2 bg-[#a67c00] rounded-full"
+                      style={{
+                        left: `${(priceRange[0] / 1000000) * 100}%`,
+                        width: `${((priceRange[1] - priceRange[0]) / 1000000) * 100}%`,
+                      }}
+                    />
 
-        {/* Custom Price Bar */}
-        <div className="px-2">
-          <div className="relative">
-            {/* Track */}
-            <div className="h-2 bg-gray-300 rounded-full">
-              {/* Filled Track */}
-              <div
-                className="h-2 bg-[#a67c00] rounded-full absolute top-0 left-0"
-                style={{
-                  width: `${((priceRange[1] - 0) / (100000 - 0)) * 100}%`,
-                }}
-              ></div>
-            </div>
+                    {/* Min thumb */}
+                    <input
+                      type="range"
+                      min="0"
+                      max="1000000"
+                      step="500"
+                      value={priceRange[0]}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        if (val < priceRange[1])
+                          setPriceRange([val, priceRange[1]]);
+                      }}
+                      className="absolute top-0 left-0 w-full h-2 appearance-none bg-transparent cursor-pointer price-slider-thumb"
+                      style={{ zIndex: priceRange[0] > 900000 ? 5 : 3 }}
+                    />
 
-            {/* Slider Input */}
-            <input
-              type="range"
-              min="0"
-              max="100000"
-              value={priceRange[1]}
-              onChange={(e) =>
-                setPriceRange([priceRange[0], parseInt(e.target.value)])
-              }
-              className="absolute top-0 left-0 w-full h-2 opacity-0 cursor-pointer"
-            />
+                    {/* Max thumb */}
+                    <input
+                      type="range"
+                      min="0"
+                      max="1000000"
+                      step="1000"
+                      value={priceRange[1]}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        if (val > priceRange[0])
+                          setPriceRange([priceRange[0], val]);
+                      }}
+                      className="absolute top-0 left-0 w-full h-2 appearance-none bg-transparent cursor-pointer price-slider-thumb"
+                      style={{ zIndex: 4 }}
+                    />
+                  </div>
 
-            {/* Custom Thumb */}
-            <div
-              className="absolute top-1/2 w-4 h-4 bg-white border-2 border-[#a67c00] rounded-full shadow-lg transform -translate-y-1/2 -translate-x-1/2 cursor-pointer"
-              style={{
-                left: `${((priceRange[1] - 0) / (100000 - 0)) * 100}%`,
-              }}
-            ></div>
-          </div>
+                  {/* Price Labels */}
+                  <div className="flex justify-between text-xs text-gray-500 mt-4">
+                    <span>
+                      <MdOutlineCurrencyRupee className="inline" />0
+                    </span>
+                    <span>
+                      <MdOutlineCurrencyRupee className="inline" />
+                      10,00,0
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-          {/* Price Labels */}
-          <div className="flex justify-between text-xs text-gray-500 mt-3">
-            <span>
-              <MdOutlineCurrencyRupee className="inline" />0
-            </span>
-            <span>
-              <MdOutlineCurrencyRupee className="inline" />
-              1,00,000
-            </span>
-          </div>
-        </div>
-      </div>
+              {/* Material Filter */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Material
+                </h3>
+                <div className="space-y-3">
+                  {filterOptions.materials.map((material, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between"
+                    >
+                      <label className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedMaterials[material] || false}
+                          onChange={() => handleMaterialToggle(material)}
+                          className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                        />
+                        <span className="text-sm text-gray-600 capitalize">
+                          {material}
+                        </span>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-      {/* Material Filter */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Material</h3>
-        <div className="space-y-3">
-          {materials.map((material, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedMaterials[material.name] || false}
-                  onChange={() => handleMaterialToggle(material.name)}
-                  className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
-                />
-                <span className="text-sm text-gray-600">{material.name}</span>
-              </label>
-              <span className="text-xs text-gray-500">({material.count})</span>
-            </div>
-          ))}
-        </div>
-      </div>
+              {/* Brands Filter */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Brands
+                </h3>
+                <div className="space-y-3">
+                  {filterOptions.brands.map((brand, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between"
+                    >
+                      <label className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedBrands[brand] || false}
+                          onChange={() => handleBrandToggle(brand)}
+                          className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                        />
+                        <span className="text-sm text-gray-600">{brand}</span>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-      {/* Brands Filter */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Brands</h3>
-        <div className="space-y-3">
-          {brands.map((brand, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedBrands[brand.name] || false}
-                  onChange={() => handleBrandToggle(brand.name)}
-                  className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
-                />
-                <span className="text-sm text-gray-600">{brand.name}</span>
-              </label>
-              <span className="text-xs text-gray-500">({brand.count})</span>
-            </div>
-          ))}
-        </div>
-      </div>
+              {/* Size Filter */}
+              {/* <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Size
+                </h3>
+                <div className="grid grid-cols-3 gap-2">
+                  {sizes.map((size, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleSizeToggle(size)}
+                      className={`py-2 text-sm border rounded transition-colors ${
+                        selectedSizes[size]
+                          ? "bg-black text-white border-black"
+                          : "bg-white text-gray-600 border-gray-300 hover:border-gray-400"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div> */}
 
-      {/* Size Filter */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Size</h3>
-        <div className="grid grid-cols-3 gap-2">
-          {sizes.map((size, index) => (
-            <button
-              key={index}
-              onClick={() => handleSizeToggle(size)}
-              className={`py-2 text-sm border rounded transition-colors ${
-                selectedSizes[size]
-                  ? "bg-black text-white border-black"
-                  : "bg-white text-gray-600 border-gray-300 hover:border-gray-400"
-              }`}
-            >
-              {size}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Clear All Filters */}
-      <div className="border-t pt-4">
-        <button
-          onClick={clearAllFilters}
-          className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          X CLEAR ALL FILTER
-        </button>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="min-h-screen bg-white">
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: "#fff",
-            border: "1px solid #e5e7eb",
-          },
-        }}
-      />
-
-      {/* Breadcrumb */}
-      <div className="bg-[#ebe8e392] py-2">
-        <div className="max-w-[90%] mx-auto flex items-center gap-2 text-sm text-gray-600">
-          <Link to="/" className="hover:text-gray-800 transition-colors">
-            <p>Home</p>
-          </Link>
-          <p>|</p>
-          <p className="text-gray-800">Products</p>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-[90%] mx-auto py-8">
-        <div className="grid grid-cols-12 gap-8">
-          {/* Left Sidebar - Filters - Desktop */}
-          <div className="hidden lg:block lg:col-span-3">
-            <div className="sticky top-8 h-[calc(100vh-4rem)] overflow-y-auto">
-              <SidebarContent />
+              {/* Clear All Filters */}
+              <div className="border-t pt-4">
+                <button
+                  onClick={clearAllFilters}
+                  className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  X CLEAR ALL FILTER
+                </button>
+              </div>
             </div>
           </div>
 
@@ -936,8 +915,6 @@ const Category = () => {
                             )}
                           </button>
 
-
-
                           {/* Cart Button */}
                           <button
                             className={`p-2 rounded-full transition-all duration-300 bg-white bg-opacity-80 ${
@@ -990,8 +967,6 @@ const Category = () => {
                                 <FaRegHeart className="text-lg" />
                               )}
                             </button>
-
-
 
                             {/* Cart Button */}
                             <button
@@ -1053,19 +1028,31 @@ const Category = () => {
                       {/* Additional info for list layout */}
                       {layout === "list" && (
                         <div
-                          className="flex-1 p-4 cursor-pointer"
+                          className="flex-1 min-w-0 p-4 cursor-pointer overflow-hidden"
                           onClick={() =>
                             handleProductClick(product._id || product.id)
                           }
                         >
-                          <p className="text-sm text-gray-600 mb-2">
-                            Material: {product.material}
+                          <p className="text-sm text-gray-600 mb-1 font-medium">
+                            Material: <span className="text-gray-900">{product.material || "N/A"}</span>
                           </p>
-                          <p className="text-sm text-gray-600">
-                            Brand: {product.brand}
+                          <p className="text-sm text-gray-600 mb-1 font-medium">
+                            Brand: <span className="text-gray-900">{product.brand || "N/A"}</span>
                           </p>
-                          <p className="text-sm text-gray-600 mt-2 line-clamp-3">
-                            {product.description ||
+                          <p className="text-sm text-gray-600 mt-2 line-clamp-3 break-words whitespace-normal leading-relaxed">
+                            {(content => {
+                              if (!content) return "";
+                              // Strip actual tags first
+                              let cleaned = content.replace(/<[^>]*>/g, "");
+                              // Decode entities (like &lt;p&gt; or &nbsp;)
+                              const tempDiv = document.createElement("div");
+                              tempDiv.innerHTML = cleaned;
+                              cleaned = tempDiv.textContent || tempDiv.innerText || "";
+                              // Strip tags again in case they were encoded as entities
+                              cleaned = cleaned.replace(/<[^>]*>/g, "");
+                              // Final cleanup of non-breaking spaces and extra whitespace
+                              return cleaned.replace(/&nbsp;/g, " ").replace(/\u00a0/g, " ").trim();
+                            })(product.description) ||
                               `This beautiful ${product.name.toLowerCase()} is perfect for any occasion...`}
                           </p>
                         </div>
@@ -1171,13 +1158,209 @@ const Category = () => {
             </button>
           </div>
           <div className="p-4">
-            <SidebarContent />
+            {/* ── MOBILE SIDEBAR CONTENT ── */}
+
+            {/* Categories */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Categories
+              </h3>
+              <ul className="space-y-2">
+                {isCategoriesLoading ? (
+                  <div className="space-y-2 animate-pulse">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div
+                        key={i}
+                        className="h-6 bg-gray-100 rounded w-full"
+                      ></div>
+                    ))}
+                  </div>
+                ) : (
+                  categoriesList.map((category, index) => (
+                    <li key={index}>
+                      <button
+                        className={`w-full text-left py-1 transition-all duration-300 ease-in-out relative group ${
+                          index === activeCategory
+                            ? "text-black font-medium ml-3"
+                            : "text-gray-600 hover:text-black hover:ml-3"
+                        }`}
+                        onMouseEnter={() => setHoveredCategory(index)}
+                        onMouseLeave={() => setHoveredCategory(null)}
+                        onClick={() => {
+                          setActiveCategory(index);
+                          setIsDrawerOpen(false);
+                        }}
+                      >
+                        {(index === activeCategory ||
+                          index === hoveredCategory) && (
+                          <span className="absolute -left-3 top-1/2 transform -translate-y-1/2 text-[#a67c00] font-bold transition-all duration-300 text-2xl">
+                            |
+                          </span>
+                        )}
+                        <span className="transition-all duration-300 group-hover:font-medium">
+                          {category}
+                        </span>
+                      </button>
+                    </li>
+                  ))
+                )}
+              </ul>
+            </div>
+
+            {/* Price Filter - Mobile */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Price
+              </h3>
+              <div className="text-sm text-gray-600 flex items-center gap-1 mb-4">
+                Price: <MdOutlineCurrencyRupee />
+                {priceRange[0].toLocaleString("en-IN")} -{" "}
+                <MdOutlineCurrencyRupee />
+                {priceRange[1].toLocaleString("en-IN")}
+              </div>
+              <div className="px-2">
+                <div className="relative h-2 mt-4 mb-2">
+                  <div className="absolute top-0 left-0 right-0 h-2 bg-gray-300 rounded-full" />
+                  <div
+                    className="absolute top-0 h-2 bg-[#a67c00] rounded-full"
+                    style={{
+                      left: `${(priceRange[0] / 1000000) * 100}%`,
+                      width: `${((priceRange[1] - priceRange[0]) / 1000000) * 100}%`,
+                    }}
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="1000000"
+                    step="500"
+                    value={priceRange[0]}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (val < priceRange[1])
+                        setPriceRange([val, priceRange[1]]);
+                    }}
+                    className="absolute top-0 left-0 w-full h-2 appearance-none bg-transparent cursor-pointer price-slider-thumb"
+                    style={{ zIndex: priceRange[0] > 900000 ? 5 : 3 }}
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="1000000"
+                    step="1000"
+                    value={priceRange[1]}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (val > priceRange[0])
+                        setPriceRange([priceRange[0], val]);
+                    }}
+                    className="absolute top-0 left-0 w-full h-2 appearance-none bg-transparent cursor-pointer price-slider-thumb"
+                    style={{ zIndex: 4 }}
+                  />
+                </div>
+                <div className="flex justify-between text-xs text-gray-500 mt-4">
+                  <span>
+                    <MdOutlineCurrencyRupee className="inline" />0
+                  </span>
+                  <span>
+                    <MdOutlineCurrencyRupee className="inline" />
+                    10,00,0
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Material Filter - Mobile */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Material
+              </h3>
+              <div className="space-y-3">
+                {filterOptions.materials.map((material, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
+                    <label className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedMaterials[material] || false}
+                        onChange={() => handleMaterialToggle(material)}
+                        className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                      />
+                      <span className="text-sm text-gray-600 capitalize">
+                        {material}
+                      </span>
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Brands Filter - Mobile */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Brands
+              </h3>
+              <div className="space-y-3">
+                {filterOptions.brands.map((brand, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
+                    <label className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedBrands[brand] || false}
+                        onChange={() => handleBrandToggle(brand)}
+                        className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                      />
+                      <span className="text-sm text-gray-600">{brand}</span>
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Size Filter - Mobile */}
+            {/* <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Size</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {sizes.map((size, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSizeToggle(size)}
+                    className={`py-2 text-sm border rounded transition-colors ${
+                      selectedSizes[size]
+                        ? "bg-black text-white border-black"
+                        : "bg-white text-gray-600 border-gray-300 hover:border-gray-400"
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div> */}
+
+            {/* Clear All Filters - Mobile */}
+            <div className="border-t pt-4">
+              <button
+                onClick={clearAllFilters}
+                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                X CLEAR ALL FILTER
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Floating Filter Button for Mobile */}
-      <FilterButton />
+      <button
+        onClick={() => setIsDrawerOpen(true)}
+        className="lg:hidden fixed bottom-6 right-6 z-40 bg-black text-white p-4 rounded-full shadow-lg hover:bg-gray-800 transition-colors"
+      >
+        <FaFilter className="text-lg" />
+      </button>
 
       {/* Last Banner*/}
       <div className="mb-10 relative max-w-[90%] mx-auto">

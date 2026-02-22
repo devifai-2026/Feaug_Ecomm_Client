@@ -82,25 +82,21 @@ const Footer = () => {
                             ? 'text-gray-300 hover:text-white' 
                             : 'text-gray-600 hover:text-gray-800'
                     }`}>
-                        <div className='group text-xs sm:text-sm cursor-pointer transition-all duration-300 hover:scale-105'>
-                            About Us
-                        </div>
-                        <Link to="/testimonials">  
+                        <Link to="/about">
+                            <div className='group text-xs sm:text-sm cursor-pointer transition-all duration-300 hover:scale-105'>
+                                About Us
+                            </div>
+                        </Link>
+                        <Link to="/testimonials">
                             <div className='group text-xs sm:text-sm cursor-pointer transition-all duration-300 hover:scale-105'>
                                 Testimonials
                             </div>
                         </Link>
-                        <div className='group text-xs sm:text-sm cursor-pointer transition-all duration-300 hover:scale-105'>
-                            FAQs
-                        </div>
-                        <Link to="/terms-condition">  
+                        <Link to="/terms-condition">
                             <div className='group text-xs sm:text-sm cursor-pointer transition-all duration-300 hover:scale-105'>
                                 Terms & Conditions
                             </div>
                         </Link>
-                        <div className='group text-xs sm:text-sm cursor-pointer transition-all duration-300 hover:scale-105'>
-                            Latest Update
-                        </div>
                     </div>
                 </div>
 
@@ -118,27 +114,27 @@ const Footer = () => {
                             ? 'text-gray-300 hover:text-white' 
                             : 'text-gray-600 hover:text-gray-800'
                     } lg:items-end`}>
-                        <div className='group text-xs sm:text-sm cursor-pointer transition-all duration-300 hover:scale-105'>
-                            Order Tracking
-                        </div>
-                        <div className='group text-xs sm:text-sm cursor-pointer transition-all duration-300 hover:scale-105'>
-                            Payment Guide
-                        </div>
-                        <Link to="/helpCenter"> 
+                        <Link to="/myOrders">
+                            <div className='group text-xs sm:text-sm cursor-pointer transition-all duration-300 hover:scale-105'>
+                                Order Tracking
+                            </div>
+                        </Link>
+
+                        <Link to="/helpCenter">
                             <div className='group text-xs sm:text-sm cursor-pointer transition-all duration-300 hover:scale-105'>
                                 Help Centre
                             </div>
                         </Link>
-                        <Link to="/privacyPolicy"> 
+                        <Link to="/privacyPolicy">
                             <div className='group text-xs sm:text-sm cursor-pointer transition-all duration-300 hover:scale-105'>
                                 Privacy Policy
                             </div>
                         </Link>
-                        <Link to="/returnPolicy"> 
+                        <Link to="/returnPolicy">
                             <div className='group text-xs sm:text-sm cursor-pointer transition-all duration-300 hover:scale-105'>
                                 Return Policy
                             </div>
-                        </Link>   
+                        </Link>
                     </div>
                 </div>
 
@@ -152,23 +148,20 @@ const Footer = () => {
                         ? 'text-gray-400 hover:text-white' 
                         : 'text-gray-600 hover:text-gray-800'
                 }`}>
-                    <div className={`group pr-3 sm:pr-5 cursor-pointer transition-all duration-300 hover:scale-105 ${
-                        isProductDetailsPage 
-                            ? 'border-r border-gray-700' 
-                            : 'border-r-2 border-gray-300'
-                    }`}>
-                        Privacy Policy
-                    </div>
-                    <div className={`group pr-3 sm:pr-5 cursor-pointer transition-all duration-300 hover:scale-105 ${
-                        isProductDetailsPage 
-                            ? 'border-r border-gray-700' 
-                            : 'border-r-2 border-gray-300'
-                    }`}>
-                        Terms & Condition
-                    </div>
-                    <div className='group cursor-pointer transition-all duration-300 hover:scale-105'>
-                        Sitemap
-                    </div>
+                    <Link to="/privacyPolicy">
+                        <div className={`group pr-3 sm:pr-5 cursor-pointer transition-all duration-300 hover:scale-105 ${
+                            isProductDetailsPage 
+                                ? 'border-r border-gray-700' 
+                                : 'border-r-2 border-gray-300'
+                        }`}>
+                            Privacy Policy
+                        </div>
+                    </Link>
+                    <Link to="/terms-condition">
+                        <div className={`group cursor-pointer transition-all duration-300 hover:scale-105`}>
+                            Terms & Condition
+                        </div>
+                    </Link>
                 </div>
             </div>
         </div>

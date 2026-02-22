@@ -294,10 +294,6 @@ const Checkout = () => {
         "lastName",
         "email",
         "phone",
-        "address",
-        "city",
-        "state",
-        "zipCode",
       ];
       fields.forEach((field) => {
         newTouched[field] = true;

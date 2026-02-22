@@ -8,7 +8,13 @@
   html {
     font-family: "Poppins", sans-serif;
   }
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: "Passenger Display", serif;
   }
 }
@@ -70,12 +76,15 @@
     animation-fill-mode: forwards;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
+
   .fade-in {
     animation-name: fadeIn;
   }
+
   .slide-in-from-bottom-6 {
     animation-name: slideInBottom6;
   }
+
   .zoom-in-95 {
     animation-name: zoomIn95;
   }
@@ -85,6 +94,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -95,6 +105,7 @@
     transform: translateY(1.5rem);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -106,6 +117,7 @@
     transform: scale(0.95);
     opacity: 0;
   }
+
   to {
     transform: scale(1);
     opacity: 1;
@@ -128,4 +140,53 @@
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #c19a6b;
+}
+
+/* ── Dual-thumb price range slider ── */
+.price-slider-thumb {
+  pointer-events: none;
+}
+
+/* Re-enable pointer events on the thumb only */
+.price-slider-thumb::-webkit-slider-thumb {
+  pointer-events: all;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2.5px solid #a67c00;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+
+.price-slider-thumb::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 4px rgba(166, 124, 0, 0.15);
+}
+
+.price-slider-thumb::-moz-range-thumb {
+  pointer-events: all;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2.5px solid #a67c00;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+
+.price-slider-thumb::-moz-range-thumb:hover {
+  box-shadow: 0 0 0 4px rgba(166, 124, 0, 0.15);
+}
+
+/* Remove default track background on the input elements themselves */
+.price-slider-thumb::-webkit-slider-runnable-track {
+  background: transparent;
+}
+
+.price-slider-thumb::-moz-range-track {
+  background: transparent;
 }

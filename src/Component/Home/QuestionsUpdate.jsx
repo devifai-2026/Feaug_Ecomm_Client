@@ -61,12 +61,12 @@ const QuestionsUpdate = () => {
                     </div>
 
                     {/* View All Articles Link */}
-                    <p 
+                    {/* <p 
                         className='flex items-center gap-2 mt-6 text-gray-700 cursor-pointer hover:text-orange-900 transition-colors font-bold'
                     >
                         View All Articles
                         <FaArrowRightLong className='text-orange-900'/>
-                    </p>
+                    </p> */}
                 </div>
             </div>
         </div>
