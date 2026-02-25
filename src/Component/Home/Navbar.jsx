@@ -1239,12 +1239,12 @@ const Navbar = () => {
                 }`}
               >
                 {slide.title && (
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-bold mb-2 md:mb-3 drop-shadow-lg uppercase leading-tight">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl  mb-2 md:mb-3 drop-shadow-lg uppercase leading-tight">
                     {slide.title}
                   </h1>
                 )}
                 {slide.subtitle && (
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-bold mb-3 md:mb-4 drop-shadow-lg uppercase leading-tight">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl  mb-3 md:mb-4 drop-shadow-lg uppercase leading-tight">
                     {slide.subtitle}
                   </h1>
                 )}
