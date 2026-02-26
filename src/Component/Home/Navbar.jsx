@@ -258,6 +258,7 @@ const Navbar = () => {
       setScrollLeft(container.scrollLeft);
       setDragStartTime(Date.now());
       container.style.cursor = "grabbing";
+      container.style.scrollBehavior = "auto"; // Disable smooth scroll during drag
       e.preventDefault();
     };
 
@@ -265,21 +266,33 @@ const Navbar = () => {
       if (!isDragging) return;
 
       const x = e.pageX - container.offsetLeft;
-      const walk = (x - startX) * 1.5;
+      const walk = (x - startX) * 2; // Increased multiplier for more responsive feel
       container.scrollLeft = scrollLeft - walk;
 
       // Prevent text selection during drag
       e.preventDefault();
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e) => {
+      if (!isDragging) return;
+      
+      const dragEndTime = Date.now();
+      const dragDuration = dragEndTime - dragStartTime;
+      const x = e.pageX - container.offsetLeft;
+      const distance = x - startX;
+      
       setIsDragging(false);
       container.style.cursor = "grab";
-
-      // If it was a very short drag, treat it as a click on the container
-      const dragDuration = Date.now() - dragStartTime;
-      if (dragDuration < 150) {
-        // Don't do anything on quick click - let click events handle it
+      
+      // Simple momentum logic
+      if (dragDuration < 300 && Math.abs(distance) > 50) {
+        const velocity = distance / dragDuration;
+        const momentumDistance = velocity * 400; 
+        
+        container.style.scrollBehavior = "smooth";
+        container.scrollLeft = container.scrollLeft - momentumDistance;
+      } else {
+        container.style.scrollBehavior = "smooth";
       }
     };
 
@@ -287,32 +300,31 @@ const Navbar = () => {
       if (isDragging) {
         setIsDragging(false);
         container.style.cursor = "grab";
+        container.style.scrollBehavior = "smooth";
       }
     };
 
-    // Touch events for mobile
     const handleTouchStart = (e) => {
       const categoryButton = e.target.closest('button[class*="group"]');
-      if (categoryButton) {
-        return;
-      }
+      if (categoryButton) return;
 
       setIsDragging(true);
       setStartX(e.touches[0].pageX - container.offsetLeft);
       setScrollLeft(container.scrollLeft);
       setDragStartTime(Date.now());
+      container.style.scrollBehavior = "auto";
     };
 
     const handleTouchMove = (e) => {
       if (!isDragging) return;
-      e.preventDefault();
       const x = e.touches[0].pageX - container.offsetLeft;
-      const walk = (x - startX) * 1.5;
+      const walk = (x - startX) * 2;
       container.scrollLeft = scrollLeft - walk;
     };
 
     const handleTouchEnd = () => {
       setIsDragging(false);
+      container.style.scrollBehavior = "smooth";
     };
 
     // Click event handler for container to prevent navigation during drag
@@ -801,7 +813,6 @@ const Navbar = () => {
                       scrollbarWidth: "none",
                       msOverflowStyle: "none",
                       cursor: "grab",
-                      scrollBehavior: "smooth",
                       userSelect: "none",
                       WebkitUserSelect: "none",
                     }}
