@@ -9,7 +9,7 @@ import {
   LuEye,
   LuEyeOff,
 } from "react-icons/lu";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import userApi from "../../../apis/user/userApi";
 
 const Register = () => {

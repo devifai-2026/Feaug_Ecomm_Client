@@ -12,7 +12,7 @@ import {
   BsTicketPerforated,
 } from "react-icons/bs";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useCart } from "../../Context/CartContext";
 import Banner from "../../Common/Banner";
 import cartApi from "../../../apis/cartApi";
@@ -185,16 +185,6 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: "#fff",
-            border: "1px solid #e5e7eb",
-          },
-        }}
-      />
 
       <style>{`
                 @keyframes slideInLeft {
@@ -456,7 +446,7 @@ const Cart = () => {
                         </span>
                         <span className="font-medium flex items-center">
                           -<BsCurrencyRupee className="text-sm mr-1" />
-                          {appliedPromo.discountAmount.toFixed(2)}
+                          {((getSubtotal() * appliedPromo.discountPercentage) / 100).toFixed(2)}
                         </span>
                       </div>
                     )}
@@ -561,7 +551,7 @@ const Cart = () => {
                       <span className="font-bold text-gray-800 flex items-center">
                         <BsCurrencyRupee className="text-sm mr-1" />
                         {(
-                          getSubtotal() - (appliedPromo?.discountAmount || 0)
+                          getSubtotal() - (appliedPromo ? (getSubtotal() * appliedPromo.discountPercentage) / 100 : 0)
                         ).toFixed(2)}
                       </span>
                     </div>

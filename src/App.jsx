@@ -12,6 +12,8 @@ import "aos/dist/aos.css";
 // Import Toastify
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+// Import react-hot-toast global
+import { Toaster, ToastBar, toast as hotToast } from "react-hot-toast";
 import ProductDetails from "./Component/Home/ProductDetails/ProductDetails";
 import Category from "./Component/Category/Category";
 import About from "./Component/Pages/About";
@@ -168,6 +170,35 @@ function App() {
           backdropFilter: "blur(4px)",
         }}
       />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: "#fff",
+            border: "1px solid #e5e7eb",
+          },
+        }}
+      >
+        {(t) => (
+          <ToastBar toast={t}>
+            {({ icon, message }) => (
+              <>
+                {icon}
+                {message}
+                {t.type !== "loading" && (
+                  <button
+                    onClick={() => hotToast.dismiss(t.id)}
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: "0 2px", fontSize: "16px", color: "#9ca3af", lineHeight: 1 }}
+                  >
+                    ✕
+                  </button>
+                )}
+              </>
+            )}
+          </ToastBar>
+        )}
+      </Toaster>
 
       <Routes>
         <Route path="/" element={<Layout></Layout>}>

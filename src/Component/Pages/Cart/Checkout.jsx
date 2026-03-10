@@ -13,7 +13,7 @@ import {
   BsPhone,
   BsX,
 } from "react-icons/bs";
-import { toast, Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { ProgressSteps } from "./ProgressSteps";
 import ShippingComponent from "./ShippingComponent";
 import BillingComponent from "./BillingComponent";
@@ -252,10 +252,6 @@ const Checkout = () => {
 
   const discountAmount = useMemo(() => {
     if (!appliedPromo) return 0;
-    const amount = Number(appliedPromo.discountAmount);
-    if (!isNaN(amount)) return amount;
-
-    // Fallback to percentage calculation
     const percentage = parseFloat(appliedPromo.discountPercentage);
     if (!isNaN(percentage)) {
       return (subtotal * percentage) / 100;
@@ -378,6 +374,37 @@ const Checkout = () => {
           zipCode: shippingInfo.zipCode,
           country: shippingInfo.country,
         });
+
+        // Check delivery serviceability before allowing payment step
+        const pincode = shippingInfo.zipCode?.replace(/\D/g, '');
+        if (pincode && pincode.length === 6) {
+          setLoading(true);
+          try {
+            await new Promise((resolve, reject) => {
+              orderApi.checkServiceability({
+                pincode,
+                setLoading: null,
+                onSuccess: (data) => {
+                  if (data?.data && data.data.deliverable === false && !data.data.error) {
+                    reject(new Error(
+                      `Sorry, we don't deliver to pincode ${pincode} yet. Please use a different address.`
+                    ));
+                  } else {
+                    resolve();
+                  }
+                },
+                onError: () => resolve(), // Don't block on API failure
+              });
+            });
+          } catch (err) {
+            toast.error(err.message);
+            setErrors((prev) => ({ ...prev, zipCode: 'Delivery not available to this pincode' }));
+            setLoading(false);
+            return;
+          } finally {
+            setLoading(false);
+          }
+        }
       }
       setStep(step + 1);
       window.scrollTo(0, 0);
@@ -832,7 +859,6 @@ const Checkout = () => {
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 py-12 px-4">
-        <Toaster position="top-center" />
         <div className="max-w-6xl mx-auto text-center">
           <BsCreditCard
             className="text-6xl mx-auto mb-6"
@@ -858,7 +884,6 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <Toaster position="top-center" />
       <div className="max-w-6xl mx-auto mb-12">
         <ProgressSteps currentStep={step} />
       </div>

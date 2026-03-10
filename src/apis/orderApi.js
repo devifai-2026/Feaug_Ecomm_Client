@@ -92,6 +92,16 @@ const orderApi = {
       onSuccess,
       onError,
     }),
+
+  // Check delivery serviceability for a pincode (pre-payment)
+  checkServiceability: ({ pincode, setLoading, onSuccess, onError }) =>
+    apiCall.post({
+      route: '/orders/check-serviceability',
+      payload: { pincode },
+      setLoading,
+      onSuccess,
+      onError,
+    }),
 };
 
 export default orderApi;
