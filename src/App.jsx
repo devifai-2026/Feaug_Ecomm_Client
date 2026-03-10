@@ -35,6 +35,15 @@ import OrderDetails from "./Component/Pages/MyOrders/OrderDetails";
 import PaymentStatus from "./Component/Pages/Payment/PaymentStatus";
 import productApi from "./apis/productApi";
 
+const shuffleArray = (arr) => {
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
 function App() {
   usePageTracking();
   const location = useLocation();
@@ -54,16 +63,9 @@ function App() {
       AOS.refresh();
     }, 100);
 
+    let isMounted = true;
+    let initialTimer;
     let activityInterval;
-
-    const shuffleArray = (arr) => {
-      const shuffled = [...arr];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-      return shuffled;
-    };
 
     const fetchAndShowActivity = async () => {
       let activityData = [];
@@ -71,6 +73,8 @@ function App() {
 
       try {
         const productsRes = await productApi.getAllProducts({ params: {} });
+        if (!isMounted) return; // Exit if component unmounted during fetch
+
         if (productsRes?.data?.products?.length > 0) {
           activityData = productsRes.data.products.map((p) => ({
             product: p.name,
@@ -82,35 +86,19 @@ function App() {
       }
 
       userNames = shuffleArray([
-        "Aarav Sharma",
-        "Vivaan Patel",
-        "Aditya Singh",
-        "Arjun Verma",
-        "Ishaan Mehta",
-        "Kabir Gupta",
-        "Rohan Nair",
-        "Rahul Yadav",
-        "Siddharth Jain",
-        "Manish Kumar",
-        "Ananya Reddy",
-        "Diya Kapoor",
-        "Priya Sharma",
-        "Sneha Iyer",
-        "Kavya Menon",
-        "Neha Joshi",
-        "Aditi Rao",
-        "Pooja Desai",
-        "Meera Kulkarni",
-        "Ritika Choudhary",
+        "Aarav Sharma", "Vivaan Patel", "Aditya Singh", "Arjun Verma", "Ishaan Mehta",
+        "Kabir Gupta", "Rohan Nair", "Rahul Yadav", "Siddharth Jain", "Manish Kumar",
+        "Ananya Reddy", "Diya Kapoor", "Priya Sharma", "Sneha Iyer", "Kavya Menon",
+        "Neha Joshi", "Aditi Rao", "Pooja Desai", "Meera Kulkarni", "Ritika Choudhary",
       ]);
 
-      if (!activityData.length || !userNames.length) return;
+      if (!activityData.length || !userNames.length || !isMounted) return;
 
       let nameIndex = 0;
 
       const showNextToast = () => {
-        const randomActivity =
-          activityData[Math.floor(Math.random() * activityData.length)];
+        if (!isMounted) return;
+        const randomActivity = activityData[Math.floor(Math.random() * activityData.length)];
 
         if (nameIndex >= userNames.length) {
           userNames = shuffleArray(userNames);
@@ -133,12 +121,8 @@ function App() {
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
-                {userName}
-              </p>
-              <p className="text-xs text-gray-500 truncate">
-                bought {randomActivity.product}
-              </p>
+              <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
+              <p className="text-xs text-gray-500 truncate">bought {randomActivity.product}</p>
               <p className="text-[10px] text-gray-400 mt-0.5">Just now</p>
             </div>
           </div>
@@ -147,25 +131,24 @@ function App() {
         toast(<ToastContent />);
       };
 
-    // 🔥 Show after 15–30s delay (random to feel organic)
-    const initialDelay = 15000 + Math.floor(Math.random() * 15000);
-    const initialTimer = setTimeout(() => {
-      showNextToast();
-      // 🔁 Then repeat every 25 seconds
-      activityInterval = setInterval(showNextToast, 25000);
-    }, initialDelay);
+      // 🔥 Show after 20-30s initial delay
+      const delay = 20000 + Math.floor(Math.random() * 10000);
+      initialTimer = setTimeout(() => {
+        if (!isMounted) return;
+        showNextToast();
+        // 🔁 Then repeat every 20 seconds
+        activityInterval = setInterval(showNextToast, 20000);
+      }, delay);
+    };
 
-    return initialTimer;
-  };
+    fetchAndShowActivity();
 
-  let initialTimer;
-  fetchAndShowActivity().then((timer) => { initialTimer = timer; });
-
-  return () => {
-    if (initialTimer) clearTimeout(initialTimer);
-    if (activityInterval) clearInterval(activityInterval);
-  };
-}, [location.pathname]);
+    return () => {
+      isMounted = false;
+      if (initialTimer) clearTimeout(initialTimer);
+      if (activityInterval) clearInterval(activityInterval);
+    };
+  }, [location.pathname]);
 
   return (
     <>
