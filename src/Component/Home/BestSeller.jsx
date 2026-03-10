@@ -13,7 +13,7 @@ import "aos/dist/aos.css";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { FaTimes } from "react-icons/fa";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useWishlist } from "../Context/WishlistContext";
 import { useCart } from "../Context/CartContext";
 import productApi from "../../apis/productApi";
@@ -253,16 +253,6 @@ const BestSeller = () => {
 
   return (
     <div className="mt-16 max-w-[90%] mx-auto overflow-hidden">
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: "#fff",
-            border: "1px solid #e5e7eb",
-          },
-        }}
-      />
 
       <style>{`
         @keyframes slideInRight {

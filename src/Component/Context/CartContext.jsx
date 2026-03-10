@@ -287,8 +287,7 @@ export const CartProvider = ({ children }) => {
   const getTotal = (shipping = 0, taxRate = 0.03) => {
     const subtotal = getSubtotal();
     const discount = appliedPromo
-      ? appliedPromo.discountAmount ||
-        (subtotal * appliedPromo.discountPercentage) / 100
+      ? (subtotal * appliedPromo.discountPercentage) / 100
       : 0;
     const discountedSubtotal = Math.max(0, subtotal - discount);
     const tax = discountedSubtotal * taxRate;

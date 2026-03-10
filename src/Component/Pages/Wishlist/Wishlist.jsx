@@ -7,7 +7,7 @@ import {
   BsHeart,
 } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useWishlist } from "../../Context/WishlistContext";
 import { useCart } from "../../Context/CartContext";
 
@@ -107,16 +107,6 @@ const Wishlist = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8 md:py-12">
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: "#fff",
-            border: "1px solid #e5e7eb",
-          },
-        }}
-      />
 
       <style jsx>{`
         @keyframes slideInRight {

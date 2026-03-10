@@ -24,7 +24,7 @@ import { MdOutlineCurrencyRupee } from "react-icons/md";
 import { RxDividerVertical, RxDragHandleHorizontal } from "react-icons/rx";
 import SliderLogo from "./SliderLogo";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { BsHeartFill } from "react-icons/bs";
 import { useWishlist } from "../Context/WishlistContext";
 import { useCart } from "../Context/CartContext";
@@ -706,16 +706,6 @@ const Category = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: "#fff",
-            border: "1px solid #e5e7eb",
-          },
-        }}
-      />
 
       {/* Breadcrumb */}
       <div className="bg-[#ebe8e392] py-2">
