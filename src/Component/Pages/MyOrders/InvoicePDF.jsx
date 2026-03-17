@@ -209,7 +209,7 @@ const InvoicePDF = ({ order }) => {
           <View style={styles.totalRow}>
             <Text style={styles.value}>GST (3%)</Text>
             <Text style={styles.value}>
-              ₹{tax.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              ₹{Math.round(tax).toLocaleString("en-IN")}
             </Text>
           </View>
           <View style={[styles.totalRow, { marginTop: 10 }]}>
