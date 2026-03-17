@@ -20,7 +20,7 @@ export const OrderSummary = ({
           <span className="text-gray-600">Subtotal</span>
           <span className="font-medium flex items-center">
             <BsCurrencyRupee className="text-sm mr-1" />
-            {subtotal.toFixed(2)}
+            {subtotal|0}
           </span>
         </div>
 
@@ -31,7 +31,7 @@ export const OrderSummary = ({
             </span>
             <span className="font-medium flex items-center">
               -<BsCurrencyRupee className="text-sm mr-1" />
-              {discountAmount.toFixed(2)}
+              {discountAmount|0}
             </span>
           </div>
         )}
@@ -40,7 +40,7 @@ export const OrderSummary = ({
           <span className="text-gray-600">Shipping</span>
           <span className="font-medium flex items-center">
             <BsCurrencyRupee className="text-sm mr-1" />
-            {shippingCost.toFixed(2)}
+            {shippingCost|0}
           </span>
         </div>
 
@@ -48,7 +48,7 @@ export const OrderSummary = ({
           <span className="text-gray-600">Tax (3% GST)</span>
           <span className="font-medium flex items-center">
             <BsCurrencyRupee className="text-sm mr-1" />
-            {tax.toFixed(2)}
+            {tax|0}
           </span>
         </div>
 
@@ -57,7 +57,7 @@ export const OrderSummary = ({
             <span>Total</span>
             <span className="flex items-center">
               <BsCurrencyRupee className="text-base mr-1" />
-              {total.toFixed(2)}
+              {total|0}
             </span>
           </div>
         </div>
@@ -104,7 +104,7 @@ export const OrderSummary = ({
                     <BsCurrencyRupee className="text-sm mt-1" />
                     {(
                       (item.price || item.sellingPrice) * item.quantity
-                    ).toFixed(2)}
+                    )|0}
                   </div>
                 </div>
               </div>

@@ -109,7 +109,7 @@ const Cart = () => {
             discountAmount: discountAmount,
           });
           toast.success(
-            `'${promo.code}' applied! You saved ₹${discountAmount.toFixed(2)}`,
+            `'${promo.code}' applied! You saved ₹${discountAmount|0}`,
           );
           setPromoCode("");
         }
@@ -354,7 +354,7 @@ const Cart = () => {
                         <div className="flex items-center gap-2">
                           <span className="text-xl font-bold text-gray-900 flex items-center">
                             <BsCurrencyRupee className="text-sm" />
-                            {calculateItemTotal(item).toFixed(2)}
+                            {calculateItemTotal(item)|0}
                           </span>
                           <span className="text-sm text-gray-500">
                             ({item.quantity} ×{" "}
@@ -429,7 +429,7 @@ const Cart = () => {
                       <span className="text-gray-600">Subtotal</span>
                       <span className="font-medium flex items-center">
                         <BsCurrencyRupee className="text-sm mr-1" />
-                        {getSubtotal().toFixed(2)}
+                        {getSubtotal()|0}
                       </span>
                     </div>
 
@@ -446,7 +446,7 @@ const Cart = () => {
                         </span>
                         <span className="font-medium flex items-center">
                           -<BsCurrencyRupee className="text-sm mr-1" />
-                          {((getSubtotal() * appliedPromo.discountPercentage) / 100).toFixed(2)}
+                          {((getSubtotal() * appliedPromo.discountPercentage) / 100)|0}
                         </span>
                       </div>
                     )}
@@ -552,7 +552,7 @@ const Cart = () => {
                         <BsCurrencyRupee className="text-sm mr-1" />
                         {(
                           getSubtotal() - (appliedPromo ? (getSubtotal() * appliedPromo.discountPercentage) / 100 : 0)
-                        ).toFixed(2)}
+                        )|0}
                       </span>
                     </div>
                     <p className="text-sm text-gray-500">

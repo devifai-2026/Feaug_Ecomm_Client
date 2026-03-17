@@ -162,10 +162,7 @@ export const calculateDiscountPercentage = (originalPrice, discountedPrice) => {
 export const formatPrice = (price, currency = '₹') => {
     if (typeof price !== 'number') return `${currency}0`;
 
-    return `${currency}${price.toLocaleString('en-IN', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    })}`;
+    return `${currency}${Math.round(price).toLocaleString('en-IN')}`;
 };
 
 export default {

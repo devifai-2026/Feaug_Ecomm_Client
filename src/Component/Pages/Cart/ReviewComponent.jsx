@@ -95,7 +95,7 @@ export const ReviewComponent = ({
               </div>
               <p className="font-bold flex items-center">
                 <BsCurrencyRupee className="text-sm mr-1" />
-                {(item.price * item.quantity).toFixed(2)}
+                {(item.price * item.quantity)|0}
               </p>
             </div>
           ))}
@@ -111,7 +111,7 @@ export const ReviewComponent = ({
             <span className="text-gray-600">Subtotal</span>
             <span className="font-medium flex items-center">
               <BsCurrencyRupee className="text-xs mr-1" />
-              {subtotal.toFixed(2)}
+              {subtotal|0}
             </span>
           </div>
           {discountAmount > 0 && (
@@ -121,7 +121,7 @@ export const ReviewComponent = ({
               </span>
               <span className="font-medium flex items-center">
                 -<BsCurrencyRupee className="text-xs mr-1" />
-                {discountAmount.toFixed(2)}
+                {discountAmount|0}
               </span>
             </div>
           )}
@@ -129,14 +129,14 @@ export const ReviewComponent = ({
             <span className="text-gray-600">Shipping</span>
             <span className="font-medium flex items-center">
               <BsCurrencyRupee className="text-xs mr-1" />
-              {shippingCost.toFixed(2)}
+              {shippingCost|0}
             </span>
           </div>
           <div className="flex justify-between font-bold text-base border-t mt-2 pt-2">
             <span>Total Payable</span>
             <span className="flex items-center text-primary-gold">
               <BsCurrencyRupee className="mr-1" />
-              {total.toFixed(2)}
+              {total|0}
             </span>
           </div>
         </div>
