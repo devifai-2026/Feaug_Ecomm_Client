@@ -7,7 +7,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import { LuUserRound, LuLock, LuMail, LuEye, LuEyeOff } from "react-icons/lu";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import userApi from "../../../apis/user/userApi";
 
 const Login = () => {

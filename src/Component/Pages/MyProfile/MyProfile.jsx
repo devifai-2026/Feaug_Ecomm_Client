@@ -14,15 +14,12 @@ import {
   FaPlus,
   FaTrash,
   FaCheckCircle,
-  FaChevronRight,
-  FaShieldAlt,
-  FaMapMarkedAlt,
   FaUserCircle,
   FaCamera,
   FaEye,
   FaEyeSlash,
 } from "react-icons/fa";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import userApi from "../../../apis/user/userApi";
 import { INDIAN_STATES } from "../../utils/Validation";
 
@@ -541,28 +538,24 @@ const MyProfile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FDFCFB] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-[#C19A6B] border-t-transparent rounded-full animate-spin"></div>
-        </div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-7 h-7 border-2 border-[#C19A6B] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (!userData) {
     return (
-      <div className="min-h-screen bg-[#FDFCFB] flex items-center justify-center p-4 text-center">
-        <div className="max-w-sm bg-white rounded-2xl p-8 shadow-lg border border-neutral-100">
-          <div className="w-16 h-16 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FaUserCircle className="text-4xl text-neutral-300" />
-          </div>
-          <h2 className="text-xl  text-neutral-800 mb-2">Access Required</h2>
-          <p className="text-neutral-500 mb-6 font-poppins text-sm leading-relaxed">
-            Please sign in to access your profile settings.
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
+        <div className="max-w-xs w-full text-center">
+          <FaUserCircle className="text-5xl text-neutral-200 mx-auto mb-5" />
+          <h2 className="text-lg font-light text-neutral-800 mb-1">Access Required</h2>
+          <p className="text-neutral-400 text-sm mb-6">
+            Please sign in to access your profile.
           </p>
           <button
             onClick={() => navigate("/login")}
-            className="w-full py-3 bg-[#C19A6B] hover:bg-[#a6825a] text-white rounded-xl font-bold transition-all text-sm"
+            className="w-full py-2.5 bg-[#C19A6B] text-white text-sm rounded-lg hover:bg-[#a6825a] transition-colors"
           >
             Sign In
           </button>
@@ -571,44 +564,55 @@ const MyProfile = () => {
     );
   }
 
-  const sections = [
-    { id: "overview", label: "Overview", icon: <FaUserCircle /> },
-    { id: "personal", label: "Profile", icon: <FaUser /> },
-    { id: "addresses", label: "Addresses", icon: <FaMapMarkedAlt /> },
-    { id: "security", label: "Password", icon: <FaShieldAlt /> },
+  const tabs = [
+    { id: "overview", label: "Personal Info" },
+    { id: "personal", label: "Edit Profile" },
+    { id: "addresses", label: "Addresses" },
+    { id: "security", label: "Security" },
   ];
 
   return (
-    <div className="min-h-screen bg-[#FDFCFB] text-neutral-800 selection:bg-[#C19A6B]/20 pt-20 pb-12">
-      {/* Premium Compact Header */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 mb-6">
-        <div className="relative overflow-hidden rounded-3xl bg-white border border-neutral-100 shadow-sm p-5 sm:p-6">
-          <div className="relative flex flex-col md:flex-row items-center gap-8">
-            <div className="group relative">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-neutral-50 border border-neutral-100 flex items-center justify-center shadow-inner overflow-hidden">
-                <span className="text-xl sm:text-2xl  font-bold text-[#C19A6B]">
-                  {getInitials(userData.firstName, userData.lastName)}
-                </span>
+    <div className="min-h-screen bg-white text-neutral-800 pt-24 pb-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+
+        {/* Header */}
+        <div className="mb-10">
+          <h1 className="text-2xl font-light text-neutral-900 tracking-tight">My Profile</h1>
+          <div className="w-12 h-0.5 bg-[#C19A6B] mt-2"></div>
+        </div>
+
+        {/* Profile Card */}
+        <div className="bg-white border border-neutral-100 rounded-lg p-6 mb-8">
+          <div className="flex flex-col sm:flex-row items-center gap-5">
+            <div className="relative">
+              <div className="w-20 h-20 rounded-full border-2 border-[#C19A6B] flex items-center justify-center bg-[#C19A6B]/5 overflow-hidden">
+                {userData.profileImage ? (
+                  <img src={userData.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-xl font-medium text-[#C19A6B]">
+                    {getInitials(userData.firstName, userData.lastName)}
+                  </span>
+                )}
               </div>
               <button
                 onClick={handleEditClick}
-                className="absolute -bottom-1 -right-1 p-2 bg-[#C19A6B] text-white rounded-full shadow-md hover:scale-110 active:scale-90 transition-all"
+                className="absolute -bottom-1 -right-1 p-1.5 bg-[#C19A6B] text-white rounded-full hover:bg-[#a6825a] transition-colors"
               >
                 <FaCamera size={10} />
               </button>
             </div>
-
-            <div className="flex-1 text-center md:text-left">
-              <div className="inline-block px-3 py-1 bg-[#C19A6B]/10 rounded-full text-xs font-bold text-[#C19A6B] mb-2">
-                Member
+            <div className="text-center sm:text-left flex-1">
+              <h2 className="text-xl font-light text-neutral-900">{userData.name}</h2>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mt-1">
+                <span className="text-sm text-neutral-400">{userData.email}</span>
+                {userData.phone && (
+                  <span className="text-sm text-neutral-400">{userData.phone}</span>
+                )}
               </div>
-              <h1 className="text-2xl sm:text-3xl  font-bold text-neutral-900 mb-1 tracking-tight">
-                {userData.name}
-              </h1>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-neutral-500 font-poppins text-xs">
-                <span>Since {formatDate(userData.joinDate)}</span>
+              <div className="flex items-center justify-center sm:justify-start gap-3 mt-2">
+                <span className="text-xs text-neutral-300">Member since {formatDate(userData.joinDate)}</span>
                 {userData.isEmailVerified && (
-                  <span className="text-emerald-600 flex items-center gap-1 font-bold">
+                  <span className="text-xs text-emerald-500 flex items-center gap-1">
                     <FaCheckCircle size={10} /> Verified
                   </span>
                 )}
@@ -616,406 +620,293 @@ const MyProfile = () => {
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Compact Sidebar */}
-          <div className="lg:col-span-3 space-y-2 lg:sticky lg:top-28">
-            {sections.map((section) => (
+        {/* Tab Navigation */}
+        <div className="border-b border-neutral-100 mb-8">
+          <nav className="flex gap-8 -mb-px overflow-x-auto">
+            {tabs.map((tab) => (
               <button
-                key={section.id}
-                onClick={() => setActiveSection(section.id)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 border ${
-                  activeSection === section.id
-                    ? "bg-[#C19A6B] text-white shadow-md border-transparent translate-x-1"
-                    : "bg-white text-neutral-400 border-neutral-100 hover:border-[#C19A6B]/40 hover:text-neutral-700"
+                key={tab.id}
+                onClick={() => setActiveSection(tab.id)}
+                className={`pb-3 text-sm whitespace-nowrap transition-colors ${
+                  activeSection === tab.id
+                    ? "border-b-2 border-[#C19A6B] text-[#C19A6B]"
+                    : "text-neutral-400 hover:text-neutral-600"
                 }`}
               >
-                <div className="flex items-center gap-4">
-                  <span className="text-lg">{section.icon}</span>
-                  <span className="font-semibold font-poppins text-sm">
-                    {section.label}
-                  </span>
-                </div>
-                {activeSection === section.id && <FaChevronRight size={10} />}
+                {tab.label}
               </button>
             ))}
+          </nav>
+        </div>
+
+        {/* Content */}
+
+        {/* Personal Info / Overview */}
+        {activeSection === "overview" && (
+          <div>
+            <div className="grid sm:grid-cols-2 gap-6">
+              {[
+                { label: "FULL NAME", value: userData.name },
+                { label: "EMAIL ADDRESS", value: userData.email },
+                { label: "PHONE NUMBER", value: userData.phone || "Not provided" },
+                { label: "DATE OF BIRTH", value: formatDate(userData.dob) },
+                {
+                  label: "GENDER",
+                  value:
+                    userData.gender === "prefer_not_to_say"
+                      ? "Prefer not to say"
+                      : userData.gender.charAt(0).toUpperCase() + userData.gender.slice(1),
+                },
+                { label: "DEFAULT ADDRESS", value: userData.address },
+              ].map((item, idx) => (
+                <div key={idx}>
+                  <label className="text-[10px] font-medium tracking-widest text-[#C19A6B] uppercase block mb-1.5">
+                    {item.label}
+                  </label>
+                  <p className="text-sm text-neutral-800">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Edit Profile */}
+        {activeSection === "personal" && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-light text-neutral-900">Profile Information</h2>
+              <button
+                onClick={handleEditClick}
+                className="flex items-center gap-2 px-5 py-2 bg-[#C19A6B] text-white text-sm rounded-lg hover:bg-[#a6825a] transition-colors"
+              >
+                <FaEdit size={12} /> Edit
+              </button>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-x-10 gap-y-6">
+              {[
+                { label: "First Name", value: userData.firstName, icon: <FaUser size={13} /> },
+                { label: "Last Name", value: userData.lastName, icon: <FaUser size={13} /> },
+                { label: "Email", value: userData.email, icon: <FaEnvelope size={13} /> },
+                { label: "Phone Number", value: userData.phone || "Not provided", icon: <FaPhone size={13} /> },
+                { label: "Date of Birth", value: formatDate(userData.dob), icon: <FaBirthdayCake size={13} /> },
+                {
+                  label: "Gender",
+                  value:
+                    userData.gender === "prefer_not_to_say"
+                      ? "Prefer not to say"
+                      : userData.gender.charAt(0).toUpperCase() + userData.gender.slice(1),
+                  icon: <FaCalendarAlt size={13} />,
+                },
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-start gap-3">
+                  <div className="mt-0.5 text-[#C19A6B]">{item.icon}</div>
+                  <div>
+                    <label className="text-[10px] font-medium tracking-widest text-neutral-400 uppercase block mb-0.5">
+                      {item.label}
+                    </label>
+                    <p className="text-sm text-neutral-800">{item.value}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Addresses */}
+        {activeSection === "addresses" && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-light text-neutral-900">Saved Addresses</h2>
+              <button
+                onClick={handleAddAddressClick}
+                className="flex items-center gap-2 px-5 py-2 bg-[#C19A6B] text-white text-sm rounded-lg hover:bg-[#a6825a] transition-colors"
+              >
+                <FaPlus size={11} /> Add Address
+              </button>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-5">
+              {paginatedAddresses && paginatedAddresses.length > 0 ? (
+                paginatedAddresses.map((addr, index) => (
+                  <div
+                    key={addr._id || index}
+                    className={`border rounded-lg p-5 transition-colors ${
+                      addr.isDefault
+                        ? "border-[#C19A6B]/40 bg-[#C19A6B]/[0.02]"
+                        : "border-neutral-100 bg-white hover:border-neutral-200"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[10px] font-medium tracking-widest text-neutral-500 uppercase">
+                        {addr.type}
+                      </span>
+                      {addr.isDefault && (
+                        <span className="text-[10px] font-medium tracking-wider text-[#C19A6B] uppercase bg-[#C19A6B]/10 px-2 py-0.5 rounded">
+                          Default
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="text-sm font-medium text-neutral-900 mb-1">
+                      {addr.name || userData.name}
+                    </h3>
+                    <p className="text-sm text-neutral-500 leading-relaxed">
+                      {addr.addressLine1}
+                    </p>
+                    <p className="text-sm text-neutral-500">
+                      {addr.city}, {addr.state} - {addr.pincode}
+                    </p>
+
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-neutral-50">
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => handleEditAddressClick(addr)}
+                          className="text-neutral-300 hover:text-[#C19A6B] transition-colors"
+                        >
+                          <FaEdit size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteAddress(addr._id)}
+                          className="text-neutral-300 hover:text-red-400 transition-colors"
+                        >
+                          <FaTrash size={13} />
+                        </button>
+                      </div>
+                      {!addr.isDefault && (
+                        <button
+                          onClick={() => handleSetDefaultAddress(addr._id)}
+                          className="text-xs text-neutral-400 hover:text-[#C19A6B] transition-colors"
+                        >
+                          Set as Default
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="sm:col-span-2 py-16 border border-dashed border-neutral-200 rounded-lg flex flex-col items-center text-center">
+                  <FaMapMarkerAlt className="text-2xl text-neutral-200 mb-3" />
+                  <p className="text-sm text-neutral-400 mb-4">No addresses saved yet</p>
+                  <button
+                    onClick={handleAddAddressClick}
+                    className="px-6 py-2 bg-[#C19A6B] text-white text-sm rounded-lg hover:bg-[#a6825a] transition-colors"
+                  >
+                    Add New Address
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {totalAddresses > ADDRESSES_PER_PAGE && (
+              <div className="flex items-center justify-center gap-4 mt-6">
+                <button
+                  disabled={addressPage === 1}
+                  onClick={() => setAddressPage((prev) => prev - 1)}
+                  className={`px-4 py-1.5 rounded-lg text-sm border transition-colors ${
+                    addressPage === 1
+                      ? "text-neutral-200 border-neutral-100 cursor-not-allowed"
+                      : "text-neutral-500 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
+                  }`}
+                >
+                  Previous
+                </button>
+                <span className="text-xs text-neutral-400">
+                  {addressPage} / {totalPages}
+                </span>
+                <button
+                  disabled={addressPage === totalPages}
+                  onClick={() => setAddressPage((prev) => prev + 1)}
+                  className={`px-4 py-1.5 rounded-lg text-sm border transition-colors ${
+                    addressPage ===
+                    Math.ceil(
+                      userData.addresses.length / ADDRESSES_PER_PAGE,
+                    )
+                      ? "text-neutral-200 border-neutral-100 cursor-not-allowed"
+                      : "text-neutral-500 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
+                  }`}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Security */}
+        {activeSection === "security" && (
+          <div className="max-w-lg">
+            <h2 className="text-lg font-light text-neutral-900 mb-1">Password & Security</h2>
+            <p className="text-sm text-neutral-400 mb-6">Manage your account security settings.</p>
+
+            <div className="border border-neutral-100 rounded-lg divide-y divide-neutral-50">
+              <div className="flex items-center justify-between p-5">
+                <div>
+                  <label className="text-[10px] font-medium tracking-widest text-[#C19A6B] uppercase block mb-1">
+                    Account Password
+                  </label>
+                  <p className="text-sm text-neutral-400">
+                    Update your password to keep your account secure.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowPasswordModal(true)}
+                  className="px-5 py-2 border border-[#C19A6B] text-[#C19A6B] text-sm rounded-lg hover:bg-[#C19A6B] hover:text-white transition-colors whitespace-nowrap ml-4"
+                >
+                  Change Password
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between p-5">
+                <div>
+                  <label className="text-[10px] font-medium tracking-widest text-[#C19A6B] uppercase block mb-1">
+                    Account Status
+                  </label>
+                  <p className="text-sm text-neutral-400">
+                    Your account is securely logged in.
+                  </p>
+                </div>
+                <span className="text-xs text-emerald-500 bg-emerald-50 px-3 py-1 rounded-full">
+                  Active
+                </span>
+              </div>
+            </div>
 
             <button
               onClick={() => {
                 userApi.logout();
                 navigate("/login");
               }}
-              className="w-full flex items-center justify-between px-5 py-4 rounded-[1.25rem] bg-neutral-50 text-neutral-400 border border-neutral-100 hover:text-red-500 transition-all mt-6"
+              className="mt-8 px-5 py-2 border border-neutral-200 text-neutral-400 text-sm rounded-lg hover:border-red-300 hover:text-red-400 transition-colors"
             >
-              <div className="flex items-center gap-4">
-                <FaTimes size={14} />
-                <span className="font-bold font-poppins text-[11px] uppercase">
-                  Sign Out
-                </span>
-              </div>
+              Sign Out
             </button>
           </div>
-
-          {/* Compact Canvas */}
-          <div className="lg:col-span-9">
-            <div className="bg-white border border-neutral-100 rounded-3xl p-6 sm:p-8 shadow-sm">
-              {/* Dashboard Section */}
-              {activeSection === "overview" && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div>
-                    <h2 className="text-2xl  font-bold text-neutral-900 mb-1">
-                      My Profile
-                    </h2>
-                    <p className="text-neutral-500 font-poppins text-sm">
-                      View and manage your account details.
-                    </p>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-6">
-                      <div className="group">
-                        <label className="text-xs font-semibold text-[#C19A6B] mb-1 block">
-                          Full Name
-                        </label>
-                        <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-50">
-                          <p className="text-base text-neutral-900  font-bold">
-                            {userData.name}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="group">
-                        <label className="text-xs font-semibold text-[#C19A6B] mb-1 block">
-                          Email Address
-                        </label>
-                        <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-50">
-                          <p className="text-sm text-neutral-900 font-poppins">
-                            {userData.email}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="space-y-6">
-                      <div className="group">
-                        <label className="text-xs font-semibold text-[#C19A6B] mb-1 block">
-                          Phone Number
-                        </label>
-                        <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-50">
-                          <p className="text-base text-neutral-900 font-poppins">
-                            {userData.phone || "Not provided"}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="group">
-                        <label className="text-xs font-semibold text-[#C19A6B] mb-1 block">
-                          Default Address
-                        </label>
-                        <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-50">
-                          <p className="text-neutral-500 text-xs font-poppins line-clamp-1">
-                            {userData.address}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Registry Section */}
-              {activeSection === "personal" && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="flex items-center justify-between border-b border-neutral-100 pb-6">
-                    <h2 className="text-2xl  font-bold text-neutral-900">
-                      Profile Information
-                    </h2>
-                    <button
-                      onClick={handleEditClick}
-                      className="flex items-center gap-2 px-6 py-3 bg-[#C19A6B] text-white rounded-xl font-bold text-xs"
-                    >
-                      <FaEdit size={12} /> Edit Profile
-                    </button>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-x-12 gap-y-10">
-                    {[
-                      {
-                        label: "First Name",
-                        value: userData.firstName,
-                        icon: <FaUser />,
-                      },
-                      {
-                        label: "Last Name",
-                        value: userData.lastName,
-                        icon: <FaUser />,
-                      },
-                      {
-                        label: "Email",
-                        value: userData.email,
-                        icon: <FaEnvelope />,
-                      },
-                      {
-                        label: "Phone Number",
-                        value: userData.phone || "Not provided",
-                        icon: <FaPhone />,
-                      },
-                      {
-                        label: "Date of Birth",
-                        value: formatDate(userData.dob),
-                        icon: <FaBirthdayCake />,
-                      },
-                      {
-                        label: "Gender",
-                        value:
-                          userData.gender === "prefer_not_to_say"
-                            ? "Prefer not to say"
-                            : userData.gender.charAt(0).toUpperCase() +
-                              userData.gender.slice(1),
-                        icon: <FaCalendarAlt />,
-                      },
-                    ].map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-5 group">
-                        <div className="p-4 bg-neutral-50 rounded-xl text-[#C19A6B] border border-neutral-50 group-hover:bg-[#C19A6B] group-hover:text-white transition-all duration-300">
-                          {item.icon}
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold text-neutral-400 mb-1">
-                            {item.label}
-                          </p>
-                          <p className="text-neutral-900  font-bold text-lg">
-                            {item.value}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Coordinates Section */}
-              {activeSection === "addresses" && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="flex items-center justify-between flex-wrap gap-4 border-b border-neutral-100 pb-6">
-                    <h2 className="text-2xl  font-bold text-neutral-900">
-                      Saved Addresses
-                    </h2>
-                    <button
-                      onClick={handleAddAddressClick}
-                      className="flex items-center gap-2 px-6 py-3 bg-[#C19A6B] text-white rounded-xl font-bold text-xs"
-                    >
-                      <FaPlus size={12} /> Add Address
-                    </button>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {paginatedAddresses && paginatedAddresses.length > 0 ? (
-                      paginatedAddresses.map((addr, index) => (
-                        <div
-                          key={addr._id || index}
-                          className={`relative p-6 rounded-3xl border transition-all duration-300 ${
-                            addr.isDefault
-                              ? "bg-white border-[#C19A6B]/30 shadow-md"
-                              : "bg-neutral-50 border-neutral-50 hover:bg-white hover:border-neutral-200"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-6">
-                            <span className="px-4 py-1.5 bg-neutral-900 text-white rounded-full text-[10px] font-bold uppercase transition-all">
-                              {addr.type}
-                            </span>
-                            {addr.isDefault && (
-                              <div className="text-[10px] font-bold text-emerald-600 uppercase">
-                                Default
-                              </div>
-                            )}
-                          </div>
-
-                          <h3 className="text-xl  font-bold text-neutral-900 mb-1">
-                            {addr.name || userData.name}
-                          </h3>
-                          <p className="text-neutral-500 text-xs leading-relaxed mb-6 font-poppins">
-                            {addr.addressLine1}
-                            <span className="block mt-1 font-bold">
-                              {addr.city}, {addr.state} - {addr.pincode}
-                            </span>
-                          </p>
-
-                          <div className="flex items-center justify-between pt-6 border-t border-neutral-100">
-                            <div className="flex gap-4">
-                              <button
-                                onClick={() => handleEditAddressClick(addr)}
-                                className="text-neutral-300 hover:text-[#C19A6B] transition-colors"
-                              >
-                                <FaEdit size={16} />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteAddress(addr._id)}
-                                className="text-neutral-300 hover:text-red-400 transition-colors"
-                              >
-                                <FaTrash size={14} />
-                              </button>
-                            </div>
-                            {!addr.isDefault && (
-                              <button
-                                onClick={() =>
-                                  handleSetDefaultAddress(addr._id)
-                                }
-                                className="text-xs font-semibold text-neutral-400 hover:text-[#C19A6B] transition-colors"
-                              >
-                                Set as Default
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="md:col-span-2 py-12 bg-neutral-50 rounded-3xl border border-dashed border-neutral-100 flex flex-col items-center justify-center text-center px-10">
-                        <h3 className="text-lg  font-bold text-neutral-800 mb-2">
-                          No addresses saved
-                        </h3>
-                        <button
-                          onClick={handleAddAddressClick}
-                          className="px-8 py-4 bg-[#C19A6B] text-white font-bold rounded-xl shadow-lg text-xs"
-                        >
-                          Add New Address
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {totalAddresses > ADDRESSES_PER_PAGE && (
-                    <div className="flex items-center justify-center gap-4 pt-4">
-                      <button
-                        disabled={addressPage === 1}
-                        onClick={() => setAddressPage((prev) => prev - 1)}
-                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
-                          addressPage === 1
-                            ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
-                            : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
-                        }`}
-                      >
-                        Previous
-                      </button>
-                      <span className="text-xs font-bold text-neutral-500">
-                        Page {addressPage} of {totalPages}
-                      </span>
-                      <button
-                        disabled={addressPage === totalPages}
-                        onClick={() => setAddressPage((prev) => prev + 1)}
-                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
-                          addressPage ===
-                          Math.ceil(
-                            userData.addresses.length / ADDRESSES_PER_PAGE,
-                          )
-                            ? "text-neutral-300 border-neutral-100 cursor-not-allowed"
-                            : "text-neutral-600 border-neutral-200 hover:border-[#C19A6B] hover:text-[#C19A6B]"
-                        }`}
-                      >
-                        Next
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Vault Section */}
-              {activeSection === "security" && (
-                <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-xl">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="p-4 bg-red-50 text-red-500 rounded-2xl border border-red-50">
-                      <FaShieldAlt size={24} />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl  font-bold text-neutral-900">
-                        Password & Security
-                      </h2>
-                      <p className="text-neutral-500 font-poppins text-sm">
-                        Manage your account security settings.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="bg-neutral-50 rounded-3xl p-6 border border-neutral-50 space-y-5">
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                      <div>
-                        <h3 className="text-xs font-semibold text-[#C19A6B] mb-1">
-                          Account Password
-                        </h3>
-                        <p className="text-neutral-500 text-xs">
-                          Update your password to keep your account secure.
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => setShowPasswordModal(true)}
-                        className="px-6 py-2.5 bg-white border border-neutral-200 text-neutral-700 rounded-xl transition-all font-bold text-xs"
-                      >
-                        Change Password
-                      </button>
-                    </div>
-
-                    <div className="flex items-center justify-between border-t border-neutral-100 pt-6">
-                      <div>
-                        <h3 className="text-xs font-semibold text-[#C19A6B] mb-1">
-                          Account Status
-                        </h3>
-                        <p className="text-neutral-500 text-xs">
-                          Your account is securely logged in.
-                        </p>
-                      </div>
-                      <span className="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-xs font-bold">
-                        Active
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* COMPACT MODALS */}
-
-      {/* Refine Persona Modal */}
+      {/* Edit Profile Modal */}
       {showEditModal && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-md bg-white/40 animate-in fade-in duration-500">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg border border-neutral-100 overflow-hidden transform animate-in zoom-in-95 duration-500">
-            <div className="p-6 sm:p-8">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
+          <div className="bg-white rounded-lg w-full max-w-lg border border-neutral-100 overflow-hidden">
+            <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl  font-bold text-neutral-900 tracking-tight">
-                  Edit Profile
-                </h2>
+                <h2 className="text-lg font-light text-neutral-900">Edit Profile</h2>
                 <button
                   onClick={handleCancelClick}
-                  className="p-3 bg-neutral-50 text-neutral-400 rounded-full border border-neutral-100"
+                  className="text-neutral-300 hover:text-neutral-500 transition-colors"
                 >
-                  <FaTimes size={12} />
+                  <FaTimes size={16} />
                 </button>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4 mb-6">
+              <div className="grid sm:grid-cols-2 gap-4 mb-6">
                 {[
-                  {
-                    label: "First Name",
-                    name: "firstName",
-                    value: tempData.firstName,
-                  },
-                  {
-                    label: "Last Name",
-                    name: "lastName",
-                    value: tempData.lastName,
-                  },
-                  {
-                    label: "Email Address",
-                    name: "email",
-                    value: tempData.email,
-                    disabled: true,
-                  },
-                  {
-                    label: "Phone Number",
-                    name: "phone",
-                    value: tempData.phone,
-                    type: "tel",
-                  },
+                  { label: "First Name", name: "firstName", value: tempData.firstName },
+                  { label: "Last Name", name: "lastName", value: tempData.lastName },
+                  { label: "Email Address", name: "email", value: tempData.email, disabled: true },
+                  { label: "Phone Number", name: "phone", value: tempData.phone, type: "tel" },
                   {
                     label: "Date of Birth",
                     name: "dob",
@@ -1024,7 +915,7 @@ const MyProfile = () => {
                   },
                 ].map((field) => (
                   <div key={field.name}>
-                    <label className="text-xs font-semibold text-[#C19A6B] block mb-2 ml-1">
+                    <label className="text-[10px] font-medium tracking-widest text-neutral-400 uppercase block mb-1.5">
                       {field.label}
                     </label>
                     <input
@@ -1033,23 +924,23 @@ const MyProfile = () => {
                       value={field.value}
                       onChange={handleInputChange}
                       disabled={field.disabled}
-                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none transition-all font-poppins text-xs ${
+                      className={`w-full border rounded-lg px-3 py-2.5 text-sm outline-none transition-colors ${
                         field.disabled
-                          ? "text-neutral-300 cursor-not-allowed opacity-60"
-                          : "text-neutral-800 border-2 border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
+                          ? "bg-neutral-50 text-neutral-300 cursor-not-allowed"
+                          : "border-neutral-200 text-neutral-800 focus:border-[#C19A6B]"
                       }`}
                     />
                   </div>
                 ))}
                 <div>
-                  <label className="text-xs font-semibold text-[#C19A6B] block mb-2 ml-1">
+                  <label className="text-[10px] font-medium tracking-widest text-neutral-400 uppercase block mb-1.5">
                     Gender
                   </label>
                   <select
                     name="gender"
                     value={tempData.gender}
                     onChange={handleInputChange}
-                    className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none transition-all font-poppins text-xs text-neutral-800 border-2 border-transparent focus:border-[#C19A6B]/20 focus:bg-white appearance-none cursor-pointer"
+                    className="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#C19A6B] transition-colors appearance-none cursor-pointer bg-white"
                   >
                     <option value="male">Male</option>
                     <option value="female">Female</option>
@@ -1059,17 +950,17 @@ const MyProfile = () => {
                 </div>
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex gap-3">
                 <button
                   onClick={handleCancelClick}
-                  className="flex-1 py-3 bg-neutral-50 text-neutral-500 rounded-xl font-bold text-xs"
+                  className="flex-1 py-2.5 border border-neutral-200 text-neutral-500 rounded-lg text-sm hover:border-neutral-300 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSaveClick}
                   disabled={saving}
-                  className="flex-[2] py-3 bg-neutral-900 text-white rounded-xl font-bold text-xs hover:bg-[#C19A6B] transition-all disabled:opacity-50"
+                  className="flex-[2] py-2.5 bg-[#C19A6B] text-white rounded-lg text-sm hover:bg-[#a6825a] transition-colors disabled:opacity-50"
                 >
                   {saving ? "Saving..." : "Save Changes"}
                 </button>
@@ -1079,39 +970,29 @@ const MyProfile = () => {
         </div>
       )}
 
-      {/* Secret Modal */}
+      {/* Change Password Modal */}
       {showPasswordModal && (
-        <div className="fixed inset-0 z-[210] flex items-center justify-center p-4 backdrop-blur-md bg-white/40 animate-in fade-in duration-500">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm border border-neutral-100 animate-in zoom-in-95 duration-500">
-            <div className="p-8">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-bold text-neutral-900">
-                  Change Password
-                </h2>
+        <div className="fixed inset-0 z-[210] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
+          <div className="bg-white rounded-lg w-full max-w-sm border border-neutral-100">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-light text-neutral-900">Change Password</h2>
                 <button
                   onClick={() => setShowPasswordModal(false)}
-                  className="p-3 bg-neutral-50 text-neutral-400 rounded-full border border-neutral-100"
+                  className="text-neutral-300 hover:text-neutral-500 transition-colors"
                 >
-                  <FaTimes size={12} />
+                  <FaTimes size={16} />
                 </button>
               </div>
 
-              <div className="space-y-6 mb-8">
+              <div className="space-y-4 mb-6">
                 {[
-                  {
-                    id: "currentPassword",
-                    key: "current",
-                    label: "Current Password",
-                  },
-                  { id: "newPassword", key: "new", label: "New Password" },
-                  {
-                    id: "confirmPassword",
-                    key: "confirm",
-                    label: "Confirm Password",
-                  },
+                  { id: "currentPassword", key: "current", label: "CURRENT PASSWORD" },
+                  { id: "newPassword", key: "new", label: "NEW PASSWORD" },
+                  { id: "confirmPassword", key: "confirm", label: "CONFIRM PASSWORD" },
                 ].map((field) => (
                   <div key={field.id}>
-                    <label className="text-xs font-semibold text-[#C19A6B] block mb-2">
+                    <label className="text-[10px] font-medium tracking-widest text-neutral-400 uppercase block mb-1.5">
                       {field.label}
                     </label>
                     <div className="relative">
@@ -1121,16 +1002,16 @@ const MyProfile = () => {
                         value={passwordData[field.id]}
                         onChange={handlePasswordChange}
                         placeholder="••••••••"
-                        className={`w-full bg-neutral-50 border-2 rounded-xl px-5 py-3 pr-12 outline-none text-xs transition-all ${
+                        className={`w-full border rounded-lg px-3 py-2.5 pr-10 text-sm outline-none transition-colors ${
                           passwordErrors[field.id]
-                            ? "border-red-200"
-                            : "border-transparent focus:border-[#C19A6B]/20 focus:bg-white"
+                            ? "border-red-300"
+                            : "border-neutral-200 focus:border-[#C19A6B]"
                         }`}
                       />
                       <button
                         type="button"
                         onClick={() => togglePasswordVisibility(field.key)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-[#C19A6B] transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-300 hover:text-[#C19A6B] transition-colors"
                       >
                         {showPasswords[field.key] ? (
                           <FaEyeSlash size={14} />
@@ -1140,24 +1021,25 @@ const MyProfile = () => {
                       </button>
                     </div>
                     {passwordErrors[field.id] && (
-                      <p className="text-red-400 text-[8px] font-black mt-2 ml-1 uppercase tracking-tighter">
+                      <p className="text-red-400 text-xs mt-1">
                         {passwordErrors[field.id]}
                       </p>
                     )}
                   </div>
                 ))}
               </div>
-              <div className="flex gap-4">
+
+              <div className="flex gap-3">
                 <button
                   onClick={() => setShowPasswordModal(false)}
-                  className="flex-1 py-4 bg-neutral-50 text-neutral-500 rounded-xl font-bold text-xs"
+                  className="flex-1 py-2.5 border border-neutral-200 text-neutral-500 rounded-lg text-sm hover:border-neutral-300 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handlePasswordSubmit}
                   disabled={saving}
-                  className="flex-[2] py-4 bg-neutral-900 text-white rounded-xl font-bold text-xs hover:bg-[#C19A6B] transition-all disabled:opacity-50"
+                  className="flex-[2] py-2.5 bg-[#C19A6B] text-white rounded-lg text-sm hover:bg-[#a6825a] transition-colors disabled:opacity-50"
                 >
                   {saving ? "Updating..." : "Update Password"}
                 </button>
@@ -1167,42 +1049,42 @@ const MyProfile = () => {
         </div>
       )}
 
-      {/* Coordinate Modal */}
+      {/* Address Modal */}
       {showAddressModal && (
-        <div className="fixed inset-0 z-[220] flex items-center justify-center p-4 backdrop-blur-sm bg-white/40 animate-in fade-in duration-500">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl border border-neutral-100 transform animate-in zoom-in-95 duration-500">
-            <div className="p-6 sm:p-8 overflow-y-auto max-h-[90vh]">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl  font-bold text-neutral-900">
-                  Address Details
+        <div className="fixed inset-0 z-[220] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
+          <div className="bg-white rounded-lg w-full max-w-2xl border border-neutral-100">
+            <div className="p-6 overflow-y-auto max-h-[90vh]">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-light text-neutral-900">
+                  {editingAddressId ? "Edit Address" : "Add Address"}
                 </h2>
                 <button
                   onClick={() => setShowAddressModal(false)}
-                  className="p-3 bg-neutral-50 text-neutral-400 rounded-full border border-neutral-100"
+                  className="text-neutral-300 hover:text-neutral-500 transition-colors"
                 >
-                  <FaTimes size={12} />
+                  <FaTimes size={16} />
                 </button>
               </div>
 
-              <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
+              <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                    <label className="text-[10px] font-medium tracking-widest text-neutral-400 uppercase block mb-1.5">
                       Address Type
                     </label>
                     <select
                       name="type"
                       value={addressData.type}
                       onChange={handleAddressChange}
-                      className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs appearance-none cursor-pointer"
+                      className="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#C19A6B] transition-colors appearance-none cursor-pointer bg-white"
                     >
                       <option value="home">Home</option>
                       <option value="work">Work</option>
                       <option value="other">Other</option>
                     </select>
                   </div>
-                  <div className="md:col-span-2">
-                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] font-medium tracking-widest text-neutral-400 uppercase block mb-1.5">
                       Full Name *
                     </label>
                     <input
@@ -1210,17 +1092,15 @@ const MyProfile = () => {
                       name="name"
                       value={addressData.name}
                       onChange={handleAddressChange}
-                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter ${addressErrors.name ? "border border-red-400" : ""}`}
+                      className={`w-full border rounded-lg px-3 py-2.5 text-sm outline-none transition-colors ${addressErrors.name ? "border-red-300" : "border-neutral-200 focus:border-[#C19A6B]"}`}
                       required
                     />
                     {addressErrors.name && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {addressErrors.name}
-                      </p>
+                      <p className="text-red-400 text-xs mt-1">{addressErrors.name}</p>
                     )}
                   </div>
-                  <div className="md:col-span-2">
-                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] font-medium tracking-widest text-neutral-400 uppercase block mb-1.5">
                       Phone Number *
                     </label>
                     <input
@@ -1229,17 +1109,15 @@ const MyProfile = () => {
                       value={addressData.phone}
                       onChange={handleAddressChange}
                       maxLength={10}
-                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-inter ${addressErrors.phone ? "border border-red-400" : ""}`}
+                      className={`w-full border rounded-lg px-3 py-2.5 text-sm outline-none transition-colors ${addressErrors.phone ? "border-red-300" : "border-neutral-200 focus:border-[#C19A6B]"}`}
                       required
                     />
                     {addressErrors.phone && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {addressErrors.phone}
-                      </p>
+                      <p className="text-red-400 text-xs mt-1">{addressErrors.phone}</p>
                     )}
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                    <label className="text-[10px] font-medium tracking-widest text-neutral-400 uppercase block mb-1.5">
                       Pincode *
                     </label>
                     <input
@@ -1248,17 +1126,15 @@ const MyProfile = () => {
                       value={addressData.pincode}
                       onChange={handleAddressChange}
                       maxLength={6}
-                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-poppins ${addressErrors.pincode ? "border border-red-400" : ""}`}
+                      className={`w-full border rounded-lg px-3 py-2.5 text-sm outline-none transition-colors ${addressErrors.pincode ? "border-red-300" : "border-neutral-200 focus:border-[#C19A6B]"}`}
                       required
                     />
                     {addressErrors.pincode && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {addressErrors.pincode}
-                      </p>
+                      <p className="text-red-400 text-xs mt-1">{addressErrors.pincode}</p>
                     )}
                   </div>
-                  <div className="md:col-span-2">
-                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] font-medium tracking-widest text-neutral-400 uppercase block mb-1.5">
                       Address Line 1 *
                     </label>
                     <input
@@ -1266,17 +1142,15 @@ const MyProfile = () => {
                       name="addressLine1"
                       value={addressData.addressLine1}
                       onChange={handleAddressChange}
-                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-poppins ${addressErrors.addressLine1 ? "border border-red-400" : ""}`}
+                      className={`w-full border rounded-lg px-3 py-2.5 text-sm outline-none transition-colors ${addressErrors.addressLine1 ? "border-red-300" : "border-neutral-200 focus:border-[#C19A6B]"}`}
                       required
                     />
                     {addressErrors.addressLine1 && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {addressErrors.addressLine1}
-                      </p>
+                      <p className="text-red-400 text-xs mt-1">{addressErrors.addressLine1}</p>
                     )}
                   </div>
-                  <div className="md:col-span-2">
-                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] font-medium tracking-widest text-neutral-400 uppercase block mb-1.5">
                       Address Line 2 (Optional)
                     </label>
                     <input
@@ -1284,11 +1158,11 @@ const MyProfile = () => {
                       name="addressLine2"
                       value={addressData.addressLine2}
                       onChange={handleAddressChange}
-                      className="w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-poppins"
+                      className="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#C19A6B] transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                    <label className="text-[10px] font-medium tracking-widest text-neutral-400 uppercase block mb-1.5">
                       City *
                     </label>
                     <input
@@ -1296,24 +1170,22 @@ const MyProfile = () => {
                       name="city"
                       value={addressData.city}
                       onChange={handleAddressChange}
-                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs font-poppins ${addressErrors.city ? "border border-red-400" : ""}`}
+                      className={`w-full border rounded-lg px-3 py-2.5 text-sm outline-none transition-colors ${addressErrors.city ? "border-red-300" : "border-neutral-200 focus:border-[#C19A6B]"}`}
                       required
                     />
                     {addressErrors.city && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {addressErrors.city}
-                      </p>
+                      <p className="text-red-400 text-xs mt-1">{addressErrors.city}</p>
                     )}
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-[#C19A6B] mb-2 block">
+                    <label className="text-[10px] font-medium tracking-widest text-neutral-400 uppercase block mb-1.5">
                       State *
                     </label>
                     <select
                       name="state"
                       value={addressData.state}
                       onChange={handleAddressChange}
-                      className={`w-full bg-neutral-50 rounded-xl px-5 py-3 outline-none text-xs appearance-none cursor-pointer ${addressErrors.state ? "border border-red-400" : ""}`}
+                      className={`w-full border rounded-lg px-3 py-2.5 text-sm outline-none transition-colors appearance-none cursor-pointer bg-white ${addressErrors.state ? "border-red-300" : "border-neutral-200 focus:border-[#C19A6B]"}`}
                       required
                     >
                       <option value="">Select State</option>
@@ -1324,44 +1196,42 @@ const MyProfile = () => {
                       ))}
                     </select>
                     {addressErrors.state && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {addressErrors.state}
-                      </p>
+                      <p className="text-red-400 text-xs mt-1">{addressErrors.state}</p>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 py-4 px-6 bg-neutral-50 border border-neutral-50 rounded-2xl group hover:bg-white transition-all cursor-pointer">
+                <div className="flex items-center gap-3 py-3 px-4 border border-neutral-100 rounded-lg">
                   <input
                     type="checkbox"
                     id="isDefault"
                     name="isDefault"
                     checked={addressData.isDefault}
                     onChange={handleAddressChange}
-                    className="w-5 h-5 rounded-lg border-2 border-[#C19A6B]/20 text-[#C19A6B] cursor-pointer"
+                    className="w-4 h-4 rounded border-neutral-300 text-[#C19A6B] focus:ring-[#C19A6B] cursor-pointer"
                   />
                   <label
                     htmlFor="isDefault"
-                    className="text-xs font-semibold text-neutral-500 cursor-pointer flex-1"
+                    className="text-sm text-neutral-500 cursor-pointer"
                   >
-                    Set as Default Address
+                    Set as default address
                   </label>
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => setShowAddressModal(false)}
-                    className="flex-1 py-3 bg-neutral-50 text-neutral-400 rounded-xl font-bold text-xs"
+                    className="flex-1 py-2.5 border border-neutral-200 text-neutral-500 rounded-lg text-sm hover:border-neutral-300 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleAddressSubmit}
                     disabled={saving}
-                    className="flex-[2] py-3 bg-neutral-900 text-white rounded-xl font-bold text-xs hover:bg-[#C19A6B] transition-all"
+                    className="flex-[2] py-2.5 bg-[#C19A6B] text-white rounded-lg text-sm hover:bg-[#a6825a] transition-colors disabled:opacity-50"
                   >
-                    Save Address
+                    {saving ? "Saving..." : "Save Address"}
                   </button>
                 </div>
               </form>
@@ -1374,4 +1244,3 @@ const MyProfile = () => {
 };
 
 export default MyProfile;
-// Force update

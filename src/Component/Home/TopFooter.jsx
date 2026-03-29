@@ -1,36 +1,63 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import bannerApi from '../../apis/bannerApi';
 import one from "../../assets/TopFooter/one.webp";
 import two from "../../assets/TopFooter/two.png";
 import three from "../../assets/TopFooter/three.webp";
 import four from "../../assets/TopFooter/four.webp";
 
 const TopFooter = () => {
-  const categories = [
-    { 
-      image: one, 
+  const defaultCategories = [
+    {
+      image: one,
       name: "Engagement Rings",
       aos: "zoom-in",
       delay: "100"
     },
-    { 
-      image: two, 
+    {
+      image: two,
       name: "Wedding Bands",
-      aos: "fade-up", 
+      aos: "fade-up",
       delay: "200"
     },
-    { 
-      image: three, 
+    {
+      image: three,
       name: "Diamond Jewelry",
       aos: "fade-down",
       delay: "300"
     },
-    { 
-      image: four, 
+    {
+      image: four,
       name: "Luxury Collection",
       aos: "zoom-out",
       delay: "400"
     }
   ];
+
+  const [categories, setCategories] = useState(defaultCategories);
+
+  useEffect(() => {
+    bannerApi.getBannersByPage({
+      page: 'home',
+      position: 'sidebar',
+      onSuccess: (response) => {
+        if (response.data?.banners?.length) {
+          const bannerImages = response.data.banners
+            .flatMap(banner => banner.images || []);
+          if (bannerImages.length) {
+            setCategories(prev =>
+              prev.map((cat, idx) => ({
+                ...cat,
+                image: bannerImages[idx]?.url || cat.image,
+              }))
+            );
+          }
+        }
+      },
+      onError: () => {
+        // Keep fallback images on error
+      },
+    });
+  }, []);
 
   const instagramUrl = "https://www.instagram.com/feauag.official/";
 

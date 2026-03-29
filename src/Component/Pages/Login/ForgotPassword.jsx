@@ -9,7 +9,7 @@ import {
   LuEye,
   LuEyeOff,
 } from "react-icons/lu";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import userApi from "../../../apis/user/userApi";
 
 const ForgotPassword = () => {
@@ -237,7 +237,7 @@ const ForgotPassword = () => {
 
   const handleResendOtp = async () => {
     if (countdown > 0) {
-      toast.info(`Please wait ${countdown} seconds before resending`);
+      toast(`Please wait ${countdown} seconds before resending`, { icon: "\u2139\uFE0F" });
       return;
     }
 

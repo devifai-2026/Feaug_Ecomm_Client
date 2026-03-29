@@ -9,11 +9,8 @@ import usePageTracking from "./hooks/usePageTracking";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-// Import Toastify
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 // Import react-hot-toast global
-import { Toaster, ToastBar, toast as hotToast } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import ProductDetails from "./Component/Home/ProductDetails/ProductDetails";
 import Category from "./Component/Category/Category";
 import About from "./Component/Pages/About";
@@ -152,53 +149,28 @@ function App() {
 
   return (
     <>
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={true}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        toastClassName="!rounded-xl !shadow-lg border border-gray-100 !p-4"
-        bodyClassName="!p-0"
-        toastStyle={{
-          background: "rgba(255, 255, 255, 0.95)",
-          backdropFilter: "blur(4px)",
-        }}
-      />
       <Toaster
-        position="top-right"
+        position="top-center"
         toastOptions={{
           duration: 3000,
           style: {
-            background: "#fff",
-            border: "1px solid #e5e7eb",
+            background: '#fff',
+            color: '#1f2937',
+            fontSize: '13px',
+            padding: '10px 16px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+            border: '1px solid #f3f4f6',
+            maxWidth: '360px',
+          },
+          success: {
+            iconTheme: { primary: '#C19A6B', secondary: '#fff' },
+          },
+          error: {
+            iconTheme: { primary: '#ef4444', secondary: '#fff' },
           },
         }}
-      >
-        {(t) => (
-          <ToastBar toast={t}>
-            {({ icon, message }) => (
-              <>
-                {icon}
-                {message}
-                {t.type !== "loading" && (
-                  <button
-                    onClick={() => hotToast.dismiss(t.id)}
-                    style={{ background: "none", border: "none", cursor: "pointer", padding: "0 2px", fontSize: "16px", color: "#9ca3af", lineHeight: 1 }}
-                  >
-                    ✕
-                  </button>
-                )}
-              </>
-            )}
-          </ToastBar>
-        )}
-      </Toaster>
+      />
 
       <Routes>
         <Route path="/" element={<Layout></Layout>}>

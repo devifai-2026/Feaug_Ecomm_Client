@@ -1,304 +1,156 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import fallbackBannerImage from "../../assets/cleopatra/freepik__design-editorial-soft-studio-light-photography-hig__70850.png"
-import productApi from '../../apis/productApi';
-import bannerApi from '../../apis/bannerApi';
+import toast from 'react-hot-toast';
+import flashSaleApi from '../../apis/flashSaleApi';
 import { useCart } from '../Context/CartContext';
 
 const FlashSale = () => {
     const navigate = useNavigate();
     const { addToCart } = useCart();
 
-    const [saleProduct, setSaleProduct] = useState(null);
-    const [flashBanner, setFlashBanner] = useState(null);
+    const [sale, setSale] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [timeLeft, setTimeLeft] = useState({
-        days: 0,
-        hours: 0,
-        mins: 0,
-        secs: 0
-    });
+    const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, mins: 0, secs: 0 });
 
-    // Default end date (1 day from now) — overridden by banner endDate if available
-    const getDefaultEndDate = () => {
-        const endDate = new Date();
-        endDate.setDate(endDate.getDate() + 1);
-        endDate.setHours(23, 59, 59, 999);
-        return endDate;
-    };
-
-    const [saleEndDate, setSaleEndDate] = useState(getDefaultEndDate);
-
-    // Fetch flash sale banner and on-sale products
     useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-
-            let bannerFeaturedProduct = null;
-
-            // Fetch flash sale banner
-            await bannerApi.getBannersByPage({
-                page: "home",
-                bannerType: "slider",
-                setLoading: () => {},
-                onSuccess: (data) => {
-                    if (data.status === "success" && data.data?.banners?.length > 0) {
-                        const banner = data.data.banners[0];
-                        setFlashBanner(banner);
-                        // Use banner's endDate for the countdown if available
-                        if (banner.endDate) {
-                            setSaleEndDate(new Date(banner.endDate));
-                        }
-                        // Capture featured product if admin pinned one
-                        if (banner.featuredProduct) {
-                            bannerFeaturedProduct = banner.featuredProduct;
-                        }
-                    }
-                },
-                onError: () => {},
-            });
-
-            // If admin pinned a specific product, use it directly
-            if (bannerFeaturedProduct) {
-                const p = bannerFeaturedProduct;
-                setSaleProduct({
-                    id: p._id,
-                    name: p.name,
-                    description: p.shortDescription || '',
-                    image: fallbackBannerImage,
-                    price: p.sellingPrice || p.basePrice,
-                    originalPrice: p.basePrice,
-                    discountPercentage: p.discountValue ||
-                        (p.basePrice && p.sellingPrice
-                            ? Math.round(((p.basePrice - p.sellingPrice) / p.basePrice) * 100)
-                            : 0),
-                    stock: p.stockQuantity || 0,
-                    slug: p.slug,
-                });
-                setLoading(false);
-                return;
-            }
-
-            // Otherwise fetch on-sale products automatically
-            await productApi.getOnSaleProducts({
-                params: { limit: 1 },
-                setLoading,
-                onSuccess: (data) => {
-                    if (data.success && data.data?.products?.length > 0) {
-                        const product = data.data.products[0];
-                        setSaleProduct({
-                            id: product._id || product.id,
-                            name: product.name,
-                            description: product.shortDescription || product.description,
-                            image: product.images?.[0]?.url || fallbackBannerImage,
-                            price: product.sellingPrice || product.basePrice,
-                            originalPrice: product.basePrice,
-                            discountPercentage: product.discountValue ||
-                                (product.basePrice && product.sellingPrice
-                                    ? Math.round(((product.basePrice - product.sellingPrice) / product.basePrice) * 100)
-                                    : 0),
-                            stock: product.stock || 0,
-                            slug: product.slug,
-                        });
-                    } else {
-                        // Fallback to featured product if no sale products
-                        productApi.getFeaturedProducts({
-                            params: { limit: 1 },
-                            onSuccess: (featuredData) => {
-                                if (featuredData.success && featuredData.data?.products?.length > 0) {
-                                    const product = featuredData.data.products[0];
-                                    setSaleProduct({
-                                        id: product._id || product.id,
-                                        name: product.name,
-                                        description: product.shortDescription || product.description,
-                                        image: product.images?.[0]?.url || fallbackBannerImage,
-                                        price: product.sellingPrice || product.basePrice,
-                                        originalPrice: product.basePrice,
-                                        discountPercentage: 0,
-                                        stock: product.stock || 0,
-                                        slug: product.slug,
-                                    });
-                                }
-                            },
-                            onError: () => { }
-                        });
-                    }
-                },
-                onError: (err) => {
-                    console.error('Error fetching sale products:', err);
-                },
-            });
-        };
-
-        fetchData();
+        flashSaleApi.getActiveFlashSale({
+            setLoading,
+            onSuccess: (response) => {
+                const data = response.data?.flashSale || response.data;
+                if (data && data._id) {
+                    setSale(data);
+                }
+            },
+            onError: () => {},
+        });
     }, []);
 
     // Countdown timer
     const calculateTimeLeft = useCallback(() => {
-        const now = new Date();
-        const difference = saleEndDate - now;
-
+        if (!sale?.endDate) return { days: 0, hours: 0, mins: 0, secs: 0 };
+        const difference = new Date(sale.endDate) - new Date();
         if (difference > 0) {
             return {
                 days: Math.floor(difference / (1000 * 60 * 60 * 24)),
                 hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
                 mins: Math.floor((difference / 1000 / 60) % 60),
-                secs: Math.floor((difference / 1000) % 60)
+                secs: Math.floor((difference / 1000) % 60),
             };
         }
-
         return { days: 0, hours: 0, mins: 0, secs: 0 };
-    }, [saleEndDate]);
+    }, [sale]);
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            setTimeLeft(calculateTimeLeft());
-        }, 1000);
-
+        if (!sale) return;
+        setTimeLeft(calculateTimeLeft());
+        const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
         return () => clearInterval(timer);
-    }, [calculateTimeLeft]);
+    }, [sale, calculateTimeLeft]);
 
     const handleAddToCart = () => {
-        if (!saleProduct) return;
-
-        if (saleProduct.stock <= 0) {
+        if (!sale) return;
+        if (sale.stock <= 0) {
             toast.error('This product is currently out of stock');
             return;
         }
-
         addToCart({
-            id: saleProduct.id,
-            title: saleProduct.name,
-            price: saleProduct.price,
-            originalPrice: saleProduct.originalPrice,
-            image: saleProduct.image,
-            description: saleProduct.description,
+            id: sale._id,
+            title: sale.productName,
+            price: sale.price,
+            originalPrice: sale.originalPrice,
+            image: sale.backgroundImage,
+            description: sale.description,
         }, 1);
-
         toast.success('Added to cart!');
     };
 
     const handleViewProduct = () => {
-        if (saleProduct) {
-            navigate(`/product/${saleProduct.slug || saleProduct.id}`);
+        if (sale?.productLink) {
+            navigate(sale.productLink);
         }
     };
 
     const handleCopyPromoCode = () => {
-        if (!flashBanner?.promoCode) return;
-        navigator.clipboard.writeText(flashBanner.promoCode).then(() => {
-            toast.success(`Code "${flashBanner.promoCode}" copied!`);
+        if (!sale?.promoCode) return;
+        navigator.clipboard.writeText(sale.promoCode).then(() => {
+            toast.success(`Code "${sale.promoCode}" copied!`);
         }).catch(() => {
-            toast.info(`Use code: ${flashBanner.promoCode}`);
+            toast(`Use code: ${sale.promoCode}`, { icon: "\u2139\uFE0F" });
         });
     };
 
-    const formatNumber = (num) => {
-        return num.toString().padStart(2, '0');
-    };
+    const formatNumber = (num) => num.toString().padStart(2, '0');
 
-    // Use banner image first, then product image, then fallback
-    const backgroundImage = flashBanner?.images?.[0]?.url || saleProduct?.image || fallbackBannerImage;
-    const flashLabel = flashBanner?.title || 'FLASH SALE';
-    const flashDescription = flashBanner?.body || saleProduct?.description || 'Discover our exclusive collection of premium jewelry.';
+    // Don't render anything if no flash sale in DB or still loading
+    if (loading || !sale) return null;
 
     return (
         <div
             className="min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] bg-cover bg-center bg-no-repeat relative max-w-[90%] mx-auto mt-8 overflow-hidden"
-            style={{
-                backgroundImage: `url(${backgroundImage})`
-            }}
+            style={{ backgroundImage: `url(${sale.backgroundImage})` }}
         >
-            {/* Background Image */}
             <div
                 className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                style={{
-                    backgroundImage: `url(${backgroundImage})`
-                }}
+                style={{ backgroundImage: `url(${sale.backgroundImage})` }}
             ></div>
 
-            {/* Overlay for better text visibility */}
             <div className="absolute inset-0 bg-black/10"></div>
 
-            {/* Content positioned: lg right side y-center, sm center x and y */}
-            <div
-                className="group-content absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 lg:top-1/2 lg:left-auto lg:right-6 lg:translate-x-0 max-w-sm md:max-w-lg lg:max-w-xl bg-white p-4 sm:p-5 md:p-6"
-            >
+            <div className="group-content absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 lg:top-1/2 lg:left-auto lg:right-6 lg:translate-x-0 max-w-sm md:max-w-lg lg:max-w-xl bg-white p-4 sm:p-5 md:p-6">
                 <div className='border-2 border-yellow-800 border-opacity-35 p-4 sm:p-5 md:p-6'>
-                    {/* Flash Sale Badge */}
-                    <p
-                        className="text-xs sm:text-sm font-semibold tracking-wider text-center text-yellow-800 text-opacity-35 mb-3 sm:mb-4"
-                    >
-                        {flashLabel}
-                        {saleProduct?.discountPercentage > 0 && (
+                    {/* Sale Title (admin-controlled: "FLASH SALE", "BLACK FRIDAY SALE", etc.) */}
+                    <p className="text-xs sm:text-sm font-semibold tracking-wider text-center text-yellow-800 text-opacity-35 mb-3 sm:mb-4">
+                        {sale.title}
+                        {sale.discountPercentage > 0 && (
                             <span className="ml-2 text-red-500">
-                                {saleProduct.discountPercentage}% OFF
+                                {sale.discountPercentage}% OFF
                             </span>
                         )}
                     </p>
 
-                    {/* Product Title */}
-                    {loading ? (
-                        <div className="h-6 bg-gray-200 rounded w-3/4 mx-auto mb-3 sm:mb-4 animate-pulse"></div>
-                    ) : (
-                        <h1
-                            className="text-base sm:text-lg md:text-xl lg:text-2xl font-light mb-3 sm:mb-4 text-center cursor-pointer hover:text-yellow-800 transition-colors"
-                            onClick={handleViewProduct}
-                        >
-                            {saleProduct?.name || 'Featured Product'}
-                        </h1>
-                    )}
+                    {/* Product Name */}
+                    <h1
+                        className="text-base sm:text-lg md:text-xl lg:text-2xl font-light mb-3 sm:mb-4 text-center cursor-pointer hover:text-yellow-800 transition-colors"
+                        onClick={handleViewProduct}
+                    >
+                        {sale.productName}
+                    </h1>
 
-                    {/* Product Description */}
-                    {loading ? (
-                        <div className="space-y-2 mb-4 sm:mb-6">
-                            <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                            <div className="h-4 bg-gray-200 rounded w-5/6 mx-auto animate-pulse"></div>
-                        </div>
-                    ) : (
-                        <p
-                            className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6 text-center line-clamp-3"
-                        >
-                            {saleProduct?.description || flashDescription}
+                    {/* Description */}
+                    {sale.description && (
+                        <p className="text-gray-500 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6 text-center line-clamp-3">
+                            {sale.description}
                         </p>
                     )}
 
-                    {/* Promo Code Chip */}
-                    {flashBanner?.promoCode && (
+                    {/* Promo Code */}
+                    {sale.promoCode && (
                         <button
                             onClick={handleCopyPromoCode}
                             className="flex items-center justify-center gap-2 mx-auto mb-4 px-4 py-1.5 bg-yellow-50 border border-yellow-300 border-dashed rounded text-xs font-semibold text-yellow-800 hover:bg-yellow-100 transition-colors cursor-pointer group"
                             title="Click to copy"
                         >
-                            <span>Use code: <span className="tracking-widest">{flashBanner.promoCode}</span></span>
-                            {flashBanner.discountPercentage > 0 && (
-                                <span className="text-red-500 font-bold">({flashBanner.discountPercentage}% off)</span>
+                            <span>Use code: <span className="tracking-widest">{sale.promoCode}</span></span>
+                            {sale.discountPercentage > 0 && (
+                                <span className="text-red-500 font-bold">({sale.discountPercentage}% off)</span>
                             )}
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
                         </button>
                     )}
 
-                    {/* Price Display */}
-                    {saleProduct && (
-                        <div className="flex items-center justify-center gap-3 mb-4">
-                            <span className="text-xl sm:text-2xl font-bold text-yellow-800">
-                                ₹{saleProduct.price?.toLocaleString('en-IN')}
+                    {/* Price */}
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                        <span className="text-xl sm:text-2xl font-bold text-yellow-800">
+                            ₹{sale.price?.toLocaleString('en-IN')}
+                        </span>
+                        {sale.originalPrice > sale.price && (
+                            <span className="text-sm text-gray-400 line-through">
+                                ₹{sale.originalPrice?.toLocaleString('en-IN')}
                             </span>
-                            {saleProduct.originalPrice > saleProduct.price && (
-                                <span className="text-sm text-gray-400 line-through">
-                                    ₹{saleProduct.originalPrice?.toLocaleString('en-IN')}
-                                </span>
-                            )}
-                        </div>
-                    )}
+                        )}
+                    </div>
 
                     {/* Timer */}
-                    <div
-                        className="flex items-center justify-center space-x-1 sm:space-x-2 mb-3 sm:mb-4"
-                    >
+                    <div className="flex items-center justify-center space-x-1 sm:space-x-2 mb-3 sm:mb-4">
                         <div className="text-center">
                             <div className="bg-white text-black rounded">
                                 <span className="text-lg sm:text-xl md:text-2xl font-bold">{formatNumber(timeLeft.days)} :</span>
@@ -322,9 +174,7 @@ const FlashSale = () => {
                     </div>
 
                     {/* Timer Labels */}
-                    <div
-                        className="flex items-center justify-center space-x-3 sm:space-x-4 md:space-x-5 mb-4 sm:mb-6"
-                    >
+                    <div className="flex items-center justify-center space-x-3 sm:space-x-4 md:space-x-5 mb-4 sm:mb-6">
                         <span className="text-xs text-gray-500">DAYS</span>
                         <span className="text-xs text-gray-500">HOURS</span>
                         <span className="text-xs text-gray-500">MINS</span>
@@ -335,14 +185,14 @@ const FlashSale = () => {
                     <div className="flex items-center justify-center gap-2">
                         <button
                             onClick={handleAddToCart}
-                            disabled={loading || !saleProduct || saleProduct.stock <= 0}
+                            disabled={sale.stock <= 0}
                             className='flex items-center justify-center bg-yellow-800 bg-opacity-35 px-4 py-2 cursor-pointer hover:bg-opacity-60 transition-all disabled:opacity-50 disabled:cursor-not-allowed'
                         >
                             <span className="text-white font-semibold text-xs sm:text-sm md:text-base">
-                                {saleProduct?.stock <= 0 ? 'OUT OF STOCK' : 'ADD TO CART'}
+                                {sale.stock <= 0 ? 'OUT OF STOCK' : 'ADD TO CART'}
                             </span>
                         </button>
-                        {saleProduct && (
+                        {sale.productLink && (
                             <button
                                 onClick={handleViewProduct}
                                 className='flex items-center justify-center border border-yellow-800 border-opacity-35 px-4 py-2 cursor-pointer hover:bg-yellow-800 hover:bg-opacity-10 transition-all'

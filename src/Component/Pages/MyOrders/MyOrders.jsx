@@ -22,7 +22,7 @@ import {
   FaChevronLeft,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import orderApi from "../../../apis/orderApi";
 import userApi from "../../../apis/user/userApi";
 
@@ -112,9 +112,14 @@ const MyOrders = () => {
                   item.productImage || item.product?.images?.[0]?.url,
                 ),
               })),
-              shippingAddress: order.shippingAddress
-                ? `${order.shippingAddress.street || ""}, ${order.shippingAddress.city || ""}, ${order.shippingAddress.state || ""} - ${order.shippingAddress.postalCode || ""}`
-                : "Address not available",
+              shippingAddress: (() => {
+                const addresses = order.addresses || [];
+                const shipping = addresses.find(a => a.type === 'shipping');
+                if (shipping) {
+                  return [shipping.name, shipping.addressLine1, shipping.landmark, shipping.city, `${shipping.state} - ${shipping.pincode}`, shipping.country].filter(Boolean).join(', ');
+                }
+                return "Address not available";
+              })(),
               paymentMethod: order.paymentMethod || "Online",
               trackingId: order.trackingNumber || null,
               estimatedDelivery: order.estimatedDelivery || null,
@@ -233,38 +238,38 @@ const MyOrders = () => {
   const getStatusIcon = (status) => {
     switch (status) {
       case "delivered":
-        return <FaCheckCircle className="text-green-500" />;
+        return <FaCheckCircle className="text-green-600" />;
       case "shipped":
-        return <FaTruck className="text-blue-500" />;
+        return <FaTruck className="text-blue-600" />;
       case "pending":
       case "confirmed":
       case "processing":
-        return <FaClock className="text-yellow-500" />;
+        return <FaClock className="text-amber-600" />;
       case "cancelled":
       case "returned":
       case "refunded":
         return <FaTimesCircle className="text-red-500" />;
       default:
-        return <FaClock className="text-gray-500" />;
+        return <FaClock className="text-gray-400" />;
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
       case "delivered":
-        return "bg-green-100 text-green-800";
+        return "bg-green-50 text-green-700 border border-green-200";
       case "shipped":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-50 text-blue-700 border border-blue-200";
       case "pending":
       case "confirmed":
       case "processing":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-amber-50 text-amber-700 border border-amber-200";
       case "cancelled":
       case "returned":
       case "refunded":
-        return "bg-red-100 text-red-800";
+        return "bg-red-50 text-red-700 border border-red-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-50 text-gray-600 border border-gray-200";
     }
   };
 
@@ -310,7 +315,7 @@ const MyOrders = () => {
 
   const handleReorder = (order) => {
     // Add items to cart (this would need cart context integration)
-    toast.info("Reorder feature coming soon!");
+    toast("Reorder feature coming soon!", { icon: "\u2139\uFE0F" });
   };
 
   const handleTrackOrder = (orderId) => {
@@ -366,29 +371,25 @@ const MyOrders = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-        <div className="bg-gradient-to-r from-[#C19A6B] to-[#D4B896] text-white py-8 md:py-12">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="animate-pulse">
-              <div className="h-8 bg-white/20 w-48 mb-2 rounded"></div>
-              <div className="h-4 bg-white/20 w-64 rounded"></div>
-            </div>
+      <div className="min-h-screen bg-white">
+        <div className="max-w-6xl mx-auto px-4 py-12">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-100 w-48 mb-2 rounded"></div>
+            <div className="w-16 h-[2px] bg-gray-200 mb-8"></div>
           </div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white rounded-xl p-4 animate-pulse">
-                <div className="h-8 bg-gray-200 w-16 mb-2 rounded"></div>
-                <div className="h-4 bg-gray-200 w-24 rounded"></div>
+              <div key={i} className="border border-gray-100 rounded-lg p-5 animate-pulse">
+                <div className="h-8 bg-gray-100 w-16 mb-2 rounded"></div>
+                <div className="h-4 bg-gray-100 w-24 rounded"></div>
               </div>
             ))}
           </div>
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl p-6 animate-pulse">
-                <div className="h-6 bg-gray-200 w-32 mb-4 rounded"></div>
-                <div className="h-16 bg-gray-100 rounded"></div>
+              <div key={i} className="border border-gray-100 rounded-lg p-6 animate-pulse">
+                <div className="h-5 bg-gray-100 w-32 mb-4 rounded"></div>
+                <div className="h-14 bg-gray-50 rounded"></div>
               </div>
             ))}
           </div>
@@ -398,69 +399,43 @@ const MyOrders = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#C19A6B] to-[#D4B896] text-white py-8 md:py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold mb-2">My Orders</h1>
-              <p className="text-amber-50/90 text-sm md:text-base">
-                Track and manage all your jewelry purchases
-              </p>
-            </div>
-            <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-xl p-3 md:p-4">
-              <FaBoxOpen className="text-xl md:text-2xl text-white" />
-              <div>
-                <p className="font-semibold text-sm md:text-base">
-                  {orders.length} Orders
-                </p>
-                <p className="text-xs md:text-sm text-amber-50/90">
-                  Lifetime purchases
-                </p>
-              </div>
-            </div>
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-4 py-10 md:py-14">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-light tracking-wide text-gray-900 mb-2">
+              My Orders
+            </h1>
+            <div className="w-16 h-[2px] bg-[#C19A6B] mb-2"></div>
+            <p className="text-sm text-gray-400 tracking-wide">
+              Track and manage all your jewelry purchases
+            </p>
           </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
-        {/* Mobile Stats Cards - Horizontal Scroll */}
-        <div className="md:hidden overflow-x-auto pb-4 mb-6 -mx-4 px-4">
-          <div className="flex gap-3 min-w-max">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl shadow-sm p-4 min-w-[150px] border border-gray-100"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="text-xl">{stat.icon}</div>
-                  <div>
-                    <div className="text-xl font-bold text-gray-900">
-                      {stat.value}
-                    </div>
-                    <div className="text-xs text-gray-600">{stat.label}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="flex items-center gap-3 text-sm text-gray-500">
+            <FaBoxOpen className="text-[#C19A6B]" />
+            <span>{orders.length} Orders</span>
+            <span className="text-gray-300">|</span>
+            <span className="text-gray-400">Lifetime purchases</span>
           </div>
         </div>
 
-        {/* Desktop Stats Grid */}
-        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-300 border border-gray-100 hover:border-[#C19A6B]/20"
+              className="bg-white border border-gray-100 rounded-lg p-5 hover:border-[#C19A6B]/30 transition-colors duration-200"
             >
               <div className="flex items-center gap-3">
-                <div className="text-2xl">{stat.icon}</div>
+                <div className="text-lg">{stat.icon}</div>
                 <div>
-                  <div className="text-2xl font-bold text-gray-900">
+                  <div className="text-xl md:text-2xl font-semibold text-gray-900">
                     {stat.value}
                   </div>
-                  <div className="text-sm text-gray-600">{stat.label}</div>
+                  <div className="text-xs text-gray-400 uppercase tracking-wider">
+                    {stat.label}
+                  </div>
                 </div>
               </div>
             </div>
@@ -468,52 +443,38 @@ const MyOrders = () => {
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 mb-6 border border-gray-100">
-          {/* Mobile Search Bar */}
-          <div className="md:hidden mb-4">
+        <div className="border border-gray-100 rounded-lg p-4 md:p-5 mb-6">
+          {/* Search Bar */}
+          <div className="mb-4">
             <div className="relative">
-              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search orders..."
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C19A6B] focus:border-transparent text-sm"
-              />
-            </div>
-          </div>
-
-          {/* Desktop Search Bar */}
-          <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <div className="relative flex-1">
-              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-300 text-sm" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by order number or product name..."
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C19A6B] focus:border-transparent"
+                className="w-full pl-11 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-1 focus:ring-[#C19A6B] focus:border-[#C19A6B] transition-colors"
               />
             </div>
           </div>
 
           {/* Mobile Filter Toggle */}
-          <div className="md:hidden mb-4">
+          <div className="md:hidden mb-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              className="w-full flex items-center justify-between p-3 border border-gray-100 rounded-lg"
             >
               <div className="flex items-center gap-2">
-                <FaFilter className="text-[#C19A6B]" />
-                <span className="font-medium text-gray-700">Filters</span>
+                <FaFilter className="text-[#C19A6B] text-xs" />
+                <span className="text-sm font-medium text-gray-600">Filters</span>
               </div>
               <FaChevronDown
-                className={`transform transition-transform ${showFilters ? "rotate-180" : ""}`}
+                className={`text-gray-400 text-xs transform transition-transform ${showFilters ? "rotate-180" : ""}`}
               />
             </button>
 
             {showFilters && (
-              <div className="mt-3 flex flex-wrap gap-2 animate-slideDown">
+              <div className="mt-3 flex flex-wrap gap-2">
                 {filters.map((filter) => (
                   <button
                     key={filter.key}
@@ -521,10 +482,10 @@ const MyOrders = () => {
                       setActiveFilter(filter.key);
                       setShowFilters(false);
                     }}
-                    className={`px-3 py-1.5 rounded-lg transition-colors duration-200 text-sm ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors duration-200 ${
                       activeFilter === filter.key
                         ? "bg-[#C19A6B] text-white"
-                        : "bg-gray-100 text-gray-700"
+                        : "bg-white text-gray-500 border border-gray-200 hover:border-[#C19A6B]/40 hover:text-[#C19A6B]"
                     }`}
                   >
                     {filter.label} ({filter.count})
@@ -540,10 +501,10 @@ const MyOrders = () => {
               <button
                 key={filter.key}
                 onClick={() => setActiveFilter(filter.key)}
-                className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
+                className={`px-4 py-1.5 rounded-full text-xs font-medium tracking-wide transition-colors duration-200 ${
                   activeFilter === filter.key
-                    ? "bg-[#C19A6B] text-white hover:bg-[#B08D5F]"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900"
+                    ? "bg-[#C19A6B] text-white"
+                    : "bg-white text-gray-500 border border-gray-200 hover:border-[#C19A6B]/40 hover:text-[#C19A6B]"
                 }`}
               >
                 {filter.label} ({filter.count})
@@ -555,12 +516,12 @@ const MyOrders = () => {
         {/* Orders List - Mobile Cards */}
         <div className="md:hidden space-y-4">
           {filteredOrders.length === 0 ? (
-            <div className="bg-white rounded-xl p-8 text-center">
-              <FaBoxOpen className="text-4xl text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <div className="border border-gray-100 rounded-lg p-10 text-center">
+              <FaBoxOpen className="text-3xl text-gray-200 mx-auto mb-4" />
+              <h3 className="text-base font-medium text-gray-900 mb-1">
                 No orders found
               </h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-sm text-gray-400">
                 {orders.length === 0
                   ? "You haven't placed any orders yet."
                   : "No orders match your current filters or search."}
@@ -568,7 +529,7 @@ const MyOrders = () => {
               {orders.length === 0 && (
                 <button
                   onClick={() => navigate("/categories")}
-                  className="mt-4 px-6 py-2 bg-[#C19A6B] text-white rounded-lg"
+                  className="mt-5 px-6 py-2 bg-[#C19A6B] text-white text-sm rounded-lg hover:bg-[#A9854F] transition-colors"
                 >
                   Start Shopping
                 </button>
@@ -578,35 +539,35 @@ const MyOrders = () => {
             filteredOrders.map((order) => (
               <div
                 key={order.id}
-                className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100"
+                className="bg-white border border-gray-100 rounded-lg overflow-hidden"
               >
                 {/* Order Header */}
                 <div
-                  className="p-4 border-b border-gray-100 cursor-pointer"
+                  className="p-4 cursor-pointer"
                   onClick={() => toggleOrderExpand(order.id)}
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="font-bold text-gray-900 text-sm">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="font-medium text-gray-900 text-sm tracking-wide">
                           {order.orderNo}
                         </span>
                         <span
-                          className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${getStatusColor(order.status)}`}
                         >
                           {getStatusText(order.status)}
                         </span>
                       </div>
-                      <div className="text-xs text-gray-600 flex items-center gap-2">
-                        <FaCalendarAlt className="text-gray-400" />
+                      <div className="text-xs text-gray-400 flex items-center gap-1.5">
+                        <FaCalendarAlt className="text-gray-300" />
                         {formatDate(order.date)}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-gray-900">
+                      <div className="font-semibold text-gray-900 text-sm">
                         {formatPrice(order.amount)}
                       </div>
-                      <div className="text-xs text-gray-600">
+                      <div className="text-[10px] text-gray-400 uppercase tracking-wider">
                         {order.paymentMethod}
                       </div>
                     </div>
@@ -614,8 +575,8 @@ const MyOrders = () => {
 
                   {/* First Item Preview */}
                   {order.items.length > 0 && (
-                    <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                    <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-50">
+                      <div className="w-11 h-11 bg-gray-50 rounded overflow-hidden flex-shrink-0">
                         <img
                           src={order.items[0].image}
                           alt={order.items[0].name}
@@ -626,20 +587,20 @@ const MyOrders = () => {
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm text-gray-800 truncate">
                           {order.items[0].name}
                         </p>
-                        <p className="text-xs text-gray-600">
+                        <p className="text-xs text-gray-400">
                           Qty: {order.items[0].quantity}
                         </p>
                         {order.items.length > 1 && (
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-[#C19A6B] mt-0.5">
                             + {order.items.length - 1} more item(s)
                           </p>
                         )}
                       </div>
                       <FaChevronRight
-                        className={`transform transition-transform ${expandedOrder === order.id ? "rotate-90" : ""}`}
+                        className={`text-gray-300 text-xs transform transition-transform ${expandedOrder === order.id ? "rotate-90" : ""}`}
                       />
                     </div>
                   )}
@@ -647,16 +608,16 @@ const MyOrders = () => {
 
                 {/* Expanded Details */}
                 {expandedOrder === order.id && (
-                  <div className="p-4 border-t border-gray-100 animate-slideDown">
+                  <div className="px-4 pb-4 border-t border-gray-50">
                     {/* Order Items */}
-                    <div className="mb-4">
-                      <h4 className="font-medium text-gray-900 mb-2 text-sm">
+                    <div className="mb-4 pt-4">
+                      <h4 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">
                         Order Items
                       </h4>
                       <div className="space-y-3">
                         {order.items.map((item, index) => (
                           <div key={index} className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                            <div className="w-11 h-11 bg-gray-50 rounded overflow-hidden flex-shrink-0">
                               <img
                                 src={item.image}
                                 alt={item.name}
@@ -668,11 +629,11 @@ const MyOrders = () => {
                               />
                             </div>
                             <div className="flex-1">
-                              <p className="text-sm text-gray-900">
+                              <p className="text-sm text-gray-800">
                                 {item.name}
                               </p>
-                              <p className="text-xs text-gray-600">
-                                Qty: {item.quantity} • {formatPrice(item.price)}
+                              <p className="text-xs text-gray-400">
+                                Qty: {item.quantity} &middot; {formatPrice(item.price)}
                               </p>
                             </div>
                           </div>
@@ -683,12 +644,12 @@ const MyOrders = () => {
                     {/* Order Info */}
                     <div className="space-y-3 mb-4">
                       <div className="flex items-start gap-2">
-                        <FaMapMarkerAlt className="text-gray-400 text-sm mt-0.5" />
+                        <FaMapMarkerAlt className="text-[#C19A6B] text-xs mt-0.5" />
                         <div className="flex-1">
-                          <p className="text-xs text-gray-600">
+                          <p className="text-[10px] text-gray-400 uppercase tracking-wider">
                             Shipping Address
                           </p>
-                          <p className="text-sm text-gray-900">
+                          <p className="text-sm text-gray-700">
                             {order.shippingAddress}
                           </p>
                         </div>
@@ -696,10 +657,10 @@ const MyOrders = () => {
 
                       {order.trackingId && (
                         <div className="flex items-center gap-2">
-                          <FaTruck className="text-gray-400 text-sm" />
+                          <FaTruck className="text-[#C19A6B] text-xs" />
                           <div>
-                            <p className="text-xs text-gray-600">Tracking ID</p>
-                            <p className="text-sm text-gray-900">
+                            <p className="text-[10px] text-gray-400 uppercase tracking-wider">Tracking ID</p>
+                            <p className="text-sm text-gray-700">
                               {order.trackingId}
                             </p>
                           </div>
@@ -711,9 +672,9 @@ const MyOrders = () => {
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={() => handleViewDetails(order)}
-                        className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm bg-[#C19A6B] text-white rounded-lg font-medium"
+                        className="flex items-center justify-center gap-2 px-3 py-2.5 text-xs font-medium tracking-wide bg-[#C19A6B] text-white rounded-lg hover:bg-[#A9854F] transition-colors"
                       >
-                        <FaEye className="text-xs" />
+                        <FaEye className="text-[10px]" />
                         View Details
                       </button>
 
@@ -721,18 +682,18 @@ const MyOrders = () => {
                         <>
                           {/* <button
                             onClick={() => handle(order)}
-                            className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm bg-blue-50 text-blue-600 rounded-lg font-medium border border-blue-100"
+                            className="flex items-center justify-center gap-2 px-3 py-2.5 text-xs bg-blue-50 text-blue-600 rounded-lg font-medium border border-blue-100"
                           >
-                            <FaRedo className="text-xs" />
+                            <FaRedo className="text-[10px]" />
                             Reorder
                           </button> */}
                           <button
                             onClick={() =>
                               handleWriteReview(order.items[0]?.id)
                             }
-                            className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm bg-purple-50 text-purple-600 rounded-lg font-medium border border-purple-100"
+                            className="flex items-center justify-center gap-2 px-3 py-2.5 text-xs font-medium text-[#C19A6B] rounded-lg border border-[#C19A6B]/30 hover:bg-[#C19A6B]/5 transition-colors"
                           >
-                            <FaStar className="text-xs" />
+                            <FaStar className="text-[10px]" />
                             Review
                           </button>
                         </>
@@ -741,9 +702,9 @@ const MyOrders = () => {
                       {order.status === "shipped" && (
                         <button
                           onClick={() => handleTrackOrder(order.id)}
-                          className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm bg-green-50 text-green-600 rounded-lg font-medium border border-green-100 col-span-2"
+                          className="flex items-center justify-center gap-2 px-3 py-2.5 text-xs font-medium text-green-700 rounded-lg border border-green-200 hover:bg-green-50 transition-colors col-span-2"
                         >
-                          <FaTruck className="text-xs" />
+                          <FaTruck className="text-[10px]" />
                           Track Order
                         </button>
                       )}
@@ -753,9 +714,9 @@ const MyOrders = () => {
                       ) && (
                         <button
                           onClick={() => handleCancelOrder(order.id)}
-                          className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm bg-red-50 text-red-600 rounded-lg font-medium border border-red-100"
+                          className="flex items-center justify-center gap-2 px-3 py-2.5 text-xs font-medium text-red-600 rounded-lg border border-red-200 hover:bg-red-50 transition-colors"
                         >
-                          <FaTimesCircle className="text-xs" />
+                          <FaTimesCircle className="text-[10px]" />
                           Cancel
                         </button>
                       )}
@@ -768,14 +729,14 @@ const MyOrders = () => {
         </div>
 
         {/* Desktop Orders Table */}
-        <div className="hidden md:block bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+        <div className="hidden md:block border border-gray-100 rounded-lg overflow-hidden">
           {filteredOrders.length === 0 ? (
-            <div className="p-12 text-center">
-              <FaBoxOpen className="text-4xl text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <div className="p-14 text-center">
+              <FaBoxOpen className="text-3xl text-gray-200 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-1">
                 No orders found
               </h3>
-              <p className="text-gray-600">
+              <p className="text-sm text-gray-400">
                 {orders.length === 0
                   ? "You haven't placed any orders yet."
                   : "No orders match your current filters or search."}
@@ -783,7 +744,7 @@ const MyOrders = () => {
               {orders.length === 0 && (
                 <button
                   onClick={() => navigate("/categories")}
-                  className="mt-4 px-6 py-2 bg-[#C19A6B] text-white rounded-lg"
+                  className="mt-5 px-6 py-2 bg-[#C19A6B] text-white text-sm rounded-lg hover:bg-[#A9854F] transition-colors"
                 >
                   Start Shopping
                 </button>
@@ -793,20 +754,20 @@ const MyOrders = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-50">
-                    <th className="text-left p-4 font-semibold text-gray-900">
+                  <tr className="border-b border-gray-100">
+                    <th className="text-left p-4 text-[10px] font-medium text-gray-400 uppercase tracking-wider">
                       Order Details
                     </th>
-                    <th className="text-left p-4 font-semibold text-gray-900">
+                    <th className="text-left p-4 text-[10px] font-medium text-gray-400 uppercase tracking-wider">
                       Date
                     </th>
-                    <th className="text-left p-4 font-semibold text-gray-900">
+                    <th className="text-left p-4 text-[10px] font-medium text-gray-400 uppercase tracking-wider">
                       Amount
                     </th>
-                    <th className="text-left p-4 font-semibold text-gray-900">
+                    <th className="text-left p-4 text-[10px] font-medium text-gray-400 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="text-left p-4 font-semibold text-gray-900">
+                    <th className="text-left p-4 text-[10px] font-medium text-gray-400 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -815,12 +776,12 @@ const MyOrders = () => {
                   {filteredOrders.map((order) => (
                     <tr
                       key={order.id}
-                      className="border-t border-gray-100 hover:bg-gray-50 transition-colors duration-150"
+                      className="border-t border-gray-50 hover:bg-[#C19A6B]/[0.02] transition-colors duration-150"
                     >
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           <div className="flex-shrink-0">
-                            <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+                            <div className="w-14 h-14 bg-gray-50 rounded overflow-hidden">
                               {order.items.length > 0 && (
                                 <img
                                   src={order.items[0].image}
@@ -835,33 +796,33 @@ const MyOrders = () => {
                             </div>
                           </div>
                           <div>
-                            <div className="font-medium text-gray-900">
+                            <div className="font-medium text-gray-900 text-sm">
                               {order.orderNo}
                             </div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-xs text-gray-400">
                               {order.items.length} item
                               {order.items.length > 1 ? "s" : ""}
                             </div>
                             {order.items.length > 0 && (
-                              <div className="text-xs text-gray-500 mt-1">
+                              <div className="text-xs text-gray-500 mt-0.5">
                                 {order.items[0].name}
                               </div>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td className="p-4 text-gray-700">
-                        <div className="flex items-center gap-2">
-                          <FaCalendarAlt className="text-gray-400 text-sm" />
+                      <td className="p-4">
+                        <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                          <FaCalendarAlt className="text-gray-300 text-xs" />
                           {formatDate(order.date)}
                         </div>
                       </td>
                       <td className="p-4">
-                        <div className="font-bold text-gray-900">
+                        <div className="font-semibold text-gray-900 text-sm">
                           {formatPrice(order.amount)}
                         </div>
-                        <div className="text-sm text-gray-600 flex items-center gap-1">
-                          <FaCreditCard className="text-gray-400" />
+                        <div className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                          <FaCreditCard className="text-gray-300" />
                           {order.paymentMethod}
                         </div>
                       </td>
@@ -869,24 +830,24 @@ const MyOrders = () => {
                         <div className="flex items-center gap-2">
                           {getStatusIcon(order.status)}
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium ${getStatusColor(order.status)}`}
                           >
                             {getStatusText(order.status)}
                           </span>
                         </div>
                         {order.trackingId && (
-                          <div className="text-xs text-gray-500 mt-1">
+                          <div className="text-[10px] text-gray-400 mt-1">
                             Track ID: {order.trackingId}
                           </div>
                         )}
                       </td>
                       <td className="p-4">
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-1.5">
                           <button
                             onClick={() => handleViewDetails(order)}
-                            className="flex items-center gap-2 px-3 py-1 text-sm text-[#C19A6B] hover:text-[#B08D5F] hover:bg-[#C19A6B]/10 rounded transition-colors duration-200 font-medium"
+                            className="flex items-center gap-1.5 px-3 py-1 text-xs text-[#C19A6B] hover:bg-[#C19A6B]/5 rounded transition-colors duration-200 font-medium"
                           >
-                            <FaEye className="text-xs" />
+                            <FaEye className="text-[10px]" />
                             View Details
                           </button>
 
@@ -894,18 +855,18 @@ const MyOrders = () => {
                             <>
                               {/* <button
                                 onClick={() => handleReorder(order)}
-                                className="flex items-center gap-2 px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors duration-200"
+                                className="flex items-center gap-1.5 px-3 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors duration-200"
                               >
-                                <FaRedo className="text-xs" />
+                                <FaRedo className="text-[10px]" />
                                 Reorder
                               </button> */}
                               <button
                                 onClick={() =>
                                   handleWriteReview(order.items[0]?.id)
                                 }
-                                className="flex items-center gap-2 px-3 py-1 text-sm text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded transition-colors duration-200"
+                                className="flex items-center gap-1.5 px-3 py-1 text-xs text-purple-600 hover:bg-purple-50 rounded transition-colors duration-200"
                               >
-                                <FaStar className="text-xs" />
+                                <FaStar className="text-[10px]" />
                                 Write Review
                               </button>
                             </>
@@ -914,9 +875,9 @@ const MyOrders = () => {
                           {order.status === "shipped" && (
                             <button
                               onClick={() => handleTrackOrder(order.id)}
-                              className="flex items-center gap-2 px-3 py-1 text-sm text-green-600 hover:text-green-700 hover:bg-green-50 rounded transition-colors duration-200"
+                              className="flex items-center gap-1.5 px-3 py-1 text-xs text-green-600 hover:bg-green-50 rounded transition-colors duration-200"
                             >
-                              <FaTruck className="text-xs" />
+                              <FaTruck className="text-[10px]" />
                               Track Order
                             </button>
                           )}
@@ -926,9 +887,9 @@ const MyOrders = () => {
                           ) && (
                             <button
                               onClick={() => handleCancelOrder(order.id)}
-                              className="flex items-center gap-2 px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors duration-200"
+                              className="flex items-center gap-1.5 px-3 py-1 text-xs text-red-500 hover:bg-red-50 rounded transition-colors duration-200"
                             >
-                              <FaTimesCircle className="text-xs" />
+                              <FaTimesCircle className="text-[10px]" />
                               Cancel Order
                             </button>
                           )}
@@ -944,36 +905,32 @@ const MyOrders = () => {
 
         {/* Pagination Controls */}
         {pagination.totalPages > 1 && (
-          <div className="flex justify-center items-center mt-8 gap-2 pb-6">
+          <div className="flex justify-center items-center mt-8 gap-1.5 pb-6">
             <button
               onClick={() => handlePageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
               className={`p-2 rounded-lg border ${
                 pagination.page === 1
-                  ? "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-[#C19A6B]"
+                  ? "bg-white text-gray-300 border-gray-100 cursor-not-allowed"
+                  : "bg-white text-gray-500 border-gray-200 hover:border-[#C19A6B]/40 hover:text-[#C19A6B]"
               } transition-colors duration-200`}
             >
-              <FaChevronLeft />
+              <FaChevronLeft className="text-xs" />
             </button>
 
-            <div className="flex items-center gap-2 overflow-x-auto max-w-[200px] md:max-w-none px-2 scrollbar-hide">
+            <div className="flex items-center gap-1.5 overflow-x-auto max-w-[200px] md:max-w-none px-1 scrollbar-hide">
               {Array.from(
                 { length: pagination.totalPages },
                 (_, i) => i + 1,
               ).map((pageNum) => {
-                // Logic to show limited page numbers if too many pages
-                // Simple version: show all if <= 5, otherwise logic needed.
-                // For now, let's just show all or maybe a simple slice if needed.
-                // Given "limit 10", 50 orders is only 5 pages.
                 return (
                   <button
                     key={pageNum}
                     onClick={() => handlePageChange(pageNum)}
-                    className={`min-w-[40px] h-10 rounded-lg border font-medium transition-colors duration-200 flex items-center justify-center ${
+                    className={`min-w-[36px] h-9 rounded-lg text-xs font-medium transition-colors duration-200 flex items-center justify-center ${
                       pagination.page === pageNum
-                        ? "bg-[#C19A6B] text-white border-[#C19A6B]"
-                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-[#C19A6B]"
+                        ? "bg-[#C19A6B] text-white"
+                        : "bg-white text-gray-500 border border-gray-200 hover:border-[#C19A6B]/40 hover:text-[#C19A6B]"
                     }`}
                   >
                     {pageNum}
@@ -987,48 +944,32 @@ const MyOrders = () => {
               disabled={pagination.page === pagination.totalPages}
               className={`p-2 rounded-lg border ${
                 pagination.page === pagination.totalPages
-                  ? "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-[#C19A6B]"
+                  ? "bg-white text-gray-300 border-gray-100 cursor-not-allowed"
+                  : "bg-white text-gray-500 border-gray-200 hover:border-[#C19A6B]/40 hover:text-[#C19A6B]"
               } transition-colors duration-200`}
             >
-              <FaChevronRight />
+              <FaChevronRight className="text-xs" />
             </button>
           </div>
         )}
 
         {/* Mobile Help Section */}
         <div className="md:hidden mt-8">
-          <div className="bg-gradient-to-r from-[#C19A6B] to-[#D4B896] text-white rounded-xl p-4">
-            <h3 className="font-bold mb-2">Need Help?</h3>
-            <p className="text-sm text-white/90 mb-3">
+          <div className="border border-[#C19A6B]/20 rounded-lg p-5 text-center">
+            <h3 className="font-medium text-gray-900 text-sm mb-1">Need Help?</h3>
+            <p className="text-xs text-gray-400 mb-4">
               Having issues with your order? We're here to help!
             </p>
             <button
               onClick={handleCallSupport}
-              className="flex items-center justify-center gap-2 w-full bg-white text-[#C19A6B] py-2.5 rounded-lg font-medium"
+              className="flex items-center justify-center gap-2 w-full bg-[#C19A6B] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#A9854F] transition-colors"
             >
-              <FaPhone />
+              <FaPhone className="text-xs" />
               Contact Support
             </button>
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-slideDown {
-          animation: slideDown 0.3s ease-out;
-        }
-      `}</style>
     </div>
   );
 };

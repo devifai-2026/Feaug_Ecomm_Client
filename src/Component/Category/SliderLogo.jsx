@@ -1,14 +1,28 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import Marquee from 'react-fast-marquee';
-import one from "../../assets/SliderLogo/one.jpg"
-import two from "../../assets/SliderLogo/two.jpg"
-import three from "../../assets/SliderLogo/three.jpg"
-import four from "../../assets/SliderLogo/four.jpg"
-import five from "../../assets/SliderLogo/five.jpg"
+import bannerApi from '../../apis/bannerApi';
 
 const SliderLogo = () => {
-    const logos = [one, two, three, four, five];
-    
+    const [logos, setLogos] = useState([]);
+
+    useEffect(() => {
+        bannerApi.getBannersByPage({
+            page: 'category',
+            bannerType: 'slider',
+            onSuccess: (data) => {
+                if (data.status === 'success' && data.data?.banners?.length > 0) {
+                    const images = data.data.banners
+                        .flatMap(b => (b.images || []).map(img => img.url))
+                        .filter(Boolean);
+                    if (images.length) setLogos(images);
+                }
+            },
+            onError: () => {},
+        });
+    }, []);
+
+    if (logos.length === 0) return null;
+
     return (
         <div className='bg-gray-50 py-6 md:py-8 overflow-hidden mt-16'>
             <Marquee
@@ -19,11 +33,11 @@ const SliderLogo = () => {
                 className='flex items-center'
             >
                 {logos.map((logo, index) => (
-                    <img 
+                    <img
                         key={index}
-                        src={logo} 
-                        alt={`Logo ${index + 1}`} 
-                        className='h-10 md:h-14 lg:h-20 w-auto object-contain mx-8 md:mx-12' 
+                        src={logo}
+                        alt={`Brand ${index + 1}`}
+                        className='h-10 md:h-14 lg:h-20 w-auto object-contain mx-8 md:mx-12'
                     />
                 ))}
             </Marquee>

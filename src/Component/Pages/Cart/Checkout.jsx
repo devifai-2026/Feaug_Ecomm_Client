@@ -13,7 +13,7 @@ import {
   BsPhone,
   BsX,
 } from "react-icons/bs";
-import { toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { ProgressSteps } from "./ProgressSteps";
 import ShippingComponent from "./ShippingComponent";
 import BillingComponent from "./BillingComponent";
@@ -544,112 +544,9 @@ const Checkout = () => {
   };
 
   const showSuccessToast = (orderId) => {
-    toast.custom(
-      (t) => (
-        <div
-          className={`transform transition-all duration-300 ${t.visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
-            }`}
-        >
-          <div className="relative bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-2xl shadow-2xl overflow-hidden border border-green-200 w-96">
-            <div
-              className="h-1 animate-pulse"
-              style={{
-                background: `linear-gradient(to right, ${primaryColor}, ${primaryDark})`,
-              }}
-            ></div>
-
-            <button
-              onClick={() => toast.dismiss(t.id)}
-              className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm hover:bg-white hover:scale-110 transition-all duration-200 shadow-md border border-green-200 hover:border-green-300"
-            >
-              <BsX className="text-gray-600 hover:text-red-500 text-xl" />
-            </button>
-
-            <div className="p-6 text-center pt-8">
-              <div className="mb-4 flex justify-center">
-                <div
-                  className="relative w-20 h-20 rounded-full flex items-center justify-center shadow-lg animate-bounce"
-                  style={{
-                    background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryDark})`,
-                  }}
-                >
-                  <BsCheckCircle className="text-5xl text-white" />
-                </div>
-              </div>
-
-              <h3
-                className="font-bold text-2xl mb-2"
-                style={{
-                  background: `linear-gradient(to right, ${primaryColor}, ${primaryDark})`,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
-              >
-                Order Placed Successfully!
-              </h3>
-
-              {orderId && (
-                <p className="text-gray-600 mb-2">Order ID: {orderId}</p>
-              )}
-
-              <div className="h-px bg-gradient-to-r from-transparent via-green-300 to-transparent mb-4"></div>
-
-              <div className="space-y-2">
-                {paymentInfo.method === "cod" && (
-                  <div
-                    className="border rounded-lg p-3"
-                    style={{
-                      backgroundColor: primaryLight + "20",
-                      borderColor: primaryColor,
-                    }}
-                  >
-                    <p
-                      className="text-sm font-semibold"
-                      style={{ color: primaryDark }}
-                    >
-                      Keep cash ready for delivery
-                    </p>
-                  </div>
-                )}
-
-                {paymentInfo.method === "online" && (
-                  <div
-                    className="border rounded-lg p-3"
-                    style={{
-                      backgroundColor: primaryLight + "20",
-                      borderColor: primaryColor,
-                    }}
-                  >
-                    <p
-                      className="text-sm font-semibold"
-                      style={{ color: primaryDark }}
-                    >
-                      Payment confirmed successfully!
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-green-200">
-                <button
-                  onClick={() => {
-                    toast.dismiss(t.id);
-                    navigate("/myOrders");
-                  }}
-                  className="px-6 py-2 rounded-lg text-white font-medium"
-                  style={{ backgroundColor: primaryColor }}
-                >
-                  View My Orders
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      ),
-      {
-        duration: 8000,
-        position: "top-center",
-      },
+    toast.success(
+      orderId ? `Order placed successfully! Order ID: ${orderId}` : 'Order placed successfully!',
+      { duration: 5000 }
     );
   };
 

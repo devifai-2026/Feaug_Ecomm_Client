@@ -1,14 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import one from "../../assets/ExploreProducts/one.webp"
-import two from "../../assets/ExploreProducts/two.webp"
-import three from "../../assets/ExploreProducts/three.webp"
-import four from "../../assets/ExploreProducts/four.jpeg"
-import five from "../../assets/ExploreProducts/five.webp"
-
-// Default fallback images
-const fallbackImages = [one, two, three, four, five];
+import bannerApi from '../../apis/bannerApi';
 
 const ExploreProducts = () => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -17,17 +10,32 @@ const ExploreProducts = () => {
   const autoScrollRef = useRef(null);
   const navigate = useNavigate();
 
-  // Default categories as fallback
-  const defaultCategories = [
-    { label: 'BRACELETS', image: five, slug: 'bracelets' },
-    { label: 'EARRINGS', image: two, slug: 'earrings' },
-    { label: 'RINGS', subtitle: 'All-time favorite', image: three, slug: 'rings' },
-    { label: 'NECKLACES', image: four, slug: 'necklaces' },
-    { label: 'WATCHES', image: one, slug: 'watches' },
-  ];
+  const [products, setProducts] = useState([]);
 
-  // Use static categories directly
-  const products = defaultCategories;
+  // Fetch banner images for middle position — no fallback
+  useEffect(() => {
+    bannerApi.getBannersByPage({
+      page: 'home',
+      position: 'middle',
+      onSuccess: (response) => {
+        if (response.data?.banners?.length) {
+          const items = [];
+          response.data.banners.forEach(banner => {
+            (banner.images || []).forEach(img => {
+              items.push({
+                label: img.title || img.alt || banner.title || '',
+                subtitle: img.subtitle || img.description || '',
+                image: img.url,
+                slug: (img.title || img.alt || banner.title || '').toLowerCase().replace(/\s+/g, '-'),
+              });
+            });
+          });
+          if (items.length) setProducts(items);
+        }
+      },
+      onError: () => {},
+    });
+  }, []);
 
   // Handle card click navigation
   const handleCardClick = (category) => {
@@ -115,6 +123,9 @@ const ExploreProducts = () => {
 
 
 
+  // Don't render if no banners configured by admin
+  if (products.length === 0) return null;
+
   return (
     <div className='max-w-[90%] mx-auto mt-8 sm:mt-12 md:mt-16'>
       <h2
@@ -148,7 +159,7 @@ const ExploreProducts = () => {
                   src={product.image}
                   alt={product.label}
                   className='w-full h-full object-cover'
-                  onError={(e) => { e.target.src = fallbackImages[index % fallbackImages.length]; }}
+                  onError={(e) => { e.target.style.display = 'none'; }}
                 />
 
                 {/* Gradient Overlay */}
@@ -254,7 +265,7 @@ const ExploreProducts = () => {
                     transform: hoveredIndex === index ? 'scale(1.05)' : 'scale(1)',
                     transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                   }}
-                  onError={(e) => { e.target.src = fallbackImages[index % fallbackImages.length]; }}
+                  onError={(e) => { e.target.style.display = 'none'; }}
                 />
               </div>
             </div>
@@ -276,7 +287,7 @@ const ExploreProducts = () => {
                     transform: hoveredIndex === index ? 'scale(1.05)' : 'scale(1)',
                     transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                   }}
-                  onError={(e) => { e.target.src = fallbackImages[index % fallbackImages.length]; }}
+                  onError={(e) => { e.target.style.display = 'none'; }}
                 />
               </div>
             </div>
@@ -298,7 +309,7 @@ const ExploreProducts = () => {
                     transform: hoveredIndex === index ? 'scale(1.05)' : 'scale(1)',
                     transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                   }}
-                  onError={(e) => { e.target.src = fallbackImages[index % fallbackImages.length]; }}
+                  onError={(e) => { e.target.style.display = 'none'; }}
                 />
               </div>
             </div>

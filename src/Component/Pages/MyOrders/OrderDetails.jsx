@@ -15,7 +15,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import InvoicePDF from "./InvoicePDF";
 import orderApi from "../../../apis/orderApi";
 import userApi from "../../../apis/user/userApi";
@@ -100,8 +100,35 @@ const OrderDetails = () => {
                 item.productImage || item.product?.images?.[0]?.url,
               ),
             })),
-            shippingAddress: orderData.shippingAddress || {},
-            billingAddress: orderData.billingAddress || {},
+            shippingAddress: (() => {
+              // Backend returns addresses as array via virtual populate
+              const addresses = orderData.addresses || [];
+              const shipping = addresses.find(a => a.type === 'shipping') || {};
+              return {
+                street: [shipping.addressLine1, shipping.addressLine2, shipping.landmark].filter(Boolean).join(', '),
+                city: shipping.city,
+                state: shipping.state,
+                postalCode: shipping.pincode,
+                country: shipping.country,
+                phone: shipping.phone,
+                name: shipping.name,
+                email: shipping.email,
+              };
+            })(),
+            billingAddress: (() => {
+              const addresses = orderData.addresses || [];
+              const billing = addresses.find(a => a.type === 'billing') || {};
+              return {
+                street: [billing.addressLine1, billing.addressLine2, billing.landmark].filter(Boolean).join(', '),
+                city: billing.city,
+                state: billing.state,
+                postalCode: billing.pincode,
+                country: billing.country,
+                phone: billing.phone,
+                name: billing.name,
+                email: billing.email,
+              };
+            })(),
             trackingId:
               orderData.trackingNumber || orderData.shiprocketAWB || null,
             shiprocketAWB: orderData.shiprocketAWB || null,
@@ -186,6 +213,7 @@ const OrderDetails = () => {
     if (!address || typeof address === "string")
       return address || "Address not available";
     const parts = [
+      address.name,
       address.street,
       address.city,
       address.state,
@@ -196,7 +224,7 @@ const OrderDetails = () => {
   };
 
   const handleReorder = () => {
-    toast.info("Reorder feature coming soon!");
+    toast("Reorder feature coming soon!", { icon: "\u2139\uFE0F" });
   };
 
   const handleWriteReview = (productId) => {

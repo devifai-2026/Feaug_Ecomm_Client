@@ -11,7 +11,7 @@ import {
 } from "react-icons/bs";
 import { INDIAN_STATES, validateShippingField } from "../../utils/Validation";
 import userApi from "../../../apis/user/userApi";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 const InputField = ({

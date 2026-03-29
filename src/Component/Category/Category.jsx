@@ -8,16 +8,8 @@ import {
   FaFilter,
   FaHeart,
 } from "react-icons/fa";
-import topBanner from "../../assets/Categories/topBanner.png";
-import bottomBanner from "../../assets/Categories/bottomBanner.png";
+import bannerApi from "../../apis/bannerApi";
 import one from "../../assets/Categories/one.webp";
-import two from "../../assets/Categories/two.png";
-import three from "../../assets/Categories/three.webp";
-import four from "../../assets/Categories/four.webp";
-import five from "../../assets/Categories/five.webp";
-import six from "../../assets/Categories/six.webp";
-import seven from "../../assets/Categories/seven.jpeg";
-import eight from "../../assets/Categories/eight.webp";
 
 import { IoMdClose } from "react-icons/io";
 import { MdOutlineCurrencyRupee } from "react-icons/md";
@@ -48,6 +40,8 @@ const Category = () => {
   // API state for categories
   const [categories, setCategories] = useState(["All Jewelry"]);
   const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
+  const [topBannerData, setTopBannerData] = useState(null);
+  const [bottomBannerData, setBottomBannerData] = useState(null);
 
   // activeCategoryFilter is the source of truth for filtering.
   // Initialized synchronously from the URL so filtering works immediately
@@ -140,41 +134,7 @@ const Category = () => {
 
     if (isInWishlist(product._id || product.id)) {
       removeFromWishlist(product._id || product.id);
-      toast.custom(
-        (t) => (
-          <div className="animate-slideInRight max-w-md w-full bg-white shadow-lg flex border border-gray-200">
-            <div className="flex-1 w-0 p-4">
-              <div className="flex items-start">
-                <div className="flex-shrink-0 pt-0.5">
-                  <BsHeartFill className="h-6 w-6 text-red-500" />
-                </div>
-                <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    Removed from wishlist
-                  </p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {product.name} has been removed
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex border-l border-gray-200">
-              <button
-                onClick={() => {
-                  toast.dismiss(t.id);
-                  navigate("/wishlist");
-                }}
-                className="w-full border border-transparent p-4 flex items-center justify-center text-sm font-medium text-pink-600 hover:text-pink-500 transition-colors"
-              >
-                View Wishlist
-              </button>
-            </div>
-          </div>
-        ),
-        {
-          duration: 4000,
-        },
-      );
+      toast.success('Removed from wishlist');
     } else {
       addToWishlist({
         id: product._id || product.id,
@@ -187,24 +147,7 @@ const Category = () => {
           product.stockStatus !== "out_of_stock" && product.stockQuantity !== 0,
       });
 
-      toast.success(
-        <div>
-          <p className="font-semibold">Added to wishlist!</p>
-          <p className="text-sm">{product.name}</p>
-        </div>,
-        {
-          icon: "❤️",
-          duration: 3000,
-          style: {
-            background: "#fff5f5",
-            border: "1px solid #fca5a5",
-          },
-          iconTheme: {
-            primary: "#ef4444",
-            secondary: "#fff",
-          },
-        },
-      );
+      toast.success('Added to wishlist');
     }
   };
 
@@ -284,6 +227,44 @@ const Category = () => {
 
   // Fetch all products on mount
   useEffect(() => {
+    // Fetch category page banners (top and bottom)
+    bannerApi.getBannersByPage({
+      page: "category",
+      position: "top",
+      onSuccess: (data) => {
+        if (data.status === "success" && data.data?.banners?.length > 0) {
+          const b = data.data.banners[0];
+          setTopBannerData({
+            image: b.images?.[0]?.url,
+            label: b.subheader || "",
+            title: b.title || "",
+            description: b.body || "",
+            buttonText: b.buttonText || "Shop Now",
+            redirectUrl: b.redirectUrl || "/categories",
+          });
+        }
+      },
+      onError: () => {},
+    });
+    bannerApi.getBannersByPage({
+      page: "category",
+      position: "bottom",
+      onSuccess: (data) => {
+        if (data.status === "success" && data.data?.banners?.length > 0) {
+          const b = data.data.banners[0];
+          setBottomBannerData({
+            image: b.images?.[0]?.url,
+            label: b.subheader || "",
+            title: b.title || "",
+            description: b.body || "",
+            buttonText: b.buttonText || "Shop Now",
+            redirectUrl: b.redirectUrl || "/categories",
+          });
+        }
+      },
+      onError: () => {},
+    });
+
     // Fetch Categories
     categoryApi.getAdminCategories({
       setLoading: setIsCategoriesLoading,
@@ -730,42 +711,45 @@ const Category = () => {
 
           {/* Right Side - Products */}
           <div className="col-span-12 lg:col-span-9">
-            {/* Top Banner */}
-            <div className="mb-10 relative max-w-[90%] mx-auto">
-              <img
-                className="h-[50vh] w-full object-cover"
-                src={topBanner}
-                alt="Categories Banner"
-              />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-xs sm:max-w-sm md:max-w-md lg:left-[unset] lg:right-6 lg:translate-x-0 p-3 sm:p-4 md:p-6">
-                <div className="flex flex-col justify-between h-full text-center md:text-left p-4 sm:p-6 md:p-6 gap-36 md:gap-52 lg:gap-16">
-                  {/* New Arrival text at top */}
-                  <div>
-                    <p className="uppercase tracking-widest flex items-center gap-2 justify-center md:justify-start text-white text-sm md:text-base lg:text-lg">
-                      New Arrival <RxDividerVertical className="text-white" />
-                    </p>
-                  </div>
-
-                  {/* Rest of the content */}
-                  <div className="space-y-4">
-                    <h2 className="text-3xl md:text-4xl text-white font-semibold">
-                      Flower Power
-                    </h2>
-                    <div className="text-white">
-                      <p className="text-sm md:text-base leading-tight">
-                        Introducing our new mesmerizing jewelry collection
-                      </p>
-                      <p className="text-sm md:text-base leading-tight">
-                        Mesmerizing your inner allure with the timeless elegance
-                      </p>
+            {/* Top Banner — admin controlled */}
+            {topBannerData && (
+              <div className="mb-10 relative max-w-[90%] mx-auto cursor-pointer" onClick={() => navigate(topBannerData.redirectUrl)}>
+                <img
+                  className="h-[50vh] w-full object-cover"
+                  src={topBannerData.image}
+                  alt={topBannerData.title}
+                />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-xs sm:max-w-sm md:max-w-md lg:left-[unset] lg:right-6 lg:translate-x-0 p-3 sm:p-4 md:p-6">
+                  <div className="flex flex-col justify-between h-full text-center md:text-left p-4 sm:p-6 md:p-6 gap-36 md:gap-52 lg:gap-16">
+                    {topBannerData.label && (
+                      <div>
+                        <p className="uppercase tracking-widest flex items-center gap-2 justify-center md:justify-start text-white text-sm md:text-base lg:text-lg">
+                          {topBannerData.label} <RxDividerVertical className="text-white" />
+                        </p>
+                      </div>
+                    )}
+                    <div className="space-y-4">
+                      <h2 className="text-3xl md:text-4xl text-white font-semibold">
+                        {topBannerData.title}
+                      </h2>
+                      {topBannerData.description && (
+                        <div className="text-white">
+                          <p className="text-sm md:text-base leading-tight">
+                            {topBannerData.description}
+                          </p>
+                        </div>
+                      )}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); navigate(topBannerData.redirectUrl); }}
+                        className="border border-white text-white px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap text-xs sm:text-sm hover:bg-white hover:text-black transition-all duration-300"
+                      >
+                        {topBannerData.buttonText}
+                      </button>
                     </div>
-                    <button className="border border-white text-white px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap text-xs sm:text-sm w-[40%]">
-                      Shop Now
-                    </button>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Mobile Filter Header */}
             <div className="lg:hidden flex items-center justify-between mb-6 mt-6">
@@ -1169,42 +1153,45 @@ const Category = () => {
       {/* Floating Filter Button for Mobile */}
       <FilterButton />
 
-      {/* Last Banner*/}
-      <div className="mb-10 relative max-w-[90%] mx-auto">
-        <img
-          className="h-[50vh] w-full object-cover"
-          src={bottomBanner}
-          alt="Categories Banner"
-        />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-xs sm:max-w-sm md:max-w-md lg:left-[unset] lg:right-6 lg:translate-x-0 p-3 sm:p-4 md:p-6">
-          <div className="flex flex-col justify-between h-full text-center md:text-left p-4 sm:p-6 md:p-6 gap-36 md:gap-52 lg:gap-24">
-            {/* Collection text at top */}
-            <div>
-              <p className="uppercase tracking-widest flex items-center gap-2 justify-center md:justify-start text-white text-sm md:text-base lg:text-lg">
-                Collection <RxDividerVertical className="text-white" />
-              </p>
-            </div>
-
-            {/* Rest of the content */}
-            <div className="space-y-4">
-              <h2 className="text-3xl md:text-4xl text-white font-semibold">
-                Sommelier
-              </h2>
-              <div className="text-white">
-                <p className="text-sm md:text-base  leading-tight">
-                  Introducing our new minimalistic collection
-                </p>
-                <p className="text-sm md:text-base  leading-tight">
-                  Suitable for the active yet elegant
-                </p>
+      {/* Bottom Banner — admin controlled */}
+      {bottomBannerData && (
+        <div className="mb-10 relative max-w-[90%] mx-auto cursor-pointer" onClick={() => navigate(bottomBannerData.redirectUrl)}>
+          <img
+            className="h-[50vh] w-full object-cover"
+            src={bottomBannerData.image}
+            alt={bottomBannerData.title}
+          />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-xs sm:max-w-sm md:max-w-md lg:left-[unset] lg:right-6 lg:translate-x-0 p-3 sm:p-4 md:p-6">
+            <div className="flex flex-col justify-between h-full text-center md:text-left p-4 sm:p-6 md:p-6 gap-36 md:gap-52 lg:gap-24">
+              {bottomBannerData.label && (
+                <div>
+                  <p className="uppercase tracking-widest flex items-center gap-2 justify-center md:justify-start text-white text-sm md:text-base lg:text-lg">
+                    {bottomBannerData.label} <RxDividerVertical className="text-white" />
+                  </p>
+                </div>
+              )}
+              <div className="space-y-4">
+                <h2 className="text-3xl md:text-4xl text-white font-semibold">
+                  {bottomBannerData.title}
+                </h2>
+                {bottomBannerData.description && (
+                  <div className="text-white">
+                    <p className="text-sm md:text-base leading-tight">
+                      {bottomBannerData.description}
+                    </p>
+                  </div>
+                )}
+                <button
+                  onClick={(e) => { e.stopPropagation(); navigate(bottomBannerData.redirectUrl); }}
+                  className="border border-white text-white px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap text-xs sm:text-sm hover:bg-white hover:text-black transition-all duration-300"
+                >
+                  {bottomBannerData.buttonText}
+                </button>
               </div>
-              <button className="border border-white text-white px-3 py-1.5 sm:px-4 sm:py-2 text-nowrap text-xs sm:text-sm w-[40%]">
-                Shop Now
-              </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
       <SliderLogo></SliderLogo>
     </div>
   );

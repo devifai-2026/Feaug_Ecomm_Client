@@ -5,10 +5,6 @@ import { FaArrowRightLong } from "react-icons/fa6";
 import { RxDividerVertical } from "react-icons/rx";
 import bannerApi from "../../apis/bannerApi";
 
-// Fallback static assets (used when no API data)
-import fallbackBanner from "../../assets/cleopatra/freepik__design-editorial-soft-studio-light-photography-hig__70850.png";
-import fallbackOne from "../../assets/cleopatra/one.png";
-import fallbackTwo from "../../assets/cleopatra/two.png";
 
 const CleopatraGlam = () => {
   const navigate = useNavigate();
@@ -69,67 +65,33 @@ const CleopatraGlam = () => {
     }
   };
 
-  // Fallback data for hero banner
+  // No fallbacks — only show if admin has configured banners
+  if (!heroBanner && promoBanners.length === 0) return null;
+
   const heroData = heroBanner
     ? {
-        image: heroBanner.images?.[0]?.url || fallbackBanner,
-        label: heroBanner.subheader || "Collection",
-        title: heroBanner.title || "Featured Collection",
+        image: heroBanner.images?.[0]?.url,
+        label: heroBanner.subheader || "",
+        title: heroBanner.title || "",
         description: heroBanner.body || "",
         buttonText: heroBanner.buttonText || "SHOP NOW",
         redirectUrl: heroBanner.redirectUrl,
       }
-    : {
-        image: fallbackBanner,
-        label: "Collection",
-        title: "Cleopatra Glam",
-        description:
-          "Introducing our new mesmerizing jewellery collection.Embarace your inner allure with the timeless elegance and radiant beauty of ancient Egypt, now available exclusive on AXELS jewelry",
-        buttonText: "SHOP NOW",
-        redirectUrl: "/categories",
-      };
+    : null;
 
-  // Fallback data for promotional cards
-  const defaultPromos = [
-    {
-      title: "Luxe Abundance",
-      subheader: "Get 20% off with our code: LUX20",
-      buttonText: "Redeem Code",
-      images: [{ url: fallbackOne }],
-      backgroundColor: "#e2e8f0",
-      redirectUrl: "/cart",
-    },
-    {
-      title: "Sparkle in Love",
-      subheader: "Get 50% off on rings",
-      buttonText: "View Products",
-      images: [{ url: fallbackTwo }],
-      backgroundColor: "#FAF9F7",
-      redirectUrl: "/categories",
-    },
-  ];
-
-  const promoData =
-    promoBanners.length > 0
-      ? promoBanners.map((b, i) => ({
-          title: b.title || defaultPromos[i]?.title || "Promo",
-          subheader:
-            b.promoCode && b.discountPercentage
-              ? `Get ${b.discountPercentage}% off with our code: ${b.promoCode}`
-              : b.subheader || defaultPromos[i]?.subheader || "",
-          buttonText: b.buttonText || defaultPromos[i]?.buttonText || "Shop Now",
-          image: b.images?.[0]?.url || defaultPromos[i]?.images?.[0]?.url,
-          backgroundColor:
-            b.backgroundColor || defaultPromos[i]?.backgroundColor || "#f3f4f6",
-          redirectUrl: b.redirectUrl,
-          promoCode: b.promoCode,
-          banner: b,
-        }))
-      : defaultPromos.map((p) => ({
-          ...p,
-          image: p.images[0].url,
-          banner: null,
-        }));
+  const promoData = promoBanners.map((b) => ({
+    title: b.title || "",
+    subheader:
+      b.promoCode && b.discountPercentage
+        ? `Get ${b.discountPercentage}% off with our code: ${b.promoCode}`
+        : b.subheader || "",
+    buttonText: b.buttonText || "Shop Now",
+    image: b.images?.[0]?.url,
+    backgroundColor: b.backgroundColor || "#f3f4f6",
+    redirectUrl: b.redirectUrl,
+    promoCode: b.promoCode,
+    banner: b,
+  }));
 
   if (loading) {
     return (
@@ -146,7 +108,7 @@ const CleopatraGlam = () => {
   return (
     <div className="max-w-[90%] mx-auto mt-8 md:mt-16">
       {/* Banner Section */}
-      <div
+      {heroData && <div
         className={`relative group overflow-hidden ${heroData.redirectUrl ? "cursor-pointer" : ""}`}
         onClick={() => heroBanner && handleBannerClick(heroBanner)}
       >
@@ -182,7 +144,7 @@ const CleopatraGlam = () => {
             {heroData.buttonText}
           </button>
         </div>
-      </div>
+      </div>}
 
       {/* Promotional Cards Section */}
       <div className="flex flex-col md:flex-row items-center gap-3 mt-4 md:mt-6">

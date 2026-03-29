@@ -13,7 +13,7 @@ import {
   BsHeartFill,
 } from "react-icons/bs";
 import { MdOutlineCurrencyRupee } from "react-icons/md";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import RelatedProducts from "./RelatedProduct";
 import BigImg from "../../../assets/ProductDetails/DetailsMainImg.webp";
 import sone from "../../../assets/ProductDetails/sone.webp";
@@ -209,41 +209,7 @@ const ProductDetails = () => {
 
     if (isProductInWishlist) {
       removeFromWishlist(product._id);
-      toast.custom(
-        (t) => (
-          <div className="animate-slideInRight max-w-md w-full bg-white shadow-lg flex border border-gray-200">
-            <div className="flex-1 w-0 p-4">
-              <div className="flex items-start">
-                <div className="flex-shrink-0 pt-0.5">
-                  <BsHeartFill className="h-6 w-6 text-red-500" />
-                </div>
-                <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    Removed from wishlist
-                  </p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {product.name} has been removed
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex border-l border-gray-200">
-              <button
-                onClick={() => {
-                  toast.dismiss(t.id);
-                  navigate("/wishlist");
-                }}
-                className="w-full border border-transparent p-4 flex items-center justify-center text-sm font-medium text-pink-600 hover:text-pink-500 transition-colors"
-              >
-                View Wishlist
-              </button>
-            </div>
-          </div>
-        ),
-        {
-          duration: 4000,
-        },
-      );
+      toast.success('Removed from wishlist');
     } else {
       addToWishlist({
         id: product._id,
@@ -257,24 +223,7 @@ const ProductDetails = () => {
         inStock: true,
       });
 
-      toast.success(
-        <div>
-          <p className="font-semibold">Added to wishlist!</p>
-          <p className="text-sm">{product.name}</p>
-        </div>,
-        {
-          icon: "❤️",
-          duration: 3000,
-          style: {
-            background: "#fff5f5",
-            border: "1px solid #fca5a5",
-          },
-          iconTheme: {
-            primary: "#ef4444",
-            secondary: "#fff",
-          },
-        },
-      );
+      toast.success('Added to wishlist');
     }
   };
 
@@ -1049,6 +998,150 @@ const ProductDetails = () => {
                   Handcrafted Elegance
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Frequently Bought Together */}
+        {relatedProducts.length >= 2 && product && (
+          <div className="mt-16 bg-[#FAFAF8] border border-gray-100 rounded-2xl p-8">
+            <h3 className="text-lg font-bold text-gray-900 uppercase tracking-widest mb-6">
+              Frequently Bought Together
+            </h3>
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+              {/* Current Product */}
+              <div
+                className="flex items-center gap-4 bg-white rounded-xl p-4 border border-gray-100 cursor-pointer hover:border-[#C19A6B]/40 transition-colors flex-1 min-w-0"
+                onClick={() => navigate(`/product/${product.slug || product._id}`)}
+              >
+                <img
+                  src={productImages[0]}
+                  alt={product.name}
+                  className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
+                />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{product.name}</p>
+                  <p className="text-sm font-bold text-[#C19A6B] flex items-center gap-0.5 mt-1">
+                    <MdOutlineCurrencyRupee className="text-xs" />
+                    {(product.sellingPrice || product.basePrice || 0).toLocaleString('en-IN')}
+                  </p>
+                </div>
+              </div>
+
+              <span className="text-2xl font-light text-gray-300">+</span>
+
+              {/* Related Product 1 */}
+              <div
+                className="flex items-center gap-4 bg-white rounded-xl p-4 border border-gray-100 cursor-pointer hover:border-[#C19A6B]/40 transition-colors flex-1 min-w-0"
+                onClick={() => navigate(`/product/${relatedProducts[0].slug || relatedProducts[0]._id}`)}
+              >
+                <img
+                  src={relatedProducts[0].images?.[0]?.url || relatedProducts[0].image}
+                  alt={relatedProducts[0].name}
+                  className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
+                />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{relatedProducts[0].name}</p>
+                  <p className="text-sm font-bold text-[#C19A6B] flex items-center gap-0.5 mt-1">
+                    <MdOutlineCurrencyRupee className="text-xs" />
+                    {(relatedProducts[0].sellingPrice || relatedProducts[0].basePrice || 0).toLocaleString('en-IN')}
+                  </p>
+                </div>
+              </div>
+
+              {relatedProducts.length >= 2 && (
+                <>
+                  <span className="text-2xl font-light text-gray-300">+</span>
+
+                  {/* Related Product 2 */}
+                  <div
+                    className="flex items-center gap-4 bg-white rounded-xl p-4 border border-gray-100 cursor-pointer hover:border-[#C19A6B]/40 transition-colors flex-1 min-w-0"
+                    onClick={() => navigate(`/product/${relatedProducts[1].slug || relatedProducts[1]._id}`)}
+                  >
+                    <img
+                      src={relatedProducts[1].images?.[0]?.url || relatedProducts[1].image}
+                      alt={relatedProducts[1].name}
+                      className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">{relatedProducts[1].name}</p>
+                      <p className="text-sm font-bold text-[#C19A6B] flex items-center gap-0.5 mt-1">
+                        <MdOutlineCurrencyRupee className="text-xs" />
+                        {(relatedProducts[1].sellingPrice || relatedProducts[1].basePrice || 0).toLocaleString('en-IN')}
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Total + Add All */}
+              <div className="flex flex-col items-center gap-3 pl-4 md:border-l border-gray-200 min-w-[160px]">
+                <div className="text-center">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Bundle Price</p>
+                  <p className="text-2xl font-bold text-gray-900 flex items-center justify-center">
+                    <MdOutlineCurrencyRupee className="text-xl" />
+                    {(
+                      (product.sellingPrice || product.basePrice || 0) +
+                      (relatedProducts[0]?.sellingPrice || relatedProducts[0]?.basePrice || 0) +
+                      (relatedProducts[1]?.sellingPrice || relatedProducts[1]?.basePrice || 0)
+                    ).toLocaleString('en-IN')}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    const items = [
+                      { id: product._id, title: product.name, price: product.sellingPrice || product.basePrice, image: productImages[0] },
+                      { id: relatedProducts[0]._id, title: relatedProducts[0].name, price: relatedProducts[0].sellingPrice || relatedProducts[0].basePrice, image: relatedProducts[0].images?.[0]?.url },
+                      ...(relatedProducts[1] ? [{ id: relatedProducts[1]._id, title: relatedProducts[1].name, price: relatedProducts[1].sellingPrice || relatedProducts[1].basePrice, image: relatedProducts[1].images?.[0]?.url }] : []),
+                    ];
+                    items.forEach(item => addToCart(item, 1));
+                    toast.success('All items added to cart!', { icon: '🛒' });
+                  }}
+                  className="w-full bg-[#C19A6B] text-white px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-[10px] hover:bg-gray-900 transition-colors"
+                >
+                  Add All to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Trust Badges */}
+        <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+            <div className="w-10 h-10 bg-[#C19A6B]/10 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-[#C19A6B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-gray-900">Certified Authentic</p>
+              <p className="text-[10px] text-gray-500">BIS Hallmarked</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+            <div className="w-10 h-10 bg-[#C19A6B]/10 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-[#C19A6B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-gray-900">Free Shipping</p>
+              <p className="text-[10px] text-gray-500">On orders above 5000</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+            <div className="w-10 h-10 bg-[#C19A6B]/10 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-[#C19A6B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-gray-900">Easy Returns</p>
+              <p className="text-[10px] text-gray-500">7-day return policy</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+            <div className="w-10 h-10 bg-[#C19A6B]/10 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-[#C19A6B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-gray-900">Secure Payment</p>
+              <p className="text-[10px] text-gray-500">SSL encrypted checkout</p>
             </div>
           </div>
         </div>

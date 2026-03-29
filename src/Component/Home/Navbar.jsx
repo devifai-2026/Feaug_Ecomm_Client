@@ -369,20 +369,24 @@ const Navbar = () => {
     return location.pathname === path;
   };
 
-  // Fetch categories from API
+  // Fetch categories from API — admin controls which categories show
   useEffect(() => {
+    const fallbackImages = [one, two, three, four, five, six];
     categoryApi.getAdminCategories({
       setLoading: setIsCategoriesLoading,
       onSuccess: (response) => {
         if (response.success && response.data?.categories) {
-          const imagesArray = [one, two, three, four, five, six];
-          const fetchedCategories = response.data.categories.map(
-            (cat, index) => ({
+          const fetchedCategories = response.data.categories
+            .filter((cat) => cat.isActive && (!cat.categoryType || cat.categoryType === "main"))
+            .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+            .map((cat, index) => ({
               name: cat.name,
-              image: cat.image?.url || imagesArray[index % imagesArray.length],
+              image:
+                (cat.image && cat.image !== "default-category.jpg"
+                  ? cat.image
+                  : null) || fallbackImages[index % fallbackImages.length],
               path: "/categories",
-            }),
-          );
+            }));
           setCategories([
             { name: "All Jewelry", image: one, path: "/categories" },
             ...fetchedCategories,
@@ -674,7 +678,7 @@ const Navbar = () => {
                                 setIsSearchOpen(false);
                                 setSearchQuery("");
                                 setSearchResults([]);
-                                navigate(`/product/${product.slug || product._id}`);
+                                navigate(`/product/${product._id}`);
                               }}
                               className="flex items-center gap-3 w-full p-2 hover:bg-gray-50 rounded-lg text-left transition-colors"
                             >
@@ -788,26 +792,42 @@ const Navbar = () => {
                 />
               </button>
 
-              {/* Categories Dropdown - Enhanced with drag functionality */}
-
+              {/* Categories Dropdown */}
               <div
-                className="fixed left-1/2 transform -translate-x-1/2 top-14 bg-white shadow-xl border border-gray-200 z-50 overflow-hidden min-w-[500px] max-w-[100vw]"
+                className="fixed left-1/2 top-14 bg-white z-50 overflow-hidden rounded-b-lg"
                 style={{
                   opacity: isCategoriesOpen ? 1 : 0,
                   transform: isCategoriesOpen
                     ? "translateX(-50%) translateY(0)"
-                    : "translateX(-50%) translateY(-8px)",
+                    : "translateX(-50%) translateY(-6px)",
                   visibility: isCategoriesOpen ? "visible" : "hidden",
                   pointerEvents: isCategoriesOpen ? "auto" : "none",
                   transition:
                     "opacity 250ms cubic-bezier(0.4,0,0.2,1), transform 250ms cubic-bezier(0.4,0,0.2,1), visibility 250ms",
+                  boxShadow: "0 8px 30px -8px rgba(0,0,0,0.12)",
+                  border: "1px solid #f0ebe4",
+                  maxWidth: "680px",
+                  width: "max-content",
                 }}
               >
-                <div className="">
-                  {/* Horizontal scrollable container with hidden scrollbar */}
+                {/* Top accent */}
+                <div className="h-[2px] bg-gradient-to-r from-[#C19A6B]/20 via-[#C19A6B] to-[#C19A6B]/20" />
+
+                <div className="p-5 relative">
+                  {/* Left scroll arrow */}
+                  <button
+                    onClick={() => {
+                      if (categoriesContainerRef.current)
+                        categoriesContainerRef.current.scrollBy({ left: -240, behavior: "smooth" });
+                    }}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-white/90 border border-gray-200 rounded-full shadow-sm hover:border-[#C19A6B] hover:shadow transition-all"
+                  >
+                    <MdKeyboardArrowLeft className="text-gray-500 text-lg" />
+                  </button>
+
                   <div
                     ref={categoriesContainerRef}
-                    className="flex gap-4 pb-2 px-4 select-none"
+                    className="flex gap-4 select-none mx-6"
                     style={{
                       overflowX: "auto",
                       scrollbarWidth: "none",
@@ -818,43 +838,41 @@ const Navbar = () => {
                     }}
                   >
                     {categories.map((category, index) => (
-                      <div
+                      <button
                         key={index}
-                        className="flex flex-col items-center flex-shrink-0 w-52"
+                        onClick={(e) => handleCategoriesItemClick(e, category)}
+                        className="flex flex-col items-center flex-shrink-0 group cursor-pointer"
+                        style={{ width: "110px" }}
                       >
-                        <button
-                          onClick={(e) =>
-                            handleCategoriesItemClick(e, category)
-                          }
-                          className="flex flex-col items-center group cursor-pointer select-none w-full"
-                        >
-                          <div className="w-full h-64 mb-2 overflow-hidden">
-                            <img
-                              src={category.image}
-                              alt={category.name}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                            />
-                          </div>
-                          <div className="flex items-center justify-between w-full">
-                            <span className="text-sm font-medium text-gray-800 group-hover:text-[#C19A6B] transition-colors duration-300 whitespace-nowrap">
-                              {category.name}
-                            </span>
-                            <FaArrowRightLong className="text-[#C19A6B] text-sm" />
-                          </div>
-                        </button>
-                      </div>
+                        <div className="w-[100px] h-[100px] rounded-full overflow-hidden border-2 border-transparent group-hover:border-[#C19A6B] transition-all duration-300 bg-gray-50">
+                          <img
+                            src={category.image}
+                            alt={category.name}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          />
+                        </div>
+                        <span className="mt-2 text-xs font-medium text-gray-600 group-hover:text-[#C19A6B] transition-colors duration-200 tracking-wide text-center whitespace-nowrap">
+                          {category.name}
+                        </span>
+                      </button>
                     ))}
                   </div>
+
+                  {/* Right scroll arrow */}
+                  <button
+                    onClick={() => {
+                      if (categoriesContainerRef.current)
+                        categoriesContainerRef.current.scrollBy({ left: 240, behavior: "smooth" });
+                    }}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-white/90 border border-gray-200 rounded-full shadow-sm hover:border-[#C19A6B] hover:shadow transition-all"
+                  >
+                    <MdKeyboardArrowRight className="text-gray-500 text-lg" />
+                  </button>
                 </div>
+
                 <style>{`
                   div[style*="overflow-x: auto"]::-webkit-scrollbar {
                     display: none;
-                  }
-                  .select-none {
-                    -webkit-user-select: none;
-                    -moz-user-select: none;
-                    -ms-user-select: none;
-                    user-select: none;
                   }
                 `}</style>
               </div>
@@ -896,18 +914,6 @@ const Navbar = () => {
           <div className={`flex items-center gap-2 ${getTextColor()}`}>
             {/* Desktop User Actions */}
             <div className="hidden lg:flex items-center gap-4">
-              <div className="flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3">
-                <p className="transition-colors duration-300 hover:text-[#C19A6B] ">
-                  INR
-                </p>
-              </div>
-
-              <div className="flex items-center gap-1 cursor-pointer group relative border-r-2 pr-3">
-                <p className="transition-colors duration-300 hover:text-[#C19A6B]">
-                  EN
-                </p>
-              </div>
-
               <div
                 className="flex items-center gap-3 relative"
                 ref={dropdownRef}
@@ -1126,19 +1132,6 @@ const Navbar = () => {
                           Search
                         </span>
                       </button>
-                    </div>
-
-                    <div className="space-y-3 pb-4 border-b border-gray-200">
-                      <div className="flex items-center justify-between cursor-pointer py-2 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                        <span className="font-medium hover:text-[#C19A6B] transition-colors duration-300">
-                          INR
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between cursor-pointer py-2 hover:bg-gray-50 px-3 rounded-lg transition-colors">
-                        <span className="font-medium hover:text-[#C19A6B] transition-colors duration-300">
-                          EN
-                        </span>
-                      </div>
                     </div>
 
                     <div className="space-y-2 pb-4 border-b border-gray-200">

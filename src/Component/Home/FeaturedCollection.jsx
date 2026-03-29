@@ -1,25 +1,8 @@
-import React, { useState, useEffect } from "react";
-import one from "../../assets/FeaturedCollection/one.webp";
-import two from "../../assets/FeaturedCollection/two.png";
-import three from "../../assets/FeaturedCollection/three.webp";
-import four from "../../assets/FeaturedCollection/four.webp";
-import five from "../../assets/FeaturedCollection/five.webp";
-import six from "../../assets/FeaturedCollection/six.webp";
-import seven from "../../assets/FeaturedCollection/seven.jpeg";
-import eight from "../../assets/FeaturedCollection/eight.webp";
-import oneAngle from "../../assets/FeaturedCollection/oneAngle.webp";
-import twoAngle from "../../assets/FeaturedCollection/twoAngle.webp";
-import threeAngle from "../../assets/FeaturedCollection/threeAngle.webp";
-import fourAngle from "../../assets/FeaturedCollection/fiveAngle.jpg";
-import fiveAngle from "../../assets/FeaturedCollection/fiveAngle.jpg";
-import sixAngle from "../../assets/FeaturedCollection/sixAngle.avif";
-import sevenAngle from "../../assets/FeaturedCollection/sevenAngle.webp";
-import eightAngle from "../../assets/FeaturedCollection/eightAngle.webp";
+import { useState, useEffect } from "react";
 import {
   BsArrowsAngleExpand,
   BsCurrencyRupee,
   BsHeart,
-
   BsHeartFill,
   BsX,
 } from "react-icons/bs";
@@ -28,88 +11,41 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useWishlist } from "../Context/WishlistContext";
 import { useCart } from "../Context/CartContext";
-import productApi from "../../apis/productApi";
+import featuredApi from "../../apis/featuredApi";
 import { transformProducts } from "../../helpers/transformers/productTransformer";
 
 const FeaturedCollection = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [products, setProducts] = useState([]);
+  const [sectionTitle, setSectionTitle] = useState("Featured Collection");
+  const [sectionActive, setSectionActive] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const navigate = useNavigate();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { addToCart } = useCart();
 
-  // Fallback images for when backend images are placeholder URLs
-  const fallbackImages = [
-    { image: one, angleImage: oneAngle },
-    { image: two, angleImage: twoAngle },
-    { image: three, angleImage: threeAngle },
-    { image: four, angleImage: fourAngle },
-    { image: five, angleImage: fiveAngle },
-    { image: six, angleImage: sixAngle },
-    { image: seven, angleImage: sevenAngle },
-    { image: eight, angleImage: eightAngle },
-  ];
-
-  // Fetch featured products from API
+  // Fetch featured section config from admin API
   useEffect(() => {
-    const fetchFeaturedProducts = async () => {
-      setLoading(true);
-      setError(null);
-
-      await productApi.getFeaturedProducts({
-        params: { limit: 8 },
-        setLoading,
-        onSuccess: (data) => {
-          console.log("Featured products data:", data.data.products);
-
-          if (data.status === "success" && data.data?.products?.length > 0) {
-            // Transform products using the transformer
-            const transformedProducts = transformProducts(data.data.products);
-
-            // Add fallback images for products with placeholder URLs
-            const productsWithFallbacks = transformedProducts.map(
-              (product, index) => {
-                const fallback = fallbackImages[index % fallbackImages.length];
-
-                // Check if image URL is a placeholder (example.com) or missing
-                const isPlaceholderImage =
-                  !product.image ||
-                  product.image.includes("example.com") ||
-                  product.image === "";
-
-                const isPlaceholderAngleImage =
-                  !product.angleImage ||
-                  product.angleImage.includes("example.com") ||
-                  product.angleImage === "";
-
-                return {
-                  ...product,
-                  image: isPlaceholderImage ? fallback.image : product.image,
-                  angleImage: isPlaceholderAngleImage
-                    ? fallback.angleImage
-                    : product.angleImage,
-                };
-              },
-            );
-
-            setProducts(productsWithFallbacks);
-          } else {
-            setProducts([]);
-            setError("No featured products available");
-          }
-        },
-        onError: (err) => {
-          console.error("Error fetching featured products:", err);
-          setError("Failed to load featured products");
+    featuredApi.getFeaturedSection({
+      setLoading,
+      onSuccess: (data) => {
+        const config = data.data?.featured;
+        if (config && config.isActive && config.products?.length > 0) {
+          setSectionActive(true);
+          setSectionTitle(config.title || "Featured Collection");
+          const transformedProducts = transformProducts(config.products);
+          setProducts(transformedProducts);
+        } else {
+          setSectionActive(false);
           setProducts([]);
-        },
-      });
-    };
-
-    fetchFeaturedProducts();
+        }
+      },
+      onError: () => {
+        setSectionActive(false);
+        setProducts([]);
+      },
+    });
   }, []);
 
   const handleCardClick = (productId) => {
@@ -132,20 +68,7 @@ const FeaturedCollection = () => {
       1,
     );
 
-    toast.success(
-      <div>
-        <p className="font-semibold">Added to cart!</p>
-        <p className="text-sm">{product.title}</p>
-      </div>,
-      {
-        icon: "🛒",
-        duration: 3000,
-        style: {
-          background: "#f0fdf4",
-          border: "1px solid #bbf7d0",
-        },
-      },
-    );
+    toast.success('Added to cart!');
   };
 
   const handleWishlistClick = (product, e) => {
@@ -153,41 +76,7 @@ const FeaturedCollection = () => {
 
     if (isInWishlist(product.id)) {
       removeFromWishlist(product.id);
-      toast.custom(
-        (t) => (
-          <div className="animate-slideInRight max-w-md w-full bg-white shadow-lg flex border border-gray-200">
-            <div className="flex-1 w-0 p-4">
-              <div className="flex items-start">
-                <div className="flex-shrink-0 pt-0.5">
-                  <BsHeartFill className="h-6 w-6 text-red-500" />
-                </div>
-                <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    Removed from wishlist
-                  </p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {product.title} has been removed
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex border-l border-gray-200">
-              <button
-                onClick={() => {
-                  toast.dismiss(t.id);
-                  navigate("/wishlist");
-                }}
-                className="w-full border border-transparent p-4 flex items-center justify-center text-sm font-medium text-pink-600 hover:text-pink-500 transition-colors"
-              >
-                View Wishlist
-              </button>
-            </div>
-          </div>
-        ),
-        {
-          duration: 4000,
-        },
-      );
+      toast.success('Removed from wishlist');
     } else {
       addToWishlist({
         id: product.id,
@@ -202,24 +91,7 @@ const FeaturedCollection = () => {
         inStock: product.inStock,
       });
 
-      toast.success(
-        <div>
-          <p className="font-semibold">Added to wishlist!</p>
-          <p className="text-sm">{product.title}</p>
-        </div>,
-        {
-          icon: "❤️",
-          duration: 3000,
-          style: {
-            background: "#fff5f5",
-            border: "1px solid #fca5a5",
-          },
-          iconTheme: {
-            primary: "#ef4444",
-            secondary: "#fff",
-          },
-        },
-      );
+      toast.success('Added to wishlist');
     }
   };
 
@@ -237,6 +109,9 @@ const FeaturedCollection = () => {
     e.stopPropagation();
     setSelectedImage(image);
   };
+
+  // Don't render if admin hasn't enabled the section
+  if (!sectionActive || products.length === 0) return null;
 
   return (
     <div className="mt-16 max-w-[90%] mx-auto">
@@ -305,7 +180,7 @@ const FeaturedCollection = () => {
       {/* ... header ... */}
       <div className="flex items-center justify-between mb-10">
         <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-500 animate-fadeDown">
-          Featured Collection
+          {sectionTitle}
         </h2>
         <div className="flex items-center gap-4">
           <button
