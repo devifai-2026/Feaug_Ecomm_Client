@@ -1,17 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  BsCurrencyRupee,
   BsArrowLeft,
-  BsCreditCard,
-  BsTruck,
   BsShieldCheck,
   BsLock,
-  BsCheckCircle,
-  BsCash,
-  BsExclamationCircle,
-  BsPhone,
-  BsX,
 } from "react-icons/bs";
 import toast from "react-hot-toast";
 import { ProgressSteps } from "./ProgressSteps";
@@ -27,7 +19,6 @@ import paymentApi from "../../../apis/paymentApi";
 import userApi from "../../../apis/user/userApi";
 import { env } from "../../../environments";
 import {
-  INDIAN_STATES,
   validateShippingField,
   validateBillingField,
   validatePaymentField,
@@ -56,12 +47,9 @@ const SHIPPING_OPTIONS = [
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { cartItems, getCartTotal, clearCart, appliedPromo } = useCart();
+  const { cartItems, clearCart, appliedPromo } = useCart();
 
-  // Custom color definitions
   const primaryColor = "#C19A6B";
-  const primaryLight = "#E8D4B9";
-  const primaryDark = "#A07A4B";
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -70,6 +58,11 @@ const Checkout = () => {
   const [saveInfo, setSaveInfo] = useState(false);
   const [selectedShipping, setSelectedShipping] = useState("standard");
   const [userAddresses, setUserAddresses] = useState([]);
+
+  // Scroll to top on step change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
   const [addressPage, setAddressPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalAddresses, setTotalAddresses] = useState(0);
@@ -106,7 +99,6 @@ const Checkout = () => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  // Check authentication and fetch latest user data
   useEffect(() => {
     const initCheckout = async () => {
       if (!userApi.isAuthenticated()) {
@@ -120,13 +112,8 @@ const Checkout = () => {
         const response = await userApi.getCurrentUser();
         if (response.status === "success" && response.data) {
           const user = response.data.user || response.data;
-
-          // Fetch paginated addresses
           await fetchPaginatedAddresses(1);
-
-          // Find default or first address
-          const defaultAddr =
-            user.addresses?.find((a) => a.isDefault) || user.addresses?.[0];
+          const defaultAddr = user.addresses?.find((a) => a.isDefault) || user.addresses?.[0];
           setShippingInfo((prev) => ({
             ...prev,
             _id: defaultAddr?._id || "",
@@ -134,16 +121,13 @@ const Checkout = () => {
             lastName: user.lastName || "",
             email: user.email || "",
             phone: user.phone || "",
-            address: defaultAddr
-              ? `${defaultAddr.addressLine1 || defaultAddr.address || ""}${defaultAddr.addressLine2 || defaultAddr.landmark ? ", " + (defaultAddr.addressLine2 || defaultAddr.landmark) : ""}`
-              : "",
+            address: defaultAddr ? `${defaultAddr.addressLine1 || defaultAddr.address || ""}${defaultAddr.addressLine2 || defaultAddr.landmark ? ", " + (defaultAddr.addressLine2 || defaultAddr.landmark) : ""}` : "",
             city: defaultAddr?.city || "",
             state: defaultAddr?.state || "",
             zipCode: defaultAddr?.pincode || "",
             country: defaultAddr?.country || "India",
           }));
         } else {
-          // Fallback to stored user
           const user = userApi.getStoredUser();
           if (user) {
             setShippingInfo((prev) => ({
@@ -161,7 +145,6 @@ const Checkout = () => {
         setLoading(false);
       }
     };
-
     initCheckout();
   }, [navigate]);
 
@@ -192,12 +175,6 @@ const Checkout = () => {
         setTotalPages(response.totalPages);
         setTotalAddresses(response.total);
         setAddressPage(response.page);
-
-        // If current page is empty and we're not on page 1, go to previous page
-        if (response.data.addresses.length === 0 && page > 1) {
-          setAddressPage(page - 1);
-        }
-
         return formattedAddresses;
       }
     } catch (error) {
@@ -206,9 +183,7 @@ const Checkout = () => {
     return null;
   };
 
-  const refreshAddresses = async () => {
-    return await fetchPaginatedAddresses(addressPage);
-  };
+  const refreshAddresses = async () => await fetchPaginatedAddresses(addressPage);
 
   useEffect(() => {
     if (step === 1 && userApi.isAuthenticated()) {
@@ -216,7 +191,6 @@ const Checkout = () => {
     }
   }, [addressPage, step]);
 
-  // Check stock availability
   useEffect(() => {
     if (cartItems.length > 0 && userApi.isAuthenticated()) {
       setStockChecking(true);
@@ -224,44 +198,32 @@ const Checkout = () => {
         setLoading: setStockChecking,
         onSuccess: (data) => {
           if (!data.success || data.data?.outOfStock?.length > 0) {
-            toast.error(
-              "Some items in your cart are out of stock. Please update your cart.",
-            );
+            toast.error("Some items in your cart are out of stock. Please update your cart.");
           }
         },
-        onError: () => {
-          // Silently fail stock check
-        },
+        onError: () => {},
       });
     }
   }, [cartItems]);
 
-  // Calculate totals
-  const getSubtotal = () => {
-    return cartItems.reduce((sum, item) => {
-      const price = item.price || item.sellingPrice || 0;
-      return sum + price * (item.quantity || 1);
-    }, 0);
-  };
+  const getSubtotal = () => cartItems.reduce((sum, item) => {
+    const price = item.price || item.sellingPrice || 0;
+    return sum + price * (item.quantity || 1);
+  }, 0);
 
   const subtotal = getSubtotal();
-  const selectedShippingOption = SHIPPING_OPTIONS.find(
-    (opt) => opt.id === selectedShipping,
-  );
+  const selectedShippingOption = SHIPPING_OPTIONS.find((opt) => opt.id === selectedShipping);
   const shippingCost = selectedShippingOption?.cost || 0;
 
   const discountAmount = useMemo(() => {
     if (!appliedPromo) return 0;
     const percentage = parseFloat(appliedPromo.discountPercentage);
-    if (!isNaN(percentage)) {
-      return (subtotal * percentage) / 100;
-    }
+    if (!isNaN(percentage)) return (subtotal * percentage) / 100;
     return 0;
   }, [appliedPromo, subtotal]);
 
   const discountedSubtotal = Math.max(0, subtotal - discountAmount);
-
-  const tax = Math.round(discountedSubtotal * 0.03); // 3% GST on discounted subtotal
+  const tax = Math.round(discountedSubtotal * 0.03); 
   const total = discountedSubtotal + shippingCost + tax;
 
   useEffect(() => {
@@ -283,99 +245,30 @@ const Checkout = () => {
     let isValid = true;
     const newErrors = {};
     const newTouched = {};
-
     if (currentStep === 1) {
-      const fields = [
-        "firstName",
-        "lastName",
-        "email",
-        "phone",
-      ];
-      fields.forEach((field) => {
+      ["firstName", "lastName", "email", "phone"].forEach((field) => {
         newTouched[field] = true;
-        const error = validateShippingField(
-          field,
-          shippingInfo[field],
-          shippingInfo,
-        );
-        if (error) {
-          newErrors[field] = error;
-          isValid = false;
-        }
+        const error = validateShippingField(field, shippingInfo[field], shippingInfo);
+        if (error) { newErrors[field] = error; isValid = false; }
       });
     } else if (currentStep === 2) {
-      // Validate Billing
       if (!sameAsShipping) {
-        const billingFields = [
-          "firstName",
-          "lastName",
-          "address",
-          "city",
-          "state",
-          "zipCode",
-        ];
-        billingFields.forEach((field) => {
+        ["firstName", "lastName", "address", "city", "state", "zipCode"].forEach((field) => {
           newTouched[field] = true;
-          const error = validateBillingField(
-            field,
-            billingInfo[field],
-            billingInfo,
-          );
-          if (error) {
-            newErrors[field] = error;
-            isValid = false;
-          }
+          const error = validateBillingField(field, billingInfo[field], billingInfo);
+          if (error) { newErrors[field] = error; isValid = false; }
         });
       }
-
-      // Validate Payment
-      const paymentFields = ["method"]; // Basic check
-      if (paymentInfo.method === "online") {
-        if (paymentInfo.onlineType === "card") {
-          ["cardNumber", "cardName", "expiryDate", "cvv"].forEach((field) => {
-            newTouched[field] = true;
-            const error = validatePaymentField(
-              field,
-              paymentInfo[field],
-              "card",
-            );
-            if (error) {
-              newErrors[field] = error;
-              isValid = false;
-            }
-          });
-        } else if (paymentInfo.onlineType === "upi") {
-          newTouched["upiId"] = true;
-          const error = validatePaymentField("upiId", paymentInfo.upiId, "upi");
-          if (error) {
-            newErrors["upiId"] = error;
-            isValid = false;
-          }
-        }
-      }
     }
-
     setErrors(newErrors);
     setTouched((prev) => ({ ...prev, ...newTouched }));
     return isValid;
   };
 
   const handleNextStep = async () => {
-    const isValid = await handleStepValidation(step);
-    if (isValid) {
+    if (await handleStepValidation(step)) {
       if (step === 1) {
-        setBillingInfo({
-          _id: shippingInfo._id,
-          firstName: shippingInfo.firstName,
-          lastName: shippingInfo.lastName,
-          address: shippingInfo.address,
-          city: shippingInfo.city,
-          state: shippingInfo.state,
-          zipCode: shippingInfo.zipCode,
-          country: shippingInfo.country,
-        });
-
-        // Check delivery serviceability before allowing payment step
+        setBillingInfo({ ...shippingInfo });
         const pincode = shippingInfo.zipCode?.replace(/\D/g, '');
         if (pincode && pincode.length === 6) {
           setLoading(true);
@@ -386,64 +279,39 @@ const Checkout = () => {
                 setLoading: null,
                 onSuccess: (data) => {
                   if (data?.data && data.data.deliverable === false && !data.data.error) {
-                    reject(new Error(
-                      `Sorry, we don't deliver to pincode ${pincode} yet. Please use a different address.`
-                    ));
-                  } else {
-                    resolve();
-                  }
+                    reject(new Error(`Sorry, we don't deliver to pincode ${pincode} yet.`));
+                  } else resolve();
                 },
-                onError: () => resolve(), // Don't block on API failure
+                onError: () => resolve(),
               });
             });
           } catch (err) {
             toast.error(err.message);
-            setErrors((prev) => ({ ...prev, zipCode: 'Delivery not available to this pincode' }));
+            setErrors((prev) => ({ ...prev, zipCode: 'Delivery not available' }));
             setLoading(false);
             return;
-          } finally {
-            setLoading(false);
-          }
+          } finally { setLoading(false); }
         }
       }
       setStep(step + 1);
       window.scrollTo(0, 0);
-    } else {
-      toast.error("Please fix the errors before continuing");
-    }
+    } else toast.error("Please fix errors before continuing");
   };
 
-  const handlePrevStep = () => {
-    if (step > 1) {
-      setStep(step - 1);
-      window.scrollTo(0, 0);
-    }
-  };
+  const handlePrevStep = () => { if (step > 1) { setStep(step - 1); window.scrollTo(0, 0); } };
 
-  // Load Razorpay script
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      if (window.Razorpay) {
-        resolve(true);
-        return;
-      }
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
+  const loadRazorpayScript = () => new Promise((resolve) => {
+    if (window.Razorpay) { resolve(true); return; }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
 
-  // Handle Razorpay payment
   const handleRazorpayPayment = async (orderData) => {
     const scriptLoaded = await loadRazorpayScript();
-
-    if (!scriptLoaded) {
-      toast.error("Failed to load payment gateway. Please try again.");
-      return null;
-    }
-
+    if (!scriptLoaded) { toast.error("Failed to load payment gateway."); return null; }
     return new Promise((resolve, reject) => {
       const options = {
         key: env.RAZORPAY_KEY_ID || "rzp_test_1234567890",
@@ -453,248 +321,64 @@ const Checkout = () => {
         description: `Order #${orderData.orderId}`,
         order_id: orderData.razorpayOrderId,
         customer_id: orderData.razorpayCustomerId,
-        handler: function (response) {
-          resolve({
-            razorpayPaymentId: response.razorpay_payment_id,
-            razorpayOrderId: response.razorpay_order_id,
-            razorpaySignature: response.razorpay_signature,
-          });
-        },
-        prefill: {
-          name: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
-          email: shippingInfo.email,
-          contact: shippingInfo.phone,
-        },
-        theme: {
-          color: primaryColor,
-        },
-        modal: {
-          ondismiss: function () {
-            reject(new Error("Payment cancelled by user"));
-          },
-        },
+        handler: (response) => resolve({
+          razorpayPaymentId: response.razorpay_payment_id,
+          razorpayOrderId: response.razorpay_order_id,
+          razorpaySignature: response.razorpay_signature,
+        }),
+        prefill: { name: `${shippingInfo.firstName} ${shippingInfo.lastName}`, email: shippingInfo.email, contact: shippingInfo.phone },
+        theme: { color: primaryColor },
+        modal: { ondismiss: () => reject(new Error("Payment cancelled")) },
       };
-
       const razorpay = new window.Razorpay(options);
-      razorpay.on("payment.failed", function (response) {
-        reject(new Error(response.error.description || "Payment failed"));
-      });
+      razorpay.on("payment.failed", (response) => reject(new Error(response.error.description || "Payment failed")));
       razorpay.open();
     });
   };
 
-  // Handle 3DS redirect in popup for S2S card payments
-  const handleS2SRedirect = (redirectUrl, orderId) => {
-    const width = 500;
-    const height = 600;
-    const left = (window.innerWidth - width) / 2;
-    const top = (window.innerHeight - height) / 2;
-
-    const popup = window.open(
-      redirectUrl,
-      "razorpay_3ds",
-      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`,
-    );
-
-    if (!popup) {
-      toast.error("Popup blocked. Redirecting to bank verification...");
-      window.location.href = redirectUrl;
-      return;
-    }
-
-    // Poll for popup closure
-    const pollInterval = setInterval(() => {
-      try {
-        if (popup.closed) {
-          clearInterval(pollInterval);
-          checkPaymentStatus(orderId);
-        }
-      } catch (e) {
-        // Cross-origin access error expected while popup is on bank page
-      }
-    }, 1000);
-
-    // Safety timeout - stop polling after 10 minutes
-    setTimeout(() => {
-      clearInterval(pollInterval);
-      if (!popup.closed) popup.close();
-      checkPaymentStatus(orderId);
-    }, 600000);
-  };
-
-  // Check payment status after 3DS redirect
-  const checkPaymentStatus = (orderId) => {
-    paymentApi.getPaymentStatus({
-      orderId,
-      onSuccess: (data) => {
-        if (data.success && data.data?.paymentStatus === "paid") {
-          showSuccessToast(orderId);
-          setTimeout(() => navigate("/myOrders"), 3000);
-        } else if (data.data?.paymentStatus === "failed") {
-          toast.error("Payment failed. Please try again from My Orders.");
-          setTimeout(() => navigate("/myOrders"), 2000);
-        } else {
-          navigate(`/payment-status?status=pending&orderId=${orderId}`);
-        }
-      },
-      onError: () => {
-        navigate(`/payment-status?status=pending&orderId=${orderId}`);
-      },
-    });
-  };
-
-  const showSuccessToast = (orderId) => {
-    toast.success(
-      orderId ? `Order placed successfully! Order ID: ${orderId}` : 'Order placed successfully!',
-      { duration: 5000 }
-    );
-  };
+  const showSuccessToast = (orderId) => toast.success(orderId ? `Order placed! ID: ${orderId}` : 'Order placed successfully!', { duration: 5000 });
 
   const handlePlaceOrder = async () => {
-    if (!userApi.isAuthenticated()) {
-      toast.error("Please login to place order");
-      navigate("/login");
-      return;
-    }
-
+    if (!userApi.isAuthenticated()) { navigate("/login"); return; }
     setLoading(true);
-
     try {
-      // 1) Ensure we have valid addresses with IDs
       let finalShippingId = shippingInfo._id || shippingInfo.id;
-      let finalBillingId = billingInfo._id || billingInfo.id || finalShippingId;
-
-      // If no shipping ID (i.e., user entered new address but didn't click "Save")
       if (!finalShippingId) {
-        // Validate shipping info before attempting to save
-        const requiredFields = [
-          "firstName",
-          "lastName",
-          "phone",
-          "address",
-          "city",
-          "state",
-          "zipCode",
-        ];
-        const validationErrors = {};
-
-        requiredFields.forEach((field) => {
-          const error = validateShippingField(
-            field,
-            shippingInfo[field],
-            shippingInfo,
-          );
-          if (error) {
-            validationErrors[field] = error;
-          }
-        });
-
-        if (Object.keys(validationErrors).length > 0) {
-          // Show first error message
-          const firstError = Object.values(validationErrors)[0];
-          toast.error(
-            firstError ||
-            "Please fill in all required address fields correctly",
-          );
-          setLoading(false);
-          setStep(1); // Go back to shipping step
-          return;
-        }
-
-        try {
-          const addressPayload = {
-            name: `${shippingInfo.firstName} ${shippingInfo.lastName}`.trim(),
-            phone: shippingInfo.phone,
-            address: shippingInfo.address,
-            addressLine1: shippingInfo.address,
-            city: shippingInfo.city,
-            state: shippingInfo.state,
-            pincode: shippingInfo.zipCode,
-            country: shippingInfo.country || "India",
-            addressType: "home",
-          };
-          const saveResponse = await userApi.addAddress(addressPayload);
-          if (saveResponse.status === "success" && saveResponse.data) {
-            // Backend might return the user with addresses or just the new address
-            const user = saveResponse.data.user || saveResponse.data;
-            const newAddr = user.addresses
-              ? user.addresses[user.addresses.length - 1]
-              : user;
-            finalShippingId = newAddr._id || newAddr.id;
-            if (!finalBillingId) finalBillingId = finalShippingId;
-
-            // Update local state so UI reflects it was saved
-            setShippingInfo((prev) => ({ ...prev, _id: finalShippingId }));
-            await refreshAddresses();
-          } else {
-            throw new Error(saveResponse.message || "Failed to save address");
-          }
-        } catch (err) {
-          console.error("Failed to auto-save address during checkout:", err);
-          const errorMessage =
-            err.response?.data?.message ||
-            err.message ||
-            "Please provide a valid address";
-          toast.error(errorMessage);
-          setLoading(false);
-          return;
-        }
+        const addressPayload = {
+          name: `${shippingInfo.firstName} ${shippingInfo.lastName}`.trim(),
+          phone: shippingInfo.phone,
+          address: shippingInfo.address,
+          addressLine1: shippingInfo.address,
+          city: shippingInfo.city,
+          state: shippingInfo.state,
+          pincode: shippingInfo.zipCode,
+          country: shippingInfo.country || "India",
+          addressType: "home",
+        };
+        const saveResponse = await userApi.addAddress(addressPayload);
+        if (saveResponse.status === "success") {
+          const user = saveResponse.data.user || saveResponse.data;
+          finalShippingId = (user.addresses ? user.addresses[user.addresses.length - 1] : user)._id;
+          setShippingInfo((prev) => ({ ...prev, _id: finalShippingId }));
+          await refreshAddresses();
+        } else throw new Error(saveResponse.message || "Failed to save address");
       }
 
-      // Final check
-      if (!finalShippingId) {
-        toast.error("Shipping address is required");
-        setLoading(false);
-        return;
-      }
-
-      // Prepare order data
       const orderData = {
         shippingAddressId: finalShippingId,
-        billingAddressId: finalBillingId,
+        billingAddressId: billingInfo._id || billingInfo.id || finalShippingId,
         shippingMethod: selectedShipping,
-        paymentMethod: paymentInfo.method === "cod" ? "cod" : "razorpay",
+        paymentMethod: "razorpay",
         promoCode: appliedPromo?.code,
       };
 
-      // Case 1: COD - Create order immediately
-      if (paymentInfo.method === "cod") {
-        orderApi.createOrder({
-          orderData,
-          setLoading,
-          onSuccess: (data) => {
-            if ((data.status === 'success' || data.success) && data.data) {
-              const order = data.data.order || data.data;
-              clearCart();
-              showSuccessToast(order.orderId || order._id);
-              setTimeout(() => navigate("/myOrders"), 3000);
-            } else {
-              toast.error(data.message || "Failed to create order");
-            }
-          },
-          onError: (err) => {
-            const errorMessage = err.message || "Failed to create order.";
-            toast.error(errorMessage);
-          },
-        });
-        return;
-      }
-
-      // Case 2: Online Payment (Razorpay Modal)
-      // NEW FLOW: Initiate -> Pay (via Modal) -> Create (Finalize)
-      // Case 2: Online Payment (Razorpay Modal)
-      // NEW FLOW: Initiate -> Pay (via Modal) -> Create (Finalize)
-      // Pass setLoading: null to prevent loading from turning off after initiatePayment completes
-      // We want loading to stay true while Razorpay modal is open
       orderApi.initiatePayment({
         orderData,
         setLoading: null,
         onSuccess: async (initData) => {
           if ((initData.status === 'success' || initData.success) && initData.data?.razorpayOrder) {
             const rzpOrder = initData.data.razorpayOrder;
-
             try {
-              // Open Razorpay Modal
               const paymentResult = await handleRazorpayPayment({
                 orderId: "New Order",
                 razorpayOrderId: rzpOrder.id,
@@ -702,214 +386,150 @@ const Checkout = () => {
                 currency: rzpOrder.currency,
                 razorpayCustomerId: initData.data.razorpayCustomerId,
               });
-
               if (paymentResult) {
-                // Now hit the POST /api/v1/orders with payment proof
                 orderApi.createOrder({
-                  orderData: {
-                    ...orderData,
-                    razorpayPaymentId: paymentResult.razorpayPaymentId,
-                    razorpayOrderId: paymentResult.razorpayOrderId,
-                    razorpaySignature: paymentResult.razorpaySignature,
-                  },
-                  setLoading, // Let this one turn off loading when done
+                  orderData: { ...orderData, ...paymentResult },
+                  setLoading,
                   onSuccess: (finalData) => {
                     const finalOrder = finalData.data.order || finalData.data;
                     clearCart();
                     showSuccessToast(finalOrder.orderId || finalOrder._id);
-                    setTimeout(() => navigate("/myOrders"), 3000);
+                    setTimeout(() => navigate("/myOrders"), 1500);
                   },
-                  onError: (err) => {
-                    toast.error(
-                      "Payment successful but order creation failed. Please contact support.",
-                    );
-                    setLoading(false);
-                  },
+                  onError: () => { toast.error("Order creation failed. Contact support."); setLoading(false); },
                 });
-              } else {
-                setLoading(false);
-              }
-            } catch (err) {
-              toast.error(err.message || "Payment cancelled");
-              setLoading(false);
-            }
-          } else {
-            toast.error("Failed to initiate payment gateway");
-            setLoading(false);
-          }
+              } else setLoading(false);
+            } catch (err) { toast.error(err.message || "Payment cancelled"); setLoading(false); }
+          } else { toast.error("Failed to initiate payment gateway"); setLoading(false); }
         },
-        onError: (err) => {
-          // err is likely the response object itself or the error object
-          const errorMessage = err.data?.message || err.response?.data?.message || err.message || "Failed to initiate payment";
-          toast.error(errorMessage);
-          setLoading(false);
-        },
+        onError: (err) => { toast.error(err.data?.message || err.message || "Failed to initiate payment"); setLoading(false); },
       });
-    } catch (error) {
-      console.error("Checkout error:", error);
-      toast.error("An error occurred. Please try again.");
-      setLoading(false);
-    }
+    } catch (error) { toast.error("An error occurred."); setLoading(false); }
   };
 
-  // Redirect if cart is empty
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <BsCreditCard
-            className="text-6xl mx-auto mb-6"
-            style={{ color: primaryColor }}
-          />
-          <h3 className="text-2xl font-bold text-gray-700 mb-3">
-            Your cart is empty
-          </h3>
-          <p className="text-gray-600 mb-8">
-            Add items to your cart before checking out.
-          </p>
-          <button
-            onClick={() => navigate("/categories")}
-            className="px-8 py-3 text-white font-bold rounded-lg"
-            style={{ backgroundColor: primaryColor }}
-          >
-            Continue Shopping
-          </button>
-        </div>
+      <div className="min-h-screen bg-white py-24 px-4 flex flex-col items-center justify-center">
+        <h3 className="text-3xl font-medium text-gray-900 mb-6 italic">Your cart is currently empty</h3>
+        <button onClick={() => navigate("/categories")} className="px-12 py-4 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-[#C19A6B] transition-all">
+          Explore Boutique
+        </button>
       </div>
     );
   }
 
+  const formatPrice = (price) => `₹${price.toLocaleString("en-IN")}`;
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-6xl mx-auto mb-12">
-        <ProgressSteps currentStep={step} />
+    <div className="min-h-screen bg-white">
+      {/* Editorial Header */}
+      <div className="border-b border-gray-100 pt-12 pb-16">
+        <div className="max-w-7xl mx-auto px-4 text-center md:text-left">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <div>
+              <h1 className="text-4xl md:text-7xl font-light tracking-tight text-gray-900">
+                Checkout <span className="italic text-[#C19A6B]">Journey</span>
+              </h1>
+              <p className="text-[10px] text-[#C19A6B] mt-6 font-bold uppercase tracking-[0.4em]">
+                Step {step} of 3 — {step === 1 ? 'Shipping' : step === 2 ? 'Payment' : 'Review'}
+              </p>
+            </div>
+            <button onClick={() => navigate("/cart")} className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 hover:text-gray-900 transition-colors">
+              [ Return to Bag ]
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            {step === 1 && (
-              <ShippingComponent
-                data={shippingInfo}
-                setData={setShippingInfo}
-                errors={errors}
-                setErrors={setErrors}
-                touched={touched}
-                setTouched={setTouched}
-                saveInfo={saveInfo}
-                setSaveInfo={setSaveInfo}
-                savedAddresses={userAddresses}
-                refreshAddresses={refreshAddresses}
-                page={addressPage}
-                totalPages={totalPages}
-                totalAddresses={totalAddresses}
-                onPageChange={setAddressPage}
-              />
-            )}
+      <div className="max-w-7xl mx-auto px-4 py-20">
+        <div className="mb-24">
+          <ProgressSteps currentStep={step} />
+        </div>
 
-            {step === 2 && (
-              <>
-                <BillingComponent
-                  data={billingInfo}
-                  setData={setBillingInfo}
-                  sameAsShipping={sameAsShipping}
-                  setSameAsShipping={setSameAsShipping}
-                  errors={errors}
-                  setErrors={setErrors}
-                  touched={touched}
-                  setTouched={setTouched}
+        <div className="grid lg:grid-cols-12 gap-24 items-start">
+          <div className="lg:col-span-8 space-y-20">
+            <div className="bg-white">
+              {step === 1 && (
+                <ShippingComponent
+                  data={shippingInfo} setData={setShippingInfo}
+                  errors={errors} setErrors={setErrors}
+                  touched={touched} setTouched={setTouched}
+                  saveInfo={saveInfo} setSaveInfo={setSaveInfo}
+                  savedAddresses={userAddresses} refreshAddresses={refreshAddresses}
+                  page={addressPage} totalPages={totalPages} totalAddresses={totalAddresses}
+                  onPageChange={setAddressPage}
                 />
-
-                <div className="mt-8">
-                  <PaymentComponent
-                    data={paymentInfo}
-                    setData={setPaymentInfo}
-                    total={total}
-                    errors={errors}
-                    touched={touched}
-                    setErrors={setErrors}
-                    setTouched={setTouched}
-                  />
-                </div>
-              </>
-            )}
-
-            {step === 3 && (
-              <ReviewComponent
-                shippingInfo={shippingInfo}
-                billingInfo={billingInfo}
-                paymentInfo={paymentInfo}
-                cartItems={cartItems}
-                selectedShippingOption={selectedShippingOption}
-                subtotal={subtotal}
-                shippingCost={shippingCost}
-                tax={tax}
-                total={total}
-                discountAmount={discountAmount}
-                appliedPromo={appliedPromo}
-              />
-            )}
-
-            <div className="flex justify-between mt-8">
-              {step > 1 && (
-                <button
-                  onClick={handlePrevStep}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-all"
-                >
-                  <BsArrowLeft className="inline mr-2" /> Previous
-                </button>
               )}
 
-              <div className="ml-auto">
+              {step === 2 && (
+                <div className="space-y-16">
+                  <BillingComponent
+                    data={billingInfo} setData={setBillingInfo}
+                    sameAsShipping={sameAsShipping} setSameAsShipping={setSameAsShipping}
+                    errors={errors} setErrors={setErrors}
+                    touched={touched} setTouched={setTouched}
+                  />
+                  <div className="pt-16 border-t border-gray-100">
+                    <PaymentComponent
+                      data={paymentInfo} setData={setPaymentInfo}
+                      total={total} errors={errors}
+                      touched={touched} setErrors={setErrors}
+                      setTouched={setTouched}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {step === 3 && (
+                <ReviewComponent
+                  shippingInfo={shippingInfo} billingInfo={billingInfo}
+                  paymentInfo={paymentInfo} cartItems={cartItems}
+                  selectedShippingOption={selectedShippingOption}
+                  subtotal={subtotal} shippingCost={shippingCost}
+                  tax={tax} total={total}
+                  discountAmount={discountAmount} appliedPromo={appliedPromo}
+                />
+              )}
+
+              <div className="mt-24 flex flex-col sm:flex-row items-center justify-between gap-10 pt-12 border-t border-gray-200">
+                {step > 1 ? (
+                  <button onClick={handlePrevStep} className="w-full sm:w-auto px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-400 border border-gray-100 hover:border-gray-900 hover:text-gray-900 transition-all">
+                    Previous Phase
+                  </button>
+                ) : <div className="hidden sm:block"></div>}
+
                 {step < 3 ? (
-                  <button
-                    onClick={handleNextStep}
-                    className="px-8 py-3 font-bold hover:opacity-90 transition-all"
-                    style={{
-                      backgroundColor: primaryColor,
-                      color: "white",
-                    }}
-                  >
-                    Continue to {step === 1 ? "Payment" : "Review"}
+                  <button onClick={handleNextStep} disabled={loading} className="w-full sm:w-auto px-12 py-4 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-[#C19A6B] transition-all disabled:opacity-50 shadow-2xl flex items-center justify-center gap-3">
+                    {loading && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
+                    Proceed to {step === 1 ? "Payment" : "Final Review"}
                   </button>
                 ) : (
-                  <button
-                    onClick={handlePlaceOrder}
-                    disabled={loading || stockChecking}
-                    className="px-8 py-3 font-bold hover:opacity-90 disabled:opacity-50 transition-all flex items-center gap-2"
-                    style={{
-                      backgroundColor: primaryColor,
-                      color: "white",
-                    }}
-                  >
-                    {loading ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <BsLock />
-                        Place Order - {formatPrice(total)}
-                      </>
-                    )}
+                  <button onClick={handlePlaceOrder} disabled={loading || stockChecking} className="w-full sm:w-auto px-12 py-4 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-[#C19A6B] transition-all disabled:opacity-50 shadow-2xl flex items-center justify-center gap-4">
+                    {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <BsShieldCheck className="text-sm" />}
+                    Confirm Secure Purchase — {formatPrice(total)}
                   </button>
                 )}
               </div>
             </div>
+            
+            <div className="flex flex-col md:flex-row items-center justify-center gap-12 py-12 border-y border-gray-50">
+               <div className="flex items-center gap-4 text-gray-300 group hover:text-gray-900 transition-colors">
+                 <BsLock className="text-xl" />
+                 <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Safe Encryption</span>
+               </div>
+               <div className="flex items-center gap-4 text-gray-300 group hover:text-[#C19A6B] transition-colors">
+                 <BsShieldCheck className="text-xl" />
+                 <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Authentic Verified</span>
+               </div>
+            </div>
           </div>
 
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-4 sticky top-12">
             <OrderSummary
-              cartItems={cartItems}
-              subtotal={subtotal}
-              shippingCost={shippingCost}
-              tax={tax}
-              total={total}
-              discountAmount={discountAmount}
-              appliedPromo={appliedPromo}
-              selectedShipping={selectedShipping}
-              setSelectedShipping={setSelectedShipping}
+              cartItems={cartItems} subtotal={subtotal}
+              shippingCost={shippingCost} tax={tax} total={total}
+              discountAmount={discountAmount} appliedPromo={appliedPromo}
+              selectedShipping={selectedShipping} setSelectedShipping={setSelectedShipping}
               shippingOptions={SHIPPING_OPTIONS}
             />
           </div>
@@ -917,11 +537,6 @@ const Checkout = () => {
       </div>
     </div>
   );
-};
-
-// Helper function to format price
-const formatPrice = (price) => {
-  return `₹${price.toLocaleString("en-IN")}`;
 };
 
 export default Checkout;

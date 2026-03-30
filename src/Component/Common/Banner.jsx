@@ -198,12 +198,12 @@ const Banner = ({
             {showContent && (title || subtitle || description || banner.footer || banner.buttonText) && (
                 <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-6 md:p-12 bg-black/20">
                     {title && (
-                        <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-2 md:mb-4 drop-shadow-lg">
+                        <h2 className="text-3xl md:text-5xl lg:text-7xl font-bold mb-4 md:mb-6 drop-shadow-lg">
                             {title}
                         </h2>
                     )}
                     {subtitle && (
-                        <h3 className="text-xl md:text-2xl lg:text-3xl font-medium mb-2 md:mb-4 drop-shadow-lg">
+                        <h3 className="text-xl md:text-2xl lg:text-3xl font-medium mb-4 md:mb-6 drop-shadow-md">
                             {subtitle}
                         </h3>
                     )}

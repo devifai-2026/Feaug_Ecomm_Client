@@ -14,80 +14,108 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
     backgroundColor: "#ffffff",
-    padding: 30,
+    padding: 40,
   },
   header: {
-    marginBottom: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: "#C19A6B",
+    paddingBottom: 20,
+    marginBottom: 40,
   },
   companyName: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#d97706", // amber-600
+    color: "#C19A6B",
+    letterSpacing: 2,
   },
   invoiceTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: "bold",
-    marginVertical: 20,
-    color: "#1f2937", // gray-900
+    color: "#1f2937",
   },
   section: {
-    marginBottom: 15,
+    marginBottom: 20,
   },
   label: {
-    fontSize: 10,
-    color: "#6b7280", // gray-500
-    marginBottom: 3,
+    fontSize: 8,
+    color: "#9ca3af",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginBottom: 4,
   },
   value: {
-    fontSize: 12,
-    color: "#1f2937", // gray-900
+    fontSize: 10,
+    color: "#1f2937",
     fontWeight: "medium",
   },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 8,
+    gap: 40,
+  },
+  table: {
+    marginTop: 40,
+    marginBottom: 40,
   },
   tableHeader: {
     flexDirection: "row",
-    backgroundColor: "#f3f4f6", // gray-100
-    padding: 10,
+    backgroundColor: "#f9fafb",
+    padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#d1d5db", // gray-300
+    borderBottomColor: "#e5e7eb",
   },
   tableRow: {
     flexDirection: "row",
-    padding: 10,
+    padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb", // gray-200
+    borderBottomColor: "#f3f4f6",
   },
-  col1: { width: "50%" },
-  col2: { width: "20%" },
-  col3: { width: "30%" },
+  colDesc: { width: "50%" },
+  colQty: { width: "20%", textAlign: "right" },
+  colPrice: { width: "30%", textAlign: "right" },
   totalSection: {
-    marginTop: 30,
-    paddingTop: 15,
-    borderTopWidth: 2,
-    borderTopColor: "#d1d5db",
+    marginLeft: "Auto",
+    width: "40%",
+    gap: 8,
   },
   totalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 5,
   },
-  grandTotal: {
-    fontSize: 16,
+  grandTotalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#C19A6B",
+  },
+  grandTotalLabel: {
+    fontSize: 12,
     fontWeight: "bold",
-    color: "#d97706", // amber-600
+    color: "#1f2937",
+  },
+  grandTotalValue: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#C19A6B",
   },
   footer: {
     position: "absolute",
-    bottom: 30,
-    left: 30,
-    right: 30,
+    bottom: 40,
+    left: 40,
+    right: 40,
     textAlign: "center",
-    fontSize: 10,
-    color: "#6b7280",
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: "#f3f4f6",
+  },
+  footerText: {
+    fontSize: 8,
+    color: "#9ca3af",
+    marginBottom: 4,
   },
 });
 
@@ -97,85 +125,62 @@ const InvoicePDF = ({ order }) => {
   const discount = order.discount || 0;
   const shipping = order.shippingCharge || 0;
   const grandTotal = order.amount || 0;
-  const promoCode = order.promoCode;
+
+  // Format addressing properly
+  const address = order.shippingAddress;
+  const addressString = address && typeof address === 'object'
+    ? `${address.name}\n${address.street}\n${address.city}, ${address.state} ${address.postalCode}\nPhone: ${address.phone}`
+    : typeof address === 'string' ? address : "Address N/A";
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.companyName}>FEAUAG JEWELLERY</Text>
-          <Text style={{ fontSize: 10, color: "#6b7280", marginTop: 5 }}>
-            Luxury & Craftsmanship Since 1950
-          </Text>
+          <View>
+            <Text style={styles.companyName}>FEAUAG</Text>
+            <Text style={[styles.footerText, { color: "#C19A6B" }]}>Luxury Jewellery Experience</Text>
+          </View>
+          <View style={{ textAlign: "right" }}>
+            <Text style={styles.invoiceTitle}>INVOICE</Text>
+            <Text style={styles.value}>#{order.orderNo}</Text>
+          </View>
         </View>
 
-        {/* Invoice Title */}
-        <Text style={styles.invoiceTitle}>INVOICE</Text>
-
-        {/* Order Information */}
-        <View style={[styles.row, { marginBottom: 20 }]}>
-          <View style={styles.section}>
-            <Text style={styles.label}>INVOICE NUMBER</Text>
-            <Text style={styles.value}>{order.orderNo}</Text>
+        {/* Details */}
+        <View style={styles.row}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.label}>Bill To</Text>
+            <Text style={styles.value}>{addressString}</Text>
           </View>
-          <View style={styles.section}>
-            <Text style={styles.label}>DATE</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.label}>Ship To</Text>
+            <Text style={styles.value}>{addressString}</Text>
+          </View>
+          <View style={{ flex: 0.5, textAlign: "right" }}>
+            <Text style={styles.label}>Date</Text>
             <Text style={styles.value}>
               {new Date(order.date).toLocaleDateString("en-IN", {
-                day: "numeric",
-                month: "long",
+                day: "2-digit",
+                month: "short",
                 year: "numeric",
               })}
             </Text>
           </View>
-          <View style={styles.section}>
-            <Text style={styles.label}>STATUS</Text>
-            <Text
-              style={[
-                styles.value,
-                {
-                  color:
-                    order.status === "delivered"
-                      ? "#10b981"
-                      : order.status === "shipped"
-                        ? "#3b82f6"
-                        : order.status === "processing"
-                          ? "#f59e0b"
-                          : "#ef4444",
-                },
-              ]}
-            >
-              {order.status.toUpperCase()}
-            </Text>
-          </View>
         </View>
 
-        {/* Billing & Shipping Info */}
-        <View style={[styles.row, { marginBottom: 30 }]}>
-          <View style={styles.section}>
-            <Text style={styles.label}>BILLING ADDRESS</Text>
-            <Text style={styles.value}>{order.shippingAddress}</Text>
-          </View>
-          <View style={styles.section}>
-            <Text style={styles.label}>SHIPPING ADDRESS</Text>
-            <Text style={styles.value}>{order.shippingAddress}</Text>
-          </View>
-        </View>
-
-        {/* Items Table */}
-        <View style={styles.section}>
+        {/* Table */}
+        <View style={styles.table}>
           <View style={styles.tableHeader}>
-            <Text style={[styles.value, styles.col1]}>DESCRIPTION</Text>
-            <Text style={[styles.value, styles.col2]}>QUANTITY</Text>
-            <Text style={[styles.value, styles.col3]}>AMOUNT (₹)</Text>
+            <Text style={[styles.label, styles.colDesc, { marginBottom: 0 }]}>Description</Text>
+            <Text style={[styles.label, styles.colQty, { marginBottom: 0 }]}>Qty</Text>
+            <Text style={[styles.label, styles.colPrice, { marginBottom: 0 }]}>Price (Rs.)</Text>
           </View>
-
-          {order.items.map((item, index) => (
-            <View key={index} style={styles.tableRow}>
-              <Text style={[styles.value, styles.col1]}>{item.name}</Text>
-              <Text style={[styles.value, styles.col2]}>{item.quantity}</Text>
-              <Text style={[styles.value, styles.col3]}>{item.price}</Text>
+          {order.items.map((item, i) => (
+            <View key={i} style={styles.tableRow}>
+              <Text style={[styles.value, styles.colDesc]}>{item.name}</Text>
+              <Text style={[styles.value, styles.colQty]}>{item.quantity}</Text>
+              <Text style={[styles.value, styles.colPrice]}>{item.price.toLocaleString("en-IN")}</Text>
             </View>
           ))}
         </View>
@@ -183,66 +188,33 @@ const InvoicePDF = ({ order }) => {
         {/* Totals */}
         <View style={styles.totalSection}>
           <View style={styles.totalRow}>
-            <Text style={styles.value}>Subtotal</Text>
-            <Text style={styles.value}>
-              ₹{subtotal.toLocaleString("en-IN")}
-            </Text>
+            <Text style={styles.label}>Subtotal</Text>
+            <Text style={styles.value}>Rs.{subtotal.toLocaleString("en-IN")}</Text>
           </View>
           {discount > 0 && (
             <View style={styles.totalRow}>
-              <Text style={[styles.value, { color: "#10b981" }]}>
-                Discount {promoCode ? `(${promoCode})` : ""}
-              </Text>
-              <Text style={[styles.value, { color: "#10b981" }]}>
-                -₹{discount.toLocaleString("en-IN")}
-              </Text>
+              <Text style={[styles.label, { color: "#10b981" }]}>Discount Privilege</Text>
+              <Text style={[styles.value, { color: "#10b981" }]}>-Rs.{discount.toLocaleString("en-IN")}</Text>
             </View>
           )}
           <View style={styles.totalRow}>
-            <Text style={styles.value}>Shipping</Text>
-            <Text
-              style={[styles.value, shipping === 0 ? { color: "#10b981" } : {}]}
-            >
-              {shipping === 0 ? "FREE" : `₹${shipping.toLocaleString("en-IN")}`}
-            </Text>
+            <Text style={styles.label}>Shipping</Text>
+            <Text style={styles.value}>{shipping === 0 ? "Complimentary" : `Rs.${shipping.toLocaleString("en-IN")}`}</Text>
           </View>
           <View style={styles.totalRow}>
-            <Text style={styles.value}>GST (3%)</Text>
-            <Text style={styles.value}>
-              ₹{Math.round(tax).toLocaleString("en-IN")}
-            </Text>
+            <Text style={styles.label}>Tax (GST 3%)</Text>
+            <Text style={styles.value}>Rs.{tax.toLocaleString("en-IN")}</Text>
           </View>
-          <View style={[styles.totalRow, { marginTop: 10 }]}>
-            <Text style={styles.grandTotal}>Total Amount</Text>
-            <Text style={styles.grandTotal}>
-              ₹{grandTotal.toLocaleString("en-IN")}
-            </Text>
+          <View style={styles.grandTotalRow}>
+            <Text style={styles.grandTotalLabel}>Grand Total</Text>
+            <Text style={styles.grandTotalValue}>Rs.{grandTotal.toLocaleString("en-IN")}</Text>
           </View>
-        </View>
-
-        {/* Payment & Tracking Info */}
-        <View style={[styles.row, { marginTop: 30 }]}>
-          <View style={styles.section}>
-            <Text style={styles.label}>PAYMENT METHOD</Text>
-            <Text style={styles.value}>{order.paymentMethod}</Text>
-          </View>
-          {order.trackingId && (
-            <View style={styles.section}>
-              <Text style={styles.label}>TRACKING ID</Text>
-              <Text style={styles.value}>{order.trackingId}</Text>
-            </View>
-          )}
         </View>
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text>Thank you for shopping with FEAUAG Jewellery</Text>
-          <Text>
-            For any queries, contact: support@feauag.com | +91 98765 43210
-          </Text>
-          <Text>
-            This is a computer-generated invoice. No signature required.
-          </Text>
+          <Text style={styles.footerText}>Thank you for choosing FEAUAG Jewellery.</Text>
+          <Text style={styles.footerText}>This is a computer-generated invoice. For support, email support@feauag.com</Text>
         </View>
       </Page>
     </Document>

@@ -1,4 +1,5 @@
-import { BsCurrencyRupee } from "react-icons/bs";
+import React from "react";
+import { BsShieldCheck } from "react-icons/bs";
 
 export const OrderSummary = ({
   subtotal = 0,
@@ -9,109 +10,72 @@ export const OrderSummary = ({
   cartItems = [],
   appliedPromo,
 }) => (
-  <div className="sticky top-24 space-y-6">
-    <div className="bg-white shadow-sm border border-gray-200 p-6">
-      <h2 className="text-xl font-bold text-gray-800 mb-4 pb-3 border-b">
-        Order Summary
-      </h2>
+  <div className="space-y-12 animate-in fade-in slide-in-from-bottom-6">
+    {/* The Receipt Card */}
+    <div className="bg-gray-50/50 rounded-3xl p-10 border border-gray-100 shadow-2xl shadow-black/5 group">
+       <h2 className="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-400 mb-12 flex items-center justify-between">
+         Summary <span>Ref: ORD-MANIFEST</span>
+       </h2>
 
-      <div className="space-y-3">
-        <div className="flex justify-between">
-          <span className="text-gray-600">Subtotal</span>
-          <span className="font-medium flex items-center">
-            <BsCurrencyRupee className="text-sm mr-1" />
-            {subtotal|0}
-          </span>
-        </div>
-
-        {discountAmount > 0 && (
-          <div className="flex justify-between text-green-600">
-            <span className="flex items-center gap-1">
-              Discount {appliedPromo && `(${appliedPromo.code})`}
-            </span>
-            <span className="font-medium flex items-center">
-              -<BsCurrencyRupee className="text-sm mr-1" />
-              {discountAmount|0}
-            </span>
+       <div className="space-y-6">
+          <div className="flex justify-between items-end">
+             <span className="text-sm font-medium text-gray-400 tracking-tight">Curated Subtotal</span>
+             <span className="text-xl font-bold text-gray-900 tabular-nums tracking-tighter">₹{subtotal.toLocaleString("en-IN")}</span>
           </div>
-        )}
 
-        <div className="flex justify-between">
-          <span className="text-gray-600">Shipping</span>
-          <span className="font-medium flex items-center">
-            <BsCurrencyRupee className="text-sm mr-1" />
-            {shippingCost|0}
-          </span>
-        </div>
+          {discountAmount > 0 && (
+             <div className="flex justify-between items-end text-green-600">
+                <span className="text-sm font-medium tracking-tight">Luxury Privilege — {appliedPromo?.code}</span>
+                <span className="text-xl font-bold tabular-nums tracking-tighter">-₹{discountAmount.toLocaleString("en-IN")}</span>
+             </div>
+          )}
 
-        <div className="flex justify-between">
-          <span className="text-gray-600">Tax (3% GST)</span>
-          <span className="font-medium flex items-center">
-            <BsCurrencyRupee className="text-sm mr-1" />
-            {tax|0}
-          </span>
-        </div>
-
-        <div className="border-t pt-3">
-          <div className="flex justify-between text-lg font-bold">
-            <span>Total</span>
-            <span className="flex items-center">
-              <BsCurrencyRupee className="text-base mr-1" />
-              {total|0}
-            </span>
+          <div className="flex justify-between items-end">
+             <span className="text-sm font-medium text-gray-400 tracking-tight">Shipping & Handling</span>
+             <span className="text-xl font-bold text-gray-900 tabular-nums tracking-tighter">
+               {shippingCost > 0 ? `₹${shippingCost}` : "Complementary"}
+             </span>
           </div>
-        </div>
-      </div>
 
-      <div className="mt-6 pt-6 border-t text-center text-sm text-gray-600">
-        <p>🔒 100% Secure Payment</p>
-      </div>
+          <div className="flex justify-between items-end pb-12 border-b border-dashed border-gray-200">
+             <span className="text-sm font-medium text-gray-400 tracking-tight">GST (3%)</span>
+             <span className="text-xl font-bold text-gray-900 tabular-nums tracking-tighter">₹{tax.toLocaleString("en-IN")}</span>
+          </div>
+
+          <div className="pt-12 flex flex-col gap-4">
+             <div className="flex justify-between items-end">
+                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Grand Total</span>
+                <span className="text-5xl font-bold text-gray-900 tracking-tighter tabular-nums">
+                  ₹{total.toLocaleString("en-IN")}
+                </span>
+             </div>
+             <div className="flex items-center gap-3 text-green-600 justify-end">
+                <BsShieldCheck className="text-sm" />
+                <span className="text-[9px] font-bold uppercase tracking-widest text-green-500">Secure Payment Terminal</span>
+             </div>
+          </div>
+       </div>
     </div>
 
-    {/* Cart Items Details */}
-    {cartItems && cartItems.length > 0 && (
-      <div className="bg-white shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-bold text-gray-800 mb-4 pb-3 border-b">
-          In Your Cart ({cartItems.length})
-        </h3>
-        <div className="space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
-          {cartItems.map((item, idx) => (
-            <div key={`${item.id}-${idx}`} className="flex gap-4">
-              <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                <img
-                  src={item.image || "/placeholder.jpg"}
-                  alt={item.title}
-                  className="h-full w-full object-cover object-center"
-                />
-              </div>
-              <div className="flex flex-1 flex-col">
-                <div>
-                  <div className="flex justify-between text-base font-medium text-gray-900">
-                    <h3
-                      className="line-clamp-1 text-sm pointer-events-none"
-                      title={item.title}
-                    >
-                      {item.title}
-                    </h3>
-                  </div>
-                  <p className="mt-1 text-xs text-gray-500 line-clamp-1">
-                    {item.category}
-                  </p>
+    {/* Items List - Compact Editorial Style */}
+    <div className="space-y-10 group">
+       <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400 border-b border-gray-50 pb-4">Selections ({cartItems.length})</h3>
+       <div className="max-h-[400px] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+          <div className="grid gap-12">
+             {cartItems.map((item, idx) => (
+                <div key={idx} className="flex gap-6 items-center group/item transition-all duration-500">
+                   <div className="w-16 h-20 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100 group-hover/item:border-gray-900 group-hover/item:scale-105 transition-all duration-700">
+                      <img src={item.image || "/placeholder.jpg"} alt={item.title} className="w-full h-full object-cover" />
+                   </div>
+                   <div className="flex-1 min-w-0">
+                      <h4 className="text-xs font-bold text-gray-900 uppercase tracking-widest truncate">{item.title}</h4>
+                      <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">Quantity: 0{item.quantity}</p>
+                      <p className="text-sm font-bold text-gray-900 mt-2">₹{((item.price || item.sellingPrice) * item.quantity).toLocaleString("en-IN")}</p>
+                   </div>
                 </div>
-                <div className="flex flex-1 items-end justify-between text-sm">
-                  <p className="text-gray-500">Qty {item.quantity}</p>
-                  <div className="flex font-medium text-gray-900">
-                    <BsCurrencyRupee className="text-sm mt-1" />
-                    {(
-                      (item.price || item.sellingPrice) * item.quantity
-                    )|0}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )}
+             ))}
+          </div>
+       </div>
+    </div>
   </div>
 );
