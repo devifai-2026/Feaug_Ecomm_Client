@@ -32,7 +32,7 @@ export const OrderSummary = ({
 
           <div className="flex justify-between items-end">
              <span className="text-sm font-medium text-gray-400 tracking-tight">Shipping & Handling</span>
-             <span className="text-xl font-bold text-gray-900 tabular-nums tracking-tighter">
+             <span className="text-sn  font-bold text-gray-900 tabular-nums tracking-tighter">
                {shippingCost > 0 ? `₹${shippingCost}` : "Complementary"}
              </span>
           </div>
