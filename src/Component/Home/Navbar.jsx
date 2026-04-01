@@ -52,7 +52,7 @@ const Navbar = () => {
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
   const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
   const [categories, setCategories] = useState([
-    { name: "All Jewelry", image: one, path: "/categories" },
+    { name: "All Jewellery", image: one, path: "/categories" },
   ]);
 
   // Carousel state
@@ -388,7 +388,7 @@ const Navbar = () => {
               path: "/categories",
             }));
           setCategories([
-            { name: "All Jewelry", image: one, path: "/categories" },
+            { name: "All Jewellery", image: one, path: "/categories" },
             ...fetchedCategories,
           ]);
         }
@@ -566,7 +566,7 @@ const Navbar = () => {
     // If it's "All Jewelry", just navigate to /categories
     // Otherwise, add the category name as a query parameter
     const path =
-      category.name === "All Jewelry"
+      category.name === "All Jewellery"
         ? "/categories"
         : `/categories?category=${encodeURIComponent(category.name)}`;
 
@@ -1238,19 +1238,19 @@ const Navbar = () => {
 
               {/* Carousel Content */}
               <div
-                className={`relative z-10 flex flex-col items-center justify-center text-center text-white min-h-[calc(100vh-4rem)] md:min-h-screen px-4 mx-auto ${
+                className={`relative z-10 flex flex-col items-center justify-center text-center text-white min-h-[calc(100vh-4rem)] md:min-h-screen max-w-[80%] mx-auto ${
                   index === currentSlide ? "translate-y-0" : "translate-y-10"
                 }`}
               >
                 {slide.title && (
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl  mb-2 md:mb-3 drop-shadow-lg uppercase leading-tight">
+                  <h1 className="text-2xl md:text-3xl lg:text-8xl mb-3 md:mb-6 drop-shadow-lg uppercase leading-tight font-semibold">
                     {slide.title}
                   </h1>
                 )}
                 {slide.subtitle && (
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl  mb-3 md:mb-4 drop-shadow-lg uppercase leading-tight">
+                  <h2 className="text-sm md:text-base lg:text-lg mb-4 md:mb-8 drop-shadow-md uppercase leading-tight font-medium">
                     {slide.subtitle}
-                  </h1>
+                  </h2>
                 )}
                 {slide.description && (
                   <p className="text-sm sm:text-base md:text-lg mb-4 md:mb-6 drop-shadow-md max-w-xs sm:max-w-sm md:max-w-xl px-2">

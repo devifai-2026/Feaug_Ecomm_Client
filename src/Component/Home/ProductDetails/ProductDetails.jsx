@@ -403,7 +403,7 @@ const ProductDetails = () => {
         const displayed = isLong && !showFullDesc ? raw.slice(0, LIMIT) + "..." : raw;
         return (
           <div className="prose max-w-none">
-            <p className="text-gray-600 leading-relaxed whitespace-pre-wrap max-w-[70vw] break-words">
+            <p className="text-gray-600 leading-relaxed whitespace-pre-wrap break-words w-full overflow-hidden">
               {displayed}
             </p>
             {isLong && (
@@ -938,7 +938,7 @@ const ProductDetails = () => {
 
               {/* Description */}
               <div>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-gray-600 text-sm leading-relaxed break-words overflow-hidden">
                   {(() => {
                     const raw = cleanDescription(product.description) || "";
                     const LIMIT = 200;

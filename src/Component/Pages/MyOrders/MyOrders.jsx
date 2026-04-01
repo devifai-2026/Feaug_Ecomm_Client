@@ -23,6 +23,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 import orderApi from "../../../apis/orderApi";
 import userApi from "../../../apis/user/userApi";
 
@@ -77,6 +78,7 @@ const MyOrders = () => {
         setLoading,
         onSuccess: (data) => {
           if (data.success && data.data) {
+            window.scrollTo(0, 0);
             const ordersData = data.data.orders || data.data || [];
 
             // Helper to get full image URL
@@ -334,25 +336,52 @@ const MyOrders = () => {
   };
 
   const handleCancelOrder = (orderId) => {
-    if (!window.confirm("Are you sure you want to cancel this order?")) return;
-
-    orderApi.cancelOrder({
-      orderId,
-      reason: "Customer requested cancellation",
-      onSuccess: (data) => {
-        if (data.success) {
-          toast.success("Order cancelled successfully");
-          // Update the order in state
-          setOrders((prev) =>
-            prev.map((o) =>
-              o.id === orderId ? { ...o, status: "cancelled" } : o,
-            ),
-          );
-        }
+    Swal.fire({
+      title: "Cancel Order?",
+      text: "Are you sure you want to cancel this order? This action cannot be reversed.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#C19A6B",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, cancel it",
+      cancelButtonText: "No, keep it",
+      background: "#fff",
+      color: "#1f2937",
+      customClass: {
+        title: "text-lg font-bold uppercase tracking-widest",
+        htmlContainer: "text-sm",
+        confirmButton: "px-6 py-2 bg-[#C19A6B] text-white text-[10px] font-bold uppercase tracking-widest mr-3",
+        cancelButton: "px-6 py-2 bg-white border border-gray-200 text-gray-400 text-[10px] font-bold uppercase tracking-widest"
       },
-      onError: (err) => {
-        toast.error(err.message || "Failed to cancel order");
-      },
+      buttonsStyling: false
+    }).then((result) => {
+      if (result.isConfirmed) {
+        orderApi.cancelOrder({
+          orderId,
+          reason: "Customer requested cancellation",
+          onSuccess: (data) => {
+            if (data.success) {
+              Swal.fire({
+                title: "Cancelled!",
+                text: "Your order has been successfully cancelled.",
+                icon: "success",
+                confirmButtonColor: "#C19A6B",
+                showConfirmButton: false,
+                timer: 2000
+              });
+              // Update the order in state
+              setOrders((prev) =>
+                prev.map((o) =>
+                  o.id === orderId ? { ...o, status: "cancelled" } : o,
+                ),
+              );
+            }
+          },
+          onError: (err) => {
+            toast.error(err.message || "Failed to cancel order");
+          },
+        });
+      }
     });
   };
 
@@ -421,19 +450,21 @@ const MyOrders = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="bg-white border border-gray-100 rounded-lg p-5 hover:border-[#C19A6B]/30 transition-colors duration-200"
+              className="bg-white/70 backdrop-blur-md border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 group"
             >
-              <div className="flex items-center gap-3">
-                <div className="text-lg">{stat.icon}</div>
+              <div className="flex flex-col gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#C19A6B]/10 flex items-center justify-center text-lg group-hover:bg-[#C19A6B] group-hover:text-white transition-colors duration-300">
+                  {stat.icon}
+                </div>
                 <div>
-                  <div className="text-xl md:text-2xl font-semibold text-gray-900">
+                  <div className="text-2xl md:text-3xl font-medium text-gray-900 leading-none mb-1">
                     {stat.value}
                   </div>
-                  <div className="text-xs text-gray-400 uppercase tracking-wider">
+                  <div className="text-[10px] text-gray-400 uppercase tracking-[0.1em] font-semibold">
                     {stat.label}
                   </div>
                 </div>
@@ -443,17 +474,17 @@ const MyOrders = () => {
         </div>
 
         {/* Search and Filters */}
-        <div className="border border-gray-100 rounded-lg p-4 md:p-5 mb-6">
+        <div className="bg-white/60 backdrop-blur-sm border border-gray-100 rounded-2xl p-5 mb-8 shadow-sm">
           {/* Search Bar */}
-          <div className="mb-4">
-            <div className="relative">
-              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-300 text-sm" />
+          <div className="mb-6">
+            <div className="relative group">
+              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-300 text-sm group-focus-within:text-[#C19A6B] transition-colors" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by order number or product name..."
-                className="w-full pl-11 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-1 focus:ring-[#C19A6B] focus:border-[#C19A6B] transition-colors"
+                className="w-full pl-11 pr-4 py-3 bg-white/80 border border-gray-100 rounded-xl text-sm text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#C19A6B]/20 focus:border-[#C19A6B] transition-all"
               />
             </div>
           </div>
@@ -462,19 +493,19 @@ const MyOrders = () => {
           <div className="md:hidden mb-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="w-full flex items-center justify-between p-3 border border-gray-100 rounded-lg"
+              className="w-full flex items-center justify-between p-3.5 bg-white border border-gray-100 rounded-xl"
             >
               <div className="flex items-center gap-2">
                 <FaFilter className="text-[#C19A6B] text-xs" />
                 <span className="text-sm font-medium text-gray-600">Filters</span>
               </div>
               <FaChevronDown
-                className={`text-gray-400 text-xs transform transition-transform ${showFilters ? "rotate-180" : ""}`}
+                className={`text-gray-400 text-xs transform transition-transform duration-300 ${showFilters ? "rotate-180" : ""}`}
               />
             </button>
 
             {showFilters && (
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-3 flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-2">
                 {filters.map((filter) => (
                   <button
                     key={filter.key}
@@ -482,13 +513,13 @@ const MyOrders = () => {
                       setActiveFilter(filter.key);
                       setShowFilters(false);
                     }}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors duration-200 ${
+                    className={`px-4 py-2 rounded-full text-xs font-semibold transition-all duration-300 ${
                       activeFilter === filter.key
-                        ? "bg-[#C19A6B] text-white"
-                        : "bg-white text-gray-500 border border-gray-200 hover:border-[#C19A6B]/40 hover:text-[#C19A6B]"
+                        ? "bg-[#C19A6B] text-white shadow-lg shadow-[#C19A6B]/20 scale-105"
+                        : "bg-white text-gray-500 border border-gray-100 hover:border-[#C19A6B]/40 hover:text-[#C19A6B]"
                     }`}
                   >
-                    {filter.label} ({filter.count})
+                    {filter.label} <span className="opacity-60">({filter.count})</span>
                   </button>
                 ))}
               </div>
@@ -496,18 +527,18 @@ const MyOrders = () => {
           </div>
 
           {/* Desktop Filter Buttons */}
-          <div className="hidden md:flex flex-wrap gap-2">
+          <div className="hidden md:flex flex-wrap gap-3">
             {filters.map((filter) => (
               <button
                 key={filter.key}
                 onClick={() => setActiveFilter(filter.key)}
-                className={`px-4 py-1.5 rounded-full text-xs font-medium tracking-wide transition-colors duration-200 ${
+                className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 ${
                   activeFilter === filter.key
-                    ? "bg-[#C19A6B] text-white"
-                    : "bg-white text-gray-500 border border-gray-200 hover:border-[#C19A6B]/40 hover:text-[#C19A6B]"
+                    ? "bg-[#C19A6B] text-white shadow-lg shadow-[#C19A6B]/20 scale-105"
+                    : "bg-white text-gray-500 border border-gray-100 hover:border-[#C19A6B]/40 hover:text-[#C19A6B] hover:shadow-sm"
                 }`}
               >
-                {filter.label} ({filter.count})
+                {filter.label} <span className="opacity-60 ml-1">({filter.count})</span>
               </button>
             ))}
           </div>
@@ -539,7 +570,7 @@ const MyOrders = () => {
             filteredOrders.map((order) => (
               <div
                 key={order.id}
-                className="bg-white border border-gray-100 rounded-lg overflow-hidden"
+                className="bg-white/80 backdrop-blur-lg border border-gray-100 rounded-2xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md"
               >
                 {/* Order Header */}
                 <div
@@ -729,7 +760,7 @@ const MyOrders = () => {
         </div>
 
         {/* Desktop Orders Table */}
-        <div className="hidden md:block border border-gray-100 rounded-lg overflow-hidden">
+        <div className="hidden md:block bg-white/70 backdrop-blur-md border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
           {filteredOrders.length === 0 ? (
             <div className="p-14 text-center">
               <FaBoxOpen className="text-3xl text-gray-200 mx-auto mb-4" />
@@ -853,13 +884,6 @@ const MyOrders = () => {
 
                           {order.status === "delivered" && (
                             <>
-                              {/* <button
-                                onClick={() => handleReorder(order)}
-                                className="flex items-center gap-1.5 px-3 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors duration-200"
-                              >
-                                <FaRedo className="text-[10px]" />
-                                Reorder
-                              </button> */}
                               <button
                                 onClick={() =>
                                   handleWriteReview(order.items[0]?.id)
