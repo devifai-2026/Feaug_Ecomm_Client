@@ -211,7 +211,7 @@ const ForgotPassword = () => {
     setIsLoading(true);
 
     try {
-      const response = await userApi.verifyOtp({ otp: formData.otp, email: formData.email });
+      const response = await userApi.verifyResetOtp({ otp: formData.otp, email: formData.email });
 
       if (
         response.status === "success" ||
@@ -303,7 +303,8 @@ const ForgotPassword = () => {
     try {
       // Call reset password API
       const response = await userApi.resetPassword({
-        token: formData.otp,
+        email: formData.email,
+        otp: formData.otp,
         password: formData.newPassword,
       });
 
@@ -321,9 +322,9 @@ const ForgotPassword = () => {
         });
 
         // Redirect to login page after 2 seconds
-        // setTimeout(() => {
-        //   navigate("/login");
-        // }, 2000);
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
       } else {
         toast.error(response.message || "Password reset failed");
       }

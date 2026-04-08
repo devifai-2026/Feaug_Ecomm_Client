@@ -184,9 +184,11 @@ const userApi = {
   // Reset Password with token
   resetPassword: async (resetData) => {
     try {
-      const response = await axiosInstance.patch(
+      const response = await axiosInstance.post(
         `/auth/reset-password`,
         {
+          email: resetData.email,
+          otp: resetData.otp,
           password: resetData.password,
         },
       );
@@ -220,6 +222,16 @@ const userApi = {
     try {
       const { otp, email } = data;
       const response = await axiosInstance.post("/auth/verify-otp", { otp, email });
+      return response.data;
+    } catch (error) {
+      return handleApiError(error, "Failed to verify OTP");
+    }
+  },
+
+  verifyResetOtp: async (data) => {
+    try {
+      const { otp, email } = data;
+      const response = await axiosInstance.post("/auth/verify-reset-otp", { otp, email });
       return response.data;
     } catch (error) {
       return handleApiError(error, "Failed to verify OTP");
