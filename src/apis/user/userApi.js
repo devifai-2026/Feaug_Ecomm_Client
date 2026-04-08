@@ -216,9 +216,10 @@ const userApi = {
     }
   },
 
-  verifyOtp: async (otp) => {
+  verifyOtp: async (data) => {
     try {
-      const response = await axiosInstance.post("/auth/verify-otp", { otp });
+      const { otp, email } = data;
+      const response = await axiosInstance.post("/auth/verify-otp", { otp, email });
       return response.data;
     } catch (error) {
       return handleApiError(error, "Failed to verify OTP");

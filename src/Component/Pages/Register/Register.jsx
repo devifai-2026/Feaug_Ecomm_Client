@@ -275,7 +275,8 @@ const Register = () => {
 
   const handleVerifyOtpAndRegister = async (e) => {
     e.preventDefault();
-
+    console.log("formata",formData);
+    
     const otpError = validateOtp(formData.otp);
     if (otpError) {
       setErrors((prev) => ({ ...prev, otp: otpError }));
@@ -286,7 +287,7 @@ const Register = () => {
 
     setIsLoading(true);
     try {
-      const verifyResponse = await userApi.verifyOtp(formData.otp);
+      const verifyResponse = await userApi.verifyOtp({ otp: formData.otp, email: formData.email });
 
       if (
         verifyResponse.status === "success" ||
