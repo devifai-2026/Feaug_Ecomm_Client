@@ -133,6 +133,16 @@ const ShippingComponent = ({
     setIsEditing(false);
   };
 
+  const isFormValid = () => {
+    const requiredFields = ["firstName", "lastName", "email", "phone", "address", "city", "state", "zipCode"];
+    return requiredFields.every(field => {
+      const value = data[field];
+      if (!value || value.trim() === "") return false;
+      const error = validateShippingField(field, value, data);
+      return !error;
+    });
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6">
       <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-8">
@@ -233,7 +243,7 @@ const ShippingComponent = ({
 
           <div className="flex flex-col sm:flex-row items-center justify-end gap-6 pt-12 border-t border-gray-200/50">
             <button onClick={handleCancel} className="w-full sm:w-auto px-10 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-400 border border-gray-100 hover:border-gray-900 hover:text-gray-900 transition-all">Cancel Entry</button>
-            <button onClick={handleSaveAddress} disabled={loading} className="w-full sm:w-auto px-12 py-4 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-[#C19A6B] transition-all shadow-xl flex items-center justify-center gap-3">
+            <button onClick={handleSaveAddress} disabled={loading || !isFormValid()} className="w-full sm:w-auto px-12 py-4 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-[#C19A6B] transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-900">
                {loading && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
                {isEditing ? "Refine Address" : "Save Destination"}
             </button>

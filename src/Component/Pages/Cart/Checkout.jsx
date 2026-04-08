@@ -251,7 +251,7 @@ const Checkout = () => {
     const newErrors = {};
     const newTouched = {};
     if (currentStep === 1) {
-      ["firstName", "lastName", "email", "phone"].forEach((field) => {
+      ["firstName", "lastName", "email", "phone", "address", "city", "state", "zipCode"].forEach((field) => {
         newTouched[field] = true;
         const error = validateShippingField(field, shippingInfo[field], shippingInfo);
         if (error) { newErrors[field] = error; isValid = false; }
@@ -300,7 +300,31 @@ const Checkout = () => {
       }
       setStep(step + 1);
       window.scrollTo(0, 0);
-    } else toast.error("Please fix errors before continuing");
+    } else {
+      const requiredFields = step === 1 
+        ? ["firstName", "lastName", "email", "phone", "address", "city", "state", "zipCode"]
+        : !sameAsShipping ? ["firstName", "lastName", "address", "city", "state", "zipCode"] : [];
+      
+      const dataToCheck = step === 1 ? shippingInfo : billingInfo;
+      const missingFields = requiredFields.filter(field => !dataToCheck[field] || dataToCheck[field].trim() === "");
+      
+      if (missingFields.length > 0) {
+        const fieldLabels = {
+          firstName: "First Name",
+          lastName: "Last Name",
+          email: "Email",
+          phone: "Phone",
+          address: "Address",
+          city: "City",
+          state: "State",
+          zipCode: "Pincode"
+        };
+        const missingLabels = missingFields.map(f => fieldLabels[f]).join(", ");
+        toast.error(`Please fill in: ${missingLabels}`);
+      } else {
+        toast.error("Please fix all errors before continuing");
+      }
+    }
   };
 
   const handlePrevStep = () => { if (step > 1) { setStep(step - 1); window.scrollTo(0, 0); } };
