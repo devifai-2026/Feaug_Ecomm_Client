@@ -132,7 +132,7 @@ const Contact = () => {
                                 Follow Us
                             </p>
                             <div className="flex items-center gap-5">
-                                <a href="#" className="text-gray-400 hover:text-[#C19A6B] transition-colors duration-300">
+                                <a href="https://www.instagram.com/feauag.official/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#C19A6B] transition-colors duration-300">
                                     <FaInstagram className="w-5 h-5" />
                                 </a>
                                 <a href="#" className="text-gray-400 hover:text-[#C19A6B] transition-colors duration-300">

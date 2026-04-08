@@ -254,7 +254,7 @@ const ReturnPolicy = () => {
 
             {/* CTA Button */}
             <button 
-              onClick={() => window.location.href = '/help-center'}
+              onClick={() => window.location.href = '/helpCenter'}
               className="w-full py-3 font-medium rounded-lg hover:opacity-90 transition-colors flex items-center justify-center gap-2"
               style={{ 
                 backgroundColor: primaryColor,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaClock, FaCheck } from 'react-icons/fa';
-import { apiCall } from '../../../helpers/apicall/apiCall';
 import toast from 'react-hot-toast';
+import contactSupportApi from '../../../apis/contactSupportApi';
 
 const HelpCenter = () => {
   const [formData, setFormData] = useState({
@@ -51,9 +51,8 @@ const HelpCenter = () => {
       toast.error('Please fill in all fields');
       return;
     }
-    apiCall.post({
-      route: '/support-tickets',
-      payload: formData,
+    contactSupportApi.submitContactForm({
+      data: formData,
       setLoading: setSubmitting,
       onSuccess: () => {
         toast.success('Message sent! We\'ll get back to you within 24 hours.');
