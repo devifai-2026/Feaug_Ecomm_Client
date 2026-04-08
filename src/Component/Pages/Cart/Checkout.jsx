@@ -24,26 +24,6 @@ import {
   validatePaymentField,
 } from "../../utils/Validation";
 
-const SHIPPING_OPTIONS = [
-  {
-    id: "standard",
-    name: "Standard Shipping",
-    cost: 0,
-    days: "5-7 business days",
-  },
-  {
-    id: "express",
-    name: "Express Shipping",
-    cost: 150,
-    days: "2-3 business days",
-  },
-  {
-    id: "nextDay",
-    name: "Next Day Delivery",
-    cost: 300,
-    days: "1 business day",
-  },
-];
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -56,8 +36,8 @@ const Checkout = () => {
   const [stockChecking, setStockChecking] = useState(false);
   const [sameAsShipping, setSameAsShipping] = useState(true);
   const [saveInfo, setSaveInfo] = useState(false);
-  const [selectedShipping, setSelectedShipping] = useState("standard");
   const [userAddresses, setUserAddresses] = useState([]);
+  const [settings, setSettings] = useState({ gstRate: 3 });
 
   // Scroll to top on step change
   useEffect(() => {
@@ -110,8 +90,12 @@ const Checkout = () => {
       setLoading(true);
       try {
         const response = await userApi.getCurrentUser();
+        
         if (response.status === "success" && response.data) {
           const user = response.data.user || response.data;
+          if (response.data.settings) {
+            setSettings(response.data.settings);
+          }
           await fetchPaginatedAddresses(1);
           const defaultAddr = user.addresses?.find((a) => a.isDefault) || user.addresses?.[0];
           setShippingInfo((prev) => ({
@@ -212,8 +196,15 @@ const Checkout = () => {
   }, 0);
 
   const subtotal = getSubtotal();
-  const selectedShippingOption = SHIPPING_OPTIONS.find((opt) => opt.id === selectedShipping);
-  const shippingCost = selectedShippingOption?.cost || 0;
+
+  const shippingCost = useMemo(() => {
+    const pincode = shippingInfo.zipCode?.replace(/\D/g, '');
+    if (!pincode || !settings) return 0;
+    if (settings.freeShippingThreshold && subtotal >= settings.freeShippingThreshold) return 0;
+    const isMetro = settings.metroPincodes?.includes(pincode);
+    return isMetro ? (settings.metroShippingCharge || 0) : (settings.standardShippingCharge || 0);
+  }, [shippingInfo.zipCode, settings, subtotal]);
+
 
   const discountAmount = useMemo(() => {
     if (!appliedPromo) return 0;
@@ -223,7 +214,7 @@ const Checkout = () => {
   }, [appliedPromo, subtotal]);
 
   const discountedSubtotal = Math.max(0, subtotal - discountAmount);
-  const tax = Math.round(discountedSubtotal * 0.03); 
+  const tax = Math.round(discountedSubtotal * (settings.gstRate / 100));
   const total = discountedSubtotal + shippingCost + tax;
 
   useEffect(() => {
@@ -246,7 +237,7 @@ const Checkout = () => {
     const newErrors = {};
     const newTouched = {};
     if (currentStep === 1) {
-      ["firstName", "lastName", "email", "phone"].forEach((field) => {
+      ["firstName", "lastName", "email", "phone", "address", "city", "state", "zipCode"].forEach((field) => {
         newTouched[field] = true;
         const error = validateShippingField(field, shippingInfo[field], shippingInfo);
         if (error) { newErrors[field] = error; isValid = false; }
@@ -295,7 +286,31 @@ const Checkout = () => {
       }
       setStep(step + 1);
       window.scrollTo(0, 0);
-    } else toast.error("Please fix errors before continuing");
+    } else {
+      const requiredFields = step === 1 
+        ? ["firstName", "lastName", "email", "phone", "address", "city", "state", "zipCode"]
+        : !sameAsShipping ? ["firstName", "lastName", "address", "city", "state", "zipCode"] : [];
+      
+      const dataToCheck = step === 1 ? shippingInfo : billingInfo;
+      const missingFields = requiredFields.filter(field => !dataToCheck[field] || dataToCheck[field].trim() === "");
+      
+      if (missingFields.length > 0) {
+        const fieldLabels = {
+          firstName: "First Name",
+          lastName: "Last Name",
+          email: "Email",
+          phone: "Phone",
+          address: "Address",
+          city: "City",
+          state: "State",
+          zipCode: "Pincode"
+        };
+        const missingLabels = missingFields.map(f => fieldLabels[f]).join(", ");
+        toast.error(`Please fill in: ${missingLabels}`);
+      } else {
+        toast.error("Please fix all errors before continuing");
+      }
+    }
   };
 
   const handlePrevStep = () => { if (step > 1) { setStep(step - 1); window.scrollTo(0, 0); } };
@@ -367,7 +382,7 @@ const Checkout = () => {
       const orderData = {
         shippingAddressId: finalShippingId,
         billingAddressId: billingInfo._id || billingInfo.id || finalShippingId,
-        shippingMethod: selectedShipping,
+        shippingMethod: "standard",
         paymentMethod: "razorpay",
         promoCode: appliedPromo?.code,
       };
@@ -484,7 +499,6 @@ const Checkout = () => {
                 <ReviewComponent
                   shippingInfo={shippingInfo} billingInfo={billingInfo}
                   paymentInfo={paymentInfo} cartItems={cartItems}
-                  selectedShippingOption={selectedShippingOption}
                   subtotal={subtotal} shippingCost={shippingCost}
                   tax={tax} total={total}
                   discountAmount={discountAmount} appliedPromo={appliedPromo}
@@ -529,8 +543,7 @@ const Checkout = () => {
               cartItems={cartItems} subtotal={subtotal}
               shippingCost={shippingCost} tax={tax} total={total}
               discountAmount={discountAmount} appliedPromo={appliedPromo}
-              selectedShipping={selectedShipping} setSelectedShipping={setSelectedShipping}
-              shippingOptions={SHIPPING_OPTIONS}
+              settings={settings} pincode={shippingInfo.zipCode}
             />
           </div>
         </div>

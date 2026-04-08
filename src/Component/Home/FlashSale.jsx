@@ -65,9 +65,12 @@ const FlashSale = () => {
     };
 
     const handleViewProduct = () => {
-        if (sale?.productLink) {
-            navigate(sale.productLink);
-        }
+        console.log({sale});
+        navigate('/categories');
+        
+        // if (sale?.productLink) {
+        //     navigate(sale.productLink);
+        // }
     };
 
     const handleCopyPromoCode = () => {

@@ -211,7 +211,7 @@ const ForgotPassword = () => {
     setIsLoading(true);
 
     try {
-      const response = await userApi.verifyOtp(formData.otp);
+      const response = await userApi.verifyResetOtp({ otp: formData.otp, email: formData.email });
 
       if (
         response.status === "success" ||
@@ -303,7 +303,8 @@ const ForgotPassword = () => {
     try {
       // Call reset password API
       const response = await userApi.resetPassword({
-        token: formData.otp,
+        email: formData.email,
+        otp: formData.otp,
         password: formData.newPassword,
       });
 

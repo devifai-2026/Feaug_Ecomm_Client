@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaYoutube } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import toast from 'react-hot-toast';
+import contactSupportApi from '../../apis/contactSupportApi';
 
 const Contact = () => {
     const [loading, setLoading] = useState(false);
@@ -21,12 +22,10 @@ const Contact = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
 
         // Validate form data
         if (!formData.name || !formData.email || !formData.message) {
             toast.error('Please fill in all fields');
-            setLoading(false);
             return;
         }
 
@@ -34,106 +33,26 @@ const Contact = () => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
             toast.error('Please enter a valid email address');
-            setLoading(false);
             return;
         }
 
-        // IMPORTANT: Replace with your NEW API key from Brevo (API Keys section, not SMTP)
-        const apiKey = import.meta.env.VITE_BREVO_API_KEY;
-
-        // IMPORTANT: Replace these with your actual emails
-        const verifiedSenderEmail = "bikrambiswas912@gmail.com"; // Must be verified in Brevo
-        const yourEmail = "bikrambiswas912@gmail.com"; // Where you want to receive emails
-
-        // Email data
-        const emailData = {
-            sender: {
-                name: "Axels Jewelry Contact Form",
-                email: verifiedSenderEmail
-            },
-            to: [{
-                email: yourEmail,
-                name: "Axels Jewelry Admin"
-            }],
-            replyTo: {
-                email: formData.email,
-                name: formData.name
-            },
-            subject: `New Contact Form Message from ${formData.name}`,
-            htmlContent: `
-                <html>
-                    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0;">
-                        <div style="max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                            <div style="background: #C19A6B; padding: 30px 20px; text-align: center;">
-                                <h1 style="color: white; margin: 0; font-size: 28px;">AXELS JEWELRY</h1>
-                                <p style="color: white; margin: 10px 0 0;">New Contact Form Submission</p>
-                            </div>
-                            <div style="padding: 40px 30px;">
-                                <div style="margin-bottom: 30px;">
-                                    <h3 style="color: #C19A6B; border-bottom: 2px solid #C19A6B; padding-bottom: 10px;">Sender Information</h3>
-                                    <p><strong>Name:</strong> ${formData.name}</p>
-                                    <p><strong>Email:</strong> ${formData.email}</p>
-                                </div>
-                                <div>
-                                    <h3 style="color: #C19A6B; border-bottom: 2px solid #C19A6B; padding-bottom: 10px;">Message</h3>
-                                    <div style="background: #f9f9f9; padding: 20px; border-radius: 5px;">
-                                        ${formData.message.replace(/\n/g, '<br>')}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </body>
-                </html>
-            `
-        };
-
-        try {
-            console.log('Sending email with data:', {
-                sender: emailData.sender.email,
-                to: emailData.to[0].email,
-                apiKeyLength: apiKey.length
-            });
-
-            const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/json',
-                    'api-key': apiKey.trim(), // Remove any accidental whitespace
-                    'content-type': 'application/json'
-                },
-                body: JSON.stringify(emailData)
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                console.log('Email sent successfully:', data);
+        // Call backend API to send email
+        contactSupportApi.submitContactForm({
+            data: formData,
+            setLoading,
+            onSuccess: (response) => {
                 toast.success('Message sent successfully! We\'ll get back to you soon.', {
                     duration: 5000,
                     icon: '✨',
                     style: { background: '#C19A6B', color: '#fff' },
                 });
                 setFormData({ name: '', email: '', message: '' });
-            } else {
-                console.error('Brevo API error:', data);
-
-                // More specific error messages
-                if (data.code === 'unauthorized') {
-                    toast.error('API key error. Please check your Brevo API key.');
-                    console.error('Make sure you are using an API key (from API Keys section), not an SMTP key');
-                } else if (data.message && data.message.includes('sender')) {
-                    toast.error('Sender email not verified. Please verify your email in Brevo.');
-                } else {
-                    toast.error(`Error: ${data.message || 'Failed to send email'}`);
-                }
-            }
-
-        } catch (error) {
-            console.error('Network error:', error);
-            toast.error('Failed to send message. Please check your internet connection.');
-        } finally {
-            setLoading(false);
-        }
+            },
+            onError: (error) => {
+                console.error('Error sending message:', error);
+                toast.error(`Error: ${error?.message || 'Failed to send message'}`);
+            },
+        });
     };
 
     return (
@@ -213,7 +132,7 @@ const Contact = () => {
                                 Follow Us
                             </p>
                             <div className="flex items-center gap-5">
-                                <a href="#" className="text-gray-400 hover:text-[#C19A6B] transition-colors duration-300">
+                                <a href="https://www.instagram.com/feauag.official/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#C19A6B] transition-colors duration-300">
                                     <FaInstagram className="w-5 h-5" />
                                 </a>
                                 <a href="#" className="text-gray-400 hover:text-[#C19A6B] transition-colors duration-300">

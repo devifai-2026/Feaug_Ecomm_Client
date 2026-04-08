@@ -431,7 +431,7 @@ const Cart = () => {
                                   )}
                                   {promo.applicableCategory && (
                                     <span className="text-[10px] text-gray-400">
-                                      {promo.minimumPurchase > 0 && " · "}Valid on {promo.applicableCategoryName || promo.applicableCategory}
+                                      {promo.minimumPurchase > 0 && " · "}Valid on {promo.applicableCategoryName || (typeof promo.applicableCategory === 'object' ? promo.applicableCategory?.name : promo.applicableCategory)}
                                     </span>
                                   )}
                                   {promo.firstTimeOnly && (
