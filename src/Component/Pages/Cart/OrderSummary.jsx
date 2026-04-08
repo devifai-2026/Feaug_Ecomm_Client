@@ -9,7 +9,14 @@ export const OrderSummary = ({
   discountAmount = 0,
   cartItems = [],
   appliedPromo,
-}) => (
+  settings,
+  pincode,
+}) => {
+  const cleanPincode = pincode?.replace(/\D/g, '');
+  const isMetro = settings?.metroPincodes?.includes(cleanPincode);
+  const isFreeShipping = settings?.freeShippingThreshold && subtotal >= settings.freeShippingThreshold;
+
+  return (
   <div className="space-y-12 animate-in fade-in slide-in-from-bottom-6">
     {/* The Receipt Card */}
     <div className="bg-gray-50/50 rounded-3xl p-10 border border-gray-100 shadow-2xl shadow-black/5 group">
@@ -31,9 +38,16 @@ export const OrderSummary = ({
           )}
 
           <div className="flex justify-between items-end">
-             <span className="text-sm font-medium text-gray-400 tracking-tight">Shipping & Handling</span>
+             <div className="flex flex-col">
+               <span className="text-sm font-medium text-gray-400 tracking-tight">Shipping & Handling</span>
+               {cleanPincode && (
+                 <span className="text-[9px] font-bold uppercase tracking-widest text-gray-300 mt-1">
+                   {isFreeShipping ? "Free Shipping" : isMetro ? "Metro Delivery" : "Standard Delivery"}
+                 </span>
+               )}
+             </div>
              <span className="text-xl font-bold text-gray-900 tabular-nums tracking-tighter">
-               {shippingCost > 0 ? `₹${shippingCost}` : "Complementary"}
+               {isFreeShipping ? <span className="text-green-600">Free</span> : shippingCost > 0 ? `₹${shippingCost.toLocaleString("en-IN")}` : "Complementary"}
              </span>
           </div>
 
@@ -78,4 +92,5 @@ export const OrderSummary = ({
        </div>
     </div>
   </div>
-);
+  );
+};

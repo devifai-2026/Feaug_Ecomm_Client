@@ -24,26 +24,6 @@ import {
   validatePaymentField,
 } from "../../utils/Validation";
 
-const SHIPPING_OPTIONS = [
-  {
-    id: "standard",
-    name: "Standard Shipping",
-    cost: 0,
-    days: "5-7 business days",
-  },
-  {
-    id: "express",
-    name: "Express Shipping",
-    cost: 150,
-    days: "2-3 business days",
-  },
-  {
-    id: "nextDay",
-    name: "Next Day Delivery",
-    cost: 300,
-    days: "1 business day",
-  },
-];
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -56,7 +36,6 @@ const Checkout = () => {
   const [stockChecking, setStockChecking] = useState(false);
   const [sameAsShipping, setSameAsShipping] = useState(true);
   const [saveInfo, setSaveInfo] = useState(false);
-  const [selectedShipping, setSelectedShipping] = useState("standard");
   const [userAddresses, setUserAddresses] = useState([]);
   const [settings, setSettings] = useState({ gstRate: 3 });
 
@@ -217,8 +196,15 @@ const Checkout = () => {
   }, 0);
 
   const subtotal = getSubtotal();
-  const selectedShippingOption = SHIPPING_OPTIONS.find((opt) => opt.id === selectedShipping);
-  const shippingCost = selectedShippingOption?.cost || 0;
+
+  const shippingCost = useMemo(() => {
+    const pincode = shippingInfo.zipCode?.replace(/\D/g, '');
+    if (!pincode || !settings) return 0;
+    if (settings.freeShippingThreshold && subtotal >= settings.freeShippingThreshold) return 0;
+    const isMetro = settings.metroPincodes?.includes(pincode);
+    return isMetro ? (settings.metroShippingCharge || 0) : (settings.standardShippingCharge || 0);
+  }, [shippingInfo.zipCode, settings, subtotal]);
+
 
   const discountAmount = useMemo(() => {
     if (!appliedPromo) return 0;
@@ -396,7 +382,7 @@ const Checkout = () => {
       const orderData = {
         shippingAddressId: finalShippingId,
         billingAddressId: billingInfo._id || billingInfo.id || finalShippingId,
-        shippingMethod: selectedShipping,
+        shippingMethod: "standard",
         paymentMethod: "razorpay",
         promoCode: appliedPromo?.code,
       };
@@ -513,7 +499,6 @@ const Checkout = () => {
                 <ReviewComponent
                   shippingInfo={shippingInfo} billingInfo={billingInfo}
                   paymentInfo={paymentInfo} cartItems={cartItems}
-                  selectedShippingOption={selectedShippingOption}
                   subtotal={subtotal} shippingCost={shippingCost}
                   tax={tax} total={total}
                   discountAmount={discountAmount} appliedPromo={appliedPromo}
@@ -558,8 +543,7 @@ const Checkout = () => {
               cartItems={cartItems} subtotal={subtotal}
               shippingCost={shippingCost} tax={tax} total={total}
               discountAmount={discountAmount} appliedPromo={appliedPromo}
-              selectedShipping={selectedShipping} setSelectedShipping={setSelectedShipping}
-              shippingOptions={SHIPPING_OPTIONS}
+              settings={settings} pincode={shippingInfo.zipCode}
             />
           </div>
         </div>
