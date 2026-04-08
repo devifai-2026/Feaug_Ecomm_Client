@@ -185,7 +185,7 @@ const userApi = {
   resetPassword: async (resetData) => {
     try {
       const response = await axiosInstance.patch(
-        `/auth/reset-password/${resetData.token}`,
+        `/auth/reset-password`,
         {
           password: resetData.password,
         },

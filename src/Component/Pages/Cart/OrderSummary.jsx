@@ -38,7 +38,7 @@ export const OrderSummary = ({
           </div>
 
           <div className="flex justify-between items-end pb-12 border-b border-dashed border-gray-200">
-             <span className="text-sm font-medium text-gray-400 tracking-tight">GST (3%)</span>
+             <span className="text-sm font-medium text-gray-400 tracking-tight">GST</span>
              <span className="text-xl font-bold text-gray-900 tabular-nums tracking-tighter">₹{tax.toLocaleString("en-IN")}</span>
           </div>
 

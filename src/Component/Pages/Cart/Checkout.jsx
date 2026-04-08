@@ -58,6 +58,7 @@ const Checkout = () => {
   const [saveInfo, setSaveInfo] = useState(false);
   const [selectedShipping, setSelectedShipping] = useState("standard");
   const [userAddresses, setUserAddresses] = useState([]);
+  const [settings, setSettings] = useState({ gstRate: 3 });
 
   // Scroll to top on step change
   useEffect(() => {
@@ -110,8 +111,13 @@ const Checkout = () => {
       setLoading(true);
       try {
         const response = await userApi.getCurrentUser();
+        console.log(response,"atanume");
+        
         if (response.status === "success" && response.data) {
           const user = response.data.user || response.data;
+          if (response.data.settings) {
+            setSettings(response.data.settings);
+          }
           await fetchPaginatedAddresses(1);
           const defaultAddr = user.addresses?.find((a) => a.isDefault) || user.addresses?.[0];
           setShippingInfo((prev) => ({
@@ -223,7 +229,7 @@ const Checkout = () => {
   }, [appliedPromo, subtotal]);
 
   const discountedSubtotal = Math.max(0, subtotal - discountAmount);
-  const tax = Math.round(discountedSubtotal * 0.03); 
+  const tax = Math.round(discountedSubtotal * (settings.gstRate / 100));
   const total = discountedSubtotal + shippingCost + tax;
 
   useEffect(() => {

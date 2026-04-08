@@ -50,8 +50,9 @@ axiosInstance.interceptors.response.use(
   (error) => {
     // Handle errors globally
     const isLoginRequest = error.config?.url?.includes("/auth/login");
+    const isPasswordReset = error.config?.url?.includes("/auth/reset-password") || error.config?.url?.includes("/auth/forgot-password");
 
-    if (error.response?.status === 401 && !isLoginRequest) {
+    if (error.response?.status === 401 && !isLoginRequest && !isPasswordReset) {
       // Clear user data and redirect to login only if it's NOT a login request
       localStorage.removeItem("user");
       localStorage.removeItem("token");
