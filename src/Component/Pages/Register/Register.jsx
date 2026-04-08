@@ -275,7 +275,6 @@ const Register = () => {
 
   const handleVerifyOtpAndRegister = async (e) => {
     e.preventDefault();
-    console.log("formata",formData);
     
     const otpError = validateOtp(formData.otp);
     if (otpError) {

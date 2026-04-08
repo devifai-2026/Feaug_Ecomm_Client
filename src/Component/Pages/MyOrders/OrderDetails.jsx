@@ -141,7 +141,6 @@ const OrderDetails = () => {
             estimatedDelivery: orderData.estimatedDelivery || null,
             deliveredAt: orderData.deliveredAt || null,
           };
-          console.log({transformedOrder});
           
           setOrder(transformedOrder);
         } else {

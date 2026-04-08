@@ -111,7 +111,6 @@ const Checkout = () => {
       setLoading(true);
       try {
         const response = await userApi.getCurrentUser();
-        console.log(response,"atanume");
         
         if (response.status === "success" && response.data) {
           const user = response.data.user || response.data;
